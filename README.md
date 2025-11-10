@@ -56,7 +56,7 @@ CampusConnect sets a high bar for campus engagement, combining robust technology
 2. **Clone the Repository**
    ```bash
    npm install
-(Do this separately in /client and /server if using a monorepo structure)
+**(Do this separately in /client and /server if using a monorepo structure)**
 
 3. **Setup Environment Variables**
 Create a .env file in both client and server directories:
@@ -69,24 +69,21 @@ Create a .env file in both client and server directories:
 ---
 
 🤝 Contributing as a Collaborator
-
 If someone adds you as a collaborator to the CampusConnect repository, you gain direct write access.
 This means you can:
 
-Clone and push changes directly to branches.
+   - Clone and push changes directly to branches.
+   - Create and merge pull requests (depending on repo rules).
+   - Review and comment on code.
+   - Open, close, and manage issues.
 
-Create and merge pull requests (depending on repo rules).
-
-Review and comment on code.
-
-Open, close, and manage issues.
 
 ---
 
 ## 🔄 Contribution Flow
 
 1. **Accept the Invite**
-Check your email or GitHub notifications → click “Accept Invitation”.
+Check your email or GitHub notifications → click “**Accept Invitation**”.
 
 2. **Clone the Repo**
    ```bash
@@ -112,8 +109,8 @@ Check your email or GitHub notifications → click “Accept Invitation”.
 
 
 6. **Push to Repository**
-
-git push origin feature/<your-feature-name>
+   ```bash
+   git push origin feature/<your-feature-name>
 
 
 7. **Create a Pull Request**
