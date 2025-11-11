@@ -16,7 +16,7 @@ CampusConnect sets a high bar for campus engagement, combining robust technology
 - **Personalized Dashboards** — events, societies, mentoring, academic tasks, and notifications  
 - **Comprehensive Event & Society Tools** — creation, analytics, and feedback  
 - **Mentoring Marketplace** — search, booking, feedback, and mentor earnings  
-- **Academic Utilities** — task manager, collaborative study groups, note/document sharing, AI quiz generator  
+- **Academic Utilities** — task manager, collaborative study groups, note/document sharing
 - **Integrated Chat & Notification Center** — for real-time campus-wide communication  
 - **Admin Suite** — user management, moderation, analytics, support/help center  
 - **AI Integration** — intelligent agent backend for automation and personalization  
@@ -29,7 +29,7 @@ CampusConnect sets a high bar for campus engagement, combining robust technology
 - React.js  
 - Redux Toolkit  
 - Axios  
-- Styled-Components / SCSS (GitHub-inspired dark theme)  
+- Styled-Components / SCSS 
 - React Router  
 - Material UI + Custom Components  
 - Jest + React Testing Library  
