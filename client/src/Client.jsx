@@ -1,9 +1,8 @@
-export default function Client() {
-  return (
-    <>
-      <h1 class="text-3xl font-bold underline">
-    Campus Connect Client/Frontend Setup Working
-     </h1>
-    </>
-  )
-}
+import React from "react";
+import AppRoutes from "./routes/AppRoutes.jsx";
+
+const Client = () => {
+  return <AppRoutes />;
+};
+
+export default Client;
