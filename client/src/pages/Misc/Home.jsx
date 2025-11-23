@@ -43,7 +43,7 @@ const Home = () => {
                           key={idx}
                           className={`flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-5 text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em] ${
                             idx === 0
-                              ? "bg-primary text-white hover:bg-[#2ea043]"
+                              ? "bg-green-600 text-white  hover:bg-[#246d32]"
                               : "bg-[#161b22] text-[#e6edf3] border border-[#30363d] hover:bg-[#21262d]"
                           }`}
                         >
@@ -86,7 +86,7 @@ const Home = () => {
                     key={idx}
                     className="flex items-start gap-3 mt-4 first:mt-0"
                   >
-                    <div className="flex-shrink-0 size-6 rounded-full bg-[#161b22] border border-[#30363d] flex items-center justify-center text-primary text-sm font-semibold">
+                    <div className="flex-shrink-0 size-6 rounded-full bg-[#161b22] border border-[#30363d] flex items-center justify-center text-green-600 text-sm font-semibold">
                       {idx + 1}
                     </div>
                     <div className="flex flex-col gap-0.5">
@@ -138,7 +138,7 @@ const Home = () => {
                   },
                 ].map((item, idx) => (
                   <div key={idx} className="flex flex-col gap-2 p-2">
-                    <div className="text-primary size-8 flex items-center justify-center">
+                    <div className="text-green-600 size-8 flex items-center justify-center">
                       <span className="material-symbols-outlined !text-3xl">
                         {item.icon}
                       </span>
@@ -167,7 +167,7 @@ const Home = () => {
                     </p>
                   </div>
                   <div className="flex flex-1 justify-center">
-                    <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em] grow hover:bg-[#2ea043]">
+                    <button className="flex min-w-[84px] max-w-[200px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-green-600 text-white text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em] grow hover:bg-[#1c9833]">
                       <span className="truncate">Get Started for Free</span>
                     </button>
                   </div>
