@@ -1,8 +1,10 @@
 
-import mongoose from "mongoose";
+import mongoose, {Schema} from "mongoose";
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt"
 
 
-const userSchema = new mongoose.Schema( {
+const userSchema = new Schema( {
 		
     email: {
         type: String,
@@ -63,17 +65,11 @@ const userSchema = new mongoose.Schema( {
         unique: true,
         lowercase: true,
         index: true,
-        validate: {
-            validator: function(v) {
-                return /^[a-z0-9_]+$/.test(v);
-            },
-            message: props => `${props.value} is not a valid display name!`
-        },
+        
 
     },
     avatar: {
         type: String, //cloudinary url
-        required: true,
     },
     coverImage: {
         type: String, //cloudinary url
@@ -89,13 +85,7 @@ const userSchema = new mongoose.Schema( {
         type: String,
         default: '',
         trim: true,
-        validate: {
-            validator: function(v) {
-                return /^\+92(3[0-9]{9})$/.test(v);
-
-            },
-            message: props => `${props.value} is not a valid phone number!`
-    }},
+        },
 
 
     degree: {
@@ -113,7 +103,6 @@ const userSchema = new mongoose.Schema( {
     semester: {
         type: Number,
         default: 0,
-        min: 1,
         max: 8
     },
     },
