@@ -164,7 +164,7 @@ export default function TermsOfService() {
       </main>
 
       {/* Footer CTA */}
-      <footer className="sticky bottom-0 flex justify-center border-t border-white/10 bg-background-dark/80 px-4 py-4 backdrop-blur-sm sm:px-10">
+      <footer className="sticky bottom-0 flex justify-end-safe border-t border-white/10 bg-background-dark/80 px-4 py-4 backdrop-blur-sm sm:px-10">
         <button className="bg-[#238636] hover:bg-[#2ea043] text-white font-bold text-sm h-10 px-5 rounded-lg">
           Accept Terms
         </button>

@@ -1,185 +1,279 @@
 import React from "react";
-import Header from "../../components/layout/Header";
-import Footer from "../../components/layout/Footer";
+import Header from "../../components/layout/Header.jsx";
+import Footer from "../../components/layout/Footer.jsx";
+
+const heroButtons = [
+  { label: "Get started", primary: true, action: "/signUp" },
+  { label: "Book a demo", primary: false, action: "/contactUs" },
+];
+
+const steps = [
+  {
+    title: "Create your profile",
+    desc: "Share your interests, academic focus, and goals so the platform can tailor recommendations.",
+  },
+  {
+    title: "Discover communities",
+    desc: "Find societies, mentors, and study groups that align with where you want to grow.",
+  },
+  {
+    title: "Engage & grow",
+    desc: "Register for events, build relationships, and track your progress in one dashboard.",
+  },
+];
+
+const featureCards = [
+  {
+    icon: "calendar_month",
+    title: "Events hub",
+    desc: "Browse curated activities, sync to your calendar, and get notified in real time.",
+  },
+  {
+    icon: "person_search",
+    title: "Smart mentor match",
+    desc: "Pair with mentors using shared interests, goals, and availability.",
+  },
+  {
+    icon: "workspace_premium",
+    title: "Society toolkit",
+    desc: "Manage members, approvals, announcements, and sponsorship updates effortlessly.",
+  },
+  {
+    icon: "insights",
+    title: "Actionable analytics",
+    desc: "Understand engagement trends across events, societies, and mentorship programs.",
+  },
+];
+
+const stats = [
+  { label: "Active students", value: "18K+" },
+  { label: "Mentor connections", value: "4.2K" },
+  { label: "Societies onboarded", value: "320+" },
+  { label: "Avg. satisfaction", value: "4.8/5" },
+];
+
+const testimonials = [
+  {
+    quote:
+      "CampusConnect centralised our society workflows and doubled our event turnout in one term.",
+    author: "Lana Gupta · Robotics Society Lead",
+  },
+  {
+    quote:
+      "Mentor matching finally feels personal. I found a data-science mentor within a week.",
+    author: "Ethan Brown · Year 2 Computer Science",
+  },
+];
 
 const Home = () => {
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col group/design-root overflow-x-hidden font-display bg-background-light  bg-[#0d1117] ">
-      <div className="layout-container flex h-full grow flex-col">
-        <div className="px-4 sm:px-10 md:px-20 lg:px-40 flex flex-1 justify-center py-5">
-          <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
-            {/* Header Component */}
-            <Header />
-
-            {/* Hero Section */}
-            <div className="py-10">
-              <div className="@container">
-                <div className="@[480px]:p-4">
-                  <div
-                    className="flex min-h-[480px] flex-col gap-6 bg-cover bg-center bg-no-repeat @[480px]:gap-8 @[480px]:rounded-xl items-start justify-end px-4 pb-10 @[480px]:px-10"
-                    style={{
-                      backgroundImage:
-                        "linear-gradient(rgba(13, 17, 23, 0.4) 0%, rgba(13, 17, 23, 0.8) 100%)",
-                      backgroundColor: "#161b22",
-                    }}
-                  >
-                    <div className="flex flex-col gap-2 text-left">
-                      <h1 className="text-[#e6edf3] text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-5xl @[480px]:font-black @[480px]:leading-tight @[480px]:tracking-[-0.033em]">
-                        Your Campus, Connected.
-                      </h1>
-                      <h2 className="text-[#8b949e] text-sm font-normal leading-normal @[480px]:text-base @[480px]:font-normal @[480px]:leading-normal">
-                        The ultimate platform uniting students, mentors, and
-                        societies to help you connect and thrive in a vibrant
-                        campus ecosystem.
-                      </h2>
-                    </div>
-                    <div className="flex flex-wrap gap-3">
-                      {[
-                        "I'm a Student",
-                        "I'm a Mentor",
-                        "I'm a Society Head",
-                      ].map((text, idx) => (
-                        <button
-                          key={idx}
-                          className={`flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-5 text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em] ${
-                            idx === 0
-                              ? "bg-green-600 text-white  hover:bg-[#246d32]"
-                              : "bg-[#161b22] text-[#e6edf3] border border-[#30363d] hover:bg-[#21262d]"
-                          }`}
-                        >
-                          {text}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+    <div className="flex min-h-screen flex-col bg-[#030712] text-white">
+      <Header />
+      <main className="flex-1">
+        <section className="px-4 py-12 sm:px-10 md:px-16 lg:px-28 xl:px-40">
+          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="space-y-8">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1 text-sm text-white/80">
+                <span className="size-2 rounded-full bg-green-400" />
+                Newly launched mentor cohorts
               </div>
-            </div>
-
-            {/* How It Works Section */}
-            <div className="flex flex-col gap-6 px-4 py-10 @container">
-              <div className="flex flex-col gap-2 text-left">
-                <h1 className="text-[#e6edf3] tracking-light text-2xl font-bold leading-tight">
-                  How It Works
+              <div className="space-y-6">
+                <h1 className="text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-6xl">
+                  A professional home for vibrant campus communities.
                 </h1>
-                <p className="text-[#8b949e] text-sm font-normal leading-normal max-w-[720px]">
-                  Getting started with CampusConnect is simple. Follow these
-                  steps to join our community.
+                <p className="text-base text-white/70 sm:text-lg">
+                  CampusConnect brings students, mentors, and societies together
+                  with sleek tools for events, guidance, and collaboration.
+                  Designed with a modern workflow-first mindset so your campus
+                  feels cohesive from day one.
                 </p>
               </div>
-              <div className="flex flex-col gap-4 border-l border-[#30363d] pl-4">
-                {[
-                  {
-                    title: "Create Your Account",
-                    desc: "Sign up in minutes and build your profile to showcase your skills and interests.",
-                  },
-                  {
-                    title: "Explore & Discover",
-                    desc: "Browse upcoming events, find mentors in your field, or discover societies that match your passions.",
-                  },
-                  {
-                    title: "Connect & Grow",
-                    desc: "Join events, connect with mentors, and start building your network for academic and professional success.",
-                  },
-                ].map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-start gap-3 mt-4 first:mt-0"
+              <div className="flex flex-wrap gap-3">
+                {heroButtons.map((btn) => (
+                  <a
+                    key={btn.label}
+                    href={btn.action}
+                    className={`rounded-full px-5 py-3 text-sm font-semibold transition ${
+                      btn.primary
+                        ? "bg-green-500 text-black hover:bg-green-400"
+                        : "border border-white/20 text-white hover:bg-white/10"
+                    }`}
                   >
-                    <div className="flex-shrink-0 size-6 rounded-full bg-[#161b22] border border-[#30363d] flex items-center justify-center text-green-600 text-sm font-semibold">
-                      {idx + 1}
-                    </div>
-                    <div className="flex flex-col gap-0.5">
-                      <h2 className="text-[#e6edf3] text-sm font-bold leading-tight">
-                        {item.title}
-                      </h2>
-                      <p className="text-[#8b949e] text-xs font-normal leading-normal">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
+                    {btn.label}
+                  </a>
                 ))}
               </div>
-            </div>
-
-            {/* Features Section */}
-            <div className="flex flex-col gap-6 px-4 py-10 @container">
-              <div className="flex flex-col gap-2">
-                <h1 className="text-[#e6edf3] tracking-light text-2xl font-bold leading-tight">
-                  Unlock Your University Potential
-                </h1>
-                <p className="text-[#8b949e] text-sm font-normal leading-normal max-w-[720px]">
-                  Discover the tools you need to succeed. CampusConnect offers a
-                  suite of features designed to enhance your academic and social
-                  life.
-                </p>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-0">
-                {[
-                  {
-                    icon: "calendar_month",
-                    title: "Event Management",
-                    desc: "Effortlessly discover, create, and manage campus events, from society meetups to academic workshops.",
-                  },
-                  {
-                    icon: "handshake",
-                    title: "Find a Mentor",
-                    desc: "Connect with experienced mentors for guidance, or share your knowledge and guide fellow students on their journey.",
-                  },
-                  {
-                    icon: "groups",
-                    title: "Academic Networking",
-                    desc: "Collaborate with peers and faculty on academic projects, and build your professional network before you graduate.",
-                  },
-                  {
-                    icon: "account_balance",
-                    title: "Society Engagement",
-                    desc: "Join and lead societies, manage members, and promote initiatives to the wider university community.",
-                  },
-                ].map((item, idx) => (
-                  <div key={idx} className="flex flex-col gap-2 p-2">
-                    <div className="text-green-600 size-8 flex items-center justify-center">
-                      <span className="material-symbols-outlined !text-3xl">
-                        {item.icon}
-                      </span>
-                    </div>
-                    <h2 className="text-[#e6edf3] text-sm font-bold leading-tight">
-                      {item.title}
-                    </h2>
-                    <p className="text-[#8b949e] text-xs font-normal leading-normal">
-                      {item.desc}
+              <div className="flex flex-wrap gap-6 rounded-2xl border border-white/10 bg-white/5 p-4 sm:p-6">
+                {stats.map((stat) => (
+                  <div key={stat.label} className="min-w-[120px]">
+                    <p className="text-2xl font-bold text-white sm:text-3xl">
+                      {stat.value}
+                    </p>
+                    <p className="text-xs uppercase tracking-wide text-white/60">
+                      {stat.label}
                     </p>
                   </div>
                 ))}
               </div>
             </div>
-
-            {/* Call to Action */}
-            <div className="py-10">
-              <div className="@container">
-                <div className="flex flex-col justify-end gap-6 px-4 py-10 @[480px]:gap-8 @[480px]:px-10 @[480px]:py-20">
-                  <div className="flex flex-col gap-2 text-center items-center">
-                    <h1 className="text-[#e6edf3] tracking-light text-[32px] font-bold leading-tight @[480px]:text-4xl @[480px]:font-black @[480px]:leading-tight @[480px]:tracking-[-0.033em] max-w-[720px]">
-                      Ready to Join the Community?
-                    </h1>
-                    <p className="text-[#8b949e] text-base font-normal leading-normal max-w-[720px]">
-                      Sign up today and start building connections that matter.
-                    </p>
-                  </div>
-                  <div className="flex flex-1 justify-center">
-                    <button className="flex min-w-[84px] max-w-[200px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-5 bg-green-600 text-white text-sm font-bold leading-normal tracking-[0.015em] @[480px]:text-base @[480px]:font-bold @[480px]:leading-normal @[480px]:tracking-[0.015em] grow hover:bg-[#1c9833]">
-                      <span className="truncate">Get Started for Free</span>
-                    </button>
-                  </div>
-                </div>
+            <div className="rounded-3xl border border-white/10 bg-[#050b16]/80 p-6 shadow-2xl shadow-green-500/10 backdrop-blur">
+              <div className="space-y-4">
+                <p className="text-sm uppercase tracking-widest text-green-400">
+                  Unified campus control
+                </p>
+                <h2 className="text-2xl font-semibold">
+                  All your communities, one dashboard.
+                </h2>
+                <ul className="space-y-4 text-sm text-white/70">
+                  <li className="flex items-start gap-3">
+                    <span className="material-symbols-outlined text-green-400">
+                      done_all
+                    </span>
+                    Real-time analytics, approvals, and outreach for every
+                    society.
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="material-symbols-outlined text-green-400">
+                      bolt
+                    </span>
+                    Automation for RSVP reminders, mentor nudges, and reporting.
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="material-symbols-outlined text-green-400">
+                      key
+                    </span>
+                    Secure role-based access for admins, mentors, and members.
+                  </li>
+                </ul>
+              </div>
+              <div className="mt-8 rounded-2xl border border-white/5 bg-black/30 p-5 text-sm text-white/70">
+                <p>
+                  “This feels like Notion meets Slack, but built for campus.”
+                </p>
+                <p className="mt-2 text-xs text-white/50">
+                  Product Council · 2025 Beta Cohort
+                </p>
               </div>
             </div>
-
-            {/* Footer Component */}
-            <Footer />
           </div>
-        </div>
-      </div>
+        </section>
+
+        <section className="border-y border-white/5 bg-[#050914] px-4 py-12 sm:px-10 md:px-16 lg:px-28 xl:px-40">
+          <div className="max-w-4xl space-y-6">
+            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-green-400">
+              How it works
+            </p>
+            <h2 className="text-3xl font-bold text-white sm:text-4xl">
+              Built for velocity across admissions, societies, and support.
+            </h2>
+          </div>
+          <div className="mt-10 grid gap-6 md:grid-cols-3">
+            {steps.map((step, index) => (
+              <article
+                key={step.title}
+                className="rounded-2xl border border-white/5 bg-white/[0.04] p-6 backdrop-blur"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="inline-flex size-8 items-center justify-center rounded-full bg-white/10 text-sm font-semibold text-white/80">
+                    0{index + 1}
+                  </span>
+                  <p className="text-sm text-white/60">Step {index + 1}</p>
+                </div>
+                <h3 className="mt-4 text-lg font-semibold text-white">
+                  {step.title}
+                </h3>
+                <p className="mt-2 text-sm text-white/70">{step.desc}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="px-4 py-12 sm:px-10 md:px-16 lg:px-28 xl:px-40">
+          <div className="max-w-4xl space-y-4">
+            <p className="text-sm font-semibold text-green-400">
+              Platform superpowers
+            </p>
+            <h2 className="text-3xl font-bold text-white sm:text-4xl">
+              A clean, premium workspace for every stakeholder.
+            </h2>
+            <p className="text-white/70">
+              CampusConnect integrates scheduling, messaging, analytics, and
+              approvals so you don’t have to stitch together multiple tools.
+            </p>
+          </div>
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            {featureCards.map((feature) => (
+              <article
+                key={feature.title}
+                className="rounded-2xl border border-white/5 bg-white/[0.03] p-6 transition hover:border-green-500/40"
+              >
+                <span className="material-symbols-outlined text-3xl text-green-400">
+                  {feature.icon}
+                </span>
+                <h3 className="mt-4 text-xl font-semibold text-white">
+                  {feature.title}
+                </h3>
+                <p className="mt-2 text-sm text-white/70">{feature.desc}</p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        <section className="border-y border-white/5 bg-[#04060b] px-4 py-12 sm:px-10 md:px-16 lg:px-28 xl:px-40">
+          <div className="max-w-4xl space-y-6">
+            <p className="text-sm font-semibold text-green-400">Voices</p>
+            <h2 className="text-3xl font-bold text-white">
+              What thriving communities say
+            </h2>
+          </div>
+          <div className="mt-8 grid gap-6 md:grid-cols-2">
+            {testimonials.map((testimonial) => (
+              <blockquote
+                key={testimonial.author}
+                className="rounded-2xl border border-white/5 bg-white/[0.04] p-6 text-sm text-white/70"
+              >
+                “{testimonial.quote}”
+                <footer className="mt-4 text-xs uppercase tracking-widest text-white/50">
+                  {testimonial.author}
+                </footer>
+              </blockquote>
+            ))}
+          </div>
+        </section>
+
+        <section className="px-4 py-16 sm:px-10 md:px-16 lg:px-32">
+          <div className="relative overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-br from-green-500/20 via-emerald-500/10 to-transparent p-8 text-center shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+            <div className="absolute inset-0 opacity-20 blur-3xl" />
+            <div className="relative space-y-4">
+              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-white/70">
+                Launch in weeks, not semesters
+              </p>
+              <h2 className="text-3xl font-bold text-white sm:text-4xl">
+                Give your campus a professional-grade platform today.
+              </h2>
+              <p className="text-white/80">
+                Onboard students, societies, and admins with guided setup flows
+                and enterprise security.
+              </p>
+              <div className="flex flex-wrap justify-center gap-3">
+                <a
+                  href="/signUp"
+                  className="rounded-full bg-white px-6 py-3 text-sm font-semibold text-black transition hover:bg-white/90"
+                >
+                  Start free pilot
+                </a>
+                <a
+                  href="/contactUs"
+                  className="rounded-full border border-white/40 px-6 py-3 text-sm font-semibold text-white transition hover:bg-white/10"
+                >
+                  Talk to us
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+      <Footer />
     </div>
   );
 };

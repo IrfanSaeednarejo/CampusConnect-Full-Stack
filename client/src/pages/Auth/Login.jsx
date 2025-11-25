@@ -29,14 +29,12 @@ export default function Login() {
 
     console.log("Email:", email, "Password:", password);
     alert("Login successful!");
-    navigate("/"); // Redirect after login
+    navigate("/onboarding"); // Redirect after login
   };
 
   return (
-    <div className="font-display bg-background-light dark:bg-background-dark min-h-screen flex flex-col items-center justify-center px-4 py-10">
+    <div className="font-display bg-background-light bg-[#161b22] min-h-screen flex flex-col items-center justify-center px-4 py-10">
       <div className="flex flex-col w-full max-w-[400px] gap-8">
-        <Header />
-
         <div className="flex flex-col items-center gap-4 text-center">
           <Logo />
           <h1 className="text-white text-2xl font-semibold tracking-tight">
@@ -68,13 +66,14 @@ export default function Login() {
           {/* Password */}
           <div className="flex flex-col w-full relative">
             <label className="text-white text-sm font-medium pb-2 flex justify-between items-baseline">
-              Password
-              <Link
-                to="/forgot-password"
+              Password{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/forgot-password")}
                 className="text-green-500 text-xs hover:underline"
               >
                 Forgot?
-              </Link>
+              </button>
             </label>
             <input
               ref={passwordRef}
@@ -103,7 +102,10 @@ export default function Login() {
         <div className="flex justify-center p-4 border border-gray-700 rounded-lg">
           <p className="text-gray-400 text-sm">
             New to CampusConnect?{" "}
-            <Link className="text-green-500 hover:underline" to="/signUp">
+            <Link
+              className=" text-blue-500  hover:text-green-500 hover:underline"
+              to="/signUp"
+            >
               Sign Up
             </Link>
           </p>

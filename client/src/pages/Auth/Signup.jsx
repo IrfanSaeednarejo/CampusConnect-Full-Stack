@@ -56,7 +56,7 @@ export default function SignUp() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background-light dark:bg-background-dark p-4 font-display">
+    <div className="flex min-h-screen items-center justify-center bg-background-light bg-[#161b22] p-4 font-display">
       <div className="flex w-full max-w-md flex-col gap-8 rounded-xl border border-[#3d5246] bg-[#161b22] p-8">
         {/* Heading */}
         <div className="text-center">
@@ -145,7 +145,7 @@ export default function SignUp() {
             <p className="text-center text-[#9eb7a9]">
               Already have an account?{" "}
               <span
-                className="text-primary font-medium cursor-pointer hover:underline"
+                className="text-primary font-medium cursor-pointer text-blue-500  hover:text-green-500 hover:underline"
                 onClick={() => navigate("/login")}
               >
                 Sign in

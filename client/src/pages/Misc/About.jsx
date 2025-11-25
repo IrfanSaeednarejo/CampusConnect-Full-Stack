@@ -7,13 +7,13 @@ import Footer from "../../components/layout/Footer";
 /* Updated Hero Section */
 function HeroSection() {
   return (
-    <div className="@container">
-      <div className="flex min-h-[400px] flex-col gap-6 @[480px]:gap-8 items-center justify-center p-4 text-center">
+    <div>
+      <div className="flex min-h-[400px] flex-col gap-6  items-center justify-center p-4 text-center">
         <div className="flex flex-col gap-2">
-          <h1 className="text-[#e6edf3] text-4xl font-black leading-tight tracking-[-0.033em] @[480px]:text-5xl">
+          <h1 className="text-[#e6edf3] text-4xl font-black leading-tight tracking-[-0.033em] ">
             About CampusConnect
           </h1>
-          <h2 className="text-[#8b949e] text-lg font-normal leading-normal @[480px]:text-xl">
+          <h2 className="text-[#8b949e] text-lg font-normal leading-normal ">
             Our mission is to connect, empower, and support campus communities.
           </h2>
         </div>
@@ -28,7 +28,7 @@ function HeroSection() {
 
           <a
             href="#contact"
-            className="flex min-w-[84px] max-w-[480px] items-center justify-center rounded-lg h-10 px-4 @[480px]:h-12 @[480px]:px-5 border border-[#30363d] text-[#e6edf3] hover:border-[#8b949e] text-sm font-bold transition-colors"
+            className="flex min-w-[84px] max-w-[480px] items-center justify-center rounded-lg h-10 px-4  border border-[#30363d] text-[#e6edf3] hover:border-[#8b949e] text-sm font-bold transition-colors"
           >
             Contact Us
           </a>

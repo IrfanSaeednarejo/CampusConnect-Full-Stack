@@ -14,6 +14,7 @@ const Header = () => {
     { label: "Societies", path: "/societies" },
     { label: "About Us", path: "/about" },
     { label: "Contact Us", path: "/contactUs" },
+    { label: "Dashboard", path: "/dashboard/dashboardindex" },
   ];
 
   const authButtons = [
@@ -36,7 +37,11 @@ const Header = () => {
     <header className="bg-[#0d1117] border-b border-[#161b22] px-4 sm:px-10 py-3 sticky top-0 z-50">
       <div className="flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-4 text-[#e6edf3]">
+        <div
+          className="flex items-center gap-4 text-[#e6edf3] cursor-pointer"
+          onClick={() => navigate("/")}
+          aria-label="CampusConnect Home"
+        >
           <Logo />
           <h2 className="text-lg font-bold tracking-tight">CampusConnect</h2>
         </div>
@@ -60,7 +65,7 @@ const Header = () => {
                 <button
                   key={btn.label}
                   onClick={() => navigate(btn.path)}
-                  className={`${btn.style} text-white text-xs font-bold px-3 h-8 rounded-md`}
+                  className={`${btn.style} text-white text-xs font-bold px-4 h-8 rounded-md`}
                 >
                   {btn.label}
                 </button>
@@ -131,7 +136,7 @@ const NavLinkItem = ({ link, isActive, mobile, onClick }) => (
     onClick={onClick}
     className={`text-sm font-medium ${
       isActive
-        ? "text-white font-bold border-b-2 border-green-500 md:border-none"
+        ? "text-white font-bold border-b-2 border-green-500 md:border-b-2 md:border-green-500"
         : "text-[#8b949e] hover:text-white"
     } ${mobile ? "block w-full" : ""}`}
   >
