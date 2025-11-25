@@ -243,7 +243,9 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
-    const { firstName, lastName, displayName, email, bio } = req.body;
+    console.log("Request Body:", req.body);
+    console.log("Request Headers:", req.headers['content-type']);
+    const { firstName, lastName, displayName, email, bio } = req.body?.profile || req.body;
 
     if (!firstName && !lastName && !displayName && !email && !bio) {
         throw new ApiError(400, "At least one field is required");
@@ -264,13 +266,11 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
         req.user?._id,
         {
             $set: {
-                profile: {
-                    lastName: lastName || req.user.lastName,
-                    displayName: displayNameLower || req.user.displayName,
-                    email: email || req.user.email,
-                    bio: bio || req.user.bio,
-                    firstName: firstName || req.user.firstName,
-                }
+                    "profile.lastName": lastName || req.user.profile.lastName,
+                    "profile.displayName": displayNameLower || req.user.profile.displayName,
+                    "profile.email": email || req.user.profile.email,
+                    "profile.bio": bio || req.user.profile.bio,
+                    "profile.firstName": firstName || req.user.profile.firstName,
                 
             },
         },

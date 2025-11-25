@@ -6,7 +6,7 @@ import { User } from "../models/user.model.js";
 export const verifyJWT = asyncHandler(async (req, _, next) => {
     try {
         const token =
-            // req.cookies?.accessToken ||
+            req.cookies?.accessToken ||
             req.header("Authorization")?.replace("Bearer ", "");
 
         if (!token) {
@@ -33,6 +33,13 @@ export const verifyJWT = asyncHandler(async (req, _, next) => {
             next();
         });
     } catch (error) {
+        if (error.name === 'TokenExpiredError') {
+            throw new ApiError(401, "Token has expired");
+        }
+        if (error.name === 'JsonWebTokenError') {
+            throw new ApiError(401, "Invalid access token");
+        }
+        
         throw new ApiError(401, error?.message || "Invalid access token");
     }
 });
