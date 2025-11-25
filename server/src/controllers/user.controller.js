@@ -213,13 +213,16 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 const changeCurrentPassword = asyncHandler(async (req, res) => {
-    const { oldPassword, newPassword,confirmPassword } = req.body;
+    const { oldPassword, newPassword, confirmPassword } = req.body;
 
+    if (!oldPassword || !newPassword || !confirmPassword) {
+        throw new ApiError(400, "All fields are required");
+    }
     if (newPassword !== confirmPassword) {
         throw new ApiError(400, "Passwords do not match");
     }
 
-    const user = await User.findById(req.user?._id);
+    const user = await User.findById(req.user?._id)
 
     const isPasswordCorrect = await user.isPasswordCorrect(oldPassword);
 
@@ -243,8 +246,7 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 });
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
-    console.log("Request Body:", req.body);
-    console.log("Request Headers:", req.headers['content-type']);
+
     const { firstName, lastName, displayName, email, bio } = req.body?.profile || req.body;
 
     if (!firstName && !lastName && !displayName && !email && !bio) {
@@ -260,7 +262,12 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
             throw new ApiError(409, "Display name not available");
         }
     }
-
+   if (email && email !== req.user.email) {
+        const isEmailExist = await User.findOne({ "profile.email": email });
+        if (isEmailExist) {
+            throw new ApiError(409, "Email already registered");
+        }
+    }
 
     const user = await User.findByIdAndUpdate(
         req.user?._id,
@@ -268,7 +275,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
             $set: {
                     "profile.lastName": lastName || req.user.profile.lastName,
                     "profile.displayName": displayNameLower || req.user.profile.displayName,
-                    "profile.email": email || req.user.profile.email,
+                    email: email || req.user.profile.email,
                     "profile.bio": bio || req.user.profile.bio,
                     "profile.firstName": firstName || req.user.profile.firstName,
                 
