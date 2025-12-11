@@ -71,13 +71,7 @@ const addMemberToSociety = asyncHandler(async (req, res) => {
     const { id: societyId } = req.params;
     const { memberId, role } = req.body;
     
-      if (!mongoose.isValidObjectId(societyId)) {
-        throw new ApiError(400, "Invalid Society ID");
-    }
-      if (!mongoose.isValidObjectId(memberId)) {
-        throw new ApiError(400, "Invalid Member ID");
-    }
-
+  
     if (!societyId || !memberId) {
         throw new ApiError(400, "Society ID and member ID are required.");
     }
@@ -137,7 +131,51 @@ const addMemberToSociety = asyncHandler(async (req, res) => {
 
 
 const removeMemberFromSociety = asyncHandler(async (req, res) => {
-    // Implementation for removing a member from a society
+    const { id: societyId , memberId} = req.params;
+    
+    const society = await Society.findById(societyId);
+
+    if (!society) {
+        throw new ApiError(404, "Society not found");
+    }
+
+
+    const isOwner = society.createdBy.toString() === req.user._id.toString();
+
+    if (!isOwner) {
+        throw new ApiError(403, "You do not have permission to manage members for this society.");
+    }
+
+
+    const isMemberPresent = society.members.some(
+        (member) => member.memberId.toString() === memberId
+    );
+
+    if (!isMemberPresent) {
+        throw new ApiError(404, "User is not a member of this society");
+    }
+
+
+    const [updatedSociety] = await Promise.all([
+        Society.findByIdAndUpdate(
+            societyId,
+            { 
+                $pull: { members: { memberId: memberId } } 
+            },
+            { new: true } 
+        ),
+
+        User.findByIdAndUpdate(
+            memberId,
+            {
+                $pull: { joinedSocieties: societyId }
+            }
+        )
+    ]);
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, updatedSociety, "Member removed successfully"));
 });
 
 const updateSociety = asyncHandler(async (req, res) => {
