@@ -21,8 +21,8 @@ app.use(cookieParser());
 
 //Import routes
 import userRouter from "./src/routes/user.routes.js";
+import societyRouter from "./src/routes/society.routes.js";
 // import chatRouter from "./src/routes/chat.routes.js";
-// import societyRouter from "./src/routes/society.routes.js";
 // import mentorRouter from "./src/routes/mentor.routes.js";
 // import eventRouter from "./src/routes/event.routes.js";
 // import noteRouter from "./src/routes/note.routes.js";
@@ -41,10 +41,10 @@ app.get("/api/v1", (req, res) => res.send("Backend of Campus Connect"));
 
 //routes declaration
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/societies", societyRouter);
 // app.use("/api/v1/dashboard", dashboardRouter);
 // app.use("/api/v1/chats", chatRouter);
 // app.use("/api/v1/study-groups", studyGroupRouter);
-// app.use("/api/v1/societies", societyRouter);
 // app.use("/api/v1/mentors", mentorRouter);
 // app.use("/api/v1/events", eventRouter);
 // app.use("/api/v1/notes", noteRouter);

@@ -247,14 +247,14 @@ const getCurrentUser = asyncHandler(async (req, res) => {
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
 
-    const { firstName, lastName, displayName, email, bio } = req.body?.profile || req.body;
+    const { firstName, lastName, displayName, email, bio ,roles} = req.body?.profile || req.body;
 
-    if (!firstName && !lastName && !displayName && !email && !bio) {
+    if (!firstName && !lastName && !displayName && !email && !bio && !roles) {
         throw new ApiError(400, "At least one field is required");
     }
 
     const displayNameLower = displayName?.toLowerCase();
-
+ 
     
     if (displayNameLower && displayNameLower !== req.user.profile.displayName) {
         const isExist = await User.findOne({ "profile.displayName": displayNameLower });
@@ -268,7 +268,12 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
             throw new ApiError(409, "Email already registered");
         }
     }
+  const validRoles = ['student', 'mentor', 'society_head', 'admin'];
 
+  let updatedRoles = Array.from(new Set([
+    ...req.user.roles,
+    ...(roles || []).filter(inputrole => validRoles.includes(inputrole))
+]));
     const user = await User.findByIdAndUpdate(
         req.user?._id,
         {
@@ -278,7 +283,9 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
                     email: email || req.user.profile.email,
                     "profile.bio": bio || req.user.profile.bio,
                     "profile.firstName": firstName || req.user.profile.firstName,
-                
+                    roles: updatedRoles,
+                    isVerifiedMentor: true,
+                    isVerifiedSocietyHead: true
             },
         },
         {

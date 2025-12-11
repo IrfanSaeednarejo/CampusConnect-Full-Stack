@@ -30,13 +30,12 @@ const userSchema = new Schema( {
         type: String,
         required: [true, 'Password is required']
     }, 
-    roles: [
-    { 
-        type: String,
-        enum: ['student','mentor','society_head','admin'], 
+    roles: {
+        type: [String],
+        enum: ['student', 'mentor', 'society_head', 'admin'],
         default: ['student']
-     }
-    ],
+    },
+
 
     campusId:
      { 
@@ -126,10 +125,23 @@ const userSchema = new Schema( {
     createdAt: { type: Date, default: Date.now }
   },
 
-    verification: {
-    isVerifiedMentor: { type: Boolean,
-    default: false 
-  }},
+    isVerifiedMentor:{ 
+        type: Boolean,
+        default: false,
+        verifiedAt: { type: Date }
+    },
+    isVerifiedSocietyHead:{ 
+        type: Boolean,
+        default: false,
+        verifiedAt: { type: Date }
+    },
+    
+    joinedSocieties: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Society'
+        }
+    ],
     
     status: { type: String, enum: ['active','suspended','deleted'], default: 'active' },
 
