@@ -122,11 +122,11 @@ const addMemberToSociety = asyncHandler(async (req, res) => {
         user.save()
     ]);
 
-    const updatedSociety = await Society.findById(societyId)
+    const newMemberSociety = await Society.findById(societyId)
 
     return res
         .status(201)
-        .json(new ApiResponse(201, updatedSociety, "Member added successfully"));
+        .json(new ApiResponse(201, newMemberSociety, "Member added successfully"));
 });
 
 
@@ -156,7 +156,7 @@ const removeMemberFromSociety = asyncHandler(async (req, res) => {
     }
 
 
-    const [updatedSociety] = await Promise.all([
+    const [removedMemberSociety] = await Promise.all([
         Society.findByIdAndUpdate(
             societyId,
             { 
@@ -175,21 +175,75 @@ const removeMemberFromSociety = asyncHandler(async (req, res) => {
 
     return res
         .status(200)
-        .json(new ApiResponse(200, updatedSociety, "Member removed successfully"));
+        .json(new ApiResponse(200, removedMemberSociety, "Member removed successfully"));
 });
 
 const updateSociety = asyncHandler(async (req, res) => {
-    // Implementation for updating a society
+    const { id: societyId } = req.params;
+    const { name, description, tag } = req.body;
+
+    const society = await Society.findById(societyId);
+    if (!society) {
+        throw new ApiError(404, "Society not found");
+    }
+
+    if (society.createdBy.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You do not have permission to update this society");
+    }
+
+    const updatedSociety = await Society.findByIdAndUpdate(
+        societyId,
+        { $set: {
+             name: name || society.name,
+             description: description || society.description,
+             tag: tag || society.tag,
+
+        } },
+        { new: true, runValidators: true }
+    );
+
+    if (!updatedSociety) {
+         throw new ApiError(500, "Failed to update society unexpectedly.");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, updatedSociety, "Society updated successfully"));
 });
 
 const deleteSociety = asyncHandler(async (req, res) => {
-    // Implementation for deleting a society
-});
+    const { id: societyId } = req.params;
 
+    const society = await Society.findById(societyId).select('createdBy'); 
+    
+    if (!society) {
+        throw new ApiError(404, "Society not found");
+    }
+
+    if (society.createdBy.toString() !== req.user._id.toString()) {
+        throw new ApiError(403, "You do not have permission to delete this society");
+    }
+
+ 
+    const deletedSociety = await Society.findByIdAndDelete(societyId);
+
+    const cleanupResult = await User.updateMany(
+        { joinedSocieties: societyId },
+        { $pull: { joinedSocieties: societyId } } 
+    );
+
+    return res
+        .status(200)
+        .json(new ApiResponse(
+            200, 
+            { societyId: deletedSociety._id, usersCleaned: cleanupResult.modifiedCount }, 
+            "Society and all related user links deleted successfully"
+        ));
+});
 
 const getSocietyMembers = asyncHandler(async (req, res) => {
     const { id: societyId } = req.params;
-    
+
     if (!mongoose.isValidObjectId(societyId)) {
         throw new ApiError(400, "Invalid Society ID");
     }
