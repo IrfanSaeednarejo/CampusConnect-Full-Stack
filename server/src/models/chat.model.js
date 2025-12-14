@@ -1,41 +1,64 @@
-import mongoose, { mongo } from 'mongoose';
+import mongoose from 'mongoose';
+const { Schema } = mongoose;
 
-const chatSchema = new Schema({
-  
-  type: { 
-    type: String, 
-    enum: ['dm','society','studygroup'], 
-    default: 'dm' 
-},
-
-  name: { 
-    type: String, 
-    required: true 
-},
-  createdBy: { 
-    type: mongoose.Schema.Types.ObjectId, 
-    ref: 'User' 
-},
-
-    members: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        joinedAt: { type: Date, default: Date.now },
-        role: { type: String, enum: ['coordinator', 'member'], default: 'member' }
-      }
-    ],
-
-    message:{
-       messageSenderId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-       text: String,
-       attachment: { fileId: { type: mongoose.Schema.Types.ObjectId, ref: 'File' }, name: String },
-       deletedMessage: { type: Boolean, default: false },
-       replyMessageTo: { type: mongoose.Schema.Types.ObjectId, ref: 'ChatMessage.message' }
+const chatSchema = new Schema(
+  {
+    type: {
+      type: String,
+      enum: ['dm', 'society', 'studygroup'],
+      required: true,
     },
 
+    name: {
+      type: String,
+      trim: true,
+      required: function () {
+        return this.type !== 'dm';
+      },
+    },
 
-  lastMessageAt: Date,
-}, { timestamps: true });
+    description: {
+      type: String,
+      trim: true,
+    },
 
-export const ChatMessage = mongoose.model('ChatMessage', chatSchema);
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+     isGroupChat: {
+      type: Boolean,
+      default: false,
+    },
+    members: [
+      {
+        userId: {
+          type: Schema.Types.ObjectId,
+          ref: 'User',
+          required: true,
+        },
+        role: {
+          type: String,
+          enum: ['Admin', 'member'],
+          default: 'member',
+        },
+        joinedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
+    lastMessage: {
+      type: Schema.Types.ObjectId, 
+      ref: 'Message'
+    },
+  },
+  { timestamps: true }
+);
+
+// chatSchema.index({ 'members.userId': 1 });
+// chatSchema.index({ lastMessageAt: -1 });
+
+export const Chat = mongoose.model('Chat', chatSchema);
