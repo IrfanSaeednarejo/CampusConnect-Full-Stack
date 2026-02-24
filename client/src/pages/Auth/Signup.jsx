@@ -1,44 +1,65 @@
-// src/pages/Auth/SignUp.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Header from "../../components/layout/Header";
-export default function SignUp() {
-  const navigate = useNavigate();
+import { useNavigate, useLocation } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { loginSuccess, setRole, selectRole } from "../../redux/slices/authSlice";
+import { setUserProfile } from "../../redux/slices/userSlice";
+import { useNotification } from "@/contexts/NotificationContext.jsx";
+import { useAuth } from "@/contexts/AuthContext.jsx";
+import {
+  validateSignupForm,
+  VALID_ROLES,
+} from "../../utils/authValidator";
+import {
+  validateAccountUniqueness,
+  createMockAccount,
+} from "../../utils/accountService";
+import AuthCard from "../../components/auth/AuthCard";
+import AuthShell from "../../components/auth/AuthShell";
+import FormField from "../../components/common/FormField";
+import FormActions from "../../components/common/FormActions";
 
-  // Form state
+export default function Signup() {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useDispatch();
+  const selectedRole = useSelector(selectRole);
+  const { login: contextLogin } = useAuth();
+  const { showSuccess, showError } = useNotification();
+
+  const locationRole = location.state?.role;
+  const initialRole = locationRole || selectedRole || VALID_ROLES.STUDENT;
+
   const [form, setForm] = useState({
     fullName: "",
     email: "",
     password: "",
     confirmPassword: "",
-    role: "student",
+    role: initialRole, // Default to selected role or student
   });
 
-  // Error state
   const [errors, setErrors] = useState({});
 
-  // Handle input changes
+  // Sync role from role selection or stored role when available
+  React.useEffect(() => {
+    if (locationRole && form.role !== locationRole) {
+      setForm((prev) => ({ ...prev, role: locationRole }));
+      return;
+    }
+    if (!locationRole && selectedRole && form.role !== selectedRole) {
+      setForm((prev) => ({ ...prev, role: selectedRole }));
+    }
+  }, [locationRole, selectedRole, form.role]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
-    setErrors({ ...errors, [name]: "" }); // Clear error on change
+    setErrors({ ...errors, [name]: "" });
   };
 
-  // Form validation
+  // Use secure validation from authValidator
   const validate = () => {
-    const newErrors = {};
-    if (!form.fullName.trim()) newErrors.fullName = "Full name is required";
-    if (!form.email.trim()) newErrors.email = "Email is required";
-    else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(form.email))
-      newErrors.email = "Email is invalid";
-    if (!form.password) newErrors.password = "Password is required";
-    else if (form.password.length < 8)
-      newErrors.password = "Password must be at least 8 characters";
-    if (!form.confirmPassword)
-      newErrors.confirmPassword = "Confirm your password";
-    else if (form.password !== form.confirmPassword)
-      newErrors.confirmPassword = "Passwords do not match";
-    return newErrors;
+    const validation = validateSignupForm(form);
+    return validation.errors;
   };
 
   const handleSubmit = (e) => {
@@ -49,156 +70,203 @@ export default function SignUp() {
       return;
     }
 
-    // TODO: Replace with API call
-    console.log("Form Submitted:", form);
-    alert("Sign Up Successful!");
-    navigate("/login");
+    // STEP 1: Check account uniqueness (email and username)
+    const uniquenessCheck = validateAccountUniqueness(form.email, form.fullName);
+    if (!uniquenessCheck.isValid) {
+      // Display uniqueness error(s)
+      showError(uniquenessCheck.errors[0]); // Show first error
+      setErrors({ email: uniquenessCheck.errors[0] });
+      return;
+    }
+
+    // STEP 2: Create account in mock system
+    // In production, this would be a backend POST /api/auth/signup
+    const accountCreation = createMockAccount({
+      email: form.email,
+      fullName: form.fullName,
+      password: form.password,
+      role: form.role,
+    });
+
+    if (!accountCreation.success) {
+      showError(accountCreation.error || "Unable to create account");
+      return;
+    }
+
+    // STEP 3: Create user data for Redux store and Context
+    const userData = {
+      user: {
+        id: accountCreation.account.id,
+        name: form.fullName,
+        email: form.email,
+        avatar: "",
+        department: "",
+      },
+      role: form.role,
+      token: "mock-signup-token-" + Date.now(),
+    };
+
+    // STEP 4: Dispatch Redux actions to store auth and user data
+    dispatch(loginSuccess(userData));
+    dispatch(setRole(form.role));
+    dispatch(setUserProfile({
+      id: userData.user.id,
+      name: form.fullName,
+      email: form.email,
+      avatar: "",
+      department: "",
+    }));
+
+    // STEP 5: Update AuthContext as well for immediate access
+    contextLogin(userData.user, userData.token, form.role);
+
+    // Show success notification and navigate to onboarding
+    showSuccess("Account created successfully! Redirecting to onboarding...");
+    setTimeout(() => {
+      navigate("/onboarding/welcome");
+    }, 500);
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background-light bg-[#161b22] p-4 font-display">
-      <div className="flex w-full max-w-md flex-col gap-8 rounded-xl border border-[#3d5246] bg-[#161b22] p-8">
-        {/* Heading */}
-        <div className="text-center">
-          <h1 className="text-white text-4xl font-black leading-tight">
+    <AuthShell className="items-center justify-center bg-[#111714] p-4">
+      <AuthCard className="max-w-md rounded-xl border-[#3d5246] p-8 flex flex-col items-center gap-8">
+        {/* Page Heading */}
+        <div className="flex w-full flex-col gap-3 text-center">
+          <p className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
             Create Your Account
-          </h1>
-          <p className="text-[#9eb7a9] text-base mt-2">
+          </p>
+          <p className="text-[#9eb7a9] text-base font-normal leading-normal">
             Join CampusConnect and unlock powerful tools for campus success.
           </p>
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-          <InputField
-            label="Full Name"
-            name="fullName"
-            placeholder="Enter your full name"
-            value={form.fullName}
-            onChange={handleChange}
-            error={errors.fullName}
-          />
-          <InputField
-            label="Email Address"
-            name="email"
-            type="email"
-            placeholder="Enter your email"
-            value={form.email}
-            onChange={handleChange}
-            error={errors.email}
-          />
-          <InputField
-            label="Password"
-            name="password"
-            type="password"
-            placeholder="Minimum 8 characters"
-            value={form.password}
-            onChange={handleChange}
-            error={errors.password}
-          />
-          <InputField
-            label="Confirm Password"
-            name="confirmPassword"
-            type="password"
-            placeholder="Re-enter your password"
-            value={form.confirmPassword}
-            onChange={handleChange}
-            error={errors.confirmPassword}
-          />
+        <form onSubmit={handleSubmit} className="flex w-full flex-col gap-5">
+          {/* Text Fields */}
+          <div className="flex flex-col gap-4">
+            <FormField
+              label="Full Name"
+              name="fullName"
+              placeholder="Enter your full name"
+              type="text"
+              value={form.fullName}
+              onChange={handleChange}
+              error={errors.fullName}
+            />
+            <FormField
+              label="Email Address"
+              name="email"
+              placeholder="Enter your email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              error={errors.email}
+            />
+            <FormField
+              label="Password"
+              name="password"
+              placeholder="minimum 8 characters"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              error={errors.password}
+            />
+            <FormField
+              label="Confirm Password"
+              name="confirmPassword"
+              placeholder="Re-enter your password"
+              type="password"
+              value={form.confirmPassword}
+              onChange={handleChange}
+              error={errors.confirmPassword}
+            />
+          </div>
 
-          {/* Role Selection */}
+          {/* Role Selector */}
           <div className="flex flex-col gap-2">
-            <p className="text-white text-base font-medium">Select Your Role</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <p className="text-white text-base font-medium leading-normal">
+              Select Your Role
+            </p>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <RoleRadio
                 name="role"
-                value="student"
+                value={VALID_ROLES.STUDENT}
                 label="Student"
-                checked={form.role === "student"}
+                checked={form.role === VALID_ROLES.STUDENT}
                 onChange={handleChange}
               />
               <RoleRadio
                 name="role"
-                value="mentor"
+                value={VALID_ROLES.MENTOR}
                 label="Mentor"
-                checked={form.role === "mentor"}
+                checked={form.role === VALID_ROLES.MENTOR}
                 onChange={handleChange}
               />
               <RoleRadio
                 name="role"
-                value="society_head"
+                value={VALID_ROLES.SOCIETY_HEAD}
                 label="Society Head"
-                checked={form.role === "society_head"}
+                checked={form.role === VALID_ROLES.SOCIETY_HEAD}
                 onChange={handleChange}
               />
             </div>
           </div>
 
-          {/* Submit Button */}
+          {/* Buttons */}
           <div className="flex flex-col gap-4 pt-4">
-            <button
-              type="submit"
-              className="h-14 w-full rounded-lg bg-primary text-black font-bold hover:bg-primary/90 transition"
-            >
-              Sign Up
-            </button>
-            <p className="text-center text-[#9eb7a9]">
+            <FormActions
+              onSubmit={handleSubmit}
+              submitText="Sign Up"
+              submitVariant="primary"
+              className="flex-col-reverse"
+              onCancel={null}
+            />
+            <p className="text-center text-base font-normal leading-normal text-[#9eb7a9]">
               Already have an account?{" "}
-              <span
-                className="text-primary font-medium cursor-pointer text-blue-500  hover:text-green-500 hover:underline"
+              <button
+                type="button"
+                className="font-medium text-[#1dc964] hover:underline cursor-pointer"
                 onClick={() => navigate("/login")}
               >
                 Sign in
-              </span>
+              </button>
             </p>
           </div>
         </form>
-      </div>
+      </AuthCard>
+    </AuthShell>
+  );
+}
+function RoleRadio({ name, value, label, checked, onChange, disabled = false, disabledReason = "" }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label
+        className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
+          disabled
+            ? "border-[#30363d] bg-[#0d1117] opacity-60 cursor-not-allowed"
+            : checked
+              ? "border-[#1dc964] bg-[#1c2620] ring-2 ring-[#1dc964]/50"
+              : "border-[#3d5246] bg-[#1c2620]"
+        }`}
+      >
+        <input
+          type="radio"
+          name={name}
+          value={value}
+          checked={checked}
+          onChange={onChange}
+          disabled={disabled}
+          className="form-radio h-5 w-5 border-[#9eb7a9] bg-transparent text-[#1dc964] focus:ring-[#1dc964]/50 focus:ring-offset-0 focus:ring-offset-transparent disabled:opacity-50"
+        />
+        <span className="text-white text-base font-medium leading-normal">
+          {label}
+        </span>
+      </label>
+      {disabled && disabledReason && (
+        <p className="text-[#8b949e] text-xs leading-normal px-4">
+          {disabledReason}
+        </p>
+      )}
     </div>
-  );
-}
-
-// Input Field Component
-function InputField({
-  label,
-  name,
-  placeholder,
-  type = "text",
-  value,
-  onChange,
-  error,
-}) {
-  return (
-    <label className="flex flex-col">
-      <span className="text-white text-base pb-2">{label}</span>
-      <input
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className={`form-input w-full rounded-lg text-white p-4 h-14 border ${
-          error ? "border-red-500" : "border-[#3d5246]"
-        } bg-[#1c2620] focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary`}
-      />
-      {error && <span className="text-red-500 text-sm mt-1">{error}</span>}
-    </label>
-  );
-}
-
-// Role Radio Component
-function RoleRadio({ name, value, label, checked, onChange }) {
-  return (
-    <label className="flex items-center gap-3 p-4 rounded-lg border border-[#3d5246] bg-[#1c2620] cursor-pointer checked:border-primary checked:ring-2 checked:ring-primary/50">
-      <input
-        type="radio"
-        name={name}
-        value={value}
-        checked={checked}
-        onChange={onChange}
-        className="form-radio h-5 w-5 border-[#9eb7a9] bg-transparent text-primary focus:ring-primary/50 focus:ring-offset-0"
-      />
-      <span className="text-white text-base">{label}</span>
-    </label>
   );
 }
