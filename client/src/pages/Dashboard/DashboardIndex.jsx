@@ -1,10 +1,61 @@
 // Dashboard.jsx
-import React from "react";
+import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { selectUserProfile } from "../../redux/slices/userSlice";
+import { selectUpcomingEvents, setUpcomingEvents } from "../../redux/slices/eventSlice";
+import { selectRecentActivity, setRecentActivity } from "../../redux/slices/dashboardSlice";
 import Sidebar from "../../components/layout/Sidebar.jsx"; // unified shared Sidebar
+import Button from "../../components/common/Button";
+import Avatar from "../../components/common/Avatar";
 
-const DashboardIndex = ({ profile }) => {
+const DashboardIndex = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
+  // Redux selectors
+  const profile = useSelector(selectUserProfile);
+  const upcomingEvents = useSelector(selectUpcomingEvents);
+  const recentActivity = useSelector(selectRecentActivity);
+
+  // Initialize mock data
+  useEffect(() => {
+    // Initialize events if empty
+    if (upcomingEvents.length === 0) {
+      dispatch(setUpcomingEvents([
+        { id: 1, title: "CS Society: Hackathon Kick-off", date: "Oct 26, 2024, 6:00 PM" },
+        { id: 2, title: "Alumni Mentorship Mixer", date: "Nov 2, 2024, 7:30 PM" },
+        { id: 3, title: "Final Year Project Showcase", date: "Nov 15, 2024, 10:00 AM" },
+      ]));
+    }
+
+    // Initialize recent activity if empty
+    if (recentActivity.length === 0) {
+      dispatch(setRecentActivity([
+        {
+          id: 1,
+          type: 'post',
+          img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBnUqFlqtncpo8A-RQPe27lJ_WS8g54tjvBgnIBzcU1Ll7bgw_L2wwGvNZwV7bieV0IZw0IfSjxpDCFUfR3b_T2R9xfAy8PMbfzRXydNPMEmlPz3-_JKNv1tq9Q0GVVlvQVA5FvEL16uDt_dvB3dS1jQekuwt9VXLhsYoGg9mD_SMm9K90_dyc4T1DbRnSwcnemQS558OEoqhtnigYeMBdJ5urG5yfYGtoocbPc4LAtc8AaONwphWDbI-75skX0De7_uDfP-oJDZyA",
+          text: "Sarah L. posted in Biotech Innovators",
+          time: "2 hours ago",
+        },
+        {
+          id: 2,
+          type: 'connection',
+          img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBG8getaXNBPqeoxobLHq4-ezIUQo4TqQ12EPt6maLD--AHUCwHOGgjn2v88p1YabN6wufKDZIU5_kJsHYrin-B8jV4grph9u5sShOAsbbyO3x1iQ4aPYRcqJP7Y6S87a8Lyfe2aq5pNyGP2h2_whIXY8OpnbPDqwQ2mQyF7Pb1xkkt14pL5OehhiTmz9K9dptvHuOB5uMFG0UUMbeBVQSF-sVXyLlEKUpkwq1PABi0oaflwkycL-DgS5ErKi_BzaHE93Kx6ZBiqMw",
+          text: "Mike R. is now connected with David Chen",
+          time: "Yesterday",
+        },
+        {
+          id: 3,
+          type: 'announcement',
+          icon: 'campaign',
+          text: "New announcement in CS Society",
+          time: "3 days ago",
+        },
+      ]));
+    }
+  }, [dispatch, upcomingEvents.length, recentActivity.length]);
 
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
@@ -40,14 +91,15 @@ const DashboardIndex = ({ profile }) => {
               </span>
             </button>
             <div
-              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-border-dark"
-              style={{
-                backgroundImage: `url(${
-                  profile?.picture || "/default-avatar.png"
-                })`,
-              }}
-              onClick={() => navigate("/profile")}
-            />
+              className="cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={() => navigate("/profile/view")}
+            >
+              <Avatar
+                src={profile?.picture || "/default-avatar.png"}
+                size="10"
+                border={true}
+              />
+            </div>
           </div>
         </div>
       </header>
@@ -82,14 +134,15 @@ const DashboardIndex = ({ profile }) => {
                   </span>
                 </button>
                 <div
-                  className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-10 border-2 border-border-dark"
-                  style={{
-                    backgroundImage: `url(${
-                      profile?.picture || "/default-avatar.png"
-                    })`,
-                  }}
-                  onClick={() => navigate("/profile")}
-                />
+                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => navigate("/profile/view")}
+                >
+                  <Avatar
+                    src={profile?.picture || "/default-avatar.png"}
+                    size="10"
+                    border={true}
+                  />
+                </div>
               </div>
             </div>
           </header>
@@ -116,19 +169,9 @@ const DashboardIndex = ({ profile }) => {
                         </h2>
                       </div>
                       <div className="flex flex-col divide-y divide-border-dark">
-                        {/* Example Event */}
-                        <EventItem
-                          title="CS Society: Hackathon Kick-off"
-                          date="Oct 26, 2024, 6:00 PM"
-                        />
-                        <EventItem
-                          title="Alumni Mentorship Mixer"
-                          date="Nov 2, 2024, 7:30 PM"
-                        />
-                        <EventItem
-                          title="Final Year Project Showcase"
-                          date="Nov 15, 2024, 10:00 AM"
-                        />
+                        {upcomingEvents.slice(0, 3).map((event) => (
+                          <EventItem key={event.id} title={event.title} date={event.date} />
+                        ))}
                       </div>
                     </div>
 
@@ -142,12 +185,9 @@ const DashboardIndex = ({ profile }) => {
                       <div className="p-4 sm:p-6">
                         <div className="flex flex-col items-start gap-4 rounded-lg border border-border-dark bg-black p-4 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex items-center gap-4">
-                            <div
-                              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-12"
-                              style={{
-                                backgroundImage:
-                                  'url("https://lh3.googleusercontent.com/aida-public/AB6AXuA93M4OEVTPSalVWpPg6oniNGkZhlm5SOXDGwxRtAc0Tx-kZ-wozDOkRBZZACWY3_axtayHpazxzohQLZ36P3GPz8s_D40_VhjpsSPxkZnooS6hQ_sTGil0ZNcJGE-CysBHzX6-Uf4sw7z1MDdFvvo6_Y-NzAVy_N44J7sL5JB65EEDIpSnpMj1pk3CQs1Em-3UtF2FCbykoay5NVQpmdFK_lDlB5H9tNcZoRcQCJCGH637Co8KUnklFzVhUzyFhDkEbNXlS_kaOyg")',
-                              }}
+                            <Avatar
+                              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA93M4OEVTPSalVWpPg6oniNGkZhlm5SOXDGwxRtAc0Tx-kZ-wozDOkRBZZACWY3_axtayHpazxzohQLZ36P3GPz8s_D40_VhjpsSPxkZnooS6hQ_sTGil0ZNcJGE-CysBHzX6-Uf4sw7z1MDdFvvo6_Y-NzAVy_N44J7sL5JB65EEDIpSnpMj1pk3CQs1Em-3UtF2FCbykoay5NVQpmdFK_lDlB5H9tNcZoRcQCJCGH637Co8KUnklFzVhUzyFhDkEbNXlS_kaOyg"
+                              size="12"
                             />
                             <div>
                               <p className="font-semibold text-text-primary-dark">
@@ -159,9 +199,12 @@ const DashboardIndex = ({ profile }) => {
                             </div>
                           </div>
                           <div className="flex w-full gap-2 sm:w-auto">
-                            <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-border-dark bg-surface-dark px-4 py-2 text-sm font-semibold text-text-primary-dark hover:bg-border-dark sm:w-auto">
+                            <Button
+                              variant="secondary"
+                              className="w-full sm:w-auto h-auto py-2 text-sm"
+                            >
                               Join Call
-                            </button>
+                            </Button>
                             <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-transparent bg-transparent px-4 py-2 text-sm font-semibold text-text-secondary-dark hover:underline sm:w-auto">
                               Reschedule
                             </button>
@@ -180,14 +223,17 @@ const DashboardIndex = ({ profile }) => {
                         </span>
                         <span>Create Event</span>
                       </button>
-                      <button className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg border border-border-dark bg-surface-dark text-text-primary-dark text-sm font-bold hover:bg-border-dark">
+                      <Button
+                        variant="secondary"
+                        className="w-full gap-2"
+                      >
                         <span className="material-symbols-outlined text-xl">
                           person_search
                         </span>
                         <span>Find a Mentor</span>
-                      </button>
+                      </Button>
                     </div>
-                    <RecentActivity />
+                    <RecentActivity activities={recentActivity} />
                   </div>
                 </div>
               </div>
@@ -222,7 +268,7 @@ const EventItem = ({ title, date }) => (
 );
 
 // Recent Activity Component
-const RecentActivity = () => (
+const RecentActivity = ({ activities = [] }) => (
   <div className="flex flex-col rounded-lg border border-border-dark bg-surface-dark">
     <div className="border-b border-border-dark px-4 pb-3 pt-5 sm:px-6">
       <h3 className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
@@ -230,38 +276,15 @@ const RecentActivity = () => (
       </h3>
     </div>
     <div className="flex flex-col divide-y divide-border-dark">
-      <ActivityItem
-        img="https://lh3.googleusercontent.com/aida-public/AB6AXuBnUqFlqtncpo8A-RQPe27lJ_WS8g54tjvBgnIBzcU1Ll7bgw_L2wwGvNZwV7bieV0IZw0IfSjxpDCFUfR3b_T2R9xfAy8PMbfzRXydNPMEmlPz3-_JKNv1tq9Q0GVVlvQVA5FvEL16uDt_dvB3dS1jQekuwt9VXLhsYoGg9mD_SMm9K90_dyc4T1DbRnSwcnemQS558OEoqhtnigYeMBdJ5urG5yfYGtoocbPc4LAtc8AaONwphWDbI-75skX0De7_uDfP-oJDZyA"
-        text={
-          <>
-            <span className="font-semibold">Sarah L.</span> posted in{" "}
-            <span className="font-semibold text-green-600">
-              Biotech Innovators
-            </span>
-          </>
-        }
-        time="2 hours ago"
-      />
-      <ActivityItem
-        img="https://lh3.googleusercontent.com/aida-public/AB6AXuBG8getaXNBPqeoxobLHq4-ezIUQo4TqQ12EPt6maLD--AHUCwHOGgjn2v88p1YabN6wufKDZIU5_kJsHYrin-B8jV4grph9u5sShOAsbbyO3x1iQ4aPYRcqJP7Y6S87a8Lyfe2aq5pNyGP2h2_whIXY8OpnbPDqwQ2mQyF7Pb1xkkt14pL5OehhiTmz9K9dptvHuOB5uMFG0UUMbeBVQSF-sVXyLlEKUpkwq1PABi0oaflwkycL-DgS5ErKi_BzaHE93Kx6ZBiqMw"
-        text={
-          <>
-            <span className="font-semibold">Mike R.</span> is now connected with{" "}
-            <span className="font-semibold">David Chen</span>
-          </>
-        }
-        time="Yesterday"
-      />
-      <ActivityItem
-        icon="campaign"
-        text={
-          <>
-            New announcement in{" "}
-            <span className="font-semibold text-green-600">CS Society</span>
-          </>
-        }
-        time="3 days ago"
-      />
+      {activities.map((activity) => (
+        <ActivityItem
+          key={activity.id}
+          img={activity.img}
+          icon={activity.icon}
+          text={activity.text}
+          time={activity.time}
+        />
+      ))}
     </div>
   </div>
 );
@@ -269,9 +292,10 @@ const RecentActivity = () => (
 const ActivityItem = ({ img, icon, text, time }) => (
   <div className="flex items-start gap-4 p-4 sm:p-6">
     {img ? (
-      <div
-        className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8 shrink-0 mt-1"
-        style={{ backgroundImage: `url(${img})` }}
+      <Avatar
+        src={img}
+        size="8"
+        className="shrink-0 mt-1"
       />
     ) : (
       <div className="text-text-primary-dark flex items-center justify-center rounded-full bg-border-dark size-8 shrink-0 mt-1">
