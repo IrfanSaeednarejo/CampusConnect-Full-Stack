@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "type": "post",
+    "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuBnUqFlqtncpo8A-RQPe27lJ_WS8g54tjvBgnIBzcU1Ll7bgw_L2wwGvNZwV7bieV0IZw0IfSjxpDCFUfR3b_T2R9xfAy8PMbfzRXydNPMEmlPz3-_JKNv1tq9Q0GVVlvQVA5FvEL16uDt_dvB3dS1jQekuwt9VXLhsYoGg9mD_SMm9K90_dyc4T1DbRnSwcnemQS558OEoqhtnigYeMBdJ5urG5yfYGtoocbPc4LAtc8AaONwphWDbI-75skX0De7_uDfP-oJDZyA",
+    "text": "Sarah L. posted in Biotech Innovators",
+    "time": "2 hours ago"
+  },
+  {
+    "id": 2,
+    "type": "connection",
+    "img": "https://lh3.googleusercontent.com/aida-public/AB6AXuBG8getaXNBPqeoxobLHq4-ezIUQo4TqQ12EPt6maLD--AHUCwHOGgjn2v88p1YabN6wufKDZIU5_kJsHYrin-B8jV4grph9u5sShOAsbbyO3x1iQ4aPYRcqJP7Y6S87a8Lyfe2aq5pNyGP2h2_whIXY8OpnbPDqwQ2mQyF7Pb1xkkt14pL5OehhiTmz9K9dptvHuOB5uMFG0UUMbeBVQSF-sVXyLlEKUpkwq1PABi0oaflwkycL-DgS5ErKi_BzaHE93Kx6ZBiqMw",
+    "text": "Mike R. is now connected with David Chen",
+    "time": "Yesterday"
+  },
+  {
+    "id": 3,
+    "type": "announcement",
+    "icon": "campaign",
+    "text": "New announcement in CS Society",
+    "time": "3 days ago"
+  }
+]

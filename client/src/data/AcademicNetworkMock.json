@@ -1,0 +1,56 @@
+[
+  {
+    "id": 1,
+    "name": "Dr. Evelyn Reed",
+    "role": "Professor, Computer Science",
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuAVusTyWqc7DI9AudhLe2pI0pZIOWvzb8CzyrHToin7EwbfbtUYdSzo0sam9KPaO07tvw3NVZ2BxCvm5-IQO-uScCFn_aQEAO0zMe_GbGVwEzn2q9XgfE3GEbXRfWjK4pGhFYa0DRxcfCMXcEiTOtiUEQiDTFQ5nH7osmBLtFZe8Hb5o7A8p4pE-pjSisPsDdkw1FdnuE6qJWkfcz8uTOh-BfP8_p_2EgOx2ANY8EDZI492k97RqvbzcKzmHSziogxIVtMxFnVwO4Y",
+    "skills": ["Machine Learning", "AI Ethics"],
+    "interests": ["Machine Learning", "AI Ethics"],
+    "buttonType": "message"
+  },
+  {
+    "id": 2,
+    "name": "Liam Chen",
+    "role": "Student, Business Analytics",
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDpxGZ5n1NE2_J73JN_LSrjev-FpYakzvIIzjrkcmpytQOGxn2ceFJgTBvkTrTqH2gz2b4TbeGvQ1nC_fxrOPKdRl-7zTg1j2UNEQ_3C0dhSVGArOLDPIr3LlkG01sMtJiCtPVBdCDW62yucwruUF9coN5h5P5wsP2hbu7cTMsj8ywZsWQ5157Vyemdt1X2I5mfhGDdYkrclA0V9UwX3uF63sIV3VXB2xnmwgmnorjbM8ScMwfc_Mq_NK0f12zT4-NaskUlYDwKRGQ",
+    "skills": ["Data Visualization", "Finance Club"],
+    "interests": ["Data Visualization", "Finance Club"],
+    "buttonType": "connect"
+  },
+  {
+    "id": 3,
+    "name": "Aisha Khan",
+    "role": "Student, Graphic Design",
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDCh25_NkUXpUHdBFiDXrfCciMDW5mSubLmfL8VBtcSZlfZEldd10ok57tOcW4gmGOmmcDvHyARIBsEsYHhDEvpR0dvOHibjSaYLu6K5QQi9hVkXbG4aWPyKiI_vzxEryduWttEWMQnvJGOz8zKJl5CzG9j0o8-PGoD52fphRJ_8EPVuuBYptaOcPftNKxuQ0PPeIcPrFKxOuaVackVesfprtYrRKXr2rRgdOJiUM_OHxyrYwf85WrObqyQ3lbKZP2y6-9LoQJtGMg",
+    "skills": ["UI/UX Design", "Art Society", "Webflow"],
+    "interests": ["UI/UX Design", "Art Society", "Webflow"],
+    "buttonType": "pending"
+  },
+  {
+    "id": 4,
+    "name": "Ben Carter",
+    "role": "Mentor, Software Engineering",
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBhCC5PBQI8wrKa1mKNaaNbWYgwigC7s6DvDH6wUMWZC8jhp3Urbe26o7992qKyOg2rDQ_sB3g6MukTIf7z4iC3HppKfRN0SG8Bl5GIF98aZQyzJUq_ToGQ_Jctl8YTVet9pifF0eGQVs4sIYCtb0E0A3IC1u0BWbnZQ60Buoxyi2ZDz4wivKRLzBpxxZ_f7H96mrcy2v8c6QdD_tDh1KAkoG0pFe_YTxHZyrbEV9OYfIrwN-hmNUXKuXfFQo74TivXr7omQROLSD8",
+    "skills": ["React", "Node.js"],
+    "interests": ["React", "Node.js"],
+    "buttonType": "connect"
+  },
+  {
+    "id": 5,
+    "name": "Olivia Martinez",
+    "role": "Student, Environmental Science",
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuCHgbUHBnQyTdROxnH_CTKu678wE9E__5KGwAIrAZLnCCY4k_H8toPmIwpTR_Svd1q8sXzNGC9BKtQZJEiCsf20KCCmuWGLH81z0xVgjsCzrEeXLFoyOWEWzZdOAaIuSbZKawoWLA8HcsfVJz97mLwwF1W2rHPAoKDq_m2pV1Xm3-Y2SS_Wd_pjjvibmSQYoveJ6l3duYu2KFhPgwhtCLLC0KJsbyx611slLhTxrFSRFEnkqw2dvhn-JocrFkS3hyq2_vSNBfpAfes",
+    "skills": ["Sustainability", "GIS"],
+    "interests": ["Sustainability", "GIS"],
+    "buttonType": "message"
+  },
+  {
+    "id": 6,
+    "name": "Noah Patel",
+    "role": "Student, Mechanical Engineering",
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBAL2amqp-8mTOJ4Y0LZ31plIHmAuRkacqmJA-4Zg448GIHncjBjwZjuMbOHqfb0HYvLQTmrabmcGirPodUFT-tffpmJxFiKnjTAaT8CqsTt1o38WJkxLsEQWlqk3VetxvpGttEWjm6I76SkdyrJtVvKRyV7gz5xYFH_KBiJVpFokiqrBZdlYlj0kjphFlIjegDDCQ6eIfW6V7Isoa3HzqH7IG_mKNDrqh-FHpUs21ObkIOctkwlyHMgg3PRsYr4c7benbBSndtkU0",
+    "skills": ["Robotics Club", "CAD"],
+    "interests": ["Robotics Club", "CAD"],
+    "buttonType": "connect"
+  }
+]
