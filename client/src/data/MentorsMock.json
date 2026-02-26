@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "Dr. Sarah Johnson",
+    "expertise": "Artificial Intelligence & ML",
+    "bio": "PhD in Computer Science with 8 years of industry experience.",
+    "availability": "Weekends",
+    "students": 12
+  },
+  {
+    "id": 2,
+    "name": "Prof. Michael Chen",
+    "expertise": "Web Development",
+    "bio": "Full-stack developer and tech educator with passion for mentoring.",
+    "availability": "Evenings",
+    "students": 18
+  },
+  {
+    "id": 3,
+    "name": "Dr. Emily Rodriguez",
+    "expertise": "Data Science & Analytics",
+    "bio": "Leading data scientist helping students understand the power of data.",
+    "availability": "Flexible",
+    "students": 15
+  },
+  {
+    "id": 4,
+    "name": "James Wilson",
+    "expertise": "Mobile App Development",
+    "bio": "Award-winning iOS and Android developer with 10+ years experience.",
+    "availability": "Weekdays",
+    "students": 9
+  },
+  {
+    "id": 5,
+    "name": "Lisa Anderson",
+    "expertise": "UI/UX Design",
+    "bio": "Creative designer passionate about user-centered design principles.",
+    "availability": "Weekends",
+    "students": 14
+  },
+  {
+    "id": 6,
+    "name": "Robert Zhang",
+    "expertise": "Cybersecurity",
+    "bio": "Security expert teaching ethical hacking and defensive strategies.",
+    "availability": "Evenings",
+    "students": 11
+  }
+]
