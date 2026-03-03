@@ -1,0 +1,50 @@
+{
+  "accounts": [
+    {
+      "id": "acc-student-1",
+      "email": "alice.student@campus.edu",
+      "username": "alice.student",
+      "fullName": "Alice Johnson",
+      "role": "student",
+      "password": "SecurePass123",
+      "createdAt": "2024-02-01T10:00:00Z"
+    },
+    {
+      "id": "acc-student-2",
+      "email": "bob.student@campus.edu",
+      "username": "bob.student",
+      "fullName": "Bob Smith",
+      "role": "student",
+      "password": "SecurePass456",
+      "createdAt": "2024-02-05T14:30:00Z"
+    },
+    {
+      "id": "acc-mentor-1",
+      "email": "mentor.sarah@campus.edu",
+      "username": "mentor.sarah",
+      "fullName": "Dr. Sarah Mitchell",
+      "role": "mentor",
+      "password": "MentorPass123",
+      "createdAt": "2024-01-15T09:00:00Z"
+    },
+    {
+      "id": "acc-mentor-2",
+      "email": "mentor.john@campus.edu",
+      "username": "mentor.john",
+      "fullName": "Prof. John Davis",
+      "role": "mentor",
+      "password": "MentorPass456",
+      "createdAt": "2024-01-20T11:00:00Z"
+    },
+    {
+      "id": "acc-society-1",
+      "email": "head.techclub@campus.edu",
+      "username": "head.techclub",
+      "fullName": "Alex Kumar",
+      "role": "society_head",
+      "password": "HeadPass123",
+      "createdAt": "2024-01-10T08:00:00Z"
+    }
+  ],
+  "note": "This is mock data for development. In production, accounts are stored in a secure backend database with hashed passwords."
+}
