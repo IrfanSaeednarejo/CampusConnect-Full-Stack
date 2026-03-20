@@ -34,8 +34,8 @@ export function useMockData(selector, action, mockData, dependencies = []) {
     if (!hasData) {
       dispatch(action(mockData));
     }
-    // Only run once on mount and when hasData changes
-  }, [dispatch, hasData, ...dependencies]); // eslint-disable-line react-hooks/exhaustive-deps
+    // Only run once on mount and when hasData or dependencies change
+  }, [dispatch, hasData, action, mockData, ...dependencies]);
 
   return data;
 }

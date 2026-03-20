@@ -18,20 +18,22 @@
  */
 
 let socketInstance = null;
+const socketsWithListeners = new WeakSet();
 
 const socketMiddleware = store => next => action => {
   // Store socket instance when it's provided
   if (action.payload && action.payload.socket) {
     const incomingSocket = action.payload.socket;
 
-    // Only (re)initialize listeners when the socket instance changes
-    if (socketInstance !== incomingSocket) {
+    // Update the tracked socket instance if a new one is provided
+    if (incomingSocket && incomingSocket !== socketInstance) {
       socketInstance = incomingSocket;
+    }
 
-      // Set up listeners for socket events
-      if (socketInstance) {
-        setupSocketListeners(store, socketInstance);
-      }
+    // Set up listeners for socket events only once per socket instance
+    if (socketInstance && !socketsWithListeners.has(socketInstance)) {
+      setupSocketListeners(store, socketInstance);
+      socketsWithListeners.add(socketInstance);
     }
   }
 

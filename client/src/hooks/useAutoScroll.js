@@ -24,10 +24,12 @@ export const useAutoScroll = (dependency, options = {}) => {
 
   useEffect(() => {
     if (enabled && ref.current) {
-      if (typeof ref.current.scrollTo === 'function') {
-        ref.current.scrollTo({ top: ref.current.scrollHeight, behavior });
+      const element = ref.current;
+
+      if (typeof element.scrollTo === 'function') {
+        element.scrollTo({ top: element.scrollHeight, behavior });
       } else {
-        ref.current.scrollTop = ref.current.scrollHeight;
+        element.scrollTop = element.scrollHeight;
       }
     }
   }, [dependency, behavior, enabled]);
