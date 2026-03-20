@@ -8,6 +8,7 @@ export default function SessionExpired() {
   const handleLogin = () => {
     // Clear any existing auth data
     localStorage.removeItem('authState');
+    localStorage.removeItem('authToken');
     navigate('/login');
   };
 
