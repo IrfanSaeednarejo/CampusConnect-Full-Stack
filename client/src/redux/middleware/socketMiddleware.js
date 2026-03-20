@@ -54,7 +54,7 @@ function setupSocketListeners(store, socket) {
   // User events
   socket.on('user-update', (data) => {
     store.dispatch({
-      type: 'user/updateUser',
+      type: 'user/updateUserProfile',
       payload: data,
     });
   });
