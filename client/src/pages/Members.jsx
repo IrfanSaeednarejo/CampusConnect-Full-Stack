@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { selectFilteredMembers, setMembers, searchMembers } from "../redux/slices/memberSlice";
 import SectionHeader from "../components/common/SectionHeader";
