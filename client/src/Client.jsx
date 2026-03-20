@@ -1,5 +1,9 @@
 import AppRoutes from "./routes/AppRoutes";
+<<<<<<< feature/api-final
+import ErrorBoundary from "./components/ErrorBoundary";
+=======
 import ErrorBoundary from "./components/error/ErrorBoundary.jsx";
+>>>>>>> main
 import { AuthProvider } from "@/contexts/AuthContext.jsx";
 import { NotificationProvider } from "@/contexts/NotificationContext.jsx";
 import { AgentProvider } from "@/contexts/AgentContext.jsx";
