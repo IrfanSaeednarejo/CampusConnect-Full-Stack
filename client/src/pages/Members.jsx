@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { selectFilteredMembers, setMembers, searchMembers } from "../redux/slices/memberSlice";
+import { selectFilteredMembers, setMembers } from "../redux/slices/memberSlice";
 import SectionHeader from "../components/common/SectionHeader";
 import MemberCard from "../components/common/MemberCard";
 import Card from "../components/common/Card";
