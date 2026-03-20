@@ -44,7 +44,7 @@ export function useNavigation() {
 
   // Navigate to profile
   const goToProfile = useCallback((userId) => {
-    navigate('/profile/view');
+    navigate('/profile/view', { state: { userId } });
   }, [navigate]);
 
   // Navigate with confirmation

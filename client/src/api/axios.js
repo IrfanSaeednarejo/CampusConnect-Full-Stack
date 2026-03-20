@@ -38,6 +38,7 @@ api.interceptors.response.use(
           // Unauthorized - clear auth and redirect to login
           localStorage.removeItem('authToken');
           localStorage.removeItem('user');
+          localStorage.removeItem('authState');
           window.location.href = '/login';
           break;
         case 403:
