@@ -26,13 +26,13 @@ export default function MentorProfile() {
 
   const handleAddSlot = (day) => {
     const dayKey = day.toLowerCase();
-    setAvailability({
-      ...availability,
+    setAvailability((prevAvailability) => ({
+      ...prevAvailability,
       [dayKey]: [
-        ...(availability[dayKey] || []),
+        ...(prevAvailability[dayKey] || []),
         { start: "10:00", end: "11:00", available: true },
       ],
-    });
+    }));
   };
 
   const handleSave = () => {

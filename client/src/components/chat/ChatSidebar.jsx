@@ -7,9 +7,16 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, Archive, Pin, BellOff } from 'lucide-react';
 
-const ChatSidebar = ({ conversations, selectedId, onSelectConversation }) => {
+const ChatSidebar = ({
+  conversations,
+  selectedId,
+  onSelectConversation,
+  archivedCount = 0,
+  showArchived = false,
+  onToggleArchived
+}) => {
   // State for search query input
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -36,7 +43,9 @@ const ChatSidebar = ({ conversations, selectedId, onSelectConversation }) => {
   };
 
   // Get avatar color based on user ID or group type
-  const getAvatarColor = (id, type) => {
+  const getAvatarColor = (conversation) => {
+    if (conversation.avatarColor) return conversation.avatarColor;
+    const { id, type } = conversation;
     if (type === 'group') {
       return 'group'; // Purple for groups
     }
@@ -75,14 +84,24 @@ const ChatSidebar = ({ conversations, selectedId, onSelectConversation }) => {
 
   return (
     <div className="chat-sidebar">
-      {/* Header with title and search */}
       <div className="sidebar-header">
-        <h2>Messages</h2>
+        <div className="sidebar-title">
+          <h2>Messages</h2>
+          <button
+            className={`archived-toggle ${showArchived ? 'active' : ''}`}
+            onClick={onToggleArchived}
+            title="Archived"
+          >
+            <Archive size={16} />
+            <span>Archived</span>
+            <span className="archived-count">{archivedCount}</span>
+          </button>
+        </div>
         <div className="search-container">
           <Search size={18} />
           <input
             type="text"
-            placeholder="Search messages or users"
+            placeholder="Search chats"
             value={searchQuery}
             onChange={handleSearchChange}
           />
@@ -111,7 +130,7 @@ const ChatSidebar = ({ conversations, selectedId, onSelectConversation }) => {
             >
               {/* Avatar with status */}
               <div className="avatar-container">
-                <div className={`avatar ${getAvatarColor(conversation.id, conversation.type)}`}>
+                <div className={`avatar ${getAvatarColor(conversation)}`}>
                   {conversation.avatar || conversation.name[0]}
                 </div>
 
@@ -131,10 +150,13 @@ const ChatSidebar = ({ conversations, selectedId, onSelectConversation }) => {
                 </div>
                 <div className="conversation-footer">
                   <p className="last-message">{conversation.lastMessage}</p>
-                  {/* Show unread count badge */}
-                  {conversation.unread > 0 && (
-                    <span className="unread-badge">{conversation.unread}</span>
-                  )}
+                  <div className="conversation-badges">
+                    {conversation.isPinned && <Pin size={14} />}
+                    {conversation.isMuted && <BellOff size={14} />}
+                    {conversation.unread > 0 && (
+                      <span className="unread-badge">{conversation.unread}</span>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>
