@@ -1,9 +1,9 @@
 import AppRoutes from "./routes/AppRoutes";
-import ErrorBoundary from "./components/error/ErrorBoundary.jsx";
-import { AuthProvider } from "@/contexts/AuthContext.jsx";
-import { NotificationProvider } from "@/contexts/NotificationContext.jsx";
-import { AgentProvider } from "@/contexts/AgentContext.jsx";
-import { SocketProvider } from "@/contexts/SocketContext.jsx";
+import ErrorBoundary from "./components/ErrorBoundary";
+import { AuthProvider } from "./contexts/AuthContext.jsx";
+import { NotificationProvider } from "./contexts/NotificationContext.jsx";
+import { AgentProvider } from "./contexts/AgentContext.jsx";
+import { SocketProvider } from "./contexts/SocketContext.jsx";
 
 function App() {
   return (
