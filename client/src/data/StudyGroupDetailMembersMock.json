@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "Sarah Johnson",
+    "role": "Creator",
+    "avatar": "SJ"
+  },
+  {
+    "id": 2,
+    "name": "Alex Chen",
+    "role": "Member",
+    "avatar": "AC"
+  },
+  {
+    "id": 3,
+    "name": "Emma Wilson",
+    "role": "Member",
+    "avatar": "EW"
+  },
+  {
+    "id": 4,
+    "name": "Michael Brown",
+    "role": "Member",
+    "avatar": "MB"
+  }
+]

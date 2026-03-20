@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "author": "Alex Chen",
+    "avatar": "AC",
+    "message": "Anyone up for a study session this weekend?",
+    "timestamp": "2 hours ago",
+    "replies": 3
+  },
+  {
+    "id": 2,
+    "author": "Emma Wilson",
+    "avatar": "EW",
+    "message": "I'm struggling with pointers. Can someone explain?",
+    "timestamp": "5 hours ago",
+    "replies": 7
+  }
+]
