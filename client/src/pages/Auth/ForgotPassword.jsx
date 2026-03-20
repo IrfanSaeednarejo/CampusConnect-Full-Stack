@@ -9,7 +9,7 @@ import FormActions from "../../components/common/FormActions";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
-  const { showSuccess, showError } = useNotification();
+  const { showSuccess } = useNotification();
 
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
