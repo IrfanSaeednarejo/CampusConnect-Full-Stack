@@ -1,7 +1,7 @@
 // useSocket - Custom hook for WebSocket/Socket.IO interactions
 // Provides easy access to socket instance and methods from any component
 
-import React, { useContext, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { SocketContext } from '../contexts/SocketContext.jsx';
 
 /**
