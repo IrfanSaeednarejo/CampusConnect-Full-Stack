@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "icon": "event",
+    "title": "AI Ethics Debate",
+    "time": "Tomorrow at 6 PM"
+  },
+  {
+    "id": 2,
+    "icon": "event",
+    "title": "Hackathon 2026",
+    "time": "March 15 at 9 AM"
+  },
+  {
+    "id": 3,
+    "icon": "event",
+    "title": "Tech Summit",
+    "time": "March 20 at 10 AM"
+  }
+]

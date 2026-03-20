@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "IEEE Student Chapter",
+    "role": "Member",
+    "image": "https://lh3.googleusercontent.com/d/1W3nX9L2NL4A0P3HB1GO4IC69EZ8iK0U6zJ"
+  },
+  {
+    "id": 2,
+    "name": "AI/ML Club",
+    "role": "Co-founder",
+    "image": "https://lh3.googleusercontent.com/d/1X4oY0M3OM5B1Q4IC2HP5JD70FA9jL1V7zK"
+  },
+  {
+    "id": 3,
+    "name": "Debate Society",
+    "role": "Member",
+    "image": "https://lh3.googleusercontent.com/d/1Z6qA2O5QO7D3S6KE4JR7LF92HC1lN3X9zM"
+  },
+  {
+    "id": 4,
+    "name": "Photography Club",
+    "role": "Member",
+    "image": "https://lh3.googleusercontent.com/d/1A7rB3P6RP8E4T7LF5KS8MG03ID2mO4Y0zN"
+  }
+]
