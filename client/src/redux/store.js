@@ -10,7 +10,7 @@ export const store = configureStore({
     getDefaultMiddleware({
       serializableCheck: {
         // Ignore socket instance in payload (not serializable)
-        ignoredActions: ['SOCKET_CONNECTED'],
+        ignoredActions: ['SOCKET_CONNECTED', 'socket/connected'],
         ignoredActionPaths: ['payload.socket'],
         ignoredPaths: ['socket'],
       },
