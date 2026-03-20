@@ -5,6 +5,9 @@ import { NotificationProvider } from "./contexts/NotificationContext.jsx";
 import { AgentProvider } from "./contexts/AgentContext.jsx";
 import { SocketProvider } from "./contexts/SocketContext.jsx";
 
+function ErrorBoundary({ children }) {
+  return children;
+}
 function App() {
   return (
     <ErrorBoundary>
