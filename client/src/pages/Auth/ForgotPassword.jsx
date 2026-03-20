@@ -1,7 +1,7 @@
 // src/pages/Auth/ForgotPassword.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useNotification } from "@/contexts/NotificationContext.jsx";
+import { useNotification } from "../../contexts/NotificationContext.jsx";
 import AuthCard from "../../components/auth/AuthCard";
 import AuthShell from "../../components/auth/AuthShell";
 import FormField from "../../components/common/FormField";
