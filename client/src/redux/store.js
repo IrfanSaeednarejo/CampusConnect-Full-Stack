@@ -22,28 +22,48 @@ export const store = configureStore({
 });
 
 const CHAT_STORAGE_KEY = "chatState";
+const CHAT_PERSIST_DEBOUNCE_MS = 500;
 
-const persistChatState = (state) => {
-  if (typeof window === "undefined") return;
-  try {
+const persistChatState = (() => {
+  let previousChatState = null;
+  let debounceTimeoutId = null;
+
+  return (state) => {
+    if (typeof window === "undefined") return;
+
     const chatState = state.chat;
-    const payload = {
-      selectedConversationId: chatState.selectedConversationId,
-      messagesByConversation: chatState.messagesByConversation,
-      unreadByConversation: chatState.unreadByConversation,
-      pinnedConversations: chatState.pinnedConversations,
-      archivedConversations: chatState.archivedConversations,
-      mutedConversations: chatState.mutedConversations,
-      draftsByConversation: chatState.draftsByConversation,
-      hiddenMessagesByConversation: chatState.hiddenMessagesByConversation,
-      lastSeenByConversation: chatState.lastSeenByConversation,
-    };
-    localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(payload));
-  } catch {
-    // Ignore persistence errors
-  }
-};
 
+    // Only persist when the chat slice reference changes
+    if (chatState === previousChatState) {
+      return;
+    }
+    previousChatState = chatState;
+
+    // Debounce writes to avoid frequent JSON serialization + localStorage access
+    if (debounceTimeoutId !== null) {
+      clearTimeout(debounceTimeoutId);
+    }
+
+    debounceTimeoutId = setTimeout(() => {
+      try {
+        const payload = {
+          selectedConversationId: chatState.selectedConversationId,
+          messagesByConversation: chatState.messagesByConversation,
+          unreadByConversation: chatState.unreadByConversation,
+          pinnedConversations: chatState.pinnedConversations,
+          archivedConversations: chatState.archivedConversations,
+          mutedConversations: chatState.mutedConversations,
+          draftsByConversation: chatState.draftsByConversation,
+          hiddenMessagesByConversation: chatState.hiddenMessagesByConversation,
+          lastSeenByConversation: chatState.lastSeenByConversation,
+        };
+        localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(payload));
+      } catch {
+        // Ignore persistence errors
+      }
+    }, CHAT_PERSIST_DEBOUNCE_MS);
+  };
+})();
 store.subscribe(() => persistChatState(store.getState()));
 
 export default store;
