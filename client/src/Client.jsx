@@ -1,4 +1,4 @@
-import AppRoutes from "./Routes/AppRoutes";
+import AppRoutes from "./routes/AppRoutes";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext.jsx";
 import { NotificationProvider } from "@/contexts/NotificationContext.jsx";
