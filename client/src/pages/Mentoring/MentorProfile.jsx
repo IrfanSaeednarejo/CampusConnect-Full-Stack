@@ -98,12 +98,32 @@ export default function MentorProfile() {
                           <input
                             type="time"
                             value={slot.start}
+                            onChange={(e) =>
+                              setAvailability((prev) => ({
+                                ...prev,
+                                [day.toLowerCase()]:
+                                  (prev[day.toLowerCase()] || []).map(
+                                    (s, sIdx) =>
+                                      sIdx === idx ? { ...s, start: e.target.value } : s
+                                  ),
+                              }))
+                            }
                             className="px-3 py-2 bg-[#30363d] text-white rounded border border-[#404851] focus:outline-none focus:border-[#1dc964]"
                           />
                           <span className="text-[#9eb7a9]">to</span>
                           <input
                             type="time"
                             value={slot.end}
+                            onChange={(e) =>
+                              setAvailability((prev) => ({
+                                ...prev,
+                                [day.toLowerCase()]:
+                                  (prev[day.toLowerCase()] || []).map(
+                                    (s, sIdx) =>
+                                      sIdx === idx ? { ...s, end: e.target.value } : s
+                                  ),
+                              }))
+                            }
                             className="px-3 py-2 bg-[#30363d] text-white rounded border border-[#404851] focus:outline-none focus:border-[#1dc964]"
                           />
                           <button className="ml-auto text-[#9eb7a9] hover:text-red-400 transition-colors">
