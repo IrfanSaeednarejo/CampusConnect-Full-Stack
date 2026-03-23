@@ -1,19 +1,24 @@
 // ============================================
 // FILE: components/ChatWindow.jsx
 // ============================================
-import React from 'react';
+import React, { useState } from 'react';
 import ChatHeader from './ChatHeader';
 import MessageList from './MessageList'; 
 import ChatInput from './ChatInput';
-import mockData from "../../data/mockUsers.json";
-// Access mock data for users, groups and messages
-const { mockUsers, mockGroups, mockMessages } = mockData;
 
 const ChatWindow = ({ conversation, messages, onSendMessage }) => {
+  const [draft, setDraft] = useState('');
+
+  const handleSend = () => {
+    if (!draft.trim()) return;
+    onSendMessage?.(draft);
+    setDraft('');
+  };
+
   return (
     <div className="chat-window">
       {/* Header with conversation info */}
-      <ChatHeader conversation={conversation} />
+      <ChatHeader conversation={conversation} avatarColor={conversation?.avatarColor} />
       
       {/* Scrollable message list */}
       <MessageList 
@@ -22,7 +27,7 @@ const ChatWindow = ({ conversation, messages, onSendMessage }) => {
       />
       
       {/* Message input at bottom */}
-      <ChatInput onSendMessage={onSendMessage} />
+      <ChatInput value={draft} onChange={setDraft} onSend={handleSend} />
     </div>
   );
 };

@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "author": "Sarah Johnson",
+    "avatar": "SJ",
+    "message": "Hey everyone! Don't forget we're meeting tomorrow at 6 PM in the library.",
+    "timestamp": "10:30 AM",
+    "isOwn": false
+  },
+  {
+    "id": 2,
+    "author": "Alex Chen",
+    "avatar": "AC",
+    "message": "Thanks for the reminder! I'll bring my notes from last week's lecture.",
+    "timestamp": "10:35 AM",
+    "isOwn": true
+  },
+  {
+    "id": 3,
+    "author": "Emma Wilson",
+    "avatar": "EW",
+    "message": "Can someone explain the concept of pointers? I'm still confused.",
+    "timestamp": "11:15 AM",
+    "isOwn": false
+  },
+  {
+    "id": 4,
+    "author": "Michael Brown",
+    "avatar": "MB",
+    "message": "Sure! I can go over that tomorrow. It's actually not as complicated as it seems.",
+    "timestamp": "11:20 AM",
+    "isOwn": false
+  }
+]

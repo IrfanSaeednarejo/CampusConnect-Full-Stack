@@ -1,27 +1,39 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setUserPreferences } from "../../redux/slices/userSlice";
+import FormActions from "../../components/common/FormActions";
+import OnboardingShell from "../../components/onboarding/OnboardingShell";
+import OnboardingCard from "../../components/onboarding/OnboardingCard";
+import OnboardingProgress from "../../components/onboarding/OnboardingProgress";
+import OnboardingOptionRow from "../../components/onboarding/OnboardingOptionRow";
 
 export default function NotificationsSetup() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsReminders, setSmsReminders] = useState(false);
 
+  const handleFinish = () => {
+    // Save notification preferences to Redux
+    dispatch(setUserPreferences({
+      emailUpdates: emailNotifications,
+      smsReminders: smsReminders,
+      notifications: emailNotifications || smsReminders,
+    }));
+    navigate("/onboarding/complete");
+  };
+
   return (
-    <div className="bg-background-dark font-display min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-[560px] rounded-lg border border-[#30363d] bg-[#161b22] p-6 sm:p-8 flex flex-col gap-8">
+    <OnboardingShell>
+      <OnboardingCard className="w-full max-w-[560px] flex flex-col gap-8" padding="p-6 sm:p-8">
         {/* Progress Bar */}
-        <div className="flex flex-col gap-3">
-          <div className="flex justify-between">
-            <p className="text-[#8b949e] text-sm font-medium">Step 3 of 4</p>
-          </div>
-          <div className="h-2 w-full rounded-full bg-[#30363d]">
-            <div
-              className="h-2 rounded-full bg-primary"
-              style={{ width: "75%" }}
-            ></div>
-          </div>
-        </div>
+        <OnboardingProgress
+          currentStep={3}
+          totalSteps={4}
+          textClassName="text-[#8b949e] text-sm font-medium"
+        />
 
         {/* Page Heading */}
         <div className="flex flex-col gap-2">
@@ -36,58 +48,30 @@ export default function NotificationsSetup() {
         {/* Notification List */}
         <div className="flex flex-col gap-4">
           {/* Email Notifications */}
-          <div className="flex items-center justify-between gap-4 rounded-lg border border-[#30363d] bg-[#0d1117] p-4">
-            <div className="flex items-center gap-4">
-              <div className="bg-[#21262d] text-[#8b949e] flex items-center justify-center rounded-lg h-10 w-10">
-                <span className="material-symbols-outlined">mail</span>
-              </div>
-              <p className="text-[#e6edf3] font-medium flex-1">
-                Allow Email Notifications
-              </p>
-            </div>
-            <input
-              type="checkbox"
-              className="h-5 w-5 cursor-pointer"
-              checked={emailNotifications}
-              onChange={() => setEmailNotifications(!emailNotifications)}
-            />
-          </div>
+          <OnboardingOptionRow
+            icon="mail"
+            label="Allow Email Notifications"
+            checked={emailNotifications}
+            onChange={() => setEmailNotifications(!emailNotifications)}
+          />
 
           {/* SMS Reminders */}
-          <div className="flex items-center justify-between gap-4 rounded-lg border border-[#30363d] bg-[#0d1117] p-4">
-            <div className="flex items-center gap-4">
-              <div className="bg-[#21262d] text-[#8b949e] flex items-center justify-center rounded-lg h-10 w-10">
-                <span className="material-symbols-outlined">sms</span>
-              </div>
-              <p className="text-[#e6edf3] font-medium flex-1">
-                Allow SMS Reminders
-              </p>
-            </div>
-            <input
-              type="checkbox"
-              className="h-5 w-5 cursor-pointer"
-              checked={smsReminders}
-              onChange={() => setSmsReminders(!smsReminders)}
-            />
-          </div>
+          <OnboardingOptionRow
+            icon="sms"
+            label="Allow SMS Reminders"
+            checked={smsReminders}
+            onChange={() => setSmsReminders(!smsReminders)}
+          />
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col items-center gap-4 pt-4">
-          <button
-            onClick={() => navigate("/onboarding/OnboardingWizardComplete")}
-            className="w-full flex items-center justify-center h-12 rounded-lg bg-primary text-white font-bold hover:bg-green-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-400"
-          >
-            Finish Setup
-          </button>
-          <button
-            onClick={() => navigate("/onboarding/finish")}
-            className="text-[#8b949e] text-sm font-medium hover:text-[#e6edf3]"
-          >
-            Skip for now
-          </button>
-        </div>
-      </div>
-    </div>
+        <FormActions
+          submitText="Finish Setup"
+          cancelText="Skip for now"
+          onSubmit={handleFinish}
+          onCancel={() => navigate("/onboarding/complete")}
+        />
+      </OnboardingCard>
+    </OnboardingShell>
   );
 }

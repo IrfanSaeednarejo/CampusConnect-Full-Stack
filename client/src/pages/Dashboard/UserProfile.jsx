@@ -34,7 +34,7 @@ const UserProfile = ({ profile }) => {
                     >
                       {tab}
                     </button>
-                  )
+                  ),
                 )}
               </div>
             </div>

@@ -1,23 +1,27 @@
-// src/pages/OnboardingWizardWelcome.jsx
-import React from "react";
 import { useNavigate } from "react-router-dom";
+import Button from "../../components/common/Button";
+import OnboardingShell from "../../components/onboarding/OnboardingShell";
+import OnboardingProgress from "../../components/onboarding/OnboardingProgress";
 
 export default function OnboardingWizardWelcome() {
   const navigate = useNavigate();
 
   const handleStart = () => {
     // Navigate to the next onboarding step (Profile Setup)
-    navigate("/onboarding/profileSetup");
+    navigate("/onboarding/profile-setup");
   };
 
   return (
-    <div className="bg-background-dark font-display min-h-screen flex items-center justify-center p-4">
+    <OnboardingShell>
       <div className="flex w-full max-w-lg flex-col items-center justify-center text-center">
         {/* Progress Indicator */}
         <div className="mb-4">
-          <p className="text-[#8b949e] text-sm font-normal leading-normal">
-            Step 1 of 4
-          </p>
+          <OnboardingProgress
+            currentStep={1}
+            totalSteps={4}
+            showBar={false}
+            textClassName="text-[#8b949e] text-sm font-normal leading-normal"
+          />
         </div>
 
         {/* Heading */}
@@ -32,14 +36,15 @@ export default function OnboardingWizardWelcome() {
 
         {/* Start Button */}
         <div className="w-full max-w-xs">
-          <button
+          <Button
             onClick={handleStart}
-            className="flex w-full min-w-[84px] cursor-pointer items-center justify-center rounded-lg h-12 px-5 bg-primary text-white text-base font-bold tracking-[0.015em] transition-colors hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-opacity-50"
+            variant="primary"
+            className="w-full h-12 text-base"
           >
-            <span className="truncate">Start</span>
-          </button>
+            Start
+          </Button>
         </div>
       </div>
-    </div>
+    </OnboardingShell>
   );
 }

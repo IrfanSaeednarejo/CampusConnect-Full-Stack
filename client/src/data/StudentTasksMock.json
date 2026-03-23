@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "text": "Complete AI assignment",
+    "completed": false,
+    "priority": "high",
+    "dueDate": "2026-02-15",
+    "category": "Academic"
+  },
+  {
+    "id": 2,
+    "text": "Prepare for debate tournament",
+    "completed": false,
+    "priority": "high",
+    "dueDate": "2026-02-20",
+    "category": "Society"
+  },
+  {
+    "id": 3,
+    "text": "Review mentorship application",
+    "completed": true,
+    "priority": "medium",
+    "dueDate": "2026-02-10",
+    "category": "Mentoring"
+  },
+  {
+    "id": 4,
+    "text": "Submit project proposal",
+    "completed": false,
+    "priority": "high",
+    "dueDate": "2026-02-18",
+    "category": "Academic"
+  },
+  {
+    "id": 5,
+    "text": "Attend IEEE meeting",
+    "completed": false,
+    "priority": "medium",
+    "dueDate": "2026-02-16",
+    "category": "Society"
+  }
+]

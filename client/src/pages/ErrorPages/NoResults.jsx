@@ -1,6 +1,7 @@
 import React from "react";
 // Lucide Icons (only for UI presentation)
 import { Bell, MessageSquare, Search, SearchX } from "lucide-react";
+import Avatar from "../../components/common/Avatar";
 
 // Note: All functionality (state, hooks, event handlers, Firebase, modals) has been removed.
 // This component is purely presentational, displaying the static UI.
@@ -94,14 +95,11 @@ export default function NoResults() {
             </div>
 
             {/* User Avatar */}
-            <div
-              className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-9 border-2 border-border-dark"
-              style={{
-                backgroundImage:
-                  'url("https://lh3.googleusercontent.com/aida-public/AB6AXuBfVup9g5rmWdpVyfuvPwTTI_JC7oeB-i8HjZarr6C823lMpht-RQHqPOtFWcjnOnyXzLsHlWD7UzjPhCOHuOFGadU6UcTStjZDjx5YP_tzV4D1y6CFrWRgKKqs3HuWCBGcd_ajcLYPCpULxpDDby0l75upRQvFh4kgArLMEepxNRiNOv8Uh1k1IEQZ40FsKAaxDVmHJfO73HQPXjQEEfW35z4JhZAUWGD-0dzG5vyTAEBo3GfkyUJQF3F-u7m0eWpB5jh5GS79ZgY")',
-              }}
-              role="img"
-              aria-label="User avatar"
+            <Avatar
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfVup9g5rmWdpVyfuvPwTTI_JC7oeB-i8HjZarr6C823lMpht-RQHqPOtFWcjnOnyXzLsHlWD7UzjPhCOHuOFGadU6UcTStjZDjx5YP_tzV4D1y6CFrWRgKKqs3HuWCBGcd_ajcLYPCpULxpDDby0l75upRQvFh4kgArLMEepxNRiNOv8Uh1k1IEQZ40FsKAaxDVmHJfO73HQPXjQEEfW35z4JhZAUWGD-0dzG5vyTAEBo3GfkyUJQF3F-u7m0eWpB5jh5GS79ZgY"
+              size="9"
+              border={true}
+              borderColor="border-dark"
             />
           </div>
         </header>
@@ -205,9 +203,9 @@ export default function NoResults() {
                 viewBox="0 0 24 24"
               >
                 <path
-                  clip-rule="evenodd"
+                  clipRule="evenodd"
                   d="M16.338 16.338H13.67V12.16c0-.995-.017-2.277-1.387-2.277-1.39 0-1.601 1.086-1.601 2.206v4.248H8.014v-8.59h2.559v1.174h.037c.356-.675 1.225-1.387 2.526-1.387 2.703 0 3.203 1.778 3.203 4.092v4.711zM5.005 6.575a1.548 1.548 0 11-3.096 0 1.548 1.548 0 013.096 0zM6.55 8.165H3.456v8.59h3.094v-8.59zM17.668 1H6.332C3.935 1 2 2.932 2 5.332v13.336C2 21.068 3.935 23 6.332 23h11.336C20.065 23 22 21.068 22 18.668V5.332C22 2.932 20.065 1 17.668 1z"
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                 />
               </svg>
             </a>
@@ -223,9 +221,9 @@ export default function NoResults() {
                 viewBox="0 0 24 24"
               >
                 <path
-                  clip-rule="evenodd"
+                  clipRule="evenodd"
                   d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z"
-                  fill-rule="evenodd"
+                  fillRule="evenodd"
                 />
               </svg>
             </a>

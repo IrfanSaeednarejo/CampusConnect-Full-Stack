@@ -1,90 +1,118 @@
 // src/pages/Auth/ForgotPassword.jsx
-import React, { createRef } from "react";
-import { KeyRound, Mail } from "lucide-react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useNotification } from "../../contexts/NotificationContext.jsx";
+import AuthCard from "../../components/auth/AuthCard";
+import AuthShell from "../../components/auth/AuthShell";
+import FormField from "../../components/common/FormField";
+import FormActions from "../../components/common/FormActions";
 
 export default function ForgotPassword() {
-  const emailRef = createRef(); // Uncontrolled input
-  const navigate = useNavigate(); // For navigation
+  const navigate = useNavigate();
+  const { showSuccess } = useNotification();
+
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleChange = (e) => {
+    setEmail(e.target.value);
+    setError("");
+  };
+
+  const validate = () => {
+    if (!email.trim()) {
+      setError("Email is required");
+      return false;
+    }
+    if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
+      setError("Email is invalid");
+      return false;
+    }
+    return true;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    const email = emailRef.current.value;
-
-    if (!email) {
-      alert("Please enter your email!");
+    if (!validate()) {
       return;
     }
 
-    console.log("Sending password reset link to:", email);
-    alert("Password reset link sent to " + email);
-
-    navigate("/login"); // Redirect to login after submission
+    // Send password reset email logic here
+    setSubmitted(true);
+    showSuccess(`Password reset link sent to ${email}`);
+    setTimeout(() => {
+      navigate("/login");
+    }, 1500);
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col items-center justify-center p-4 bg-[#161b22] font-display">
+    <AuthShell className="h-auto items-center justify-center overflow-x-hidden p-4 bg-[#0d1117] group/design-root">
       <div className="flex flex-col items-center justify-center py-10">
-        {/* Logo */}
+        {/* Header with Icon */}
         <div className="flex flex-col items-center gap-4 text-center">
-          <KeyRound size={40} className="text-white" />
-          <p className="font-bold text-white text-lg">CampusConnect</p>
+          <svg
+            className="h-10 w-10 text-[#238636]"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2ZM8.41 17.41 12 13.83l3.59 3.58L17 16l-3.59-3.59L17 8.83 15.59 7.41 12 11.01 8.41 7.41 7 8.83l3.59 3.58L7 16l1.41 1.41Z"></path>
+          </svg>
+          <p className="font-bold text-[#c9d1d9] text-lg">CampusConnect</p>
         </div>
 
         {/* Form Container */}
-        <div className="mt-8 w-full max-w-sm rounded-xl border border-border-dark bg-card-dark p-6 sm:p-8 shadow-2xl">
-          {/* Headings */}
-          <div className="flex flex-col gap-3">
-            <p className="text-white text-2xl font-bold">
-              Forgot Your Password?
-            </p>
-            <p className="text-gray-400 text-sm">
-              Enter your registered email and we’ll send you a reset link.
-            </p>
-          </div>
-
-          {/* FORM */}
-          <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-6">
-            {/* Email Input */}
-            <label className="flex flex-col w-full">
-              <p className="text-white text-sm font-medium pb-2">
-                Email Address
+        <div className="layout-content-container mt-8 flex w-full max-w-sm flex-col">
+          <AuthCard className="p-6 sm:p-8">
+            {/* Headings */}
+            <div className="flex flex-col gap-3">
+              <p className="text-[#c9d1d9] text-2xl font-bold leading-tight">
+                Forgot Your Password?
               </p>
-              <div className="relative flex items-center">
-                <Mail className="absolute left-3 text-gray-500 w-4 h-4" />
-                <input
-                  ref={emailRef}
-                  type="email"
-                  name="email"
-                  placeholder="yourname@university.edu"
-                  className="form-input w-full h-10 pl-10 pr-3 rounded-lg text-text-dark bg-input-dark border border-border-dark placeholder-gray-500 focus:outline-0 focus:ring-2 focus:ring-primary/50"
-                  required
-                />
-              </div>
-            </label>
+              <p className="text-[#8b949e] text-sm font-normal leading-normal">
+                Enter your registered email and we'll send you instructions to
+                reset your password.
+              </p>
+            </div>
 
-            {/* Submit Button */}
-            <button
-              type="button"
-              onClick={() => navigate("/ResetPassword")}
-              className="w-full h-10 rounded-lg bg-green-500 text-white text-sm font-medium hover:bg-green-700 active:scale-[0.98] shadow-md transition"
-            >
-              Send Reset Link
-            </button>
-          </form>
+            {/* FORM */}
+            <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-6">
+              {/* Email Input */}
+              <FormField
+                label="Email Address"
+                name="email"
+                type="email"
+                value={email}
+                onChange={handleChange}
+                placeholder="e.g., yourname@university.edu"
+                error={error}
+              />
 
-          {/* Back to Login */}
-          <div className="mt-6 text-center">
-            <button
-              onClick={() => navigate("/login")}
-              className="text-blue-500 text-sm hover:text-green-500 hover:underline"
-            >
-              Back to Login
-            </button>
-          </div>
+              {/* Submit Button */}
+              <FormActions
+                onSubmit={handleSubmit}
+                submitText={submitted ? "Link Sent!" : "Send Reset Link"}
+                submitVariant="primary"
+                disabled={submitted}
+                className="flex-col-reverse"
+                onCancel={null}
+              />
+            </form>
+
+            {/* Back to Login */}
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => navigate("/login")}
+                className="text-[#238636] text-sm font-normal leading-normal hover:underline cursor-pointer"
+              >
+                Back to login
+              </button>
+            </div>
+          </AuthCard>
         </div>
       </div>
-    </div>
+    </AuthShell>
   );
 }

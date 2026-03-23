@@ -1,0 +1,252 @@
+{
+  "mockUsers": [
+    {
+      "id": "user-1",
+      "name": "Dr. Sarah Mitchell",
+      "role": "Mentor",
+      "avatar": "SM",
+      "status": "online",
+      "lastMessage": "Looking forward to our session tomorrow!",
+      "timestamp": "2024-02-20T14:30:00Z",
+      "unread": 2
+    },
+    {
+      "id": "user-2",
+      "name": "Alex Chen",
+      "role": "Student",
+      "avatar": "AC",
+      "status": "online",
+      "lastMessage": "Thanks for the notes!",
+      "timestamp": "2024-02-20T13:15:00Z",
+      "unread": 0
+    },
+    {
+      "id": "user-3",
+      "name": "Emma Wilson",
+      "role": "Student",
+      "avatar": "EW",
+      "status": "offline",
+      "lastMessage": "See you at the event",
+      "timestamp": "2024-02-20T11:45:00Z",
+      "unread": 0
+    },
+    {
+      "id": "user-4",
+      "name": "Prof. Michael Brown",
+      "role": "Mentor",
+      "avatar": "MB",
+      "status": "offline",
+      "lastMessage": "Great work on the assignment!",
+      "timestamp": "2024-02-19T16:20:00Z",
+      "unread": 1
+    }
+  ],
+  "mockGroups": [
+    {
+      "id": "group-1",
+      "name": "COMP1511 Study Group",
+      "type": "group",
+      "avatar": "CS",
+      "members": 12,
+      "lastMessage": "Sarah: Don't forget tomorrow's session",
+      "timestamp": "2024-02-20T15:00:00Z",
+      "unread": 3
+    },
+    {
+      "id": "group-2",
+      "name": "AI/ML Club",
+      "type": "group",
+      "avatar": "AI",
+      "members": 24,
+      "lastMessage": "Alex: New resources uploaded",
+      "timestamp": "2024-02-20T12:30:00Z",
+      "unread": 0
+    },
+    {
+      "id": "group-3",
+      "name": "Hackathon Team Alpha",
+      "type": "group",
+      "avatar": "HT",
+      "members": 5,
+      "lastMessage": "Emma: Project deadline extended",
+      "timestamp": "2024-02-20T10:15:00Z",
+      "unread": 1
+    }
+  ],
+  "mockMessages": {
+    "user-1": [
+      {
+        "id": "msg-1",
+        "text": "Hi! I wanted to discuss the upcoming mentoring session.",
+        "timestamp": "2024-02-20T14:00:00Z",
+        "senderId": "user-1",
+        "senderName": "Dr. Sarah Mitchell",
+        "status": "read"
+      },
+      {
+        "id": "msg-2",
+        "text": "Of course! What time works best for you?",
+        "timestamp": "2024-02-20T14:15:00Z",
+        "senderId": "current",
+        "senderName": "You",
+        "status": "sent"
+      },
+      {
+        "id": "msg-3",
+        "text": "How about 3 PM tomorrow? We can review your project progress.",
+        "timestamp": "2024-02-20T14:25:00Z",
+        "senderId": "user-1",
+        "senderName": "Dr. Sarah Mitchell",
+        "status": "delivered"
+      },
+      {
+        "id": "msg-4",
+        "text": "Looking forward to our session tomorrow!",
+        "timestamp": "2024-02-20T14:30:00Z",
+        "senderId": "user-1",
+        "senderName": "Dr. Sarah Mitchell",
+        "status": "delivered"
+      }
+    ],
+    "user-2": [
+      {
+        "id": "msg-5",
+        "text": "Hey! Did you get the lecture notes from yesterday?",
+        "timestamp": "2024-02-20T13:00:00Z",
+        "senderId": "user-2",
+        "senderName": "Alex Chen",
+        "status": "read"
+      },
+      {
+        "id": "msg-6",
+        "text": "Yes! I'll send them to you now.",
+        "timestamp": "2024-02-20T13:10:00Z",
+        "senderId": "current",
+        "senderName": "You",
+        "status": "sent"
+      },
+      {
+        "id": "msg-7",
+        "text": "Thanks for the notes!",
+        "timestamp": "2024-02-20T13:15:00Z",
+        "senderId": "user-2",
+        "senderName": "Alex Chen",
+        "status": "read"
+      }
+    ],
+    "user-3": [
+      {
+        "id": "msg-8",
+        "text": "Are you going to the AI Ethics event next week?",
+        "timestamp": "2024-02-20T11:30:00Z",
+        "senderId": "user-3",
+        "senderName": "Emma Wilson",
+        "status": "read"
+      },
+      {
+        "id": "msg-9",
+        "text": "Yes! I already registered.",
+        "timestamp": "2024-02-20T11:40:00Z",
+        "senderId": "current",
+        "senderName": "You",
+        "status": "sent"
+      },
+      {
+        "id": "msg-10",
+        "text": "See you at the event",
+        "timestamp": "2024-02-20T11:45:00Z",
+        "senderId": "user-3",
+        "senderName": "Emma Wilson",
+        "status": "read"
+      }
+    ],
+    "user-4": [
+      {
+        "id": "msg-11",
+        "text": "Great work on the assignment!",
+        "timestamp": "2024-02-19T16:20:00Z",
+        "senderId": "user-4",
+        "senderName": "Prof. Michael Brown",
+        "status": "delivered"
+      }
+    ],
+    "group-1": [
+      {
+        "id": "msg-12",
+        "text": "Everyone ready for tomorrow's study session?",
+        "timestamp": "2024-02-20T14:30:00Z",
+        "senderId": "user-1",
+        "senderName": "Sarah",
+        "status": "read"
+      },
+      {
+        "id": "msg-13",
+        "text": "Yes! I'll bring my notes.",
+        "timestamp": "2024-02-20T14:35:00Z",
+        "senderId": "user-2",
+        "senderName": "Alex",
+        "status": "read"
+      },
+      {
+        "id": "msg-14",
+        "text": "Can we focus on pointers? Still struggling with that.",
+        "timestamp": "2024-02-20T14:40:00Z",
+        "senderId": "user-3",
+        "senderName": "Emma",
+        "status": "read"
+      },
+      {
+        "id": "msg-15",
+        "text": "Don't forget tomorrow's session",
+        "timestamp": "2024-02-20T15:00:00Z",
+        "senderId": "user-1",
+        "senderName": "Sarah",
+        "status": "delivered"
+      }
+    ],
+    "group-2": [
+      {
+        "id": "msg-16",
+        "text": "I've uploaded new ML resources to the shared drive",
+        "timestamp": "2024-02-20T12:00:00Z",
+        "senderId": "user-2",
+        "senderName": "Alex",
+        "status": "read"
+      },
+      {
+        "id": "msg-17",
+        "text": "Thanks! Checking them out now.",
+        "timestamp": "2024-02-20T12:15:00Z",
+        "senderId": "current",
+        "senderName": "You",
+        "status": "sent"
+      },
+      {
+        "id": "msg-18",
+        "text": "New resources uploaded",
+        "timestamp": "2024-02-20T12:30:00Z",
+        "senderId": "user-2",
+        "senderName": "Alex",
+        "status": "read"
+      }
+    ],
+    "group-3": [
+      {
+        "id": "msg-19",
+        "text": "Team, I have good news about the hackathon!",
+        "timestamp": "2024-02-20T10:00:00Z",
+        "senderId": "user-3",
+        "senderName": "Emma",
+        "status": "read"
+      },
+      {
+        "id": "msg-20",
+        "text": "Project deadline extended",
+        "timestamp": "2024-02-20T10:15:00Z",
+        "senderId": "user-3",
+        "senderName": "Emma",
+        "status": "delivered"
+      }
+    ]
+  }
+}

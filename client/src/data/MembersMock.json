@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "name": "John Smith",
+    "role": "Computer Science Student",
+    "interests": ["AI/ML", "Web Dev", "Open Source"],
+    "joinDate": "Jan 2024",
+    "followers": 234
+  },
+  {
+    "id": 2,
+    "name": "Priya Patel",
+    "role": "Data Science Enthusiast",
+    "interests": ["Data Analytics", "Python", "Research"],
+    "joinDate": "Feb 2024",
+    "followers": 189
+  },
+  {
+    "id": 3,
+    "name": "Alex Chen",
+    "role": "Software Engineer",
+    "interests": ["Full Stack", "Cloud", "DevOps"],
+    "joinDate": "Jan 2024",
+    "followers": 312
+  },
+  {
+    "id": 4,
+    "name": "Sarah Johnson",
+    "role": "UI/UX Designer",
+    "interests": ["Design", "User Research", "Figma"],
+    "joinDate": "Mar 2024",
+    "followers": 267
+  },
+  {
+    "id": 5,
+    "name": "Mike Rodriguez",
+    "role": "Cybersecurity Student",
+    "interests": ["Security", "Ethical Hacking", "Networks"],
+    "joinDate": "Feb 2024",
+    "followers": 145
+  },
+  {
+    "id": 6,
+    "name": "Emma Wilson",
+    "role": "Mobile Developer",
+    "interests": ["iOS", "Android", "React Native"],
+    "joinDate": "Jan 2024",
+    "followers": 198
+  }
+]

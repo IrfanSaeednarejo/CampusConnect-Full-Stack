@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "title": "Tech Summit 2026",
+    "date": "March 15, 2026",
+    "time": "10:00 AM - 5:00 PM",
+    "location": "Main Auditorium",
+    "description": "Join us for a day-long summit featuring tech talks, workshops, and networking opportunities.",
+    "attendees": 342
+  },
+  {
+    "id": 2,
+    "title": "AI & Machine Learning Workshop",
+    "date": "March 20, 2026",
+    "time": "2:00 PM - 6:00 PM",
+    "location": "Lab Building, Room 301",
+    "description": "Hands-on workshop covering the fundamentals of AI and machine learning.",
+    "attendees": 128
+  },
+  {
+    "id": 3,
+    "title": "Startup Pitch Competition",
+    "date": "March 25, 2026",
+    "time": "6:00 PM - 9:00 PM",
+    "location": "Business Center",
+    "description": "Watch innovative student startups pitch their ideas to venture capitalists.",
+    "attendees": 215
+  },
+  {
+    "id": 4,
+    "title": "Hackathon 2026",
+    "date": "April 5, 2026",
+    "time": "9:00 AM - 9:00 AM (24hrs)",
+    "location": "Computer Science Building",
+    "description": "24-hour coding marathon to build solutions for real-world challenges.",
+    "attendees": 189
+  },
+  {
+    "id": 5,
+    "title": "Career Fair",
+    "date": "April 10, 2026",
+    "time": "10:00 AM - 4:00 PM",
+    "location": "Sports Complex",
+    "description": "Meet recruiters from top tech companies and explore career opportunities.",
+    "attendees": 567
+  }
+]

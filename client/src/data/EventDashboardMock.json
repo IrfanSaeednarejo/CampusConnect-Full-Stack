@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1,
+    "section": "Featured & Trending",
+    "title": "AI & The Future of Tech: Generative AI Workshop",
+    "date": "Mon, 25 Nov, 6:00 PM",
+    "location": "Engineering Auditorium",
+    "society": "Computer Science Society",
+    "tags": ["Workshop", "Tech Deep Dive"],
+    "status": "Upcoming",
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuDrjljiB3MeGaAU52O_VmJSVPp-PcOByGONtGUpXAZ154nIc3xgs7JamxXzKtM-plWnXznk6zEjX4f7wyRiou4rkVauBqr42vHGOkCrDLZHaefUYF2eneeEwzBrlX00n9NG30k8JZBGPVgdFASm0c2U9WGrXSnjKYfqxT4XRkglG_vFeYlK_eMo2ab61FnL-bQWIWXVfgJO2VzJ-CqWwJHshWqkcSVPhSigoomOlywaVkRQmZKP52ZkewwyO1f2ReXvTx4tcrSqQJw"
+  },
+  {
+    "id": 2,
+    "section": "Featured & Trending",
+    "title": "Startup Career Fair",
+    "date": "Tue, 26 Nov, 10:00 AM",
+    "location": "University Grand Hall",
+    "society": "Career Services",
+    "tags": ["Career Fair", "Networking"],
+    "status": "Upcoming",
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuAyQrkgtMINMocZMv-anp4ZeiHwuQPFSsIEVRot8L2rJk1sqRNixSJE0GJUElxFoMD2eecy2w3Va6JfQ1BYRwcIbmEJG1aptSfxN422ZrcqTlCbikOdpZHv1XroG528xHiVoyapQjBm-gZ-5H0sRHum477Bpe0NtwiNoepTzyOgqgyZTtMB5kpAZa7RTGpNgt7sn4Pmmkkyex2xccCmXQYu9mOCmcsqa7-1fFeaxIYDP6yE9gsp6vttF6Nr4Z1WwZfSt9bFNXSwI6w"
+  },
+  {
+    "id": 3,
+    "section": "Academic Workshops",
+    "title": "Effective Study Techniques",
+    "date": "Wed, 27 Nov, 3:00 PM",
+    "location": "Main Library",
+    "society": "Academic Success Center",
+    "tags": ["Study Skills", "Workshop"],
+    "status": "Upcoming",
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBFzf-LRap3JmkXZvUyWXTN1_wNoFDFYvua_jKaph3KtmTzHfiO8AD4BVsT-AuW0ZW2yW_zc3d2tRyMACpFMW5LTMnORGL-DdXetHJRES_3pSje2oRF4T91daYCNXsj4c0VjK1dWhuWFPdCaCKSD7IQxHI2RxdZWnHGeJeZ6mxSydx7wbP8gGgAJF2mPCImEnI7CdD7MPjy8CLP9GE0RO1vtyL12_JPEADLRZSEcMNxmChnARmISkmlvPQjGysN0KL7LWGEbCSZUc0"
+  },
+  {
+    "id": 4,
+    "section": "Academic Workshops",
+    "title": "Intro to Bioinformatics",
+    "date": "Fri, 15 Nov, 1:00 PM",
+    "location": "Biology Lab 203",
+    "society": "Bio-Tech Society",
+    "tags": ["Science", "Lab Session"],
+    "status": "Past",
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuCh56drwKgf3KnRttM2GAP8oRC6qq-ktrWR148SCmSKO3ryZL6PvYCKEdMe7t1JEc_x0T4kGJAI1ujC6Fw9nnAm78jcjmG3CTmaYRc5p7eiZoPgPgKPz20lfvU2u_OfUEYbjX8wtJgpuHRuMUsu37Q8sFQnl8Xtphcz4JV06Mt-gZf5kRmCPz4JJWMA5D46OoAvnWJLJYZLv58RFFO_FWV8fEG9UGYGm27FiNmVWAv5ZfJUaz5Of7SFZesFv1YprbY8jc-WzwqwAGQ"
+  },
+  {
+    "id": 5,
+    "section": "Academic Workshops",
+    "title": "Research Presentation Skills",
+    "date": "Thu, 28 Nov, 2:00 PM",
+    "location": "Graduate Lounge",
+    "society": "Research Department",
+    "tags": ["Presentation", "Seminar"],
+    "status": "Upcoming",
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuAtbvuwTbYhlCKY-A6eCEVUQjLfABJ0uEAnNx94-ezIeEJegFkYkiJgb1KtYD5TCxu4RjxyBuslMnLrOw-mTRgUKH9n_rgxBttRkoqyxWfMVfI78W8h3tDyIFOVhL5Kg0YatJlk78wgVY4VDUXwGMhyeY6XSZDpT_aJkbe_ibPcPtF-lOoneGauU8qyLLAGg3Y-WRhbCRaP9OGvS0UBWon2I09VnRu_MDJANQuGrSWEBcDPqOZ8uoZbCLM8WF6H5U6dqPk_GbqW5RM"
+  },
+  {
+    "id": 6,
+    "section": "Social & Cultural Events",
+    "title": "Campus Music Festival",
+    "date": "Sat, 30 Nov, 7:00 PM",
+    "location": "Campus Green",
+    "society": "Student Union",
+    "tags": ["Music", "Festival"],
+    "status": "Upcoming",
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuCy1nPWma5_2g0kEGQfBe_IltD40mKPoIaWItMuM1SJt_Gu5lDTiCZlGE4wXy0heGdk62mgns0UZcVXpNQYqyvtPyDgO5qgo2r6NrWxwxx-QG3cFAFJ6C-LXp8gSutPrUOybp--BTnyJtp4ixRQiEtMfAkUPfN99vLndsZkh6-HS85QFtIYDmp63MowAMfHJTjP0ifkl53uYxCR24cTEpd7MwefAo1dKbmzsSQ8TJYBH4SAu4lnFkjRaLz6FMCRXTLZ_8JpIb0z9tA"
+  },
+  {
+    "id": 7,
+    "section": "Sports & Recreation",
+    "title": "Campus Marathon 2024",
+    "date": "Sun, 1 Dec, 8:00 AM",
+    "location": "Campus Stadium",
+    "society": "Sports Club",
+    "tags": ["Sports", "Competition"],
+    "status": "Upcoming",
+    "image": "https://lh3.googleusercontent.com/aida-public/AB6AXuBFzf-LRap3JmkXZvUyWXTN1_wNoFDFYvua_jKaph3KtmTzHfiO8AD4BVsT-AuW0ZW2yW_zc3d2tRyMACpFMW5LTMnORGL-DdXetHJRES_3pSje2oRF4T91daYCNXsj4c0VjK1dWhuWFPdCaCKSD7IQxHI2RxdZWnHGeJeZ6mxSydx7wbP8gGgAJF2mPCImEnI7CdD7MPjy8CLP9GE0RO1vtyL12_JPEADLRZSEcMNxmChnARmISkmlvPQjGysN0KL7LWGEbCSZUc0"
+  }
+]

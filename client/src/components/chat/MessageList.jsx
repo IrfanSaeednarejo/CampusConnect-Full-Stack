@@ -24,48 +24,6 @@ const MessageList = ({ messages, userColor }) => {
     </div>
   );
 };
-
-// Chat Input Component
-const ChatInput = ({ onSendMessage }) => {
-  const [message, setMessage] = useState('');
-
-  const handleSend = () => {
-    if (message.trim()) {
-      onSendMessage(message);
-      setMessage('');
-    }
-  };
-
-  const handleKeyPress = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  return (
-    <div className="chat-input">
-      <div className="input-container">
-        <button>
-          <Smile size={22} />
-        </button>
-        <button>
-          <Paperclip size={22} />
-        </button>
-        <input
-          type="text"
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          onKeyPress={handleKeyPress}
-          placeholder="Type a message..."
-        />
-        <button className="send-button" onClick={handleSend}>
-          <Send size={20} />
-        </button>
-      </div>
-    </div>
-  );
-};
 export default MessageList;
 
 
