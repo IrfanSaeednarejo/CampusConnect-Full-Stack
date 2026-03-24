@@ -23,79 +23,99 @@ import {
 
 const router = Router();
 
-router.get("/", checkUser, getSocieties);
+router
+  .route("/")
+  .get(checkUser, getSocieties);
 
-router.get("/:id", checkUser, getSocietyById);
+router
+  .route("/create-society")
+  .post(
+    verifyJWT,
+    authorize("society_head", "admin"),
+    upload.single("logo"),
+    createSociety
+  );
 
-router.post(
-  "/create-society",
-  verifyJWT,
-  authorize("society_head", "admin"),
-  upload.single("logo"),
-  createSociety
-);
+router
+  .route("/:id")
+  .get(checkUser, getSocietyById);
 
-router.patch(
-  "/update/:id",
-  verifyJWT,
-  authorize("society_head", "admin"),
-  upload.single("logo"),
-  updateSociety
-);
+router
+  .route("/update/:id")
+  .patch(
+    verifyJWT,
+    authorize("society_head", "admin"),
+    upload.single("logo"),
+    updateSociety
+  );
 
-router.delete(
-  "/delete/:id",
-  verifyJWT,
-  authorize("society_head", "admin"),
-  deleteSociety
-);
+router
+  .route("/delete/:id")
+  .delete(
+    verifyJWT,
+    authorize("society_head", "admin"),
+    deleteSociety
+  );
 
-router.get(
-  "/:id/stats",
-  verifyJWT,
-  authorize("society_head", "admin"),
-  getSocietyStats
-);
+router
+  .route("/:id/stats")
+  .get(
+    verifyJWT,
+    authorize("society_head", "admin"),
+    getSocietyStats
+  );
 
-router.post("/:id/join", verifyJWT, joinSociety);
 
-router.post("/:id/leave", verifyJWT, leaveSociety);
+router
+  .route("/:id/join")
+  .post(verifyJWT, joinSociety);
 
-router.get("/:id/members", verifyJWT, getSocietyMembers);
+router
+  .route("/:id/leave")
+  .post(verifyJWT, leaveSociety);
 
-router.post(
-  "/:id/members/add",
-  verifyJWT,
-  authorize("society_head", "admin"),
-  addMemberToSociety
-);
+router
+  .route("/:id/members")
+  .get(verifyJWT, getSocietyMembers);
 
-router.delete(
-  "/:id/members/remove/:memberId",
-  verifyJWT,
-  authorize("society_head", "admin"),
-  removeMemberFromSociety
-);
+router
+  .route("/:id/members/add")
+  .post(
+    verifyJWT,
+    authorize("society_head", "admin"),
+    addMemberToSociety
+  );
 
-router.patch(
-  "/:id/members/:memberId/role",
-  verifyJWT,
-  authorize("society_head", "admin"),
-  updateMemberRole
-);
+router
+  .route("/:id/members/remove/:memberId")
+  .delete(
+    verifyJWT,
+    authorize("society_head", "admin"),
+    removeMemberFromSociety
+  );
 
-router.patch(
-  "/:id/members/:memberId/approve",
-  verifyJWT,
-  authorize("society_head", "admin"),
-  approveMember
-);
+router
+  .route("/:id/members/:memberId/role")
+  .patch(
+    verifyJWT,
+    authorize("society_head", "admin"),
+    updateMemberRole
+  );
 
-router.patch(
-  "/:id/members/:memberId/reject",
-  verifyJWT,
-  authorize("society_head", "admin"),
-  rejectMember
-);
+router
+  .route("/:id/members/:memberId/approve")
+  .patch(
+    verifyJWT,
+    authorize("society_head", "admin"),
+    approveMember
+  );
+
+router
+  .route("/:id/members/:memberId/reject")
+  .patch(
+    verifyJWT,
+    authorize("society_head", "admin"),
+    rejectMember
+  );
 
 export default router;
