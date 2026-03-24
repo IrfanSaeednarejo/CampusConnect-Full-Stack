@@ -5,8 +5,18 @@ import { Society } from "../models/society.model.js";
 import { User } from "../models/user.model.js";
 import { Event } from "../models/event.model.js";
 import { paginate } from "../utils/paginate.js";
+import { uploadOnCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
 import mongoose from "mongoose";
+import fs from "fs";
 
+const uploadFile = async (localPath) => {
+    if (!localPath) return null;
+    try {
+        return await uploadOnCloudinary(localPath);
+    } finally {
+        if (fs.existsSync(localPath)) fs.unlinkSync(localPath);
+    }
+};
 
 const requireSocietyOwner = (society, userId) => {
     if (society.createdBy.toString() !== userId.toString()) {
@@ -238,6 +248,9 @@ const createSociety = asyncHandler(async (req, res) => {
         );
     }
 
+    const logoLocalPath = req.file?.path;
+    const logo = logoLocalPath ? await uploadFile(logoLocalPath) : null;
+
     const society = await Society.create({
         name: nameTrimmed,
         description: description?.trim() || "",
@@ -254,6 +267,12 @@ const createSociety = asyncHandler(async (req, res) => {
             },
         ],
         memberCount: 1,
+        ...(logo && {
+            media: {
+                logo: logo.secure_url,
+                logoPublicId: logo.public_id,
+            },
+        }),
     });
 
     const created = await Society.findById(society._id)
@@ -292,6 +311,21 @@ const updateSociety = asyncHandler(async (req, res) => {
         }
     }
 
+    const logoLocalPath = req.file?.path;
+    const logoUpdates = {};
+    if (logoLocalPath) {
+        const logo = await uploadFile(logoLocalPath);
+        if (logo?.secure_url) {
+            if (society.media?.logoPublicId) {
+                deleteFromCloudinary(society.media.logoPublicId).catch((err) =>
+                    console.error("[Society] Failed to delete old logo:", err.message)
+                );
+            }
+            logoUpdates["media.logo"] = logo.secure_url;
+            logoUpdates["media.logoPublicId"] = logo.public_id;
+        }
+    }
+
     const updatedSociety = await Society.findByIdAndUpdate(
         societyId,
         {
@@ -300,6 +334,7 @@ const updateSociety = asyncHandler(async (req, res) => {
                 ...(description !== undefined && { description: description.trim() }),
                 ...(tag && { tag: tag.trim().toLowerCase() }),
                 ...(category && { category }),
+                ...logoUpdates,
             },
         },
         { new: true, runValidators: true }

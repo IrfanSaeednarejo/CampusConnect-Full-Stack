@@ -1,6 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 
-// ── Sub-schemas ─────────────────────────────────────────────────────────────
 
 const memberSchema = new Schema(
     {
@@ -53,10 +52,10 @@ const scheduleSchema = new Schema(
         day: {
             type: Number,
             min: 0,
-            max: 6, // 0 = Sunday, 6 = Saturday
+            max: 6,
         },
         startTime: {
-            type: String, // "09:00" format (HH:mm)
+            type: String,
             match: [/^([01]\d|2[0-3]):([0-5]\d)$/, "Time must be in HH:mm format"],
         },
         endTime: {
@@ -71,7 +70,6 @@ const scheduleSchema = new Schema(
     { _id: false }
 );
 
-// ── Main Schema ─────────────────────────────────────────────────────────────
 
 const studyGroupSchema = new Schema(
     {
@@ -185,7 +183,6 @@ const studyGroupSchema = new Schema(
     }
 );
 
-// ── Indexes ─────────────────────────────────────────────────────────────────
 
 studyGroupSchema.index({ campusId: 1, status: 1 });
 studyGroupSchema.index({ "groupMembers.memberId": 1 });
@@ -196,7 +193,6 @@ studyGroupSchema.index(
     { weights: { name: 10, subject: 5, course: 3, tags: 1 } }
 );
 
-// ── Pre-save: sync memberCount ──────────────────────────────────────────────
 
 studyGroupSchema.pre("save", function (next) {
     if (this.isModified("groupMembers")) {
@@ -205,7 +201,6 @@ studyGroupSchema.pre("save", function (next) {
     next();
 });
 
-// ── Virtuals ────────────────────────────────────────────────────────────────
 
 studyGroupSchema.virtual("isFull").get(function () {
     return this.memberCount >= this.maxMembers;

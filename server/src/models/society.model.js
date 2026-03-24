@@ -1,7 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 
-// ── Sub-schemas ─────────────────────────────────────────────────────────────
-
 const memberSchema = new Schema(
     {
         memberId: {
@@ -37,7 +35,6 @@ const mediaSchema = new Schema(
     { _id: false }
 );
 
-// ── Slug helper ─────────────────────────────────────────────────────────────
 
 const slugify = (str) =>
     str
@@ -47,7 +44,6 @@ const slugify = (str) =>
         .replace(/\s+/g, "-")
         .replace(/-+/g, "-");
 
-// ── Category constants ──────────────────────────────────────────────────────
 
 export const SOCIETY_CATEGORIES = [
     "academic",
@@ -62,7 +58,6 @@ export const SOCIETY_CATEGORIES = [
     "other",
 ];
 
-// ── Main Schema ─────────────────────────────────────────────────────────────
 
 const societySchema = new Schema(
     {
@@ -143,6 +138,11 @@ const societySchema = new Schema(
             default: "approved",
         },
 
+        requireApproval: {
+            type: Boolean,
+            default: false,
+        },
+
         isActive: {
             type: Boolean,
             default: true,
@@ -156,7 +156,6 @@ const societySchema = new Schema(
     }
 );
 
-// ── Indexes ─────────────────────────────────────────────────────────────────
 
 societySchema.index({ slug: 1 }, { unique: true });
 societySchema.index({ campusId: 1, category: 1 });
@@ -168,7 +167,6 @@ societySchema.index(
     { weights: { name: 10, tag: 5, description: 1 } }
 );
 
-// ── Pre-save: auto-generate slug ────────────────────────────────────────────
 
 societySchema.pre("save", async function (next) {
     if (!this.isNew && !this.isModified("name")) return next();
@@ -191,7 +189,6 @@ societySchema.pre("save", async function (next) {
     next();
 });
 
-// ── Pre-save: sync memberCount ──────────────────────────────────────────────
 
 societySchema.pre("save", function (next) {
     if (this.isModified("members")) {
@@ -202,7 +199,6 @@ societySchema.pre("save", function (next) {
     next();
 });
 
-// ── Virtuals ────────────────────────────────────────────────────────────────
 
 societySchema.virtual("logoUrl").get(function () {
     return this.media?.logo || "";
@@ -212,7 +208,6 @@ societySchema.virtual("coverImageUrl").get(function () {
     return this.media?.coverImage || "";
 });
 
-// ── Statics ─────────────────────────────────────────────────────────────────
 
 societySchema.statics.findBySlug = function (slug) {
     return this.findOne({ slug: slug.toLowerCase().trim() });

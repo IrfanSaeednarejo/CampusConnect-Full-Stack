@@ -229,8 +229,9 @@ const getMyRegisteredEvents = asyncHandler(async (req, res) => {
     const result = await paginate(
         Event,
         {
-            "registrations.userId": req.user._id,
-            "registrations.status": regStatus,
+            registrations: {
+                $elemMatch: { userId: req.user._id, status: regStatus },
+            },
         },
         {
             page,
