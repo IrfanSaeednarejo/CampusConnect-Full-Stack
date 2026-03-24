@@ -23,42 +23,17 @@ const findChatById = async (chatId, select = "") => {
     return chat;
 };
 
-
-const getMember = (chat, userId) =>
-    chat.members.find((m) => m.userId.toString() === userId.toString());
-
 const requireMember = (chat, userId) => {
-    if (!getMember(chat, userId)) {
+    if (!chat.hasMember(userId)) {
         throw new ApiError(403, "You are not a member of this chat");
     }
 };
 
 const requireChatAdmin = (chat, userId) => {
-    const member = getMember(chat, userId);
-    if (!member) throw new ApiError(403, "You are not a member of this chat");
-    if (member.role !== "admin") {
+    if (!chat.isAdmin(userId)) {
         throw new ApiError(403, "Only chat admins can perform this action");
     }
 };
-const sendSystemMessage = async (chatId, content) => {
-    try {
-        const msg = await Message.create({
-            chat: chatId,
-            sender: null,
-            type: "system",
-            content,
-        });
-        await Chat.findByIdAndUpdate(chatId, {
-            $set: {
-                lastMessage: msg._id,
-                lastMessageAt: msg.createdAt,
-            },
-        });
-    } catch (err) {
-        console.error("[Chat] Failed to send system message:", err.message);
-    }
-};
-
 
 // POST /api/v1/chats/dm
 const createOrGetDM = asyncHandler(async (req, res) => {
@@ -141,7 +116,7 @@ const getChatById = asyncHandler(async (req, res) => {
     requireMember(chat, req.user._id);
 
     const chatObj = chat.toObject({ virtuals: true });
-    const myMembership = getMember(chat, req.user._id);
+    const myMembership = chat.getMember(req.user._id);
     chatObj.myUnreadCount = myMembership?.unreadCount ?? 0;
     chatObj.members = chatObj.members.map(({ unreadCount: _uc, ...rest }) => rest);
 
@@ -196,7 +171,7 @@ const addMemberToChat = asyncHandler(async (req, res) => {
 
     requireChatAdmin(chat, req.user._id);
 
-    if (getMember(chat, userId)) {
+    if (chat.hasMember(userId)) {
         throw new ApiError(409, "User is already a member of this chat");
     }
 
@@ -210,7 +185,7 @@ const addMemberToChat = asyncHandler(async (req, res) => {
     chat.members.push({ userId, role: "member", joinedAt: new Date(), unreadCount: 0 });
     await chat.save();
 
-    await sendSystemMessage(
+    await Message.sendSystemMessage(
         chatId,
         `${targetUser.profile.displayName} was added to the group`
     );
@@ -233,17 +208,18 @@ const removeMemberFromChat = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Cannot remove members from a DM chat");
     }
 
-    const requestingMember = getMember(chat, req.user._id);
-    if (!requestingMember) throw new ApiError(403, "You are not a member of this chat");
+    if (!chat.hasMember(req.user._id)) {
+        throw new ApiError(403, "You are not a member of this chat");
+    }
 
     const isSelf = userId === req.user._id.toString();
-    const isAdmin = requestingMember.role === "admin";
+    const isAdmin = chat.isAdmin(req.user._id);
 
     if (!isSelf && !isAdmin) {
         throw new ApiError(403, "Only admins can remove other members");
     }
 
-    const targetMember = getMember(chat, userId);
+    const targetMember = chat.getMember(userId);
     if (!targetMember) throw new ApiError(404, "User is not a member of this chat");
 
     if (targetMember.role === "admin") {
@@ -260,7 +236,7 @@ const removeMemberFromChat = asyncHandler(async (req, res) => {
     await chat.save();
 
     const removedUser = await User.findById(userId).select("profile.displayName");
-    await sendSystemMessage(
+    await Message.sendSystemMessage(
         chatId,
         isSelf
             ? `${removedUser?.profile.displayName} left the group`
@@ -269,7 +245,6 @@ const removeMemberFromChat = asyncHandler(async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200, null, isSelf ? "You left the chat" : "Member removed"));
 });
-
 
 // POST /api/v1/chats/:chatId/messages
 const sendMessage = asyncHandler(async (req, res) => {
@@ -305,30 +280,14 @@ const sendMessage = asyncHandler(async (req, res) => {
         if (!parent) throw new ApiError(404, "Message being replied to not found in this chat");
     }
 
-    const message = await Message.create({
-        chat: chatId,
-        sender: req.user._id,
+    const populated = await Message.sendNewMessage({
+        chatId,
+        senderId: req.user._id,
         type,
-        content: content?.trim() || "",
-        attachment: attachmentId || undefined,
-        replyTo: replyToId || undefined,
-        readBy: [{ userId: req.user._id, readAt: new Date() }],
+        content,
+        attachmentId,
+        replyToId,
     });
-
-    await Chat.findByIdAndUpdate(chatId, {
-        $set: {
-            lastMessage: message._id,
-            lastMessageAt: message.createdAt,
-        },
-        $inc: { "members.$[other].unreadCount": 1 },
-    }, {
-        arrayFilters: [{ "other.userId": { $ne: req.user._id } }],
-    });
-
-    const populated = await Message.findById(message._id)
-        .populate("sender", "profile.displayName profile.avatar")
-        .populate("replyTo", "content sender type")
-        .populate("attachment", "fileName fileUrl mimeType fileSize");
 
     return res.status(201).json(new ApiResponse(201, populated, "Message sent"));
 });
@@ -406,7 +365,6 @@ const editMessage = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, populated, "Message edited"));
 });
 
-
 // DELETE /api/v1/chats/:chatId/messages/:msgId
 const deleteMessage = asyncHandler(async (req, res) => {
     const { chatId, msgId } = req.params;
@@ -425,8 +383,7 @@ const deleteMessage = asyncHandler(async (req, res) => {
     requireMember(chat, req.user._id);
 
     const isSender = message.sender?.toString() === req.user._id.toString();
-    const chatMember = getMember(chat, req.user._id);
-    const isAdmin = chatMember?.role === "admin";
+    const isAdmin = chat.isAdmin(req.user._id);
 
     if (!isSender && !isAdmin) {
         throw new ApiError(403, "You can only delete your own messages");
@@ -444,44 +401,24 @@ const deleteMessage = asyncHandler(async (req, res) => {
 });
 
 // PATCH /api/v1/chats/:chatId/read
-
 const markChatAsRead = asyncHandler(async (req, res) => {
     const { chatId } = req.params;
 
     const chat = await findChatById(chatId, "members");
     requireMember(chat, req.user._id);
 
-    const memberIndex = chat.members.findIndex(
-        (m) => m.userId.toString() === req.user._id.toString()
+    const result = await Chat.markAsRead(chatId, req.user._id);
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            { unreadCount: 0 },
+            result?.alreadyRead ? "Already up to date" : "Chat marked as read"
+        )
     );
-
-    if (chat.members[memberIndex].unreadCount === 0) {
-        return res.status(200).json(new ApiResponse(200, { unreadCount: 0 }, "Already up to date"));
-    }
-
-    await Chat.findByIdAndUpdate(chatId, {
-        $set: { [`members.${memberIndex}.unreadCount`]: 0 },
-    });
-
-    await Message.updateMany(
-        {
-            chat: chatId,
-            isDeleted: false,
-            "readBy.userId": { $ne: req.user._id },
-            sender: { $ne: req.user._id },
-        },
-        {
-            $push: {
-                readBy: { userId: req.user._id, readAt: new Date() },
-            },
-        }
-    );
-
-    return res.status(200).json(new ApiResponse(200, { unreadCount: 0 }, "Chat marked as read"));
 });
 
 // POST /api/v1/chats/:chatId/messages/:msgId/react
-
 const toggleReaction = asyncHandler(async (req, res) => {
     const { chatId, msgId } = req.params;
     const { emoji } = req.body;
@@ -526,7 +463,6 @@ const toggleReaction = asyncHandler(async (req, res) => {
         }, `Reaction ${action}`)
     );
 });
-
 
 export {
     createOrGetDM,

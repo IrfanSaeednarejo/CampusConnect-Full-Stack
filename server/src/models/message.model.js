@@ -115,4 +115,50 @@ messageSchema.statics.getChatMessages = function (chatId, { before, limit = 50 }
         .populate("attachment", "fileName fileUrl mimeType fileSize");
 };
 
+messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type = "text", content, attachmentId, replyToId }) {
+    const message = await this.create({
+        chat: chatId,
+        sender: senderId,
+        type,
+        content: content?.trim() || "",
+        attachment: attachmentId || undefined,
+        replyTo: replyToId || undefined,
+        readBy: senderId ? [{ userId: senderId, readAt: new Date() }] : [],
+    });
+
+    const chatUpdate = {
+        $set: {
+            lastMessage: message._id,
+            lastMessageAt: message.createdAt,
+        },
+    };
+
+    let updateOpts = {};
+    if (senderId) {
+        chatUpdate.$inc = { "members.$[other].unreadCount": 1 };
+        updateOpts = { arrayFilters: [{ "other.userId": { $ne: senderId } }] };
+    }
+
+    await mongoose.model("Chat").findByIdAndUpdate(chatId, chatUpdate, updateOpts);
+
+    return this.findById(message._id)
+        .populate("sender", "profile.displayName profile.avatar")
+        .populate("replyTo", "content sender type")
+        .populate("attachment", "fileName fileUrl mimeType fileSize");
+};
+
+messageSchema.statics.sendSystemMessage = async function (chatId, content) {
+    try {
+        return await this.sendNewMessage({
+            chatId,
+            senderId: null,
+            type: "system",
+            content,
+        });
+    } catch (err) {
+        console.error("[Message Model] Failed to send system message:", err.message);
+        return null;
+    }
+};
+
 export const Message = mongoose.model("Message", messageSchema);

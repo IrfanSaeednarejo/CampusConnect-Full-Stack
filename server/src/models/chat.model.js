@@ -139,4 +139,52 @@ chatSchema.statics.findUserChats = function (userId) {
         .populate("members.userId", "profile.displayName profile.avatar");
 };
 
+chatSchema.statics.markAsRead = async function (chatId, userId) {
+    const chat = await this.findById(chatId).select("members");
+    if (!chat) return null;
+
+    const memberIndex = chat.members.findIndex(
+        (m) => m.userId.toString() === userId.toString()
+    );
+
+    if (memberIndex === -1) {
+        throw new Error("User is not a member of this chat");
+    }
+
+    if (chat.members[memberIndex].unreadCount === 0) {
+        return { alreadyRead: true };
+    }
+
+    await this.findByIdAndUpdate(chatId, {
+        $set: { [`members.${memberIndex}.unreadCount`]: 0 },
+    });
+
+    await mongoose.model("Message").updateMany(
+        {
+            chat: chatId,
+            isDeleted: false,
+            "readBy.userId": { $ne: userId },
+            sender: { $ne: userId },
+        },
+        {
+            $push: { readBy: { userId, readAt: new Date() } },
+        }
+    );
+
+    return { alreadyRead: false };
+};
+
+chatSchema.methods.hasMember = function (userId) {
+    return this.members.some((m) => m.userId.toString() === userId.toString());
+};
+
+chatSchema.methods.getMember = function (userId) {
+    return this.members.find((m) => m.userId.toString() === userId.toString());
+};
+
+chatSchema.methods.isAdmin = function (userId) {
+    const member = this.getMember(userId);
+    return member && member.role === "admin";
+};
+
 export const Chat = mongoose.model("Chat", chatSchema);
