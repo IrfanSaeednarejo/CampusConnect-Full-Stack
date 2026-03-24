@@ -315,19 +315,14 @@ const sendMessage = asyncHandler(async (req, res) => {
         readBy: [{ userId: req.user._id, readAt: new Date() }],
     });
 
-    const unreadIncrement = {};
-    chat.members.forEach((m, idx) => {
-        if (m.userId.toString() !== req.user._id.toString()) {
-            unreadIncrement[`members.${idx}.unreadCount`] = 1;
-        }
-    });
-
     await Chat.findByIdAndUpdate(chatId, {
         $set: {
             lastMessage: message._id,
             lastMessageAt: message.createdAt,
         },
-        $inc: unreadIncrement,
+        $inc: { "members.$[other].unreadCount": 1 },
+    }, {
+        arrayFilters: [{ "other.userId": { $ne: req.user._id } }],
     });
 
     const populated = await Message.findById(message._id)
