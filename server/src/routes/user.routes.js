@@ -29,8 +29,6 @@ import {
 
 const router = Router();
 
-// ─── Public Routes ─────────────────────────────────────
-
 router.route("/register").post(
     upload.fields([
         { name: "avatar", maxCount: 1 },
@@ -50,7 +48,6 @@ router
     .get(checkUser, getUserProfile);
 
 
-// ─── Secured Routes ─────────────────────────────────────
 
 router.route("/logout").post(verifyJWT, logOutUser);
 router.route("/current-user").get(verifyJWT, getCurrentUser);
