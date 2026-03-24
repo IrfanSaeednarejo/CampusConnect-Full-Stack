@@ -49,17 +49,15 @@ const hasBookingConflict = async (mentorId, startAt, endAt, excludeBookingId = n
 const isWithinAvailability = (availability, startAt, endAt) => {
     if (!availability || availability.length === 0) return true;
 
-    const dayOfWeek = startAt.getDay();
+    const dayOfWeek = startAt.getUTCDay();
 
     const toMinutes = (hhmm) => {
         const [h, m] = hhmm.split(":").map(Number);
         return h * 60 + m;
     };
 
-    const requestStart =
-        startAt.getHours() * 60 + startAt.getMinutes();
-    const requestEnd =
-        endAt.getHours() * 60 + endAt.getMinutes();
+    const requestStart = startAt.getUTCHours() * 60 + startAt.getUTCMinutes();
+    const requestEnd = endAt.getUTCHours() * 60 + endAt.getUTCMinutes();
 
     return availability.some((slot) => {
         if (slot.day !== dayOfWeek) return false;
@@ -67,47 +65,6 @@ const isWithinAvailability = (availability, startAt, endAt) => {
         const slotEnd = toMinutes(slot.endTime);
         return requestStart >= slotStart && requestEnd <= slotEnd;
     });
-};
-const syncMentorStats = async (mentorId) => {
-    const [bookingStats, reviewStats] = await Promise.all([
-        MentorBooking.aggregate([
-            { $match: { mentorId: new mongoose.Types.ObjectId(mentorId), status: "completed" } },
-            {
-                $group: {
-                    _id: null,
-                    totalSessions: { $sum: 1 },
-                    totalEarnings: { $sum: "$mentorPayout" },
-                },
-            },
-        ]),
-        MentorReview.aggregate([
-            { $match: { mentorId: new mongoose.Types.ObjectId(mentorId) } },
-            {
-                $group: {
-                    _id: null,
-                    averageRating: { $avg: "$rating" },
-                    totalReviews: { $sum: 1 },
-                },
-            },
-        ]),
-    ]);
-
-    const updates = {};
-
-    if (bookingStats.length > 0) {
-        updates.totalSessions = bookingStats[0].totalSessions;
-        updates.totalEarnings = bookingStats[0].totalEarnings;
-    }
-
-    if (reviewStats.length > 0) {
-        updates.averageRating =
-            Math.round(reviewStats[0].averageRating * 10) / 10;
-        updates.totalReviews = reviewStats[0].totalReviews;
-    }
-
-    if (Object.keys(updates).length > 0) {
-        await Mentor.findByIdAndUpdate(mentorId, { $set: updates });
-    }
 };
 /**
  * POST /api/v1/mentors/register
@@ -226,7 +183,7 @@ const getMentors = asyncHandler(async (req, res) => {
 
     const filter = { isActive: true, verified: true };
 
-    const resolvedCampusId = campusId || req.user?.campusId;
+    const resolvedCampusId = campusId;
     if (resolvedCampusId) {
         if (!mongoose.isValidObjectId(resolvedCampusId)) {
             throw new ApiError(400, "Invalid campusId format");
@@ -246,13 +203,11 @@ const getMentors = asyncHandler(async (req, res) => {
         filter.$text = { $search: q.trim() };
     }
 
-    const result = await paginate(Mentor, filter, {
+    const queryOptions = {
         page,
         limit,
         select: "-pendingPayout -totalEarnings -lastPayoutAt -suspendReason -suspendedAt -verificationDetails",
-        sort: q?.trim()
-            ? { score: { $meta: "textScore" } }
-            : { averageRating: -1, totalSessions: -1 },
+        sort: { averageRating: -1, totalSessions: -1 },
         populate: [
             {
                 path: "userId",
@@ -260,7 +215,14 @@ const getMentors = asyncHandler(async (req, res) => {
                     "profile.displayName profile.avatar profile.firstName profile.lastName academic.department",
             },
         ],
-    });
+    };
+
+    if (q?.trim()) {
+        queryOptions.select += " score";
+        queryOptions.sort = { score: { $meta: "textScore" } };
+    }
+
+    const result = await paginate(Mentor, filter, queryOptions);
 
     return res
         .status(200)
@@ -609,7 +571,7 @@ const completeBooking = asyncHandler(async (req, res) => {
         $inc: { pendingPayout: booking.mentorPayout },
     });
 
-    syncMentorStats(booking.mentorId).catch((err) =>
+    Mentor.syncStats(booking.mentorId).catch((err) =>
         console.error("[Mentor] Failed to sync stats after session complete:", err.message)
     );
 
@@ -776,7 +738,7 @@ const submitReview = asyncHandler(async (req, res) => {
         $set: { reviewId: review._id },
     });
 
-    syncMentorStats(booking.mentorId).catch((err) =>
+    Mentor.syncStats(booking.mentorId).catch((err) =>
         console.error("[Mentor] Failed to sync stats after review:", err.message)
     );
 
