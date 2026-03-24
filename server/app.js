@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { errorHandler } from "./src/middlewares/errorHandler.middleware.js";
 
 const app = express();
 
@@ -53,5 +54,8 @@ app.use("/api/v1/study-groups", studyGroupRouter);
 // app.use("/api/v1/payments",     paymentRouter);
 // app.use("/api/v1/analytics",    analyticsRouter);
 // app.use("/api/v1/ai",           aiRoute);
+
+// ─── Global Error Handler (must be LAST middleware) ─────────────────────────
+app.use(errorHandler);
 
 export { app };
