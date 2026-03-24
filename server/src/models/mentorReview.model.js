@@ -65,31 +65,4 @@ mentorReviewSchema.index({ mentorId: 1, createdAt: -1 });
 mentorReviewSchema.index({ menteeId: 1 });
 mentorReviewSchema.index({ rating: 1 });
 
-mentorReviewSchema.post("save", async function () {
-    try {
-        const MentorModel = mongoose.model("Mentor");
-        const stats = await mongoose.model("MentorReview").aggregate([
-            { $match: { mentorId: this.mentorId } },
-            {
-                $group: {
-                    _id: "$mentorId",
-                    averageRating: { $avg: "$rating" },
-                    totalReviews: { $sum: 1 },
-                },
-            },
-        ]);
-
-        if (stats.length > 0) {
-            await MentorModel.findByIdAndUpdate(this.mentorId, {
-                $set: {
-                    averageRating: Math.round(stats[0].averageRating * 10) / 10,
-                    totalReviews: stats[0].totalReviews,
-                },
-            });
-        }
-    } catch (err) {
-        console.error("[MentorReview] Failed to update mentor stats:", err.message);
-    }
-});
-
 export const MentorReview = mongoose.model("MentorReview", mentorReviewSchema);

@@ -176,22 +176,57 @@ mentorSchema.index(
     { expertise: "text", bio: "text" },
     { weights: { expertise: 10, bio: 1 } }
 );
-mentorSchema.pre("save", function (next) {
-    if (this.isModified("totalSessions") || this.isModified("averageRating")) {
-        if (this.totalSessions >= 100 && this.averageRating >= 4.5) {
-            this.tier = "gold";
-        } else if (this.totalSessions >= 20 && this.averageRating >= 3.5) {
-            this.tier = "silver";
-        } else {
-            this.tier = "bronze";
-        }
+
+mentorSchema.statics.syncStats = async function (mentorId) {
+    const MentorBooking = mongoose.model("MentorBooking");
+    const MentorReview = mongoose.model("MentorReview");
+
+    const [bookingStats, reviewStats] = await Promise.all([
+        MentorBooking.aggregate([
+            { $match: { mentorId: new mongoose.Types.ObjectId(mentorId), status: "completed" } },
+            {
+                $group: {
+                    _id: null,
+                    totalSessions: { $sum: 1 },
+                    totalEarnings: { $sum: "$mentorPayout" },
+                },
+            },
+        ]),
+        MentorReview.aggregate([
+            { $match: { mentorId: new mongoose.Types.ObjectId(mentorId) } },
+            {
+                $group: {
+                    _id: null,
+                    averageRating: { $avg: "$rating" },
+                    totalReviews: { $sum: 1 },
+                },
+            },
+        ]),
+    ]);
+
+    const updates = {
+        totalSessions: bookingStats.length > 0 ? bookingStats[0].totalSessions : 0,
+        totalEarnings: bookingStats.length > 0 ? bookingStats[0].totalEarnings : 0,
+        averageRating: reviewStats.length > 0 ? Math.round(reviewStats[0].averageRating * 10) / 10 : 0,
+        totalReviews: reviewStats.length > 0 ? reviewStats[0].totalReviews : 0,
+    };
+
+    // Calculate dynamic tier
+    if (updates.totalSessions >= 100 && updates.averageRating >= 4.5) {
+        updates.tier = "gold";
+    } else if (updates.totalSessions >= 20 && updates.averageRating >= 3.5) {
+        updates.tier = "silver";
+    } else {
+        updates.tier = "bronze";
     }
-    next();
-});
+
+    await this.findByIdAndUpdate(mentorId, { $set: updates });
+};
+
 mentorSchema.statics.findActive = function (filter = {}) {
     return this.find({ ...filter, isActive: true, verified: true })
         .populate("userId", "profile.displayName profile.avatar profile.firstName profile.lastName")
-        .select("-pendingPayout -totalEarnings -lastPayoutAt");
+        .select("-pendingPayout -totalEarnings -lastPayoutAt -suspendReason -suspendedAt -verificationDetails");
 };
 
 export const Mentor = mongoose.model("Mentor", mentorSchema);
