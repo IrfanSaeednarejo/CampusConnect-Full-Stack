@@ -1,4 +1,5 @@
 import mongoose, { Schema } from "mongoose";
+import { ApiError } from "../utils/ApiError.js";
 
 const messageSchema = new Schema(
     {
@@ -116,6 +117,21 @@ messageSchema.statics.getChatMessages = function (chatId, { before, limit = 50 }
 };
 
 messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type = "text", content, attachmentId, replyToId }) {
+    if (attachmentId) {
+        const File = mongoose.model("File");
+        const file = await File.findById(attachmentId);
+        if (!file) {
+            throw new ApiError(404, "Attachment file not found");
+        }
+        if (senderId && file.userId.toString() !== senderId.toString()) {
+            throw new ApiError(403, "You do not own this attachment");
+        }
+        if (file.context !== "chat" || (file.contextId && file.contextId.toString() !== chatId.toString())) {
+
+            throw new ApiError(400, "Attachment context mismatch for this chat");
+        }
+    }
+
     const message = await this.create({
         chat: chatId,
         sender: senderId,

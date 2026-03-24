@@ -264,12 +264,8 @@ const sendMessage = asyncHandler(async (req, res) => {
     if ((type === "image" || type === "file") && !attachmentId) {
         throw new ApiError(400, `attachmentId is required for ${type} messages`);
     }
-    if (attachmentId) {
-        if (!mongoose.isValidObjectId(attachmentId)) {
-            throw new ApiError(400, "Invalid attachmentId format");
-        }
-        const fileExists = await File.exists({ _id: attachmentId });
-        if (!fileExists) throw new ApiError(404, "Attachment file not found");
+    if (attachmentId && !mongoose.isValidObjectId(attachmentId)) {
+        throw new ApiError(400, "Invalid attachmentId format");
     }
 
     if (replyToId) {
@@ -395,6 +391,20 @@ const deleteMessage = asyncHandler(async (req, res) => {
 
     message.isDeleted = true;
     message.content = "[deleted]";
+
+    if (message.attachment) {
+        const file = await File.findById(message.attachment).select("+publicId");
+        if (file && file.publicId) {
+            const { deleteFromCloudinary } = await import("../utils/cloudinary.js");
+            const resourceType = file.mimeType.startsWith("video/") || file.mimeType.startsWith("audio/") ? "video" : "image";
+            deleteFromCloudinary(file.publicId, resourceType === "video" ? "video" : "image").catch(err =>
+                console.error("[Chat Controller] Cloudinary attachment deletion error:", err.message)
+            );
+        }
+        if (file) await File.findByIdAndDelete(file._id);
+        message.attachment = undefined;
+    }
+
     await message.save();
 
     return res.status(200).json(new ApiResponse(200, { messageId: msgId }, "Message deleted"));
