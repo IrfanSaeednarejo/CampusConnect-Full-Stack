@@ -9,7 +9,7 @@ dotenv.config({
 });
 
 connectDB()
-    .then(() => {
+    .then(async () => {
         app.on("error", (error) => {
             console.log("ERROR: ", error);
             throw error;
@@ -19,6 +19,9 @@ connectDB()
 
         const io = initializeSocket(httpServer);
         app.set("io", io);
+
+        const { initNotificationService } = await import("./src/services/notification.service.js");
+        initNotificationService(app);
 
         httpServer.listen(process.env.PORT || 8000, () => {
             console.log(` Server is running at port : ${process.env.PORT}`);

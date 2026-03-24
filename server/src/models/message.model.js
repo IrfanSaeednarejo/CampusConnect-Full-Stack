@@ -157,6 +157,27 @@ messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type 
 
     await mongoose.model("Chat").findByIdAndUpdate(chatId, chatUpdate, updateOpts);
 
+    if (senderId) {
+        const { systemEvents } = await import("../utils/events.js");
+        const targetChat = await mongoose.model("Chat").findById(chatId).select("members");
+        if (targetChat && targetChat.members) {
+            targetChat.members.forEach((member) => {
+                if (member.userId && member.userId.toString() !== senderId.toString()) {
+                    systemEvents.emit("notification:create", {
+                        userId: member.userId,
+                        type: "chat_message",
+                        title: "New Message",
+                        body: content ? (content.substring(0, 50) + (content.length > 50 ? "..." : "")) : `Sent a ${type}`,
+                        ref: chatId,
+                        refModel: "Chat",
+                        actorId: senderId,
+                        priority: "high"
+                    });
+                }
+            });
+        }
+    }
+
     return this.findById(message._id)
         .populate("sender", "profile.displayName profile.avatar")
         .populate("replyTo", "content sender type")

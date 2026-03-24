@@ -28,9 +28,7 @@ import studyGroupRouter from "./src/routes/studyGroup.routes.js";
 import eventRouter from "./src/routes/event.routes.js";
 import mentorRouter from "./src/routes/mentor.routes.js";
 import fileRouter from "./src/routes/file.routes.js";
-// import notificationRouter from "./src/routes/notification.routes.js";
-// import analyticsRouter   from "./src/routes/analytics.routes.js";
-// import aiRoute           from "./src/routes/ai.routes.js";
+import notificationRouter from "./src/routes/notification.routes.js";
 
 app.get("/", (_req, res) => res.json({ status: "ok", service: "CampusConnect API" }));
 app.get("/api/v1", (_req, res) => res.json({ status: "ok", version: "1.0.0" }));
@@ -44,9 +42,7 @@ app.use("/api/v1/study-groups", studyGroupRouter);
 app.use("/api/v1/events", eventRouter);
 app.use("/api/v1/mentors", mentorRouter);
 app.use("/api/v1/files", fileRouter);
-// app.use("/api/v1/notifications",notificationRouter);
-// app.use("/api/v1/analytics",    analyticsRouter);
-// app.use("/api/v1/ai",           aiRoute);
+app.use("/api/v1/notifications", notificationRouter);
 
 app.use(errorHandler);
 

@@ -5,6 +5,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { Mentor } from "../models/mentor.model.js";
 import { MentorBooking } from "../models/mentorBooking.model.js";
 import { MentorReview } from "../models/mentorReview.model.js";
+import { systemEvents } from "../utils/events.js";
 import { User } from "../models/user.model.js";
 import { paginate } from "../utils/paginate.js";
 
@@ -445,6 +446,16 @@ const bookSession = asyncHandler(async (req, res) => {
         .populate("mentorId", "userId hourlyRate currency tier averageRating")
         .populate("menteeId", "profile.displayName profile.avatar");
 
+    systemEvents.emit("notification:create", {
+        userId: mentor.userId,
+        type: "mentor_booking",
+        title: "New Mentorship Request",
+        body: `${req.user.profile.displayName} has requested a mentoring session with you on ${start.toDateString()}.`,
+        ref: booking._id,
+        refModel: "MentorBooking",
+        actorId: req.user._id,
+    });
+
     return res
         .status(201)
         .json(new ApiResponse(201, created, "Session booked successfully. Awaiting mentor confirmation."));
@@ -479,6 +490,16 @@ const confirmBooking = asyncHandler(async (req, res) => {
     )
         .populate("mentorId", "userId tier averageRating")
         .populate("menteeId", "profile.displayName profile.avatar");
+
+    systemEvents.emit("notification:create", {
+        userId: booking.menteeId._id || booking.menteeId,
+        type: "mentor_booking",
+        title: "Session Confirmed",
+        body: `Your mentoring session on ${booking.startAt.toDateString()} has been confirmed!`,
+        ref: booking._id,
+        refModel: "MentorBooking",
+        actorId: req.user._id,
+    });
 
     return res
         .status(200)
@@ -533,6 +554,21 @@ const cancelBooking = asyncHandler(async (req, res) => {
         { new: true }
     );
 
+    const otherUserId = isMentor
+        ? booking.menteeId._id || booking.menteeId
+        : booking.mentorUserId;
+
+    systemEvents.emit("notification:create", {
+        userId: otherUserId,
+        type: "mentor_booking",
+        title: "Session Cancelled",
+        body: `${req.user.profile.displayName} has cancelled the session scheduled for ${booking.startAt.toDateString()}.`,
+        ref: booking._id,
+        refModel: "MentorBooking",
+        actorId: req.user._id,
+        priority: "high"
+    });
+
     return res
         .status(200)
         .json(new ApiResponse(200, updated, "Booking cancelled successfully"));
@@ -574,6 +610,16 @@ const completeBooking = asyncHandler(async (req, res) => {
     Mentor.syncStats(booking.mentorId).catch((err) =>
         console.error("[Mentor] Failed to sync stats after session complete:", err.message)
     );
+
+    systemEvents.emit("notification:create", {
+        userId: booking.menteeId._id || booking.menteeId,
+        type: "mentor_booking",
+        title: "Session Completed",
+        body: `Your mentoring session is complete! Please leave a review.`,
+        ref: booking._id,
+        refModel: "MentorBooking",
+        actorId: req.user._id
+    });
 
     return res
         .status(200)
@@ -741,6 +787,16 @@ const submitReview = asyncHandler(async (req, res) => {
     Mentor.syncStats(booking.mentorId).catch((err) =>
         console.error("[Mentor] Failed to sync stats after review:", err.message)
     );
+
+    systemEvents.emit("notification:create", {
+        userId: booking.mentorId.userId || await Mentor.findById(booking.mentorId).select("userId").then(m => m.userId),
+        type: "mentor_review",
+        title: "New Review Received",
+        body: `You received a ${rating}-star review for a recent session.`,
+        ref: review._id,
+        refModel: "MentorBooking",
+        actorId: req.user._id
+    });
 
     return res
         .status(201)
