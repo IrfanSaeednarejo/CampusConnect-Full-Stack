@@ -1,7 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-
-// ── Constants ───────────────────────────────────────────────────────────────
-
 export const BOOKING_STATUSES = [
     "pending",
     "confirmed",
@@ -9,9 +6,6 @@ export const BOOKING_STATUSES = [
     "cancelled",
     "no-show",
 ];
-
-// ── Main Schema ─────────────────────────────────────────────────────────────
-
 const mentorBookingSchema = new Schema(
     {
         mentorId: {
@@ -51,7 +45,7 @@ const mentorBookingSchema = new Schema(
         },
 
         duration: {
-            type: Number, // in minutes
+            type: Number,
             required: [true, "Duration is required"],
             min: [15, "Minimum session is 15 minutes"],
             max: [180, "Maximum session is 3 hours"],
@@ -70,8 +64,6 @@ const mentorBookingSchema = new Schema(
             maxlength: [1000, "Notes cannot exceed 1000 characters"],
             default: "",
         },
-
-        // ── Financials ──
 
         fee: {
             type: Number,
@@ -97,8 +89,6 @@ const mentorBookingSchema = new Schema(
             min: 0,
         },
 
-        // ── Status ──
-
         status: {
             type: String,
             enum: {
@@ -122,9 +112,6 @@ const mentorBookingSchema = new Schema(
             trim: true,
             maxlength: [300, "Cancellation reason cannot exceed 300 characters"],
         },
-
-        // ── Review link ──
-
         reviewId: {
             type: Schema.Types.ObjectId,
             ref: "MentorReview",
@@ -137,21 +124,14 @@ const mentorBookingSchema = new Schema(
         toObject: { virtuals: true },
     }
 );
-
-// ── Indexes ─────────────────────────────────────────────────────────────────
-
 mentorBookingSchema.index({ mentorId: 1, startAt: 1 });
 mentorBookingSchema.index({ menteeId: 1, createdAt: -1 });
 mentorBookingSchema.index({ status: 1 });
 mentorBookingSchema.index({ mentorUserId: 1 });
-// Prevent double-booking: same mentor can't have overlapping confirmed sessions
 mentorBookingSchema.index(
     { mentorId: 1, startAt: 1, endAt: 1 },
     { partialFilterExpression: { status: { $in: ["pending", "confirmed"] } } }
 );
-
-// ── Virtuals ────────────────────────────────────────────────────────────────
-
 mentorBookingSchema.virtual("isUpcoming").get(function () {
     return this.startAt > new Date() && ["pending", "confirmed"].includes(this.status);
 });

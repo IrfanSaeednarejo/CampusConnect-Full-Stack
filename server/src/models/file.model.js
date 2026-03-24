@@ -1,7 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-
-// ── Constants ───────────────────────────────────────────────────────────────
-
 export const FILE_CONTEXTS = [
     "chat",
     "studygroup",
@@ -11,9 +8,6 @@ export const FILE_CONTEXTS = [
     "society",
     "general",
 ];
-
-// ── Main Schema ─────────────────────────────────────────────────────────────
-
 const fileSchema = new Schema(
     {
         userId: {
@@ -38,7 +32,7 @@ const fileSchema = new Schema(
         publicId: {
             type: String,
             default: "",
-            select: false, // Cloudinary public ID — internal use only
+            select: false,
         },
 
         mimeType: {
@@ -53,9 +47,6 @@ const fileSchema = new Schema(
             required: [true, "File size is required"],
             min: [0, "File size cannot be negative"],
         },
-
-        // ── Context: what this file belongs to ──
-
         context: {
             type: String,
             enum: {
@@ -67,11 +58,7 @@ const fileSchema = new Schema(
 
         contextId: {
             type: Schema.Types.ObjectId,
-            // Polymorphic: points to Chat, StudyGroup, Event, Mentor, Society, or User._id
         },
-
-        // ── Metadata ──
-
         description: {
             type: String,
             trim: true,
@@ -90,17 +77,11 @@ const fileSchema = new Schema(
     }
 );
 
-// ── Indexes ─────────────────────────────────────────────────────────────────
-
 fileSchema.index({ userId: 1, createdAt: -1 });
 fileSchema.index({ context: 1, contextId: 1 });
 fileSchema.index({ mimeType: 1 });
 
-// ── Virtuals ────────────────────────────────────────────────────────────────
 
-/**
- * Returns a human-readable file size.
- */
 fileSchema.virtual("fileSizeFormatted").get(function () {
     const bytes = this.fileSize;
     if (bytes === 0) return "0 B";
@@ -110,9 +91,7 @@ fileSchema.virtual("fileSizeFormatted").get(function () {
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(1))} ${sizes[i]}`;
 });
 
-/**
- * Returns whether this file is an image.
- */
+
 fileSchema.virtual("isImage").get(function () {
     return this.mimeType?.startsWith("image/") ?? false;
 });

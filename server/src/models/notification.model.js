@@ -1,7 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-
-// ── Constants ───────────────────────────────────────────────────────────────
-
 export const NOTIFICATION_TYPES = [
     "event_reminder",
     "event_update",
@@ -26,8 +23,6 @@ export const NOTIFICATION_REF_MODELS = [
     "StudyGroup",
     "User",
 ];
-
-// ── Main Schema ─────────────────────────────────────────────────────────────
 
 const notificationSchema = new Schema(
     {
@@ -60,9 +55,6 @@ const notificationSchema = new Schema(
             maxlength: [500, "Body cannot exceed 500 characters"],
             default: "",
         },
-
-        // ── Polymorphic reference to source document ──
-
         ref: {
             type: Schema.Types.ObjectId,
         },
@@ -74,8 +66,6 @@ const notificationSchema = new Schema(
                 message: "{VALUE} is not a valid reference model",
             },
         },
-
-        // Who triggered this notification (optional)
         actorId: {
             type: Schema.Types.ObjectId,
             ref: "User",
@@ -108,35 +98,21 @@ const notificationSchema = new Schema(
     }
 );
 
-// ── Indexes ─────────────────────────────────────────────────────────────────
 
-// Primary query: user's notifications, unread first, newest first
 notificationSchema.index({ userId: 1, read: 1, createdAt: -1 });
 
-// For unread count queries
 notificationSchema.index(
     { userId: 1 },
     { partialFilterExpression: { read: false } }
 );
 
-// Auto-delete old notifications after 90 days
 notificationSchema.index(
     { createdAt: 1 },
     { expireAfterSeconds: 90 * 24 * 60 * 60 }
 );
-
-// ── Statics ─────────────────────────────────────────────────────────────────
-
-/**
- * Get unread notification count for a user.
- */
 notificationSchema.statics.getUnreadCount = function (userId) {
     return this.countDocuments({ userId, read: false });
 };
-
-/**
- * Mark all notifications as read for a user.
- */
 notificationSchema.statics.markAllRead = function (userId) {
     return this.updateMany(
         { userId, read: false },

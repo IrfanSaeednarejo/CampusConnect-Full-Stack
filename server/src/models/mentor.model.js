@@ -1,7 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 
-// ── Constants ───────────────────────────────────────────────────────────────
-
 export const MENTOR_CATEGORIES = [
     "academic",
     "career",
@@ -15,16 +13,13 @@ export const MENTOR_CATEGORIES = [
 ];
 
 export const MENTOR_TIERS = ["bronze", "silver", "gold"];
-
-// ── Sub-schemas ─────────────────────────────────────────────────────────────
-
 const availabilitySlotSchema = new Schema(
     {
         day: {
             type: Number,
             required: true,
             min: 0,
-            max: 6, // 0 = Sunday, 6 = Saturday
+            max: 6,
         },
         startTime: {
             type: String,
@@ -39,9 +34,6 @@ const availabilitySlotSchema = new Schema(
     },
     { _id: false }
 );
-
-// ── Main Schema ─────────────────────────────────────────────────────────────
-
 const mentorSchema = new Schema(
     {
         userId: {
@@ -105,12 +97,10 @@ const mentorSchema = new Schema(
             type: [availabilitySlotSchema],
             default: [],
             validate: {
-                validator: (arr) => arr.length <= 21, // max 3 slots per day
+                validator: (arr) => arr.length <= 21,
                 message: "Maximum 21 availability slots allowed",
             },
         },
-
-        // ── Verification ──
 
         verified: {
             type: Boolean,
@@ -121,9 +111,6 @@ const mentorSchema = new Schema(
             verifiedAt: { type: Date },
             verifiedBy: { type: Schema.Types.ObjectId, ref: "User" },
         },
-
-        // ── Aggregated stats (cached, updated after each booking/review) ──
-
         tier: {
             type: String,
             enum: MENTOR_TIERS,
@@ -149,7 +136,6 @@ const mentorSchema = new Schema(
             min: 0,
         },
 
-        // ── Earnings ──
 
         totalEarnings: {
             type: Number,
@@ -164,8 +150,6 @@ const mentorSchema = new Schema(
         },
 
         lastPayoutAt: { type: Date },
-
-        // ── Status ──
 
         isActive: {
             type: Boolean,
@@ -182,9 +166,6 @@ const mentorSchema = new Schema(
         toObject: { virtuals: true },
     }
 );
-
-// ── Indexes ─────────────────────────────────────────────────────────────────
-
 mentorSchema.index({ userId: 1 }, { unique: true });
 mentorSchema.index({ isActive: 1, averageRating: -1 });
 mentorSchema.index({ campusId: 1, isActive: 1 });
@@ -195,9 +176,6 @@ mentorSchema.index(
     { expertise: "text", bio: "text" },
     { weights: { expertise: 10, bio: 1 } }
 );
-
-// ── Pre-save: auto-compute tier ─────────────────────────────────────────────
-
 mentorSchema.pre("save", function (next) {
     if (this.isModified("totalSessions") || this.isModified("averageRating")) {
         if (this.totalSessions >= 100 && this.averageRating >= 4.5) {
@@ -210,9 +188,6 @@ mentorSchema.pre("save", function (next) {
     }
     next();
 });
-
-// ── Statics ─────────────────────────────────────────────────────────────────
-
 mentorSchema.statics.findActive = function (filter = {}) {
     return this.find({ ...filter, isActive: true, verified: true })
         .populate("userId", "profile.displayName profile.avatar profile.firstName profile.lastName")

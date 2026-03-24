@@ -1,14 +1,12 @@
 import mongoose, { Schema } from "mongoose";
 
-// ── Main Schema ─────────────────────────────────────────────────────────────
-
 const mentorReviewSchema = new Schema(
     {
         bookingId: {
             type: Schema.Types.ObjectId,
             ref: "MentorBooking",
             required: [true, "Booking reference is required"],
-            unique: true, // one review per booking
+            unique: true,
         },
 
         mentorId: {
@@ -37,8 +35,6 @@ const mentorReviewSchema = new Schema(
             maxlength: [1000, "Review comment cannot exceed 1000 characters"],
             default: "",
         },
-
-        // Detailed rating breakdown (optional)
         detailedRatings: {
             knowledge: { type: Number, min: 1, max: 5 },
             communication: { type: Number, min: 1, max: 5 },
@@ -50,8 +46,6 @@ const mentorReviewSchema = new Schema(
             type: Boolean,
             default: false,
         },
-
-        // Mentor can respond to a review
         mentorResponse: {
             content: {
                 type: String,
@@ -66,15 +60,10 @@ const mentorReviewSchema = new Schema(
         versionKey: false,
     }
 );
-
-// ── Indexes ─────────────────────────────────────────────────────────────────
-
 mentorReviewSchema.index({ bookingId: 1 }, { unique: true });
 mentorReviewSchema.index({ mentorId: 1, createdAt: -1 });
 mentorReviewSchema.index({ menteeId: 1 });
 mentorReviewSchema.index({ rating: 1 });
-
-// ── Post-save: update mentor aggregate stats ────────────────────────────────
 
 mentorReviewSchema.post("save", async function () {
     try {

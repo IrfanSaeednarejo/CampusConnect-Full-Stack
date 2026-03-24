@@ -1,7 +1,4 @@
 import mongoose, { Schema } from "mongoose";
-
-// ── Sub-schemas ─────────────────────────────────────────────────────────────
-
 const chatMemberSchema = new Schema(
     {
         userId: {
@@ -26,9 +23,6 @@ const chatMemberSchema = new Schema(
     },
     { _id: false }
 );
-
-// ── Main Schema ─────────────────────────────────────────────────────────────
-
 const chatSchema = new Schema(
     {
         type: {
@@ -89,8 +83,6 @@ const chatSchema = new Schema(
             type: Date,
             default: Date.now,
         },
-
-        // For linking to context (society or studygroup)
         contextId: {
             type: Schema.Types.ObjectId,
         },
@@ -108,25 +100,15 @@ const chatSchema = new Schema(
     }
 );
 
-// ── Indexes ─────────────────────────────────────────────────────────────────
-
 chatSchema.index({ "members.userId": 1 });
 chatSchema.index({ lastMessageAt: -1 });
 chatSchema.index({ type: 1, contextId: 1 });
-// For DM deduplication — find existing DM between two users
 chatSchema.index(
     { type: 1, "members.userId": 1 },
     { partialFilterExpression: { type: "dm" } }
 );
 
-// ── Statics ─────────────────────────────────────────────────────────────────
-
-/**
- * Find or create a DM chat between two users.
- * Prevents duplicate DM chats by checking both orderings.
- */
 chatSchema.statics.findOrCreateDM = async function (userId1, userId2, campusId) {
-    // Look for existing DM
     const existing = await this.findOne({
         type: "dm",
         "members.userId": { $all: [userId1, userId2] },
@@ -147,9 +129,6 @@ chatSchema.statics.findOrCreateDM = async function (userId1, userId2, campusId) 
     return { chat, created: true };
 };
 
-/**
- * Get all chats for a user, sorted by last activity.
- */
 chatSchema.statics.findUserChats = function (userId) {
     return this.find({
         "members.userId": userId,

@@ -1,7 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 
-// ── Main Schema ─────────────────────────────────────────────────────────────
-
 const messageSchema = new Schema(
     {
         chat: {
@@ -32,11 +30,10 @@ const messageSchema = new Schema(
             maxlength: [2000, "Message cannot exceed 2000 characters"],
             validate: {
                 validator: function (v) {
-                    // Text and system messages must have content
                     if (this.type === "text" || this.type === "system") {
                         return v && v.trim().length > 0;
                     }
-                    return true; // image/file messages might not have text
+                    return true;
                 },
                 message: "Text messages cannot be empty",
             },
@@ -98,28 +95,11 @@ const messageSchema = new Schema(
     }
 );
 
-// ── Indexes ─────────────────────────────────────────────────────────────────
-
-// Primary query: get messages for a chat, most recent first
 messageSchema.index({ chat: 1, createdAt: -1 });
 
-// Find unread messages for a user within a chat
 messageSchema.index({ chat: 1, "readBy.userId": 1 });
-
-// Cursor-based pagination: messages before a given timestamp
 messageSchema.index({ chat: 1, _id: -1 });
 
-// ── Statics ─────────────────────────────────────────────────────────────────
-
-/**
- * Get paginated messages for a chat using cursor-based pagination.
- * More efficient than skip/limit for real-time chat.
- *
- * @param {ObjectId} chatId
- * @param {Object} options
- * @param {string} [options.before]  Message _id cursor (return messages before this)
- * @param {number} [options.limit=50]
- */
 messageSchema.statics.getChatMessages = function (chatId, { before, limit = 50 } = {}) {
     const filter = { chat: chatId, isDeleted: false };
 

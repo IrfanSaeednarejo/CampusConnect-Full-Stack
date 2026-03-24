@@ -1,7 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 
-// ── Constants ───────────────────────────────────────────────────────────────
-
 export const EVENT_CATEGORIES = [
     "academic",
     "cultural",
@@ -14,9 +12,6 @@ export const EVENT_CATEGORIES = [
 ];
 
 export const EVENT_STATUS = ["draft", "published", "cancelled", "completed"];
-
-// ── Sub-schemas ─────────────────────────────────────────────────────────────
-
 const venueSchema = new Schema(
     {
         type: {
@@ -106,8 +101,6 @@ const feeSchema = new Schema(
     { _id: false }
 );
 
-// ── Main Schema ─────────────────────────────────────────────────────────────
-
 const eventSchema = new Schema(
     {
         title: {
@@ -188,7 +181,7 @@ const eventSchema = new Schema(
 
         maxCapacity: {
             type: Number,
-            default: 0, // 0 = unlimited
+            default: 0,
             min: [0, "Capacity cannot be negative"],
         },
 
@@ -268,8 +261,6 @@ const eventSchema = new Schema(
     }
 );
 
-// ── Indexes ─────────────────────────────────────────────────────────────────
-
 eventSchema.index({ campusId: 1, startAt: -1 });
 eventSchema.index({ societyId: 1, startAt: -1 });
 eventSchema.index({ status: 1, campusId: 1 });
@@ -279,13 +270,10 @@ eventSchema.index(
     { title: "text", description: "text", tags: "text" },
     { weights: { title: 10, tags: 5, description: 1 } }
 );
-// Auto-delete draft events older than 30 days
 eventSchema.index(
     { createdAt: 1 },
     { expireAfterSeconds: 30 * 86400, partialFilterExpression: { status: "draft" } }
 );
-
-// ── Pre-save: sync counts ───────────────────────────────────────────────────
 
 eventSchema.pre("save", function (next) {
     if (this.isModified("registrations")) {
@@ -306,14 +294,12 @@ eventSchema.pre("save", function (next) {
     next();
 });
 
-// ── Virtuals ────────────────────────────────────────────────────────────────
-
 eventSchema.virtual("isFull").get(function () {
     return this.maxCapacity > 0 && this.registrationCount >= this.maxCapacity;
 });
 
 eventSchema.virtual("spotsRemaining").get(function () {
-    if (this.maxCapacity === 0) return null; // unlimited
+    if (this.maxCapacity === 0) return null;
     return Math.max(0, this.maxCapacity - this.registrationCount);
 });
 
@@ -324,8 +310,6 @@ eventSchema.virtual("isPast").get(function () {
 eventSchema.virtual("isFree").get(function () {
     return !this.fee?.amount || this.fee.amount === 0;
 });
-
-// ── Statics ─────────────────────────────────────────────────────────────────
 
 eventSchema.statics.findUpcoming = function (campusId, limit = 10) {
     return this.find({
