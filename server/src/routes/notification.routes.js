@@ -12,10 +12,26 @@ const router = Router();
 
 router.use(verifyJWT);
 
-router.get("/", getMyNotifications);
-router.get("/unread-count", getUnreadCount);
-router.patch("/read-all", markAllAsRead);
-router.patch("/:id/read", markAsRead);
-router.delete("/:id", deleteNotification);
+
+router
+    .route("/")
+    .get(getMyNotifications);
+
+router
+    .route("/unread-count")
+    .get(getUnreadCount);
+
+router
+    .route("/read-all")
+    .patch(markAllAsRead);
+
+
+router
+    .route("/:id")
+    .delete(deleteNotification);
+
+router
+    .route("/:id/read")
+    .patch(markAsRead);
 
 export default router;
