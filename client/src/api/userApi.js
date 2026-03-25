@@ -3,6 +3,9 @@ import api from './axios';
 export const getUserProfile = (userId) =>
   api.get(`/users/profile/${userId}`);
 
+export const changePassword = (data) =>
+  api.patch('/users/change-password', data);
+
 export const updateAccountDetails = (data) =>
   api.patch('/users/update-account', data);
 
