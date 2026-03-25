@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { errorHandler } from "./src/middlewares/errorHandler.middleware.js";
+import { ApiError } from "./src/utils/ApiError.js";
 
 const app = express();
 
@@ -43,6 +44,17 @@ app.use("/api/v1/events", eventRouter);
 app.use("/api/v1/mentors", mentorRouter);
 app.use("/api/v1/files", fileRouter);
 app.use("/api/v1/notifications", notificationRouter);
+
+app.use((err, _req, _res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+        return next(new ApiError(400, "Malformed JSON in request body"));
+    }
+    next(err);
+});
+
+app.use((_req, _res, next) => {
+    next(new ApiError(404, "Route not found"));
+});
 
 app.use(errorHandler);
 
