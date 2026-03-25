@@ -7,6 +7,7 @@ const rateLimits = {
     "chat:sync": new Map(),
     "typing": new Map(),
     "chat:read": new Map(),
+    "message:status": new Map(),
 };
 
 const checkRateLimit = (action, userId, maxCount, windowMs) => {
@@ -39,6 +40,9 @@ setInterval(() => {
         }
     }
 }, 60000);
+
+const typingStates = new Map();
+const TYPING_TIMEOUT_MS = 5000;
 
 const logSocket = (level, event, userId, msg, err = null) => {
     const timestamp = new Date().toISOString();
@@ -73,14 +77,14 @@ export const registerChatHandlers = (io, socket) => {
 
             const userChats = await Chat.find({
                 "members.userId": userId,
-                isArchived: false,
+                isArchived: false
             }).select("_id");
 
-            const chatIds = userChats.map((c) => c._id);
+            const chatIds = userChats.map(c => c._id);
 
             const missedMessages = await Message.find({
                 chat: { $in: chatIds },
-                createdAt: { $gt: new Date(lastMessageAt) },
+                createdAt: { $gt: new Date(lastMessageAt) }
             })
                 .sort({ createdAt: 1 })
                 .limit(limit)
@@ -92,9 +96,7 @@ export const registerChatHandlers = (io, socket) => {
 
             logSocket("info", "chat:sync", userId, `Synced ${missedMessages.length} missed messages`);
 
-            if (typeof ackCallback === "function") {
-                ackCallback({ success: true, messages: missedMessages, hasMore });
-            }
+            if (typeof ackCallback === "function") ackCallback({ success: true, messages: missedMessages, hasMore });
         } catch (err) {
             logSocket("error", "chat:sync", userId, "Sync failed", err);
             if (typeof ackCallback === "function") ackCallback({ error: err.message });
@@ -163,7 +165,6 @@ export const registerChatHandlers = (io, socket) => {
                 replyToId,
             });
 
-            // Cache for retries
             if (idempotencyKey && typeof idempotencyKey === "string") {
                 processedMessages.set(idempotencyKey, {
                     expiresAt: Date.now() + IDEMPOTENCY_EXPIRY_MS,
@@ -188,42 +189,147 @@ export const registerChatHandlers = (io, socket) => {
         }
     });
 
+    socket.on("message:delivered", async (data, ackCallback) => {
+        try {
+            if (!checkRateLimit("message:status", userId, 15, 5000)) {
+                logSocket("warn", "message:delivered", userId, "Rate limit exceeded");
+                return;
+            }
+
+            const { messageId, chatId } = data || {};
+            if (!messageId || !chatId || !mongoose.isValidObjectId(messageId) || !mongoose.isValidObjectId(chatId)) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Invalid payload" });
+                return;
+            }
+
+            const updated = await Message.findOneAndUpdate(
+                { _id: messageId, chat: chatId, "deliveredTo.userId": { $ne: userId } },
+                { $push: { deliveredTo: { userId, deliveredAt: new Date() } } },
+                { new: true }
+            );
+
+            if (updated) {
+                socket.to(`chat:${chatId}`).emit("message:delivered", {
+                    messageId,
+                    chatId,
+                    userId,
+                    deliveredAt: new Date()
+                });
+            }
+
+            if (typeof ackCallback === "function") ackCallback({ success: true });
+        } catch (err) {
+            logSocket("error", "message:delivered", userId, "Failed to update delivered status", err);
+            if (typeof ackCallback === "function") ackCallback({ error: err.message });
+        }
+    });
+
+    socket.on("message:seen", async (data, ackCallback) => {
+        try {
+            if (!checkRateLimit("message:status", userId, 15, 5000)) {
+                logSocket("warn", "message:seen", userId, "Rate limit exceeded");
+                return;
+            }
+
+            const { messageIds, chatId } = data || {};
+            if (!chatId || !mongoose.isValidObjectId(chatId) || !Array.isArray(messageIds) || messageIds.length === 0) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Invalid payload" });
+                return;
+            }
+
+            const validDocs = messageIds.filter(id => mongoose.isValidObjectId(id));
+            if (!validDocs.length) {
+                if (typeof ackCallback === "function") ackCallback({ error: "No valid message IDs" });
+                return;
+            }
+
+            const now = new Date();
+
+            const updatedResult = await Message.updateMany(
+                { _id: { $in: validDocs }, chat: chatId, "readBy.userId": { $ne: userId } },
+                { $push: { readBy: { userId, readAt: now } } }
+            );
+
+            if (updatedResult.modifiedCount > 0) {
+                socket.to(`chat:${chatId}`).emit("message:seen", {
+                    messageIds: validDocs,
+                    chatId,
+                    userId,
+                    seenAt: now
+                });
+            }
+
+            await Chat.markAsRead(chatId, userId);
+
+            const { Notification } = await import("../models/notification.model.js");
+            await Notification.updateMany(
+                { userId, ref: chatId, type: "chat_message", read: false },
+                { $set: { read: true, readAt: now } }
+            );
+
+            const unreadCount = await Notification.getUnreadCount(userId);
+            io.to(`user:${userId}`).emit("notification:sync", { unreadCount });
+
+            socket.to(`chat:${chatId}`).emit("chat:read", { chatId, userId });
+
+            if (typeof ackCallback === "function") ackCallback({ success: true });
+        } catch (err) {
+            logSocket("error", "message:seen", userId, "Failed to update seen status", err);
+            if (typeof ackCallback === "function") ackCallback({ error: err.message });
+        }
+    });
+
     socket.on("typing:start", (data) => {
-        if (!checkRateLimit("typing", userId, 2, 1000)) return;
+        if (!checkRateLimit("typing", userId, 5, 2000)) return;
+
         const chatId = data?.chatId;
         if (!chatId || !mongoose.isValidObjectId(chatId)) return;
-        socket.to(`chat:${chatId}`).emit("typing:start", {
-            chatId,
-            userId,
-            displayName: socket.user?.profile?.displayName,
-        });
+
+        const stateKey = `${chatId}_${userId}`;
+        const existingTimer = typingStates.get(stateKey);
+
+        if (existingTimer) {
+            clearTimeout(existingTimer);
+        } else {
+            socket.to(`chat:${chatId}`).emit("typing:start", {
+                chatId,
+                userId,
+                displayName: socket.user?.profile?.displayName,
+            });
+        }
+
+        typingStates.set(stateKey, setTimeout(() => {
+            typingStates.delete(stateKey);
+            socket.to(`chat:${chatId}`).emit("typing:stop", { chatId, userId });
+        }, TYPING_TIMEOUT_MS));
     });
 
     socket.on("typing:stop", (data) => {
-        if (!checkRateLimit("typing", userId, 2, 1000)) return;
+        if (!checkRateLimit("typing", userId, 5, 2000)) return;
+
         const chatId = data?.chatId;
         if (!chatId || !mongoose.isValidObjectId(chatId)) return;
-        socket.to(`chat:${chatId}`).emit("typing:stop", {
-            chatId,
-            userId,
-        });
+
+        const stateKey = `${chatId}_${userId}`;
+        const existingTimer = typingStates.get(stateKey);
+
+        if (existingTimer) {
+            clearTimeout(existingTimer);
+            typingStates.delete(stateKey);
+            socket.to(`chat:${chatId}`).emit("typing:stop", { chatId, userId });
+        }
     });
 
     socket.on("chat:read", async (data) => {
         const chatId = data?.chatId;
         try {
-            if (!checkRateLimit("chat:read", userId, 10, 5000)) {
-                logSocket("warn", "chat:read", userId, "Rate limit exceeded");
-                return;
-            }
-
+            if (!checkRateLimit("chat:read", userId, 10, 5000)) return;
             if (!chatId || !mongoose.isValidObjectId(chatId)) return;
 
             await Chat.markAsRead(chatId, userId);
             socket.to(`chat:${chatId}`).emit("chat:read", { chatId, userId });
         } catch (err) {
             logSocket("error", "chat:read", userId, `Failed to mark chat ${chatId} as read`, err);
-            socket.emit("error:chat", { message: "Internal server error marking chat as read", event: "chat:read" });
         }
     });
 

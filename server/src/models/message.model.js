@@ -65,6 +65,21 @@ const messageSchema = new Schema(
             },
         ],
 
+        deliveredTo: [
+            {
+                userId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "User",
+                    required: true,
+                },
+                deliveredAt: {
+                    type: Date,
+                    default: Date.now,
+                },
+                _id: false,
+            },
+        ],
+
         reactions: [
             {
                 userId: {
@@ -140,6 +155,7 @@ messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type 
         attachment: attachmentId || undefined,
         replyTo: replyToId || undefined,
         readBy: senderId ? [{ userId: senderId, readAt: new Date() }] : [],
+        deliveredTo: senderId ? [{ userId: senderId, deliveredAt: new Date() }] : [],
     });
 
     const chatUpdate = {
