@@ -1,6 +1,7 @@
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
+import { Chat } from "../models/chat.model.js";
 import { registerChatHandlers } from "./chat.socket.js";
 import { registerPresenceHandlers } from "./presence.socket.js";
 import { registerNotificationHandlers } from "./notification.socket.js";
@@ -32,6 +33,13 @@ export const initializeSocket = (httpServer) => {
             }
 
             const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+
+            const timeRemaining = (decoded.exp * 1000) - Date.now();
+            if (timeRemaining <= 0) {
+                return next(new Error("Token has expired"));
+            }
+            socket.tokenExpRemaining = timeRemaining;
+
             const user = await User.findById(decoded._id).select(
                 "_id campusId profile.displayName profile.avatar roles"
             );
@@ -46,18 +54,49 @@ export const initializeSocket = (httpServer) => {
         }
     });
 
-    io.on("connection", (socket) => {
+    io.on("connection", async (socket) => {
         const userId = socket.userId;
-        onlineUsers.set(userId, socket.id);
+
+        socket.authTimeout = setTimeout(() => {
+            socket.emit("error:auth", { message: "Session expired" });
+            socket.disconnect(true);
+        }, socket.tokenExpRemaining);
+        if (!onlineUsers.has(userId)) {
+            onlineUsers.set(userId, new Set());
+        }
+        onlineUsers.get(userId).add(socket.id);
+
         socket.join(`user:${userId}`);
+
+        try {
+            const userChats = await Chat.find({
+                "members.userId": userId,
+                isArchived: false
+            }).select("_id");
+
+            const chatRooms = userChats.map(c => `chat:${c._id.toString()}`);
+            if (chatRooms.length > 0) {
+                socket.join(chatRooms);
+            }
+        } catch (err) {
+            console.error(`[Socket] Failed to pre-join chats for user ${userId}:`, err.message);
+        }
 
         registerPresenceHandlers(io, socket, onlineUsers);
         registerChatHandlers(io, socket);
         registerNotificationHandlers(io, socket);
 
         socket.on("disconnect", () => {
-            onlineUsers.delete(userId);
-            io.emit("user:offline", { userId });
+            clearTimeout(socket.authTimeout);
+
+            const userSockets = onlineUsers.get(userId);
+            if (userSockets) {
+                userSockets.delete(socket.id);
+                if (userSockets.size === 0) {
+                    onlineUsers.delete(userId);
+                    io.emit("user:offline", { userId });
+                }
+            }
         });
 
         socket.on("error", (err) => {
