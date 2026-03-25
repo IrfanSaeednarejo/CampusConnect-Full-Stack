@@ -1,7 +1,6 @@
 import { Notification } from "../models/notification.model.js";
 import { systemEvents } from "../utils/events.js";
 import { emitNotification } from "../sockets/notification.socket.js";
-import mongoose from "mongoose";
 
 const recentNotifications = new Map();
 const DEDUPLICATION_WINDOW_MS = 60 * 1000;
