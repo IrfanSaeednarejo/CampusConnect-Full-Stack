@@ -9,6 +9,7 @@ const rateLimits = {
     "chat:read": new Map(),
     "message:status": new Map(),
     "message:react": new Map(),
+    "message:edit": new Map(),
 };
 
 const checkRateLimit = (action, userId, maxCount, windowMs) => {
@@ -113,7 +114,7 @@ export const registerChatHandlers = (io, socket) => {
                 return socket.emit("error:chat", { message: err, event: "message:send" });
             }
 
-            const { chatId, content, type = "text", attachmentId, replyToId, idempotencyKey } = data || {};
+            const { chatId, content, type = "text", attachmentId, replyToId, idempotencyKey, mentions } = data || {};
 
             if (!chatId || !mongoose.isValidObjectId(chatId)) {
                 const err = "Invalid or missing chatId";
@@ -164,6 +165,7 @@ export const registerChatHandlers = (io, socket) => {
                 content,
                 attachmentId,
                 replyToId,
+                mentions
             });
 
             if (idempotencyKey && typeof idempotencyKey === "string") {
@@ -187,6 +189,79 @@ export const registerChatHandlers = (io, socket) => {
             } else {
                 socket.emit("error:chat", { message: "Internal Server Error during delivery", event: "message:send" });
             }
+        }
+    });
+
+    socket.on("message:edit", async (data, ackCallback) => {
+        try {
+            if (!checkRateLimit("message:edit", userId, 5, 5000)) {
+                logSocket("warn", "message:edit", userId, "Rate limit exceeded");
+                return;
+            }
+
+            const { messageId, chatId, content } = data || {};
+            if (!messageId || !chatId || !content || typeof content !== "string" || !mongoose.isValidObjectId(messageId)) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Invalid payload" });
+                return;
+            }
+
+            const trimmedContent = content.trim();
+            if (trimmedContent.length === 0 || trimmedContent.length > 2000) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Content must be between 1 and 2000 characters" });
+                return;
+            }
+
+            const message = await Message.findById(messageId);
+            if (!message || message.chat.toString() !== chatId) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Message not found" });
+                return;
+            }
+
+            if (!message.sender || message.sender.toString() !== userId) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Unauthorized to edit this message" });
+                return;
+            }
+
+            if (message.type !== "text") {
+                if (typeof ackCallback === "function") ackCallback({ error: "Only text messages can be edited" });
+                return;
+            }
+
+            const EDIT_WINDOW_MS = 15 * 60 * 1000;
+            if (Date.now() - new Date(message.createdAt).getTime() > EDIT_WINDOW_MS) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Message can only be edited within 15 minutes of sending" });
+                return;
+            }
+
+            if (message.content === trimmedContent) {
+                if (typeof ackCallback === "function") ackCallback({ success: true, message });
+                return;
+            }
+            message.editHistory.push({
+                content: message.content,
+                editedAt: message.editedAt || message.createdAt
+            });
+
+            message.content = trimmedContent;
+            message.isEdited = true;
+            message.editedAt = new Date();
+
+            await message.save();
+
+            io.to(`chat:${chatId}`).emit("message:updated", {
+                messageId,
+                chatId,
+                content: message.content,
+                isEdited: message.isEdited,
+                editedAt: message.editedAt,
+                editHistory: message.editHistory
+            });
+
+            logSocket("info", "message:edit", userId, `Successfully edited message ${messageId}`);
+            if (typeof ackCallback === "function") ackCallback({ success: true, message });
+        } catch (err) {
+            logSocket("error", "message:edit", userId, "Edit failed", err);
+            if (typeof ackCallback === "function") ackCallback({ error: err.message });
         }
     });
 
