@@ -4,10 +4,17 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { Event } from "../models/event.model.js";
-import { Society } from "../models/society.model.js";
+import { EventTeam } from "../models/eventTeam.model.js";
+import { EventSubmission } from "../models/eventsSubmission.model.js";
+import { EventScore } from "../models/eventScore.model.js";
 import { paginate } from "../utils/paginate.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
-
+import { systemEvents } from "../utils/events.js";
+import {
+    emitStatusChange,
+    emitAnnouncement,
+    emitLeaderboardUpdate,
+} from "../sockets/event.socket.js";
 const uploadFile = async (localPath) => {
     if (!localPath) return null;
     try {
@@ -17,61 +24,154 @@ const uploadFile = async (localPath) => {
     }
 };
 
-const findEventById = async (eventId, select = "") => {
+const findCompetitionById = async (eventId) => {
     if (!mongoose.isValidObjectId(eventId)) {
         throw new ApiError(400, "Invalid event ID format");
     }
-    const event = await Event.findById(eventId).select(select || undefined);
-    if (!event) throw new ApiError(404, "Event not found");
+    const event = await Event.findOne({ _id: eventId, isOnlineCompetition: true });
+    if (!event) throw new ApiError(404, "Competition not found");
     return event;
 };
 
-const requireEventOwnerOrAdmin = (event, user) => {
+const requireOrganizerOrAdmin = (event, user) => {
     const isAdmin = user.roles?.includes("admin");
     const isOwner = event.createdBy.toString() === user._id.toString();
     if (!isAdmin && !isOwner) {
-        throw new ApiError(403, "You do not have permission to manage this event");
+        throw new ApiError(403, "Only the organizer or an admin can perform this action");
     }
 };
 
-const requireSocietyMembership = async (societyId, userId, userRoles = []) => {
-    if (userRoles.includes("admin")) return;
-    const society = await Society.findById(societyId).select("members createdBy");
-    if (!society) throw new ApiError(404, "Society not found");
-
-    const isMember = society.members.some(
-        (m) => m.memberId.toString() === userId.toString() && m.status === "approved"
+const requireJudge = (event, user) => {
+    const isAdmin = user.roles?.includes("admin");
+    const isOrganizer = event.createdBy.toString() === user._id.toString();
+    const isJudge = event.judgingConfig?.judges?.some(
+        (j) => j.toString() === user._id.toString()
     );
-    const isHead = society.createdBy.toString() === userId.toString();
-
-    if (!isMember && !isHead) {
-        throw new ApiError(403, "Only society members can manage events for this society");
+    if (!isAdmin && !isOrganizer && !isJudge) {
+        throw new ApiError(403, "Only designated judges can perform this action");
     }
 };
+/**
+ * POST /api/v1/competitions
+ */
+const createCompetition = asyncHandler(async (req, res) => {
+    const {
+        title, description, societyId, campusId, eventType,
+        participationType, startAt, endAt,
+        registrationDeadline, submissionDeadline,
+        venue, teamConfig, judgingConfig, prizePool, tags, fee, category,
+    } = req.body;
+
+    if (!title?.trim()) throw new ApiError(400, "Title is required");
+    if (!description?.trim()) throw new ApiError(400, "Description is required");
+    if (!societyId) throw new ApiError(400, "societyId is required");
+    if (!startAt || !endAt) throw new ApiError(400, "startAt and endAt are required");
+    if (!venue?.type) throw new ApiError(400, "venue.type is required");
+
+    if (!mongoose.isValidObjectId(societyId)) {
+        throw new ApiError(400, "Invalid societyId");
+    }
+
+    const start = new Date(startAt);
+    const end = new Date(endAt);
+
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+        throw new ApiError(400, "Invalid startAt or endAt date");
+    }
+    if (end <= start) throw new ApiError(400, "endAt must be after startAt");
+    if (start <= new Date()) throw new ApiError(400, "startAt must be in the future");
+
+    const resolvedCampusId = campusId || req.user.campusId;
+    if (!resolvedCampusId) {
+        throw new ApiError(400, "campusId is required");
+    }
+    const parse = (val) => (typeof val === "string" ? JSON.parse(val) : val) ?? {};
+
+    const parsedVenue = parse(venue);
+    const parsedTeamConfig = parse(teamConfig);
+    const parsedJudgingConfig = parse(judgingConfig);
+    const parsedPrizePool = Array.isArray(prizePool) ? prizePool
+        : typeof prizePool === "string" ? JSON.parse(prizePool) : [];
+    const parsedTags = Array.isArray(tags) ? tags
+        : typeof tags === "string" ? JSON.parse(tags) : [];
+    const parsedFee = parse(fee);
+    const partType = participationType || "individual";
+    if ((partType === "team" || partType === "both") && parsedTeamConfig) {
+        if ((parsedTeamConfig.minSize || 1) > (parsedTeamConfig.maxSize || 5)) {
+            throw new ApiError(400, "teamConfig.minSize cannot exceed maxSize");
+        }
+    }
+    if (parsedJudgingConfig?.criteria?.length > 0) {
+        for (const c of parsedJudgingConfig.criteria) {
+            if (!c.name || !c.maxScore || c.maxScore < 1) {
+                throw new ApiError(400, `Invalid criterion: name and maxScore are required (min 1)`);
+            }
+        }
+    }
+
+    const regDeadline = registrationDeadline ? new Date(registrationDeadline) : undefined;
+    const subDeadline = submissionDeadline ? new Date(submissionDeadline) : undefined;
+
+    if (regDeadline && regDeadline >= start) {
+        throw new ApiError(400, "registrationDeadline must be before startAt");
+    }
+    if (subDeadline && end && subDeadline > end) {
+        throw new ApiError(400, "submissionDeadline must be before or equal to endAt");
+    }
+    const coverLocalPath = req.file?.path;
+    const cover = coverLocalPath ? await uploadFile(coverLocalPath) : null;
+
+    const event = await Event.create({
+        title: title.trim(),
+        description: description.trim(),
+        societyId,
+        campusId: resolvedCampusId,
+        createdBy: req.user._id,
+        isOnlineCompetition: true,
+        eventType: eventType || "hackathon",
+        category: category || "competition",
+        participationType: partType,
+        venue: parsedVenue,
+        startAt: start,
+        endAt: end,
+        registrationDeadline: regDeadline,
+        submissionDeadline: subDeadline,
+        teamConfig: {
+            minSize: parsedTeamConfig?.minSize || 1,
+            maxSize: parsedTeamConfig?.maxSize || 5,
+            maxTeams: parsedTeamConfig?.maxTeams || 0,
+            allowSoloInTeamEvent: parsedTeamConfig?.allowSoloInTeamEvent || false,
+        },
+        judgingConfig: {
+            criteria: parsedJudgingConfig?.criteria || [],
+            isAnonymous: parsedJudgingConfig?.isAnonymous || false,
+            judges: parsedJudgingConfig?.judges || [],
+        },
+        prizePool: parsedPrizePool,
+        tags: parsedTags,
+        fee: { amount: parsedFee?.amount || 0, currency: parsedFee?.currency || "PKR" },
+        coverImage: cover?.secure_url || "",
+        coverImagePublicId: cover?.public_id || "",
+        status: "draft",
+    });
+
+    return res.status(201).json(new ApiResponse(201, event, "Competition created successfully"));
+});
 
 /**
- * GET /api/v1/events
+ * GET /api/v1/competitions
  */
-const getEvents = asyncHandler(async (req, res) => {
+const getCompetitions = asyncHandler(async (req, res) => {
     const {
-        page = 1,
-        limit = 12,
-        campusId,
-        societyId,
-        category,
-        status,
-        startFrom,
-        startTo,
-        tag,
-        venue,
-        q,
+        page = 1, limit = 12, campusId, eventType,
+        participationType, status, q,
     } = req.query;
 
-    const filter = {};
+    const filter = { isOnlineCompetition: true };
     const isAdmin = req.user?.roles?.includes("admin");
 
     if (!isAdmin) {
-        filter.status = "published";
+        filter.status = { $in: ["registration", "ongoing", "submission_locked", "judging", "completed"] };
     } else if (status && status !== "all") {
         filter.status = status;
     }
@@ -80,30 +180,13 @@ const getEvents = asyncHandler(async (req, res) => {
         if (!mongoose.isValidObjectId(campusId)) throw new ApiError(400, "Invalid campusId");
         filter.campusId = new mongoose.Types.ObjectId(campusId);
     }
-
-    if (societyId) {
-        if (!mongoose.isValidObjectId(societyId)) throw new ApiError(400, "Invalid societyId");
-        filter.societyId = new mongoose.Types.ObjectId(societyId);
-    }
-
-    if (category) filter.category = category;
-    if (venue) filter["venue.type"] = venue;
-    if (tag) filter.tags = tag.trim().toLowerCase();
-
-    if (startFrom || startTo) {
-        filter.startAt = {};
-        if (startFrom) filter.startAt.$gte = new Date(startFrom);
-        if (startTo) filter.startAt.$lte = new Date(startTo);
-    }
-
-    if (q?.trim()) {
-        filter.$text = { $search: q.trim() };
-    }
+    if (eventType) filter.eventType = eventType;
+    if (participationType) filter.participationType = participationType;
+    if (q?.trim()) filter.$text = { $search: q.trim() };
 
     const result = await paginate(Event, filter, {
-        page,
-        limit,
-        select: "-registrations -feedback -coverImagePublicId",
+        page, limit,
+        select: "-registrations -feedback -coverImagePublicId -announcements",
         sort: q?.trim() ? { score: { $meta: "textScore" } } : { startAt: 1 },
         populate: [
             { path: "createdBy", select: "profile.displayName profile.avatar" },
@@ -111,337 +194,129 @@ const getEvents = asyncHandler(async (req, res) => {
         ],
     });
 
-    return res
-        .status(200)
-        .json(new ApiResponse(200, result, "Events fetched successfully"));
+    return res.status(200).json(new ApiResponse(200, result, "Competitions fetched successfully"));
 });
 
 /**
- * GET /api/v1/events/upcoming
+ * GET /api/v1/competitions/:eventId
  */
-const getUpcomingEvents = asyncHandler(async (req, res) => {
-    const { campusId, limit = 10 } = req.query;
-
-    if (!campusId) throw new ApiError(400, "campusId is required");
-    if (!mongoose.isValidObjectId(campusId)) throw new ApiError(400, "Invalid campusId");
-
-    const events = await Event.findUpcoming(
-        new mongoose.Types.ObjectId(campusId),
-        Math.min(50, parseInt(limit, 10))
-    )
-        .populate("createdBy", "profile.displayName profile.avatar")
-        .populate("societyId", "name tag");
-
-    return res
-        .status(200)
-        .json(new ApiResponse(200, events, "Upcoming events fetched successfully"));
-});
-
-/**
- * GET /api/v1/events/:eventId
- */
-const getEventById = asyncHandler(async (req, res) => {
-    const { eventId } = req.params;
-
-    if (!mongoose.isValidObjectId(eventId)) {
-        throw new ApiError(400, "Invalid event ID format");
-    }
-
-    const event = await Event.findById(eventId)
-        .select("-coverImagePublicId")
-        .populate("createdBy", "profile.displayName profile.avatar profile.firstName profile.lastName")
-        .populate("societyId", "name tag description media.logo");
-
-    if (!event) throw new ApiError(404, "Event not found");
+const getCompetitionById = asyncHandler(async (req, res) => {
+    const event = await findCompetitionById(req.params.eventId);
 
     const isAdmin = req.user?.roles?.includes("admin");
-    const isOwner = event.createdBy._id?.toString() === req.user?._id?.toString();
-
-    if (event.status !== "published" && !isAdmin && !isOwner) {
-        throw new ApiError(404, "Event not found");
+    const isOrganizer = event.createdBy.toString() === req.user?._id?.toString();
+    if (event.status === "draft" && !isAdmin && !isOrganizer) {
+        throw new ApiError(404, "Competition not found");
     }
 
-    let myRegistration = null;
-    if (req.user) {
-        const reg = event.registrations.find(
-            (r) => r.userId.toString() === req.user._id.toString()
-        );
-        if (reg) {
-            myRegistration = { status: reg.status, registeredAt: reg.registeredAt };
-        }
-    }
-
+    await Event.populate(event, [
+        { path: "createdBy", select: "profile.displayName profile.avatar profile.firstName profile.lastName" },
+        { path: "societyId", select: "name tag description" },
+        { path: "judgingConfig.judges", select: "profile.displayName profile.avatar" },
+    ]);
     const eventObj = event.toObject({ virtuals: true });
-    delete eventObj.registrations;
+    if (!isAdmin && !isOrganizer && !["judging", "completed"].includes(event.status)) {
+        delete eventObj.judgingConfig.criteria;
+    }
+
+    const teamCount = await EventTeam.countDocuments({
+        eventId: event._id,
+        status: { $in: ["forming", "registered"] },
+    });
+    let myParticipation = null;
+    if (req.user) {
+        const myTeam = await EventTeam.findUserTeam(event._id, req.user._id);
+        const mySolo = await EventSubmission.findForParticipant(event._id, null, req.user._id);
+        myParticipation = { team: myTeam || null, soloSubmission: mySolo || null };
+    }
 
     return res.status(200).json(
-        new ApiResponse(200, { ...eventObj, myRegistration }, "Event fetched successfully")
+        new ApiResponse(200, { ...eventObj, teamCount, myParticipation }, "Competition fetched successfully")
     );
 });
 
 /**
- * GET /api/v1/events/:eventId/attendees
+ * PATCH /api/v1/competitions/:eventId
  */
-const getEventAttendees = asyncHandler(async (req, res) => {
-    const { eventId } = req.params;
-    const { page = 1, limit = 20, status = "registered" } = req.query;
+const updateCompetition = asyncHandler(async (req, res) => {
+    const event = await findCompetitionById(req.params.eventId);
+    requireOrganizerOrAdmin(event, req.user);
 
-    const event = await findEventById(eventId, "createdBy societyId registrations status");
-    requireEventOwnerOrAdmin(event, req.user);
-
-    const VALID_STATUSES = ["registered", "waitlisted", "cancelled", "attended"];
-    const statusFilter = VALID_STATUSES.includes(status) ? status : "registered";
-
-    const filtered = event.registrations.filter((r) => r.status === statusFilter);
-
-    const pageNum = Math.max(1, parseInt(page, 10));
-    const limitNum = Math.min(100, parseInt(limit, 10));
-    const start = (pageNum - 1) * limitNum;
-    const slice = filtered.slice(start, start + limitNum);
-    await Event.populate(slice, {
-        path: "userId",
-        select: "profile.displayName profile.avatar profile.firstName profile.lastName academic.department",
-        model: "User",
-    });
-
-    return res.status(200).json(
-        new ApiResponse(200, {
-            attendees: slice,
-            pagination: {
-                total: filtered.length,
-                page: pageNum,
-                pages: Math.ceil(filtered.length / limitNum) || 1,
-                limit: limitNum,
-            },
-        }, `Attendees (${statusFilter}) fetched successfully`)
-    );
-});
-
-/**
- * GET /api/v1/events/my/registered
- */
-const getMyRegisteredEvents = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, status = "registered" } = req.query;
-
-    const VALID = ["registered", "waitlisted", "cancelled", "attended"];
-    const regStatus = VALID.includes(status) ? status : "registered";
-
-    const result = await paginate(
-        Event,
-        {
-            registrations: {
-                $elemMatch: { userId: req.user._id, status: regStatus },
-            },
-        },
-        {
-            page,
-            limit,
-            select: "-registrations -feedback -coverImagePublicId",
-            sort: { startAt: 1 },
-            populate: [
-                { path: "societyId", select: "name tag" },
-            ],
-        }
-    );
-
-    return res
-        .status(200)
-        .json(new ApiResponse(200, result, "Registered events fetched successfully"));
-});
-
-/**
- * GET /api/v1/events/my/created
- */
-const getMyCreatedEvents = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 10, status } = req.query;
-
-    const filter = { createdBy: req.user._id };
-    if (status && status !== "all") filter.status = status;
-
-    const result = await paginate(Event, filter, {
-        page,
-        limit,
-        select: "-registrations -feedback -coverImagePublicId",
-        sort: { createdAt: -1 },
-        populate: [{ path: "societyId", select: "name tag" }],
-    });
-
-    return res
-        .status(200)
-        .json(new ApiResponse(200, result, "Your events fetched successfully"));
-});
-
-/**
- * POST /api/v1/events
- */
-const createEvent = asyncHandler(async (req, res) => {
-    const {
-        title,
-        description,
-        societyId,
-        campusId,
-        category,
-        tags,
-        venue,
-        startAt,
-        endAt,
-        maxCapacity,
-        waitlistEnabled,
-        requireApproval,
-        fee,
-    } = req.body;
-
-    if (!title?.trim()) throw new ApiError(400, "Event title is required");
-    if (!description?.trim()) throw new ApiError(400, "Event description is required");
-    if (!societyId) throw new ApiError(400, "societyId is required");
-    if (!startAt) throw new ApiError(400, "startAt is required");
-    if (!endAt) throw new ApiError(400, "endAt is required");
-    if (!venue?.type) throw new ApiError(400, "venue.type is required");
-
-    if (!mongoose.isValidObjectId(societyId)) {
-        throw new ApiError(400, "Invalid societyId format");
+    if (["completed", "cancelled"].includes(event.status)) {
+        throw new ApiError(400, `Cannot update a ${event.status} competition`);
     }
 
-    const start = new Date(startAt);
-    const end = new Date(endAt);
-
-    if (isNaN(start.getTime())) throw new ApiError(400, "Invalid startAt date");
-    if (isNaN(end.getTime())) throw new ApiError(400, "Invalid endAt date");
-    if (end <= start) throw new ApiError(400, "endAt must be after startAt");
-    if (start <= new Date()) throw new ApiError(400, "startAt must be in the future");
-
-    const resolvedCampusId = campusId || req.user.campusId;
-    if (!resolvedCampusId) {
-        throw new ApiError(400, "campusId is required — set it in your profile or pass it in the request");
-    }
-
-    await requireSocietyMembership(societyId, req.user._id, req.user.roles);
-
-    const coverLocalPath = req.file?.path;
-    const cover = coverLocalPath ? await uploadFile(coverLocalPath) : null;
-
-    let parsedFee = { amount: 0, currency: "PKR" };
-    if (fee) {
-        const f = typeof fee === "string" ? JSON.parse(fee) : fee;
-        parsedFee = { amount: f.amount ?? 0, currency: f.currency ?? "PKR" };
-    }
-
-    const parsedVenue = typeof venue === "string" ? JSON.parse(venue) : venue;
-
-    const parsedTags = Array.isArray(tags)
-        ? tags
-        : typeof tags === "string"
-            ? JSON.parse(tags)
-            : [];
-
-    const event = await Event.create({
-        title: title.trim(),
-        description: description.trim(),
-        societyId,
-        campusId: resolvedCampusId,
-        createdBy: req.user._id,
-        category: category || "other",
-        tags: parsedTags,
-        venue: parsedVenue,
-        startAt: start,
-        endAt: end,
-        maxCapacity: parseInt(maxCapacity, 10) || 0,
-        waitlistEnabled: waitlistEnabled === "true" || waitlistEnabled === true,
-        requireApproval: requireApproval === "true" || requireApproval === true,
-        fee: parsedFee,
-        coverImage: cover?.secure_url || "",
-        coverImagePublicId: cover?.public_id || "",
-        status: "draft",
-    });
-
-    const created = await Event.findById(event._id)
-        .select("-coverImagePublicId")
-        .populate("createdBy", "profile.displayName profile.avatar")
-        .populate("societyId", "name tag");
-
-    return res
-        .status(201)
-        .json(new ApiResponse(201, created, "Event created successfully"));
-});
-
-/**
- * PATCH /api/v1/events/:eventId
- */
-const updateEvent = asyncHandler(async (req, res) => {
-    const { eventId } = req.params;
-
-    const event = await findEventById(eventId, "createdBy status coverImagePublicId");
-    requireEventOwnerOrAdmin(event, req.user);
-
-    if (["cancelled", "completed"].includes(event.status)) {
-        throw new ApiError(400, `Cannot update a ${event.status} event`);
-    }
+    const registrationLocked = !["draft"].includes(event.status);
 
     const {
-        title,
-        description,
-        category,
-        tags,
-        venue,
-        startAt,
-        endAt,
-        maxCapacity,
-        waitlistEnabled,
-        requireApproval,
-        fee,
+        title, description, startAt, endAt,
+        registrationDeadline, submissionDeadline,
+        venue, prizePool, tags, fee,
+        teamConfig, judgingConfig, participationType,
     } = req.body;
 
     const updates = {};
+    const parse = (val) => (typeof val === "string" ? JSON.parse(val) : val);
 
     if (title) updates.title = title.trim();
     if (description) updates.description = description.trim();
-    if (category) updates.category = category;
     if (tags !== undefined) {
-        updates.tags = Array.isArray(tags)
-            ? tags
-            : typeof tags === "string"
-                ? JSON.parse(tags)
-                : [];
+        updates.tags = Array.isArray(tags) ? tags : parse(tags);
     }
-    if (venue) {
-        updates.venue = typeof venue === "string" ? JSON.parse(venue) : venue;
+    if (venue) updates.venue = parse(venue);
+    if (fee !== undefined) {
+        const f = parse(fee);
+        updates.fee = { amount: f?.amount ?? 0, currency: f?.currency ?? "PKR" };
+    }
+    if (prizePool !== undefined) {
+        updates.prizePool = Array.isArray(prizePool) ? prizePool : parse(prizePool);
     }
     if (startAt) {
         const s = new Date(startAt);
-        if (isNaN(s.getTime())) throw new ApiError(400, "Invalid startAt date");
+        if (isNaN(s.getTime())) throw new ApiError(400, "Invalid startAt");
         updates.startAt = s;
     }
     if (endAt) {
         const e = new Date(endAt);
-        if (isNaN(e.getTime())) throw new ApiError(400, "Invalid endAt date");
+        if (isNaN(e.getTime())) throw new ApiError(400, "Invalid endAt");
         updates.endAt = e;
     }
-    const finalStart = updates.startAt || event.startAt;
-    const finalEnd = updates.endAt || event.endAt;
-    if (finalEnd <= finalStart) {
-        throw new ApiError(400, "endAt must be after startAt");
+    if (registrationDeadline !== undefined) {
+        updates.registrationDeadline = registrationDeadline ? new Date(registrationDeadline) : null;
     }
-
-    if (maxCapacity !== undefined) updates.maxCapacity = parseInt(maxCapacity, 10) || 0;
-    if (waitlistEnabled !== undefined) {
-        updates.waitlistEnabled = waitlistEnabled === "true" || waitlistEnabled === true;
+    if (submissionDeadline !== undefined) {
+        const sd = submissionDeadline ? new Date(submissionDeadline) : null;
+        if (event.status === "submission_locked") {
+            throw new ApiError(400, "Cannot extend submission deadline — submissions are already locked");
+        }
+        updates.submissionDeadline = sd;
     }
-    if (requireApproval !== undefined) {
-        updates.requireApproval = requireApproval === "true" || requireApproval === true;
+    if (registrationLocked && (teamConfig || judgingConfig?.criteria || participationType)) {
+        throw new ApiError(
+            400,
+            "teamConfig, judgingConfig.criteria, and participationType cannot be changed after registration begins"
+        );
     }
-    if (fee !== undefined) {
-        const f = typeof fee === "string" ? JSON.parse(fee) : fee;
-        updates.fee = { amount: f.amount ?? 0, currency: f.currency ?? "PKR" };
+    if (!registrationLocked) {
+        if (teamConfig) updates.teamConfig = parse(teamConfig);
+        if (participationType) updates.participationType = participationType;
+        if (judgingConfig) {
+            const jc = parse(judgingConfig);
+            updates["judgingConfig.isAnonymous"] = jc.isAnonymous ?? event.judgingConfig.isAnonymous;
+            if (jc.criteria) updates["judgingConfig.criteria"] = jc.criteria;
+            if (jc.judges) updates["judgingConfig.judges"] = jc.judges;
+        }
+    } else if (judgingConfig) {
+        const jc = parse(judgingConfig);
+        if (jc.judges !== undefined) updates["judgingConfig.judges"] = jc.judges;
+        if (jc.isAnonymous !== undefined) updates["judgingConfig.isAnonymous"] = jc.isAnonymous;
     }
-
     const coverLocalPath = req.file?.path;
     if (coverLocalPath) {
         const cover = await uploadFile(coverLocalPath);
         if (cover?.secure_url) {
             if (event.coverImagePublicId) {
-                deleteFromCloudinary(event.coverImagePublicId).catch((err) =>
-                    console.error("[Cloudinary] Failed to delete old event cover:", err)
-                );
+                deleteFromCloudinary(event.coverImagePublicId).catch(console.error);
             }
             updates.coverImage = cover.secure_url;
             updates.coverImagePublicId = cover.public_id;
@@ -453,335 +328,304 @@ const updateEvent = asyncHandler(async (req, res) => {
     }
 
     const updated = await Event.findByIdAndUpdate(
-        eventId,
+        event._id,
         { $set: updates },
         { new: true, runValidators: true }
-    )
-        .select("-coverImagePublicId")
-        .populate("createdBy", "profile.displayName profile.avatar")
-        .populate("societyId", "name tag");
+    ).select("-coverImagePublicId");
 
-    return res
-        .status(200)
-        .json(new ApiResponse(200, updated, "Event updated successfully"));
+    return res.status(200).json(new ApiResponse(200, updated, "Competition updated successfully"));
 });
 
 /**
- * PATCH /api/v1/events/:eventId/publish
+ * DELETE /api/v1/competitions/:eventId
  */
-const publishEvent = asyncHandler(async (req, res) => {
-    const { eventId } = req.params;
-
-    const event = await findEventById(eventId, "createdBy status title startAt endAt venue");
-    requireEventOwnerOrAdmin(event, req.user);
-
-    if (event.status !== "draft") {
-        throw new ApiError(400, `Event is already "${event.status}" — only drafts can be published`);
-    }
-
-    if (event.startAt <= new Date()) {
-        throw new ApiError(400, "Cannot publish an event whose start date has already passed");
-    }
-
-    const updated = await Event.findByIdAndUpdate(
-        eventId,
-        { $set: { status: "published" } },
-        { new: true }
-    ).select("-registrations -feedback -coverImagePublicId");
-
-    return res
-        .status(200)
-        .json(new ApiResponse(200, updated, "Event published successfully"));
-});
-
-/**
- * PATCH /api/v1/events/:eventId/cancel
- */
-const cancelEvent = asyncHandler(async (req, res) => {
-    const { eventId } = req.params;
-    const { reason } = req.body;
-
-    const event = await findEventById(eventId, "createdBy status title");
-    requireEventOwnerOrAdmin(event, req.user);
-
-    if (event.status === "cancelled") {
-        throw new ApiError(400, "Event is already cancelled");
-    }
-    if (event.status === "completed") {
-        throw new ApiError(400, "A completed event cannot be cancelled");
-    }
-
-    const updated = await Event.findByIdAndUpdate(
-        eventId,
-        {
-            $set: {
-                status: "cancelled",
-                cancelledAt: new Date(),
-                cancelledBy: req.user._id,
-                cancellationReason: reason?.trim() || "",
-            },
-        },
-        { new: true }
-    ).select("-registrations -feedback -coverImagePublicId");
-
-    return res
-        .status(200)
-        .json(new ApiResponse(200, updated, "Event cancelled successfully"));
-});
-
-/**
- * PATCH /api/v1/events/:eventId/complete
- */
-const completeEvent = asyncHandler(async (req, res) => {
-    const { eventId } = req.params;
-
-    const event = await findEventById(eventId, "createdBy status endAt");
-    requireEventOwnerOrAdmin(event, req.user);
-
-    if (event.status !== "published") {
-        throw new ApiError(400, "Only published events can be marked as completed");
-    }
-
-    const updated = await Event.findByIdAndUpdate(
-        eventId,
-        { $set: { status: "completed" } },
-        { new: true }
-    ).select("-registrations -feedback -coverImagePublicId");
-
-    return res
-        .status(200)
-        .json(new ApiResponse(200, updated, "Event marked as completed"));
-});
-
-/**
- * DELETE /api/v1/events/:eventId
- */
-const deleteEvent = asyncHandler(async (req, res) => {
-    const { eventId } = req.params;
-
-    const event = await findEventById(eventId, "createdBy status coverImagePublicId");
-    requireEventOwnerOrAdmin(event, req.user);
+const deleteCompetition = asyncHandler(async (req, res) => {
+    const event = await findCompetitionById(req.params.eventId);
+    requireOrganizerOrAdmin(event, req.user);
 
     if (!["draft", "cancelled"].includes(event.status)) {
         throw new ApiError(
             400,
-            "Only draft or cancelled events can be deleted. Cancel the event first."
+            "Only draft or cancelled competitions can be deleted. Cancel first."
         );
     }
-    if (event.coverImagePublicId) {
-        deleteFromCloudinary(event.coverImagePublicId).catch((err) =>
-            console.error("[Cloudinary] Failed to delete event cover on delete:", err)
-        );
-    }
+    const submissionIds = (await EventSubmission.find({ eventId: event._id }).select("_id")).map(
+        (s) => s._id
+    );
 
-    await Event.findByIdAndDelete(eventId);
+    await Promise.all([
+        EventTeam.deleteMany({ eventId: event._id }),
+        EventSubmission.deleteMany({ eventId: event._id }),
+        EventScore.deleteMany({ eventId: event._id }),
+        event.coverImagePublicId
+            ? deleteFromCloudinary(event.coverImagePublicId).catch(console.error)
+            : null,
+        Event.findByIdAndDelete(event._id),
+    ]);
 
-    return res
-        .status(200)
-        .json(new ApiResponse(200, { eventId }, "Event deleted successfully"));
+    return res.status(200).json(
+        new ApiResponse(200, { deletedEventId: event._id }, "Competition and all related data deleted")
+    );
 });
-
 /**
- * POST /api/v1/events/:eventId/register
+ * PATCH /api/v1/competitions/:eventId/transition
  */
-const registerForEvent = asyncHandler(async (req, res) => {
-    const { eventId } = req.params;
+const transitionState = asyncHandler(async (req, res) => {
+    const { status: newStatus, reason, force = false } = req.body;
 
-    const event = await findEventById(
-        eventId,
-        "status startAt maxCapacity waitlistEnabled registrations registrationCount waitlistCount requireApproval"
+    if (!newStatus) throw new ApiError(400, "status is required");
+
+    const event = await findCompetitionById(req.params.eventId);
+    requireOrganizerOrAdmin(event, req.user);
+    if (newStatus === "registration") {
+        if (!event.startAt) throw new ApiError(400, "startAt must be set before opening registration");
+    }
+
+    if (newStatus === "judging") {
+        if (event.judgingConfig?.criteria?.length === 0) {
+            throw new ApiError(400, "Add judging criteria before moving to judging phase");
+        }
+        if (event.judgingConfig?.judges?.length === 0) {
+            throw new ApiError(400, "Assign at least one judge before moving to judging phase");
+        }
+    }
+
+    if (newStatus === "completed" && !force) {
+        if (!event.scoringPublished) {
+            throw new ApiError(
+                400,
+                "Publish the leaderboard before completing the competition (or pass force=true to override)"
+            );
+        }
+    }
+    const updated = await Event.transitionState(
+        event._id, newStatus, req.user._id,
+        { cancellationReason: reason?.trim() }
     );
-
-    if (event.status !== "published") {
-        throw new ApiError(400, "Registrations are only open for published events");
+    const io = req.app.get("io");
+    if (io) {
+        emitStatusChange(io, event._id.toString(), {
+            eventId: event._id,
+            previousStatus: event.status,
+            newStatus,
+            changedBy: req.user._id,
+            changedAt: new Date(),
+        });
     }
-    if (event.startAt <= new Date()) {
-        throw new ApiError(400, "Registration is closed — the event has already started");
-    }
-
-    const userId = req.user._id.toString();
-
-    const existing = event.registrations.find(
-        (r) => r.userId.toString() === userId
-    );
-    if (existing) {
-        if (existing.status === "registered") {
-            throw new ApiError(409, "You are already registered for this event");
-        }
-        if (existing.status === "waitlisted") {
-            throw new ApiError(409, "You are already on the waitlist for this event");
-        }
-        if (existing.status === "cancelled") {
-            existing.status = "registered";
-            existing.registeredAt = new Date();
-            await event.save();
-            return res
-                .status(200)
-                .json(new ApiResponse(200, { status: "registered" }, "Successfully re-registered for the event"));
-        }
-    }
-
-    let regStatus = "registered";
-    if (event.maxCapacity > 0 && event.registrationCount >= event.maxCapacity) {
-        if (!event.waitlistEnabled) {
-            throw new ApiError(409, "Event is full and no waitlist is available");
-        }
-        regStatus = "waitlisted";
-    }
-
-    event.registrations.push({
-        userId: req.user._id,
-        status: regStatus,
-        registeredAt: new Date(),
+    systemEvents.emit("notification:create:bulk", {
+        eventId: event._id,
+        type: "event_update",
+        title: `${event.title} — Status Changed`,
+        body: `The competition has moved to "${newStatus}"`,
+        ref: event._id,
+        refModel: "Event",
+        actorId: req.user._id,
     });
 
-    await event.save();
-
-    return res.status(201).json(
-        new ApiResponse(
-            201,
-            { status: regStatus },
-            regStatus === "waitlisted"
-                ? "Event is full — you have been added to the waitlist"
-                : "Successfully registered for the event"
-        )
-    );
+    return res.status(200).json(new ApiResponse(200, updated, `Competition transitioned to "${newStatus}"`));
 });
 
 /**
- * DELETE /api/v1/events/:eventId/register
+ * POST /api/v1/competitions/:eventId/announcement
  */
-const unregisterFromEvent = asyncHandler(async (req, res) => {
-    const { eventId } = req.params;
+const postAnnouncement = asyncHandler(async (req, res) => {
+    const { content } = req.body;
 
-    const event = await findEventById(eventId, "status startAt registrations maxCapacity waitlistEnabled");
+    if (!content?.trim()) throw new ApiError(400, "Announcement content is required");
+    if (content.trim().length > 1000) throw new ApiError(400, "Announcement cannot exceed 1000 characters");
 
-    if (event.startAt <= new Date()) {
-        throw new ApiError(400, "Cannot unregister after the event has started");
+    const event = await findCompetitionById(req.params.eventId);
+    requireOrganizerOrAdmin(event, req.user);
+
+    if (["draft", "cancelled", "completed"].includes(event.status)) {
+        throw new ApiError(400, "Announcements can only be posted for active competitions");
     }
 
-    const userId = req.user._id.toString();
-    const regIndex = event.registrations.findIndex(
-        (r) => r.userId.toString() === userId && r.status === "registered"
+    const announcement = {
+        author: req.user._id,
+        content: content.trim(),
+        createdAt: new Date(),
+    };
+
+    const updated = await Event.findByIdAndUpdate(
+        event._id,
+        { $push: { announcements: { $each: [announcement], $position: 0 } } }, // newest first
+        { new: true, select: "announcements" }
     );
-
-    if (regIndex === -1) {
-        throw new ApiError(404, "You are not registered for this event");
-    }
-
-    event.registrations[regIndex].status = "cancelled";
-
-    if (event.maxCapacity > 0 && event.waitlistEnabled) {
-        const waitlistedIndex = event.registrations.findIndex(
-            (r) => r.status === "waitlisted"
-        );
-        if (waitlistedIndex !== -1) {
-            event.registrations[waitlistedIndex].status = "registered";
-        }
-    }
-
-    await event.save();
-
-    return res
-        .status(200)
-        .json(new ApiResponse(200, null, "Registration cancelled successfully"));
-});
-
-// ─── FEEDBACK ─────────────────────────────────────────────────────────────────
-
-/**
- * POST /api/v1/events/:eventId/feedback
- */
-const submitFeedback = asyncHandler(async (req, res) => {
-    const { eventId } = req.params;
-    const { rating, comment } = req.body;
-
-    if (!rating || rating < 1 || rating > 5) {
-        throw new ApiError(400, "Rating must be a number between 1 and 5");
-    }
-
-    const event = await findEventById(eventId, "status registrations feedback");
-
-    if (event.status !== "completed") {
-        throw new ApiError(400, "Feedback can only be submitted for completed events");
-    }
-
-    const userId = req.user._id.toString();
-
-    const registration = event.registrations.find(
-        (r) =>
-            r.userId.toString() === userId &&
-            ["registered", "attended"].includes(r.status)
-    );
-    if (!registration) {
-        throw new ApiError(403, "Only registered attendees can submit feedback");
-    }
-
-    const alreadyFeedback = event.feedback.find(
-        (f) => f.userId.toString() === userId
-    );
-    if (alreadyFeedback) {
-        throw new ApiError(409, "You have already submitted feedback for this event");
-    }
-
-    event.feedback.push({
-        userId: req.user._id,
-        rating: parseInt(rating, 10),
-        comment: comment?.trim() || "",
+    await Event.populate(updated, {
+        path: "announcements.author",
+        select: "profile.displayName profile.avatar",
+        options: { match: { _id: announcement.author } },
     });
 
-    await event.save();
+    const newAnnouncement = updated.announcements[0];
+    const io = req.app.get("io");
+    if (io) {
+        emitAnnouncement(io, event._id.toString(), newAnnouncement);
+    }
+    systemEvents.emit("notification:create:bulk", {
+        eventId: event._id,
+        type: "event_update",
+        title: `📢 ${event.title}`,
+        body: content.trim().substring(0, 80) + (content.length > 80 ? "…" : ""),
+        ref: event._id,
+        refModel: "Event",
+        actorId: req.user._id,
+    });
 
-    return res
-        .status(201)
-        .json(new ApiResponse(201, { averageRating: event.averageRating }, "Feedback submitted successfully"));
+    return res.status(201).json(new ApiResponse(201, newAnnouncement, "Announcement posted"));
 });
 
 /**
- * GET /api/v1/events/:eventId/feedback
+ * GET /api/v1/competitions/:eventId/announcements
  */
-const getEventFeedback = asyncHandler(async (req, res) => {
-    const { eventId } = req.params;
+const getAnnouncements = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 20 } = req.query;
 
-    const event = await findEventById(eventId, "createdBy status feedback averageRating");
-    requireEventOwnerOrAdmin(event, req.user);
+    const event = await findCompetitionById(req.params.eventId);
 
-    await Event.populate(event.feedback, {
-        path: "userId",
+    const pageNum = Math.max(1, parseInt(page, 10));
+    const limitNum = Math.min(50, parseInt(limit, 10));
+    const start = (pageNum - 1) * limitNum;
+
+    const slice = event.announcements.slice(start, start + limitNum);
+
+    await Event.populate(slice, {
+        path: "author",
         select: "profile.displayName profile.avatar",
         model: "User",
     });
 
-    const distribution = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-    event.feedback.forEach((f) => {
-        distribution[f.rating] = (distribution[f.rating] || 0) + 1;
-    });
-
     return res.status(200).json(
         new ApiResponse(200, {
-            averageRating: event.averageRating,
-            totalFeedback: event.feedback.length,
-            distribution,
-            feedback: event.feedback,
-        }, "Event feedback fetched successfully")
+            announcements: slice,
+            pagination: {
+                total: event.announcements.length,
+                page: pageNum,
+                pages: Math.ceil(event.announcements.length / limitNum) || 1,
+                limit: limitNum,
+            },
+        }, "Announcements fetched")
     );
 });
 
+/**
+ * GET /api/v1/competitions/:eventId/leaderboard
+ */
+const getLeaderboard = asyncHandler(async (req, res) => {
+    const event = await findCompetitionById(req.params.eventId);
+
+    const isAdmin = req.user?.roles?.includes("admin");
+    const isOrganizer = event.createdBy.toString() === req.user?._id?.toString();
+
+    if (!event.scoringPublished && !isAdmin && !isOrganizer) {
+        throw new ApiError(403, "Leaderboard has not been published yet");
+    }
+
+    const leaderboard = await EventScore.generateLeaderboard(event._id);
+
+    return res.status(200).json(
+        new ApiResponse(200, {
+            event: {
+                _id: event._id,
+                title: event.title,
+                status: event.status,
+                scoringPublished: event.scoringPublished,
+            },
+            leaderboard,
+        }, "Leaderboard fetched successfully")
+    );
+});
+/**
+ * PATCH /api/v1/competitions/:eventId/leaderboard/publish
+ */
+const publishLeaderboard = asyncHandler(async (req, res) => {
+    const event = await findCompetitionById(req.params.eventId);
+    requireOrganizerOrAdmin(event, req.user);
+
+    if (!["judging", "completed"].includes(event.status)) {
+        throw new ApiError(400, "Leaderboard can only be published during judging or after completion");
+    }
+
+    if (event.scoringPublished) {
+        throw new ApiError(400, "Leaderboard is already published");
+    }
+    await EventScore.publishAllForEvent(event._id);
+
+    const updated = await Event.findByIdAndUpdate(
+        event._id,
+        { $set: { scoringPublished: true } },
+        { new: true, select: "scoringPublished status title" }
+    );
+    const leaderboard = await EventScore.generateLeaderboard(event._id);
+
+    const io = req.app.get("io");
+    if (io) {
+        emitLeaderboardUpdate(io, event._id.toString(), { leaderboard, publishedAt: new Date() });
+    }
+    systemEvents.emit("notification:create:bulk", {
+        eventId: event._id,
+        type: "event_update",
+        title: `🏆 Results Announced — ${event.title}`,
+        body: "The competition leaderboard has been published. See how you placed!",
+        ref: event._id,
+        refModel: "Event",
+        actorId: req.user._id,
+    });
+
+    return res.status(200).json(
+        new ApiResponse(200, { event: updated, leaderboard }, "Leaderboard published successfully")
+    );
+});
+
+/**
+ * PATCH /api/v1/competitions/:eventId/judges
+ */
+const updateJudges = asyncHandler(async (req, res) => {
+    const { judges, action } = req.body;
+
+    if (!Array.isArray(judges) || judges.length === 0) {
+        throw new ApiError(400, "judges must be a non-empty array of user IDs");
+    }
+    if (!["add", "remove"].includes(action)) {
+        throw new ApiError(400, 'action must be "add" or "remove"');
+    }
+    for (const id of judges) {
+        if (!mongoose.isValidObjectId(id)) {
+            throw new ApiError(400, `Invalid userId: ${id}`);
+        }
+    }
+
+    const event = await findCompetitionById(req.params.eventId);
+    requireOrganizerOrAdmin(event, req.user);
+
+    if (["completed", "cancelled"].includes(event.status)) {
+        throw new ApiError(400, "Cannot update judges for a completed or cancelled competition");
+    }
+
+    const judgeIds = judges.map((id) => new mongoose.Types.ObjectId(id));
+    const update =
+        action === "add"
+            ? { $addToSet: { "judgingConfig.judges": { $each: judgeIds } } }
+            : { $pull: { "judgingConfig.judges": { $in: judgeIds } } };
+
+    const updated = await Event.findByIdAndUpdate(event._id, update, { new: true })
+        .select("judgingConfig.judges");
+
+    return res.status(200).json(
+        new ApiResponse(200, updated.judgingConfig.judges, `Judges ${action === "add" ? "added" : "removed"} successfully`)
+    );
+});
 export {
-    getEvents,
-    getUpcomingEvents,
-    getEventById,
-    getEventAttendees,
-    getMyRegisteredEvents,
-    getMyCreatedEvents,
-    createEvent,
-    updateEvent,
-    publishEvent,
-    cancelEvent,
-    completeEvent,
-    deleteEvent,
-    registerForEvent,
-    unregisterFromEvent,
-    submitFeedback,
-    getEventFeedback,
+    createCompetition,
+    getCompetitions,
+    getCompetitionById,
+    updateCompetition,
+    deleteCompetition,
+    transitionState,
+    postAnnouncement,
+    getAnnouncements,
+    getLeaderboard,
+    publishLeaderboard,
+    updateJudges,
 };

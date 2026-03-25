@@ -5,6 +5,8 @@ import { Chat } from "../models/chat.model.js";
 import { registerChatHandlers } from "./chat.socket.js";
 import { registerPresenceHandlers } from "./presence.socket.js";
 import { registerNotificationHandlers } from "./notification.socket.js";
+import { registerEventHandlers } from "./event.socket.js";
+
 
 const onlineUsers = new Map();
 
@@ -85,6 +87,7 @@ export const initializeSocket = (httpServer) => {
         registerPresenceHandlers(io, socket, onlineUsers);
         registerChatHandlers(io, socket);
         registerNotificationHandlers(io, socket);
+        registerEventHandlers(io, socket);
 
         socket.on("disconnect", () => {
             clearTimeout(socket.authTimeout);
