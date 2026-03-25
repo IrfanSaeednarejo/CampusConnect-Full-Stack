@@ -101,7 +101,7 @@ const messageSchema = new Schema(
             content: String,
             senderDisplayName: String,
             type: {
-                type: String, 
+                type: String,
             },
         },
 
@@ -200,7 +200,7 @@ messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type 
     if (senderId) {
         const { systemEvents } = await import("../utils/events.js");
         const targetChat = await mongoose.model("Chat").findById(chatId).select("members");
-        
+
         let parentSenderId = null;
         if (replyToId && mongoose.isValidObjectId(replyToId)) {
             const tempParent = await this.findById(replyToId).select("sender");
