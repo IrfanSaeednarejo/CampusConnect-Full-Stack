@@ -9,7 +9,6 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        // Ignore socket instance in payload (not serializable)
         ignoredActions: ['SOCKET_CONNECTED', 'socket/connected'],
         ignoredActionPaths: ['payload.socket'],
         ignoredPaths: ['socket'],
@@ -33,13 +32,10 @@ const persistChatState = (() => {
 
     const chatState = state.chat;
 
-    // Only persist when the chat slice reference changes
     if (chatState === previousChatState) {
       return;
     }
     previousChatState = chatState;
-
-    // Debounce writes to avoid frequent JSON serialization + localStorage access
     if (debounceTimeoutId !== null) {
       clearTimeout(debounceTimeoutId);
     }
@@ -59,7 +55,6 @@ const persistChatState = (() => {
         };
         localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(payload));
       } catch {
-        // Ignore persistence errors
       }
     }, CHAT_PERSIST_DEBOUNCE_MS);
   };

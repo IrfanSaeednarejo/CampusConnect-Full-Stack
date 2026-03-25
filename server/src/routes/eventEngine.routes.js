@@ -48,7 +48,7 @@ import {
     getSubmissionById,
     addFileToSubmission,
     removeFileFromSubmission,
-} from "../controllers/eventSubmission.controller.js";
+} from "../controllers/eventsSubmission.controller.js";
 
 import {
     scoreSubmission,

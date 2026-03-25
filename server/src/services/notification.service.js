@@ -1,95 +1,69 @@
+import mongoose from "mongoose";
+import { ApiError } from "../utils/ApiError.js";
 import { Notification } from "../models/notification.model.js";
-import { systemEvents } from "../utils/events.js";
-import { emitNotification } from "../sockets/notification.socket.js";
+import { paginate } from "../utils/paginate.js";
 
-const recentNotifications = new Map();
-const DEDUPLICATION_WINDOW_MS = 60 * 1000;
+export const getMyNotifications = async (queryParams, requestUser) => {
+    const { page = 1, limit = 20, unreadOnly } = queryParams;
 
-const cleanupCache = () => {
-    const now = Date.now();
-    for (const [key, timestamp] of recentNotifications.entries()) {
-        if (now - timestamp > DEDUPLICATION_WINDOW_MS) {
-            recentNotifications.delete(key);
-        }
+    const filter = { userId: requestUser._id };
+    if (unreadOnly === "true") {
+        filter.read = false;
     }
+
+    return await paginate(Notification, filter, {
+        page,
+        limit,
+        sort: { createdAt: -1 },
+        populate: [
+            {
+                path: "actorId",
+                select: "profile.displayName profile.avatar",
+            },
+        ],
+    });
 };
 
-setInterval(cleanupCache, DEDUPLICATION_WINDOW_MS);
+export const getUnreadCount = async (userId) => {
+    return await Notification.getUnreadCount(userId);
+};
 
-export const initNotificationService = (app) => {
-    systemEvents.on("notification:create", async (payload) => {
-        try {
-            const { userId, type, title, body, ref, refModel, actorId, priority } = payload;
+export const markAsRead = async (notificationId, userId) => {
+    if (!mongoose.isValidObjectId(notificationId)) {
+        throw new ApiError(400, "Invalid notification ID format");
+    }
 
-            if (!userId || !type || !title) {
-                console.warn("[NotificationService] Required fields missing in payload:", payload);
-                return;
-            }
+    const notification = await Notification.findOneAndUpdate(
+        { _id: notificationId, userId },
+        { $set: { read: true, readAt: new Date() } },
+        { new: true }
+    );
 
-            const dedupKey = `${userId}:${type}:${ref || "none"}`;
-            const lastSent = recentNotifications.get(dedupKey);
-            if (lastSent && Date.now() - lastSent < DEDUPLICATION_WINDOW_MS) {
-                return;
-            }
-            recentNotifications.set(dedupKey, Date.now());
+    if (!notification) {
+        throw new ApiError(404, "Notification not found");
+    }
 
-            const notification = await Notification.create({
-                userId,
-                type,
-                title,
-                body: body || "",
-                ref: ref || undefined,
-                refModel: refModel || undefined,
-                actorId: actorId || undefined,
-                priority: priority || "normal",
-            });
+    return notification;
+};
 
-            const populated = await Notification.findById(notification._id)
-                .populate("actorId", "profile.displayName profile.avatar");
-            const io = app.get("io");
-            if (io) {
-                emitNotification(io, userId, populated);
-            }
+export const markAllAsRead = async (userId) => {
+    const result = await Notification.markAllRead(userId);
+    return { modifiedCount: result.modifiedCount };
+};
 
-        } catch (error) {
-            console.error("[NotificationService] Failed to process notification:", error.message);
-        }
-    });
-    systemEvents.on("notification:create:bulk", async (payload) => {
-        try {
-            const { eventId, type, title, body, ref, refModel, actorId } = payload;
-            if (!eventId || !type || !title) return;
+export const deleteNotification = async (notificationId, userId) => {
+    if (!mongoose.isValidObjectId(notificationId)) {
+        throw new ApiError(400, "Invalid notification ID format");
+    }
 
-            const event = await Event.findById(eventId);
-            if (!event) return;
-
-            const userIds = event.participants.map(p => p.userId.toString());
-            const notifications = userIds.map(userId => ({
-                userId,
-                type,
-                title,
-                body,
-                ref,
-                refModel,
-                actorId,
-                priority: "normal",
-            }));
-
-            await Notification.insertMany(notifications);
-
-            const populated = await Notification.find({
-                userId: { $in: userIds },
-                ref: ref
-            }).populate("actorId", "profile.displayName profile.avatar");
-
-            const io = app.get("io");
-            if (io) {
-                populated.forEach(n => emitNotification(io, n.userId.toString(), n));
-            }
-        } catch (error) {
-            console.error("[NotificationService] Failed to process bulk notification:", error.message);
-        }
+    const notification = await Notification.findOneAndDelete({
+        _id: notificationId,
+        userId,
     });
 
-    console.log("[NotificationService] Initialized and listening to systemEvents.");
+    if (!notification) {
+        throw new ApiError(404, "Notification not found");
+    }
+
+    return true;
 };
