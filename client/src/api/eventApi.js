@@ -1,117 +1,102 @@
 import api from './axios';
 
-/**
- * Event API functions
- */
+const BASE = '/competitions';
 
-// Get all events
-export const getAllEvents = async (filters = {}) => {
-  try {
-    const response = await api.get('/events', { params: filters });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const getCompetitions = (params = {}) =>
+  api.get(BASE, { params });
 
-// Get event by ID
-export const getEventById = async (eventId) => {
-  try {
-    const response = await api.get(`/events/${eventId}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const getCompetitionById = (eventId) =>
+  api.get(`${BASE}/${eventId}`);
 
-// Create new event
-export const createEvent = async (eventData) => {
-  try {
-    const response = await api.post('/events', eventData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const createCompetition = (formData) =>
+  api.post(BASE, formData);
 
-// Update event
-export const updateEvent = async (eventId, eventData) => {
-  try {
-    const response = await api.patch(`/events/${eventId}`, eventData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const updateCompetition = (eventId, formData) =>
+  api.patch(`${BASE}/${eventId}`, formData);
 
-// Delete event
-export const deleteEvent = async (eventId) => {
-  try {
-    const response = await api.delete(`/events/${eventId}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const deleteCompetition = (eventId) =>
+  api.delete(`${BASE}/${eventId}`);
 
-// Register for event
-export const registerForEvent = async (eventId) => {
-  try {
-    const response = await api.post(`/events/${eventId}/register`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const transitionState = (eventId, data) =>
+  api.patch(`${BASE}/${eventId}/transition`, data);
 
-// Unregister from event
-export const unregisterFromEvent = async (eventId) => {
-  try {
-    const response = await api.delete(`/events/${eventId}/register`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const updateJudges = (eventId, data) =>
+  api.patch(`${BASE}/${eventId}/judges`, data);
 
-// Get event attendees
-export const getEventAttendees = async (eventId) => {
-  try {
-    const response = await api.get(`/events/${eventId}/attendees`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const getAnnouncements = (eventId) =>
+  api.get(`${BASE}/${eventId}/announcements`);
 
-// Get user's registered events
-export const getUserEvents = async (userId) => {
-  try {
-    const response = await api.get(`/users/${userId}/events`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const postAnnouncement = (eventId, data) =>
+  api.post(`${BASE}/${eventId}/announcements`, data);
 
-// Get upcoming events
-export const getUpcomingEvents = async (limit = 10) => {
-  try {
-    const response = await api.get('/events/upcoming', { params: { limit } });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const getLeaderboard = (eventId) =>
+  api.get(`${BASE}/${eventId}/leaderboard`);
 
-// Search events
-export const searchEvents = async (query, filters = {}) => {
-  try {
-    const response = await api.get('/events/search', {
-      params: { q: query, ...filters },
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const publishLeaderboard = (eventId) =>
+  api.patch(`${BASE}/${eventId}/leaderboard/publish`);
+
+export const getTeams = (eventId, params = {}) =>
+  api.get(`${BASE}/${eventId}/teams`, { params });
+
+export const getTeamById = (eventId, teamId) =>
+  api.get(`${BASE}/${eventId}/teams/${teamId}`);
+
+export const getMyTeam = (eventId) =>
+  api.get(`${BASE}/${eventId}/teams/my`);
+
+export const createTeam = (eventId, data) =>
+  api.post(`${BASE}/${eventId}/teams`, data);
+
+export const updateTeam = (eventId, teamId, data) =>
+  api.patch(`${BASE}/${eventId}/teams/${teamId}`, data);
+
+export const deleteTeam = (eventId, teamId) =>
+  api.delete(`${BASE}/${eventId}/teams/${teamId}`);
+
+export const joinTeam = (eventId, teamId, data = {}) =>
+  api.post(`${BASE}/${eventId}/teams/${teamId}/join`, data);
+
+export const leaveTeam = (eventId, teamId) =>
+  api.post(`${BASE}/${eventId}/teams/${teamId}/leave`);
+
+export const kickMember = (eventId, teamId, userId) =>
+  api.delete(`${BASE}/${eventId}/teams/${teamId}/members/${userId}`);
+
+export const transferLeadership = (eventId, teamId, data) =>
+  api.patch(`${BASE}/${eventId}/teams/${teamId}/transfer`, data);
+
+export const disqualifyTeam = (eventId, teamId, data) =>
+  api.patch(`${BASE}/${eventId}/teams/${teamId}/disqualify`, data);
+
+export const getSubmissions = (eventId, params = {}) =>
+  api.get(`${BASE}/${eventId}/submissions`, { params });
+
+export const getMySubmission = (eventId) =>
+  api.get(`${BASE}/${eventId}/submissions/my`);
+
+export const getSubmissionById = (eventId, subId) =>
+  api.get(`${BASE}/${eventId}/submissions/${subId}`);
+
+export const upsertSubmission = (eventId, data) =>
+  api.post(`${BASE}/${eventId}/submissions`, data);
+
+export const addFileToSubmission = (eventId, formData) =>
+  api.post(`${BASE}/${eventId}/submissions/files`, formData);
+
+export const removeFileFromSubmission = (eventId, fileId) =>
+  api.delete(`${BASE}/${eventId}/submissions/files/${fileId}`);
+
+export const scoreSubmission = (eventId, subId, data) =>
+  api.post(`${BASE}/${eventId}/submissions/${subId}/score`, data);
+
+export const getSubmissionScores = (eventId, subId) =>
+  api.get(`${BASE}/${eventId}/submissions/${subId}/scores`);
+
+export const retractScore = (eventId, subId) =>
+  api.delete(`${BASE}/${eventId}/submissions/${subId}/scores/my`);
+
+export const getJudgingProgress = (eventId) =>
+  api.get(`${BASE}/${eventId}/judging/progress`);
+
+export const getMyJudgingQueue = (eventId, params = {}) =>
+  api.get(`${BASE}/${eventId}/judging/my-queue`, { params });

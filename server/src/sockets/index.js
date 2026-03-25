@@ -26,9 +26,23 @@ export const initializeSocket = (httpServer) => {
     });
     io.use(async (socket, next) => {
         try {
-            const token =
-                socket.handshake.auth?.token ||
-                socket.handshake.headers?.authorization?.replace("Bearer ", "");
+            let token = null;
+            const cookieHeader = socket.handshake.headers?.cookie;
+            if (cookieHeader) {
+                const cookies = Object.fromEntries(
+                    cookieHeader.split(";").map((c) => {
+                        const [key, ...val] = c.trim().split("=");
+                        return [key, val.join("=")];
+                    })
+                );
+                token = cookies.accessToken || null;
+            }
+
+            if (!token) {
+                token =
+                    socket.handshake.auth?.token ||
+                    socket.handshake.headers?.authorization?.replace("Bearer ", "");
+            }
 
             if (!token) {
                 return next(new Error("Authentication required"));

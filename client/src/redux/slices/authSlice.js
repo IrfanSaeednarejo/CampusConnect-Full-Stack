@@ -1,43 +1,61 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import * as authApi from '../../api/authApi';
+
+export const loginUser = createAsyncThunk(
+  'auth/login',
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const { data } = await authApi.login(credentials);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Login failed');
+    }
+  }
+);
+
+export const checkAuth = createAsyncThunk(
+  'auth/checkAuth',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await authApi.checkAuth();
+      return data.data; // user object
+    } catch (err) {
+      return rejectWithValue(err.message || 'Not authenticated');
+    }
+  }
+);
+
+export const logoutUser = createAsyncThunk(
+  'auth/logout',
+  async (_, { rejectWithValue }) => {
+    try {
+      await authApi.logout();
+    } catch (err) {
+      return rejectWithValue(err.message || 'Logout failed');
+    }
+  }
+);
 
 const initialState = {
   isAuthenticated: false,
   user: null,
-  role: null, // 'student', 'mentor', 'society_head'
-  token: null,
-  loading: false,
+  role: null,
+  loading: true,
   error: null,
-  onboardingCompleted: false, // Track if user completed onboarding
+  onboardingCompleted: false,
 };
 
 const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    loginStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    loginSuccess: (state, action) => {
-      state.isAuthenticated = true;
-      state.user = action.payload.user;
-      state.role = action.payload.role;
-      state.token = action.payload.token;
-      state.loading = false;
-      state.error = null;
-    },
-    loginFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;
       state.role = null;
-      state.token = null;
-      state.onboardingCompleted = false;
       state.loading = false;
       state.error = null;
+      state.onboardingCompleted = false;
     },
     setRole: (state, action) => {
       state.role = action.payload;
@@ -45,35 +63,75 @@ const authSlice = createSlice({
     completeOnboarding: (state) => {
       state.onboardingCompleted = true;
     },
-    clearOnboarding: (state) => {
-      state.onboardingCompleted = false;
-    },
     clearError: (state) => {
       state.error = null;
     },
+    updateUser: (state, action) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+      }
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(loginUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.isAuthenticated = true;
+        state.user = action.payload.user || action.payload;
+        state.role = action.payload.user?.roles?.[0] || action.payload.roles?.[0] || null;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    builder
+      .addCase(checkAuth.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(checkAuth.fulfilled, (state, action) => {
+        state.isAuthenticated = true;
+        state.user = action.payload;
+        state.role = action.payload?.roles?.[0] || null;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(checkAuth.rejected, (state) => {
+        state.isAuthenticated = false;
+        state.user = null;
+        state.role = null;
+        state.loading = false;
+      });
+
+    builder
+      .addCase(logoutUser.fulfilled, (state) => {
+        state.isAuthenticated = false;
+        state.user = null;
+        state.role = null;
+        state.loading = false;
+        state.onboardingCompleted = false;
+      });
   },
 });
 
-// Actions
 export const {
-  loginStart,
-  loginSuccess,
-  loginFailure,
   logout,
   setRole,
   completeOnboarding,
-  clearOnboarding,
   clearError,
+  updateUser,
 } = authSlice.actions;
 
-// Selectors
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectUser = (state) => state.auth.user;
 export const selectRole = (state) => state.auth.role;
-export const selectToken = (state) => state.auth.token;
 export const selectAuthLoading = (state) => state.auth.loading;
 export const selectAuthError = (state) => state.auth.error;
 export const selectOnboardingCompleted = (state) => state.auth.onboardingCompleted;
 
-// Reducer
 export default authSlice.reducer;

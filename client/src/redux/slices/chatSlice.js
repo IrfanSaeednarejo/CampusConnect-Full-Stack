@@ -1,58 +1,55 @@
-import { createSlice } from "@reduxjs/toolkit";
-import chatMock from "../../data/ChatMock.json";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import * as chatApi from "../../api/chatApi";
 
-const CHAT_STORAGE_KEY = "chatState";
-
-const loadPersistedState = () => {
-	if (typeof window === "undefined") return null;
-	try {
-		const raw = localStorage.getItem(CHAT_STORAGE_KEY);
-		return raw ? JSON.parse(raw) : null;
-	} catch {
-		return null;
-	}
-};
-
-const buildUnreadMap = (conversations) =>
-	conversations.reduce((acc, conversation) => {
-		acc[conversation.id] = conversation.unread || 0;
-		return acc;
-	}, {});
-
-const buildLastSeenMap = (conversations) =>
-	conversations.reduce((acc, conversation) => {
-		if (conversation.status !== "online") {
-			acc[conversation.id] = conversation.lastSeen || conversation.timestamp || null;
+export const fetchChats = createAsyncThunk(
+	"chat/fetchChats",
+	async (_, { rejectWithValue }) => {
+		try {
+			const { data } = await chatApi.getMyChats();
+			return data.data;
+		} catch (err) {
+			return rejectWithValue(err.message);
 		}
-		return acc;
-	}, {});
+	}
+);
 
-const persisted = loadPersistedState();
-const mockUsers = (chatMock.mockUsers || []).map((user) => ({
-	...user,
-	type: "user",
-	lastSeen: user.lastSeen || user.timestamp || null,
-}));
+export const fetchMessages = createAsyncThunk(
+	"chat/fetchMessages",
+	async ({ chatId, params = {} }, { rejectWithValue }) => {
+		try {
+			const { data } = await chatApi.getChatMessages(chatId, params);
+			return { chatId, ...data.data };
+		} catch (err) {
+			return rejectWithValue(err.message);
+		}
+	}
+);
 
+export const sendMessageThunk = createAsyncThunk(
+	"chat/sendMessage",
+	async ({ chatId, messageData }, { rejectWithValue }) => {
+		try {
+			const { data } = await chatApi.sendMessage(chatId, messageData);
+			return { chatId, message: data.data };
+		} catch (err) {
+			return rejectWithValue(err.message);
+		}
+	}
+);
 const initialState = {
-	directConversations: mockUsers,
-	messagesByConversation: persisted?.messagesByConversation || chatMock.mockMessages || {},
-	unreadByConversation: persisted?.unreadByConversation || buildUnreadMap(mockUsers),
-	selectedConversationId: persisted?.selectedConversationId || null,
-	pinnedConversations: persisted?.pinnedConversations || [],
-	archivedConversations: persisted?.archivedConversations || [],
-	mutedConversations: persisted?.mutedConversations || [],
-	draftsByConversation: persisted?.draftsByConversation || {},
-	searchByConversation: persisted?.searchByConversation || {},
+	conversations: [],
+	messagesByConversation: {},
+	unreadByConversation: {},
+	selectedConversationId: null,
+	pinnedConversations: [],
+	archivedConversations: [],
+	mutedConversations: [],
+	draftsByConversation: {},
 	typingByConversation: {},
-	hiddenMessagesByConversation: persisted?.hiddenMessagesByConversation || {},
 	forwardingMessage: null,
-	lastSeenByConversation: persisted?.lastSeenByConversation || buildLastSeenMap(mockUsers),
-	connection: {
-		isConnected: false,
-		error: null,
-		lastConnectedAt: null,
-	},
+	loading: { chats: false, messages: false },
+	error: null,
+	connection: { isConnected: false, error: null, lastConnectedAt: null },
 };
 
 const chatSlice = createSlice({
@@ -62,20 +59,10 @@ const chatSlice = createSlice({
 		setSelectedConversation: (state, action) => {
 			const conversationId = action.payload;
 			state.selectedConversationId = conversationId;
-			if (conversationId) {
-				state.unreadByConversation[conversationId] = 0;
-			}
+			if (conversationId) state.unreadByConversation[conversationId] = 0;
 		},
 		closeConversation: (state) => {
 			state.selectedConversationId = null;
-		},
-		sendMessage: (state, action) => {
-			const { conversationId, message } = action.payload;
-			if (!conversationId || !message) return;
-			if (!state.messagesByConversation[conversationId]) {
-				state.messagesByConversation[conversationId] = [];
-			}
-			state.messagesByConversation[conversationId].push(message);
 		},
 		newMessage: (state, action) => {
 			const { conversationId, message } = action.payload;
@@ -83,285 +70,197 @@ const chatSlice = createSlice({
 			if (!state.messagesByConversation[conversationId]) {
 				state.messagesByConversation[conversationId] = [];
 			}
-
-			const isActive = conversationId === state.selectedConversationId;
-			const status = message.status || (isActive ? "read" : "delivered");
-			state.messagesByConversation[conversationId].push({
-				...message,
-				status,
-			});
-
-			if (!isActive) {
+			const exists = state.messagesByConversation[conversationId].some(
+				(m) => m._id === message._id
+			);
+			if (!exists) {
+				state.messagesByConversation[conversationId].push(message);
+			}
+			if (conversationId !== state.selectedConversationId) {
 				state.unreadByConversation[conversationId] =
 					(state.unreadByConversation[conversationId] || 0) + 1;
 			}
 		},
-		setDraft: (state, action) => {
-			const { conversationId, text } = action.payload;
-			if (!conversationId) return;
-			const draft = state.draftsByConversation[conversationId] || {
-				text: "",
-				replyToId: null,
-				editingMessageId: null,
-			};
-			state.draftsByConversation[conversationId] = {
-				...draft,
-				text,
-			};
+		setConversationMessages: (state, action) => {
+			const { conversationId, messages } = action.payload;
+			if (conversationId) state.messagesByConversation[conversationId] = messages || [];
 		},
-		setReplyTo: (state, action) => {
-			const { conversationId, messageId } = action.payload;
-			if (!conversationId) return;
-			const draft = state.draftsByConversation[conversationId] || {
-				text: "",
-				replyToId: null,
-				editingMessageId: null,
-			};
-			state.draftsByConversation[conversationId] = {
-				...draft,
-				replyToId: messageId,
-			};
-		},
-		clearReplyTo: (state, action) => {
-			const { conversationId } = action.payload;
-			if (!conversationId) return;
-			const draft = state.draftsByConversation[conversationId];
-			if (draft) {
-				draft.replyToId = null;
+		addOptimisticMessage: (state, action) => {
+			const { conversationId, message } = action.payload;
+			if (!state.messagesByConversation[conversationId]) {
+				state.messagesByConversation[conversationId] = [];
 			}
+			state.messagesByConversation[conversationId].push(message);
 		},
-		setEditingMessage: (state, action) => {
-			const { conversationId, messageId } = action.payload;
-			if (!conversationId) return;
-			const draft = state.draftsByConversation[conversationId] || {
-				text: "",
-				replyToId: null,
-				editingMessageId: null,
-			};
-			state.draftsByConversation[conversationId] = {
-				...draft,
-				editingMessageId: messageId,
-			};
-		},
-		clearEditingMessage: (state, action) => {
-			const { conversationId } = action.payload;
-			if (!conversationId) return;
-			const draft = state.draftsByConversation[conversationId];
-			if (draft) {
-				draft.editingMessageId = null;
+		replaceOptimisticMessage: (state, action) => {
+			const { conversationId, tempId, realMessage } = action.payload;
+			const msgs = state.messagesByConversation[conversationId];
+			if (msgs) {
+				const idx = msgs.findIndex((m) => m._id === tempId || m.tempId === tempId);
+				if (idx !== -1) {
+					msgs[idx] = realMessage;
+				}
 			}
 		},
 		applyEditMessage: (state, action) => {
 			const { conversationId, messageId, text } = action.payload;
-			const messages = state.messagesByConversation[conversationId] || [];
-			const message = messages.find((msg) => msg.id === messageId);
-			if (message) {
-				message.text = text;
-				message.edited = true;
+			const msgs = state.messagesByConversation[conversationId] || [];
+			const msg = msgs.find((m) => m._id === messageId || m.id === messageId);
+			if (msg) {
+				msg.content = text;
+				msg.text = text;
+				msg.isEdited = true;
 			}
-		},
-		deleteMessageForMe: (state, action) => {
-			const { conversationId, messageId } = action.payload;
-			if (!conversationId) return;
-			if (!state.hiddenMessagesByConversation[conversationId]) {
-				state.hiddenMessagesByConversation[conversationId] = [];
-			}
-			state.hiddenMessagesByConversation[conversationId].push(messageId);
 		},
 		deleteMessageForAll: (state, action) => {
 			const { conversationId, messageId } = action.payload;
-			const messages = state.messagesByConversation[conversationId] || [];
-			const message = messages.find((msg) => msg.id === messageId);
-			if (message) {
-				message.text = "This message was deleted";
-				message.deleted = true;
-				message.reactions = {};
+			const msgs = state.messagesByConversation[conversationId] || [];
+			const msg = msgs.find((m) => m._id === messageId || m.id === messageId);
+			if (msg) {
+				msg.content = "This message was deleted";
+				msg.text = "This message was deleted";
+				msg.deleted = true;
 			}
 		},
 		toggleReaction: (state, action) => {
-			const { conversationId, messageId, emoji, userId } = action.payload;
-			const messages = state.messagesByConversation[conversationId] || [];
-			const message = messages.find((msg) => msg.id === messageId);
-			if (!message) return;
-			if (!message.reactions) {
-				message.reactions = {};
-			}
-			const current = message.reactions[emoji] || [];
-			if (current.includes(userId)) {
-				message.reactions[emoji] = current.filter((id) => id !== userId);
-				if (message.reactions[emoji].length === 0) {
-					delete message.reactions[emoji];
-				}
-			} else {
-				message.reactions[emoji] = [...current, userId];
+			const { conversationId, messageId, reactions, fromServer } = action.payload;
+			if (fromServer && reactions) {
+				const msgs = state.messagesByConversation[conversationId] || [];
+				const msg = msgs.find((m) => m._id === messageId || m.id === messageId);
+				if (msg) msg.reactions = reactions;
 			}
 		},
+
+		updateMessageStatus: (state, action) => {
+			const { conversationId, messageId, status } = action.payload;
+			const msgs = state.messagesByConversation[conversationId] || [];
+			const msg = msgs.find((m) => m._id === messageId || m.id === messageId);
+			if (msg) msg.status = status;
+		},
+		markMessageFailed: (state, action) => {
+			const { conversationId, messageId } = action.payload;
+			const msgs = state.messagesByConversation[conversationId] || [];
+			const msg = msgs.find((m) => m._id === messageId || m.id === messageId);
+			if (msg) msg.status = "failed";
+		},
+
+		setTypingStatus: (state, action) => {
+			const { conversationId, isTyping, userName } = action.payload;
+			if (conversationId) {
+				state.typingByConversation[conversationId] = { isTyping, userName };
+			}
+		},
+
+		setDraft: (state, action) => {
+			const { conversationId, text } = action.payload;
+			if (!conversationId) return;
+			state.draftsByConversation[conversationId] = {
+				...(state.draftsByConversation[conversationId] || {}),
+				text,
+			};
+		},
+
 		togglePinConversation: (state, action) => {
-			const { conversationId } = action.payload;
-			if (!conversationId) return;
-			if (state.pinnedConversations.includes(conversationId)) {
-				state.pinnedConversations = state.pinnedConversations.filter(
-					(id) => id !== conversationId
-				);
+			const id = action.payload.conversationId;
+			if (state.pinnedConversations.includes(id)) {
+				state.pinnedConversations = state.pinnedConversations.filter((i) => i !== id);
 			} else {
-				state.pinnedConversations.push(conversationId);
-			}
-		},
-		toggleArchiveConversation: (state, action) => {
-			const { conversationId } = action.payload;
-			if (!conversationId) return;
-			if (state.archivedConversations.includes(conversationId)) {
-				state.archivedConversations = state.archivedConversations.filter(
-					(id) => id !== conversationId
-				);
-			} else {
-				state.archivedConversations.push(conversationId);
+				state.pinnedConversations.push(id);
 			}
 		},
 		toggleMuteConversation: (state, action) => {
-			const { conversationId } = action.payload;
-			if (!conversationId) return;
-			if (state.mutedConversations.includes(conversationId)) {
-				state.mutedConversations = state.mutedConversations.filter(
-					(id) => id !== conversationId
-				);
+			const id = action.payload.conversationId;
+			if (state.mutedConversations.includes(id)) {
+				state.mutedConversations = state.mutedConversations.filter((i) => i !== id);
 			} else {
-				state.mutedConversations.push(conversationId);
+				state.mutedConversations.push(id);
 			}
 		},
-		clearConversation: (state, action) => {
-			const { conversationId } = action.payload;
-			if (!conversationId) return;
-			state.messagesByConversation[conversationId] = [];
-			state.hiddenMessagesByConversation[conversationId] = [];
-		},
-		setSearchQuery: (state, action) => {
-			const { conversationId, query } = action.payload;
-			if (!conversationId) return;
-			state.searchByConversation[conversationId] = query;
-		},
-		setTypingStatus: (state, action) => {
-			const { conversationId, isTyping, userName } = action.payload;
-			if (!conversationId) return;
-			state.typingByConversation[conversationId] = {
-				isTyping,
-				userName,
-			};
-		},
+
 		setForwardingMessage: (state, action) => {
 			state.forwardingMessage = action.payload;
 		},
 		clearForwardingMessage: (state) => {
 			state.forwardingMessage = null;
 		},
-		forwardMessageToConversation: (state, action) => {
-			const { conversationId, message } = action.payload;
-			if (!conversationId || !message) return;
-			if (!state.messagesByConversation[conversationId]) {
-				state.messagesByConversation[conversationId] = [];
-			}
-			state.messagesByConversation[conversationId].push({
-				...message,
-				id: `fwd-${Date.now()}`,
-				forwarded: true,
-				status: "sent",
-			});
-		},
-		setConversationMessages: (state, action) => {
-			const { conversationId, messages } = action.payload;
-			if (!conversationId) return;
-			state.messagesByConversation[conversationId] = messages || [];
-		},
-		updateMessageStatus: (state, action) => {
-			const { conversationId, messageId, status } = action.payload;
-			const messages = state.messagesByConversation[conversationId] || [];
-			const message = messages.find((msg) => msg.id === messageId);
-			if (message) {
-				message.status = status;
-			}
-		},
-		markMessageFailed: (state, action) => {
-			const { conversationId, messageId } = action.payload;
-			const messages = state.messagesByConversation[conversationId] || [];
-			const message = messages.find((msg) => msg.id === messageId);
-			if (message) {
-				message.status = "failed";
-			}
-		},
-		syncPendingMessages: (state) => {
-			Object.values(state.messagesByConversation).forEach((messages) => {
-				messages.forEach((message) => {
-					if (message.senderId === "current" && message.status === "sent") {
-						message.status = "delivered";
-					}
-				});
-			});
-		},
-		retryMessage: (state, action) => {
-			const { conversationId, messageId } = action.payload;
-			const messages = state.messagesByConversation[conversationId] || [];
-			const message = messages.find((msg) => msg.id === messageId);
-			if (message) {
-				message.status = "sent";
-			}
-		},
 		setConnectionStatus: (state, action) => {
 			const { isConnected, error } = action.payload || {};
 			state.connection.isConnected = !!isConnected;
 			state.connection.error = error || null;
-			if (isConnected) {
-				state.connection.lastConnectedAt = new Date().toISOString();
-			}
+			if (isConnected) state.connection.lastConnectedAt = new Date().toISOString();
 		},
+	},
+	extraReducers: (builder) => {
+		builder
+			.addCase(fetchChats.pending, (state) => {
+				state.loading.chats = true;
+			})
+			.addCase(fetchChats.fulfilled, (state, action) => {
+				state.conversations = action.payload || [];
+				state.loading.chats = false;
+			})
+			.addCase(fetchChats.rejected, (state, action) => {
+				state.error = action.payload;
+				state.loading.chats = false;
+			});
+
+		builder
+			.addCase(fetchMessages.pending, (state) => {
+				state.loading.messages = true;
+			})
+			.addCase(fetchMessages.fulfilled, (state, action) => {
+				const { chatId, docs, messages } = action.payload;
+				state.messagesByConversation[chatId] = docs || messages || [];
+				state.loading.messages = false;
+			})
+			.addCase(fetchMessages.rejected, (state, action) => {
+				state.error = action.payload;
+				state.loading.messages = false;
+			});
+
+		builder
+			.addCase(sendMessageThunk.fulfilled, (state, action) => {
+				const { chatId, message } = action.payload;
+				if (!state.messagesByConversation[chatId]) {
+					state.messagesByConversation[chatId] = [];
+				}
+				const exists = state.messagesByConversation[chatId].some(
+					(m) => m._id === message._id
+				);
+				if (!exists) {
+					state.messagesByConversation[chatId].push(message);
+				}
+			});
 	},
 });
 
 export const {
 	setSelectedConversation,
-	sendMessage,
+	closeConversation,
 	newMessage,
-	setDraft,
-	setReplyTo,
-	clearReplyTo,
-	setEditingMessage,
-	clearEditingMessage,
+	setConversationMessages,
+	addOptimisticMessage,
+	replaceOptimisticMessage,
 	applyEditMessage,
-	deleteMessageForMe,
 	deleteMessageForAll,
 	toggleReaction,
-	togglePinConversation,
-	toggleArchiveConversation,
-	toggleMuteConversation,
-	clearConversation,
-	closeConversation,
-	setSearchQuery,
-	setTypingStatus,
-	setForwardingMessage,
-	clearForwardingMessage,
-	forwardMessageToConversation,
-	setConversationMessages,
 	updateMessageStatus,
 	markMessageFailed,
-	syncPendingMessages,
-	retryMessage,
+	setTypingStatus,
+	setDraft,
+	togglePinConversation,
+	toggleMuteConversation,
+	setForwardingMessage,
+	clearForwardingMessage,
 	setConnectionStatus,
 } = chatSlice.actions;
 
-export const selectDirectConversations = (state) => state.chat.directConversations;
-export const selectDirectConversationById = (conversationId) => (state) =>
-	state.chat.directConversations.find((conversation) => conversation.id === conversationId);
+export const selectConversations = (state) => state.chat.conversations;
 export const selectMessagesByConversation = (state) => state.chat.messagesByConversation;
 export const selectUnreadByConversation = (state) => state.chat.unreadByConversation;
 export const selectSelectedConversationId = (state) => state.chat.selectedConversationId;
-export const selectPinnedConversations = (state) => state.chat.pinnedConversations;
-export const selectArchivedConversations = (state) => state.chat.archivedConversations;
-export const selectMutedConversations = (state) => state.chat.mutedConversations;
-export const selectDraftsByConversation = (state) => state.chat.draftsByConversation;
-export const selectSearchByConversation = (state) => state.chat.searchByConversation;
 export const selectTypingByConversation = (state) => state.chat.typingByConversation;
-export const selectHiddenMessagesByConversation = (state) => state.chat.hiddenMessagesByConversation;
-export const selectForwardingMessage = (state) => state.chat.forwardingMessage;
-export const selectLastSeenByConversation = (state) => state.chat.lastSeenByConversation;
+export const selectChatLoading = (state) => state.chat.loading;
 export const selectChatConnection = (state) => state.chat.connection;
 
 export default chatSlice.reducer;

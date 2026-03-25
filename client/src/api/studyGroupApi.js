@@ -1,151 +1,50 @@
 import api from './axios';
 
-/**
- * Study Group API functions
- */
+const BASE = '/study-groups';
+export const getStudyGroups = (params = {}) =>
+  api.get(BASE, { params });
 
-// Get all study groups
-export const getAllStudyGroups = async (filters = {}) => {
-  try {
-    const response = await api.get('/study-groups', { params: filters });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const getMyStudyGroups = () =>
+  api.get(`${BASE}/my`);
 
-// Get study group by ID
-export const getStudyGroupById = async (groupId) => {
-  try {
-    const response = await api.get(`/study-groups/${groupId}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const getStudyGroupById = (id) =>
+  api.get(`${BASE}/${id}`);
 
-// Create new study group
-export const createStudyGroup = async (groupData) => {
-  try {
-    const response = await api.post('/study-groups', groupData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const createStudyGroup = (data) =>
+  api.post(BASE, data);
 
-// Update study group
-export const updateStudyGroup = async (groupId, groupData) => {
-  try {
-    const response = await api.patch(`/study-groups/${groupId}`, groupData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const updateStudyGroup = (id, data) =>
+  api.patch(`${BASE}/${id}`, data);
 
-// Delete study group
-export const deleteStudyGroup = async (groupId) => {
-  try {
-    const response = await api.delete(`/study-groups/${groupId}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const deleteStudyGroup = (id) =>
+  api.delete(`${BASE}/${id}`);
 
-// Join study group
-export const joinStudyGroup = async (groupId) => {
-  try {
-    const response = await api.post(`/study-groups/${groupId}/join`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const archiveStudyGroup = (id) =>
+  api.patch(`${BASE}/${id}/archive`);
 
-// Leave study group
-export const leaveStudyGroup = async (groupId) => {
-  try {
-    const response = await api.delete(`/study-groups/${groupId}/leave`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
 
-// Get study group members
-export const getStudyGroupMembers = async (groupId) => {
-  try {
-    const response = await api.get(`/study-groups/${groupId}/members`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const joinStudyGroup = (id) =>
+  api.post(`${BASE}/${id}/join`);
 
-// Get study group resources
-export const getStudyGroupResources = async (groupId) => {
-  try {
-    const response = await api.get(`/study-groups/${groupId}/resources`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const leaveStudyGroup = (id) =>
+  api.post(`${BASE}/${id}/leave`);
 
-// Upload resource to study group
-export const uploadResource = async (groupId, formData) => {
-  try {
-    const response = await api.post(`/study-groups/${groupId}/resources`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const removeMember = (id, memberId) =>
+  api.delete(`${BASE}/${id}/members/${memberId}`);
 
-// Delete resource
-export const deleteResource = async (groupId, resourceId) => {
-  try {
-    const response = await api.delete(`/study-groups/${groupId}/resources/${resourceId}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const updateMemberRole = (id, memberId, data) =>
+  api.patch(`${BASE}/${id}/members/${memberId}/role`, data);
 
-// Get study group discussions
-export const getStudyGroupDiscussions = async (groupId) => {
-  try {
-    const response = await api.get(`/study-groups/${groupId}/discussions`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
 
-// Post discussion message
-export const postDiscussionMessage = async (groupId, message) => {
-  try {
-    const response = await api.post(`/study-groups/${groupId}/discussions`, { message });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const getResources = (id) =>
+  api.get(`${BASE}/${id}/resources`);
 
-// Search study groups
-export const searchStudyGroups = async (query, filters = {}) => {
-  try {
-    const response = await api.get('/study-groups/search', {
-      params: { q: query, ...filters },
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const addResource = (id, formData) =>
+  api.post(`${BASE}/${id}/resources`, formData);
+
+export const removeResource = (id, resourceId) =>
+  api.delete(`${BASE}/${id}/resources/${resourceId}`);
+
+
+export const updateSchedule = (id, data) =>
+  api.put(`${BASE}/${id}/schedule`, data);
