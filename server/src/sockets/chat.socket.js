@@ -8,6 +8,7 @@ const rateLimits = {
     "typing": new Map(),
     "chat:read": new Map(),
     "message:status": new Map(),
+    "message:react": new Map(),
 };
 
 const checkRateLimit = (action, userId, maxCount, windowMs) => {
@@ -275,6 +276,73 @@ export const registerChatHandlers = (io, socket) => {
             if (typeof ackCallback === "function") ackCallback({ success: true });
         } catch (err) {
             logSocket("error", "message:seen", userId, "Failed to update seen status", err);
+            if (typeof ackCallback === "function") ackCallback({ error: err.message });
+        }
+    });
+
+    socket.on("message:react", async (data, ackCallback) => {
+        try {
+            if (!checkRateLimit("message:react", userId, 10, 3000)) {
+                logSocket("warn", "message:react", userId, "Rate limit exceeded");
+                return;
+            }
+
+            const { messageId, chatId, emoji } = data || {};
+            if (!messageId || !chatId || !emoji || !mongoose.isValidObjectId(messageId) || typeof emoji !== "string") {
+                if (typeof ackCallback === "function") ackCallback({ error: "Invalid payload" });
+                return;
+            }
+
+            const message = await Message.findById(messageId);
+            if (!message || message.chat.toString() !== chatId) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Message not found" });
+                return;
+            }
+
+            const existingReactionIndex = message.reactions.findIndex(r => r.emoji === emoji);
+            let hasReacted = false;
+
+            if (existingReactionIndex !== -1) {
+                const userIndex = message.reactions[existingReactionIndex].users.findIndex(u => u.toString() === userId);
+                if (userIndex !== -1) {
+                    message.reactions[existingReactionIndex].users.splice(userIndex, 1);
+                    if (message.reactions[existingReactionIndex].users.length === 0) {
+                        message.reactions.splice(existingReactionIndex, 1); // Drop empty emoji
+                    }
+                } else {
+                    message.reactions[existingReactionIndex].users.push(userId);
+                    hasReacted = true;
+                }
+            } else {
+                message.reactions.push({ emoji, users: [userId] });
+                hasReacted = true;
+            }
+
+            await message.save();
+
+            io.to(`chat:${chatId}`).emit("message:reaction:update", {
+                messageId,
+                chatId,
+                reactions: message.reactions
+            });
+
+            if (hasReacted && message.sender && message.sender.toString() !== userId) {
+                const { systemEvents } = await import("../utils/events.js");
+                systemEvents.emit("notification:create", {
+                    userId: message.sender,
+                    type: "chat_message",
+                    title: "New Reaction",
+                    body: `Reacted ${emoji} to your message`,
+                    ref: chatId,
+                    refModel: "Chat",
+                    actorId: userId,
+                    priority: "normal"
+                });
+            }
+
+            if (typeof ackCallback === "function") ackCallback({ success: true, reactions: message.reactions });
+        } catch (err) {
+            logSocket("error", "message:react", userId, "Reaction failed", err);
             if (typeof ackCallback === "function") ackCallback({ error: err.message });
         }
     });

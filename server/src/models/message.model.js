@@ -82,19 +82,28 @@ const messageSchema = new Schema(
 
         reactions: [
             {
-                userId: {
-                    type: Schema.Types.ObjectId,
-                    ref: "User",
-                    required: true,
-                },
                 emoji: {
                     type: String,
                     required: true,
                     maxlength: [10, "Emoji too long"],
                 },
+                users: [
+                    {
+                        type: Schema.Types.ObjectId,
+                        ref: "User",
+                    },
+                ],
                 _id: false,
             },
         ],
+
+        replyPreview: {
+            content: String,
+            senderDisplayName: String,
+            type: {
+                type: String, 
+            },
+        },
 
         isDeleted: {
             type: Boolean,
@@ -147,6 +156,20 @@ messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type 
         }
     }
 
+    let replyPreviewData = undefined;
+    if (replyToId && mongoose.isValidObjectId(replyToId)) {
+        const parentMsg = await this.findById(replyToId).populate("sender", "profile.displayName");
+        if (parentMsg) {
+            replyPreviewData = {
+                content: parentMsg.content || "",
+                senderDisplayName: parentMsg.sender?.profile?.displayName || "Unknown User",
+                type: parentMsg.type || "text",
+            };
+        } else {
+            throw new ApiError(404, "Message being replied to not found");
+        }
+    }
+
     const message = await this.create({
         chat: chatId,
         sender: senderId,
@@ -154,6 +177,7 @@ messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type 
         content: content?.trim() || "",
         attachment: attachmentId || undefined,
         replyTo: replyToId || undefined,
+        replyPreview: replyPreviewData,
         readBy: senderId ? [{ userId: senderId, readAt: new Date() }] : [],
         deliveredTo: senderId ? [{ userId: senderId, deliveredAt: new Date() }] : [],
     });
@@ -176,13 +200,25 @@ messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type 
     if (senderId) {
         const { systemEvents } = await import("../utils/events.js");
         const targetChat = await mongoose.model("Chat").findById(chatId).select("members");
+        
+        let parentSenderId = null;
+        if (replyToId && mongoose.isValidObjectId(replyToId)) {
+            const tempParent = await this.findById(replyToId).select("sender");
+            if (tempParent && tempParent.sender) parentSenderId = tempParent.sender.toString();
+        }
+
         if (targetChat && targetChat.members) {
             targetChat.members.forEach((member) => {
                 if (member.userId && member.userId.toString() !== senderId.toString()) {
+                    let notifTitle = "New Message";
+                    if (parentSenderId && member.userId.toString() === parentSenderId) {
+                        notifTitle = "Replied to you";
+                    }
+
                     systemEvents.emit("notification:create", {
                         userId: member.userId,
                         type: "chat_message",
-                        title: "New Message",
+                        title: notifTitle,
                         body: content ? (content.substring(0, 50) + (content.length > 50 ? "..." : "")) : `Sent a ${type}`,
                         ref: chatId,
                         refModel: "Chat",
