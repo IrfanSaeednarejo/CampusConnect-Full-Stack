@@ -1,24 +1,5 @@
 import { useState, useEffect } from 'react';
-
-/**
- * Custom hook to detect responsive breakpoints
- * 
- * @param {Object} breakpoints - Custom breakpoints (optional)
- * @returns {Object} Responsive state with boolean flags for each breakpoint
- * 
- * @example
- * const { isMobile, isTablet, isDesktop, width } = useResponsive();
- * 
- * return (
- *   <div>
- *     {isMobile && <MobileNav />}
- *     {isDesktop && <DesktopNav />}
- *     <p>Current width: {width}px</p>
- *   </div>
- * );
- */
 export const useResponsive = (customBreakpoints = {}) => {
-  // Default Tailwind breakpoints
   const defaultBreakpoints = {
     sm: 640,
     md: 768,
@@ -42,13 +23,9 @@ export const useResponsive = (customBreakpoints = {}) => {
       });
     };
 
-    // Add event listener
     window.addEventListener('resize', handleResize);
-
-    // Call handler right away so state gets updated with initial window size
     handleResize();
 
-    // Remove event listener on cleanup
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -61,7 +38,6 @@ export const useResponsive = (customBreakpoints = {}) => {
     isSmallMobile: windowSize.width < breakpoints.sm,
     isLargeDesktop: windowSize.width >= breakpoints.xl,
     is2XL: windowSize.width >= breakpoints['2xl'],
-    // Custom breakpoint checks
     isAbove: (breakpoint) => windowSize.width >= (breakpoints[breakpoint] || breakpoint),
     isBelow: (breakpoint) => windowSize.width < (breakpoints[breakpoint] || breakpoint)
   };

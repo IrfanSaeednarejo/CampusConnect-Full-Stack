@@ -1,13 +1,4 @@
-// Custom hook for async data fetching
-// Can be used for future API integration
-
 import { useState, useEffect, useCallback } from 'react';
-
-/**
- * Custom hook for fetching data
- * @param {function} fetchFunction - Function that returns a promise
- * @param {array} dependencies - Dependencies for refetching
- */
 export function useFetch(fetchFunction, dependencies = []) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -29,7 +20,7 @@ export function useFetch(fetchFunction, dependencies = []) {
 
   useEffect(() => {
     fetchData();
-  }, [fetchData, ...dependencies]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fetchData, ...dependencies]);
 
   const refetch = useCallback(() => {
     fetchData();
@@ -44,9 +35,6 @@ export function useFetch(fetchFunction, dependencies = []) {
   };
 }
 
-/**
- * Hook for lazy fetching (manual trigger)
- */
 export function useLazyFetch(fetchFunction) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(false);

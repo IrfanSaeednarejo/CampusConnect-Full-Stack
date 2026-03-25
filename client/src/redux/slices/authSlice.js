@@ -13,12 +13,24 @@ export const loginUser = createAsyncThunk(
   }
 );
 
+export const registerUser = createAsyncThunk(
+  'auth/register',
+  async (userData, { rejectWithValue }) => {
+    try {
+      const { data } = await authApi.register(userData);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Registration failed');
+    }
+  }
+);
+
 export const checkAuth = createAsyncThunk(
   'auth/checkAuth',
   async (_, { rejectWithValue }) => {
     try {
       const { data } = await authApi.checkAuth();
-      return data.data; // user object
+      return data.data;
     } catch (err) {
       return rejectWithValue(err.message || 'Not authenticated');
     }
@@ -86,6 +98,23 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+
+    builder
+      .addCase(registerUser.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(registerUser.fulfilled, (state, action) => {
+        state.isAuthenticated = true;
+        state.user = action.payload.user || action.payload;
+        state.role = action.payload.user?.roles?.[0] || action.payload.roles?.[0] || null;
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
