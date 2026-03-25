@@ -110,6 +110,29 @@ const messageSchema = new Schema(
             default: false,
         },
 
+        isEdited: {
+            type: Boolean,
+            default: false,
+        },
+
+        editHistory: [
+            {
+                content: String,
+                editedAt: {
+                    type: Date,
+                    default: Date.now,
+                },
+                _id: false,
+            },
+        ],
+
+        mentions: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "User",
+            },
+        ],
+
         editedAt: {
             type: Date,
         },
@@ -140,7 +163,7 @@ messageSchema.statics.getChatMessages = function (chatId, { before, limit = 50 }
         .populate("attachment", "fileName fileUrl mimeType fileSize");
 };
 
-messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type = "text", content, attachmentId, replyToId }) {
+messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type = "text", content, attachmentId, replyToId, mentions = [] }) {
     if (attachmentId) {
         const File = mongoose.model("File");
         const file = await File.findById(attachmentId);
@@ -170,6 +193,14 @@ messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type 
         }
     }
 
+    const targetChat = await mongoose.model("Chat").findById(chatId).select("members");
+    if (!targetChat) throw new ApiError(404, "Chat not found");
+
+    const validMemberIds = targetChat.members.map((m) => m.userId.toString());
+    const validMentions = Array.isArray(mentions)
+        ? mentions.filter((id) => mongoose.isValidObjectId(id) && validMemberIds.includes(id.toString()))
+        : [];
+
     const message = await this.create({
         chat: chatId,
         sender: senderId,
@@ -178,6 +209,7 @@ messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type 
         attachment: attachmentId || undefined,
         replyTo: replyToId || undefined,
         replyPreview: replyPreviewData,
+        mentions: validMentions,
         readBy: senderId ? [{ userId: senderId, readAt: new Date() }] : [],
         deliveredTo: senderId ? [{ userId: senderId, deliveredAt: new Date() }] : [],
     });
@@ -199,7 +231,6 @@ messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type 
 
     if (senderId) {
         const { systemEvents } = await import("../utils/events.js");
-        const targetChat = await mongoose.model("Chat").findById(chatId).select("members");
 
         let parentSenderId = null;
         if (replyToId && mongoose.isValidObjectId(replyToId)) {
@@ -209,9 +240,14 @@ messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type 
 
         if (targetChat && targetChat.members) {
             targetChat.members.forEach((member) => {
-                if (member.userId && member.userId.toString() !== senderId.toString()) {
+                const memberIdStr = member.userId.toString();
+                if (member.userId && memberIdStr !== senderId.toString()) {
                     let notifTitle = "New Message";
-                    if (parentSenderId && member.userId.toString() === parentSenderId) {
+                    let notifPriority = "high";
+
+                    if (validMentions.includes(memberIdStr)) {
+                        notifTitle = "Mentioned you";
+                    } else if (parentSenderId && memberIdStr === parentSenderId) {
                         notifTitle = "Replied to you";
                     }
 
@@ -223,7 +259,7 @@ messageSchema.statics.sendNewMessage = async function ({ chatId, senderId, type 
                         ref: chatId,
                         refModel: "Chat",
                         actorId: senderId,
-                        priority: "high"
+                        priority: notifPriority
                     });
                 }
             });
