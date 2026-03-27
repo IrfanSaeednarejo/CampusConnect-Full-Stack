@@ -43,7 +43,7 @@ export function useNavigation() {
   }, [navigate]);
 
   // Navigate to profile
-  const goToProfile = useCallback((userId) => {
+  const goToProfile = useCallback(() => {
     navigate('/profile/view');
   }, [navigate]);
 
