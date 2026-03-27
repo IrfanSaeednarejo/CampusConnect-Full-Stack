@@ -1,18 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { loginSuccess, setRole, selectRole } from "../../redux/slices/authSlice";
+import { registerUser, setRole, selectRole } from "../../redux/slices/authSlice";
 import { setUserProfile } from "../../redux/slices/userSlice";
-import { useNotification } from "@/contexts/NotificationContext.jsx";
-import { useAuth } from "@/contexts/AuthContext.jsx";
 import {
   validateSignupForm,
   VALID_ROLES,
 } from "../../utils/authValidator";
-import {
-  validateAccountUniqueness,
-  createMockAccount,
-} from "../../utils/accountService";
 import AuthCard from "../../components/auth/AuthCard";
 import AuthShell from "../../components/auth/AuthShell";
 import FormField from "../../components/common/FormField";
@@ -23,8 +17,6 @@ export default function Signup() {
   const location = useLocation();
   const dispatch = useDispatch();
   const selectedRole = useSelector(selectRole);
-  const { login: contextLogin } = useAuth();
-  const { showSuccess, showError } = useNotification();
 
   const locationRole = location.state?.role;
   const initialRole = locationRole || selectedRole || VALID_ROLES.STUDENT;
@@ -34,12 +26,10 @@ export default function Signup() {
     email: "",
     password: "",
     confirmPassword: "",
-    role: initialRole, // Default to selected role or student
+    role: initialRole,
   });
 
   const [errors, setErrors] = useState({});
-
-  // Sync role from role selection or stored role when available
   React.useEffect(() => {
     if (locationRole && form.role !== locationRole) {
       setForm((prev) => ({ ...prev, role: locationRole }));
@@ -56,13 +46,12 @@ export default function Signup() {
     setErrors({ ...errors, [name]: "" });
   };
 
-  // Use secure validation from authValidator
   const validate = () => {
     const validation = validateSignupForm(form);
     return validation.errors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const validationErrors = validate();
     if (Object.keys(validationErrors).length > 0) {
@@ -70,61 +59,34 @@ export default function Signup() {
       return;
     }
 
-    // STEP 1: Check account uniqueness (email and username)
-    const uniquenessCheck = validateAccountUniqueness(form.email, form.fullName);
-    if (!uniquenessCheck.isValid) {
-      // Display uniqueness error(s)
-      showError(uniquenessCheck.errors[0]); // Show first error
-      setErrors({ email: uniquenessCheck.errors[0] });
-      return;
-    }
-
-    // STEP 2: Create account in mock system
-    // In production, this would be a backend POST /api/auth/signup
-    const accountCreation = createMockAccount({
-      email: form.email,
-      fullName: form.fullName,
-      password: form.password,
-      role: form.role,
-    });
-
-    if (!accountCreation.success) {
-      showError(accountCreation.error || "Unable to create account");
-      return;
-    }
-
-    // STEP 3: Create user data for Redux store and Context
-    const userData = {
-      user: {
-        id: accountCreation.account.id,
-        name: form.fullName,
+    try {
+      const resultAction = await dispatch(registerUser({
         email: form.email,
-        avatar: "",
-        department: "",
-      },
-      role: form.role,
-      token: "mock-signup-token-" + Date.now(),
-    };
+        fullName: form.fullName,
+        password: form.password,
+        role: form.role,
+      }));
 
-    // STEP 4: Dispatch Redux actions to store auth and user data
-    dispatch(loginSuccess(userData));
-    dispatch(setRole(form.role));
-    dispatch(setUserProfile({
-      id: userData.user.id,
-      name: form.fullName,
-      email: form.email,
-      avatar: "",
-      department: "",
-    }));
+      if (registerUser.fulfilled.match(resultAction)) {
+        dispatch(setRole(form.role));
+        dispatch(setUserProfile({
+          id: resultAction.payload.user?.id || resultAction.payload.id,
+          name: form.fullName,
+          email: form.email,
+          avatar: "",
+          department: "",
+        }));
 
-    // STEP 5: Update AuthContext as well for immediate access
-    contextLogin(userData.user, userData.token, form.role);
-
-    // Show success notification and navigate to onboarding
-    showSuccess("Account created successfully! Redirecting to onboarding...");
-    setTimeout(() => {
-      navigate("/onboarding/welcome");
-    }, 500);
+        setTimeout(() => {
+          navigate("/onboarding/welcome");
+        }, 500);
+      } else {
+        setErrors({ email: resultAction.payload || "Registration failed" });
+      }
+    } catch (err) {
+      console.error("Signup error:", err);
+      setErrors({ email: "An unexpected error occurred" });
+    }
   };
 
   return (
@@ -140,9 +102,7 @@ export default function Signup() {
           </p>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="flex w-full flex-col gap-5">
-          {/* Text Fields */}
           <div className="flex flex-col gap-4">
             <FormField
               label="Full Name"
@@ -182,7 +142,6 @@ export default function Signup() {
             />
           </div>
 
-          {/* Role Selector */}
           <div className="flex flex-col gap-2">
             <p className="text-white text-base font-medium leading-normal">
               Select Your Role
@@ -212,7 +171,6 @@ export default function Signup() {
             </div>
           </div>
 
-          {/* Buttons */}
           <div className="flex flex-col gap-4 pt-4">
             <FormActions
               onSubmit={handleSubmit}
@@ -241,13 +199,12 @@ function RoleRadio({ name, value, label, checked, onChange, disabled = false, di
   return (
     <div className="flex flex-col gap-1">
       <label
-        className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${
-          disabled
-            ? "border-[#30363d] bg-[#0d1117] opacity-60 cursor-not-allowed"
-            : checked
-              ? "border-[#1dc964] bg-[#1c2620] ring-2 ring-[#1dc964]/50"
-              : "border-[#3d5246] bg-[#1c2620]"
-        }`}
+        className={`flex cursor-pointer items-center gap-3 rounded-lg border p-4 transition-colors ${disabled
+          ? "border-[#30363d] bg-[#0d1117] opacity-60 cursor-not-allowed"
+          : checked
+            ? "border-[#1dc964] bg-[#1c2620] ring-2 ring-[#1dc964]/50"
+            : "border-[#3d5246] bg-[#1c2620]"
+          }`}
       >
         <input
           type="radio"

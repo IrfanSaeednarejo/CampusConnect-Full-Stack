@@ -25,7 +25,7 @@ export default function AccountSettings() {
   const [loading, setLoading] = useState(false);
 
   const handleToggle = (key) => {
-    setSettings({ ...settings, [key]: !settings[key] });
+    setSettings((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
   const handleChange = (e) => {

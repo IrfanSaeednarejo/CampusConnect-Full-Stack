@@ -1,157 +1,45 @@
 import api from './axios';
 
-/**
- * Society API functions
- */
+const BASE = '/societies';
 
-// Get all societies
-export const getAllSocieties = async (filters = {}) => {
-  try {
-    const response = await api.get('/societies', { params: filters });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const getSocieties = (params = {}) =>
+  api.get(BASE, { params });
 
-// Get society by ID
-export const getSocietyById = async (societyId) => {
-  try {
-    const response = await api.get(`/societies/${societyId}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const getSocietyById = (id) =>
+  api.get(`${BASE}/${id}`);
 
-// Create new society
-export const createSociety = async (societyData) => {
-  try {
-    const response = await api.post('/societies', societyData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const createSociety = (formData) =>
+  api.post(`${BASE}/create-society`, formData);
 
-// Update society
-export const updateSociety = async (societyId, societyData) => {
-  try {
-    const response = await api.patch(`/societies/${societyId}`, societyData);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const updateSociety = (id, formData) =>
+  api.patch(`${BASE}/update/${id}`, formData);
 
-// Delete society
-export const deleteSociety = async (societyId) => {
-  try {
-    const response = await api.delete(`/societies/${societyId}`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const deleteSociety = (id) =>
+  api.delete(`${BASE}/delete/${id}`);
 
-// Join society
-export const joinSociety = async (societyId) => {
-  try {
-    const response = await api.post(`/societies/${societyId}/join`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const getSocietyStats = (id) =>
+  api.get(`${BASE}/${id}/stats`);
 
-// Leave society
-export const leaveSociety = async (societyId) => {
-  try {
-    const response = await api.delete(`/societies/${societyId}/leave`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const joinSociety = (id) =>
+  api.post(`${BASE}/${id}/join`);
 
-// Get society members
-export const getSocietyMembers = async (societyId) => {
-  try {
-    const response = await api.get(`/societies/${societyId}/members`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const leaveSociety = (id) =>
+  api.post(`${BASE}/${id}/leave`);
 
-// Get society events
-export const getSocietyEvents = async (societyId) => {
-  try {
-    const response = await api.get(`/societies/${societyId}/events`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const getSocietyMembers = (id, params = {}) =>
+  api.get(`${BASE}/${id}/members`, { params });
 
-// Get user's societies
-export const getUserSocieties = async (userId) => {
-  try {
-    const response = await api.get(`/users/${userId}/societies`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const addMemberToSociety = (id, data) =>
+  api.post(`${BASE}/${id}/members/add`, data);
 
-// Get member requests (society head only)
-export const getMemberRequests = async (societyId) => {
-  try {
-    const response = await api.get(`/societies/${societyId}/member-requests`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const removeMemberFromSociety = (id, memberId) =>
+  api.delete(`${BASE}/${id}/members/remove/${memberId}`);
 
-// Approve member request
-export const approveMemberRequest = async (societyId, requestId) => {
-  try {
-    const response = await api.post(`/societies/${societyId}/member-requests/${requestId}/approve`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const updateMemberRole = (id, memberId, data) =>
+  api.patch(`${BASE}/${id}/members/${memberId}/role`, data);
 
-// Reject member request
-export const rejectMemberRequest = async (societyId, requestId) => {
-  try {
-    const response = await api.post(`/societies/${societyId}/member-requests/${requestId}/reject`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const approveMember = (id, memberId) =>
+  api.patch(`${BASE}/${id}/members/${memberId}/approve`);
 
-// Get society analytics (society head only)
-export const getSocietyAnalytics = async (societyId) => {
-  try {
-    const response = await api.get(`/societies/${societyId}/analytics`);
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
-
-// Search societies
-export const searchSocieties = async (query, filters = {}) => {
-  try {
-    const response = await api.get('/societies/search', {
-      params: { q: query, ...filters },
-    });
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error;
-  }
-};
+export const rejectMember = (id, memberId) =>
+  api.patch(`${BASE}/${id}/members/${memberId}/reject`);
