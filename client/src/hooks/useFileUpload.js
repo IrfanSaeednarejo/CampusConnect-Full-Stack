@@ -1,29 +1,7 @@
 import { useState, useCallback } from 'react';
-
-/**
- * Custom hook to handle file uploads with preview
- * 
- * @param {Object} options - Upload options
- * @param {Array<string>} options.acceptedTypes - Accepted file types (e.g., ['image/*', 'application/pdf'])
- * @param {number} options.maxSizeMB - Maximum file size in MB (default: 5)
- * @param {Function} options.onUpload - Async function to handle upload
- * @returns {Object} File upload state and handlers
- * 
- * @example
- * const { file, preview, handleFileChange, uploadFile, clearFile, uploading, error } = 
- *   useFileUpload({ maxSizeMB: 10, acceptedTypes: ['image/*'] });
- * 
- * return (
- *   <>
- *     <input type="file" onChange={handleFileChange} />
- *     {preview && <img src={preview} alt="Preview" />}
- *     <button onClick={uploadFile} disabled={uploading}>Upload</button>
- *   </>
- * );
- */
 export const useFileUpload = (options = {}) => {
-  const { 
-    acceptedTypes = [], 
+  const {
+    acceptedTypes = [],
     maxSizeMB = 5,
     onUpload
   } = options;
@@ -36,10 +14,8 @@ export const useFileUpload = (options = {}) => {
 
   const handleFileChange = useCallback((e) => {
     const selectedFile = e.target.files?.[0];
-    
-    if (!selectedFile) return;
 
-    // Validate file type
+    if (!selectedFile) return;
     if (acceptedTypes.length > 0) {
       const isAccepted = acceptedTypes.some(type => {
         if (type.endsWith('/*')) {
@@ -53,8 +29,6 @@ export const useFileUpload = (options = {}) => {
         return;
       }
     }
-
-    // Validate file size
     const fileSizeMB = selectedFile.size / (1024 * 1024);
     if (fileSizeMB > maxSizeMB) {
       setError(`File size exceeds ${maxSizeMB}MB limit`);
@@ -63,8 +37,6 @@ export const useFileUpload = (options = {}) => {
 
     setError(null);
     setFile(selectedFile);
-
-    // Create preview for images
     if (selectedFile.type.startsWith('image/')) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -85,7 +57,7 @@ export const useFileUpload = (options = {}) => {
       setProgress(0);
 
       await onUpload(file, setProgress);
-      
+
       setProgress(100);
     } catch (err) {
       setError(err.message || 'Upload failed');

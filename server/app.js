@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { errorHandler } from "./src/middlewares/errorHandler.middleware.js";
+import { ApiError } from "./src/utils/ApiError.js";
 
 const app = express();
 
@@ -19,45 +21,41 @@ app.use(express.urlencoded({ extended: true, limit: "200mb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
 
-//Import routes
 import userRouter from "./src/routes/user.routes.js";
+import campusRouter from "./src/routes/campus.routes.js";
 import societyRouter from "./src/routes/society.routes.js";
 import chatRouter from "./src/routes/chat.routes.js";
 import studyGroupRouter from "./src/routes/studyGroup.routes.js";
-// import mentorRouter from "./src/routes/mentor.routes.js";
-// import eventRouter from "./src/routes/event.routes.js";
-// import noteRouter from "./src/routes/note.routes.js";
-// import fileRouter from "./src/routes/file.routes.js";
-// import notificationRouter from "./src/routes/notification.routes.js";
-// import dashboardRouter from "./src/routes/dashboard.routes.js";
-// import contactRouter from "./src/routes/contact.routes.js";
-// import paymentRouter from "./src/routes/payment.routes.js"; 
-// import analyticsRouter from "./src/routes/analytics.routes.js";
+import competitionRouter from "./src/routes/eventEngine.routes.js";
+import mentorRouter from "./src/routes/mentor.routes.js";
+import fileRouter from "./src/routes/file.routes.js";
+import notificationRouter from "./src/routes/notification.routes.js";
 
-// import aiRoute from "./src/routes/ai.routes.js";
+app.get("/", (_req, res) => res.json({ status: "ok", service: "CampusConnect API" }));
+app.get("/api/v1", (_req, res) => res.json({ status: "ok", version: "1.0.0" }));
 
-//API base route
-app.get("/", (req, res) => res.send("Campus Connect API is running"));
-app.get("/api/v1", (req, res) => res.send("Backend of Campus Connect"));
 
-//routes declaration
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/campuses", campusRouter);
 app.use("/api/v1/societies", societyRouter);
-// app.use("/api/v1/dashboard", dashboardRouter);
 app.use("/api/v1/chats", chatRouter);
 app.use("/api/v1/study-groups", studyGroupRouter);
-// app.use("/api/v1/mentors", mentorRouter);
-// app.use("/api/v1/events", eventRouter);
-// app.use("/api/v1/notes", noteRouter);
-// app.use("/api/v1/files", fileRouter);
-// app.use("/api/v1/notifications", notificationRouter);
-// app.use("/api/v1/contact-us", contactRouter);
+app.use("/api/v1/competitions", competitionRouter);
+app.use("/api/v1/mentors", mentorRouter);
+app.use("/api/v1/files", fileRouter);
+app.use("/api/v1/notifications", notificationRouter);
 
+app.use((err, _req, _res, next) => {
+    if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
+        return next(new ApiError(400, "Malformed JSON in request body"));
+    }
+    next(err);
+});
 
-// app.use("/api/v1/payments", paymentRouter);
-// app.use("/api/v1/analytics", analyticsRouter);
-// app.use("/api/v1/ai", aiRoute);
+app.use((_req, _res, next) => {
+    next(new ApiError(404, "Route not found"));
+});
 
-
+app.use(errorHandler);
 
 export { app };
