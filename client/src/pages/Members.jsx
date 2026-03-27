@@ -9,8 +9,9 @@ export default function Members() {
 
   // Initialize mock members data in Redux
   useEffect(() => {
-    // Only initialize if members list is empty
-    if (members.length === 0) {
+    // Only initialize once, and only if members list is empty
+    if (!membersInitialized && members.length === 0) {
+      membersInitialized = true;
       dispatch(setMembers([
         {
           id: 1,

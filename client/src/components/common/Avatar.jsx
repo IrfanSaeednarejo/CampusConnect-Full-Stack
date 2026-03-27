@@ -20,10 +20,18 @@ export default function Avatar({
     16: "size-16",
   };
 
-  const borderClasses = border ? `border-2 border-${borderColor}` : "";
+  const borderColorClasses = {
+    "[#30363d]": "border-[#30363d]",
+  };
+
+  const borderClasses = border ? `border-2 ${borderColorClasses[borderColor] || ""}` : "";
   const hoverClasses = hover
     ? "cursor-pointer hover:border hover:border-[#238636] transition-colors"
     : "";
+
+  const accessibilityProps = alt
+    ? { role: "img", "aria-label": alt }
+    : { role: "img", "aria-hidden": true };
 
   return (
     <div
@@ -31,7 +39,7 @@ export default function Avatar({
       style={{
         backgroundImage: `url(${src})`,
       }}
-      aria-label={alt}
+      {...accessibilityProps}
     />
   );
 }
