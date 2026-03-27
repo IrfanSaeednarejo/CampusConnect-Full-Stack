@@ -6,4 +6,4 @@ function AppWithSocket() {
   return <AppRoutes />;
 }
 
-export default App;
+export default AppWithSocket;
