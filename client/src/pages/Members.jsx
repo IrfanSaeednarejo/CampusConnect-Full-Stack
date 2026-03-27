@@ -8,14 +8,18 @@ import Card from "../components/common/Card";
 import Input from "../components/common/Input";
 import Button from "../components/common/Button";
 
+// Ensure mock members are only seeded once per app lifetime
+let membersInitialized = false;
+
 export default function Members() {
   const dispatch = useDispatch();
   const members = useSelector(selectFilteredMembers);
 
   // Initialize mock members data in Redux
   useEffect(() => {
-    // Only initialize if members list is empty
-    if (members.length === 0) {
+    // Only initialize once, and only if members list is empty
+    if (!membersInitialized && members.length === 0) {
+      membersInitialized = true;
       dispatch(setMembers([
         {
           id: 1,
