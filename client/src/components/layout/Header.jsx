@@ -12,9 +12,9 @@ const Header = () => {
     { label: "Mentors", path: "/mentors" },
     { label: "Members", path: "/members" },
     { label: "Societies", path: "/societies" },
-    { label: "About Us", path: "/about" },
-    { label: "Contact Us", path: "/contactUs" },
-    { label: "Dashboard", path: "/dashboard/dashboardindex" },
+    { label: "About Us", path: "/about-us" },
+    { label: "Contact Us", path: "/contact-us" },
+    { label: "Dashboard", path: "/student/dashboard" },
   ];
 
   const authButtons = [
@@ -25,13 +25,13 @@ const Header = () => {
     },
     {
       label: "Sign Up",
-      path: "/signUp",
+      path: "/signup",
       style: "bg-green-600 hover:bg-green-700",
     },
   ];
 
   const isActive = (path) => location.pathname === path;
-  const isLoginPage = ["/login", "/signIn"].includes(location.pathname);
+  const isLoginPage = ["/login", "/signup"].includes(location.pathname);
 
   return (
     <header className="bg-[#0d1117] border-b border-[#161b22] px-4 sm:px-10 py-3 sticky top-0 z-50">

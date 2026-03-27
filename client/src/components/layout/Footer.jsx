@@ -15,7 +15,7 @@ const Footer = () => {
           Terms of Service
         </Link>
         |
-        <Link className="hover:text-[#e6edf3] mx-1" to="/contactUs">
+        <Link className="hover:text-[#e6edf3] mx-1" to="/contact-us">
           Contact Us
         </Link>
       </p>
