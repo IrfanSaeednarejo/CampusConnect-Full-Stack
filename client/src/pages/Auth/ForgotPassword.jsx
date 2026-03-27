@@ -1,7 +1,7 @@
 // src/pages/Auth/ForgotPassword.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useNotification } from "@/contexts/NotificationContext.jsx";
+import { useNotification } from "../../contexts/NotificationContext.jsx";
 import AuthCard from "../../components/auth/AuthCard";
 import AuthShell from "../../components/auth/AuthShell";
 import FormField from "../../components/common/FormField";
@@ -9,7 +9,7 @@ import FormActions from "../../components/common/FormActions";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
-  const { showSuccess, showError } = useNotification();
+  const { showSuccess } = useNotification();
 
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");

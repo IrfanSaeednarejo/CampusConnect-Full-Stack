@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { selectAllEvents, setEvents } from "../redux/slices/eventSlice";
 import SectionHeader from "../components/common/SectionHeader";
