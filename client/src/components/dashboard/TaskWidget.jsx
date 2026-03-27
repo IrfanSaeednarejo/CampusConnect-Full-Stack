@@ -57,7 +57,7 @@ export default function TaskWidget({
 						type="text"
 						value={newTask}
 						onChange={(event) => onTaskChange?.(event.target.value)}
-						onKeyPress={(event) =>
+						onKeyDown={(event) =>
 							event.key === "Enter" ? onAddTask?.() : undefined
 						}
 						placeholder="Add a new task..."
