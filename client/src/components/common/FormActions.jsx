@@ -44,7 +44,7 @@ export default function FormActions({
       )}
       {onSubmit && (
         <button
-          type={onSubmit ? "button" : "submit"}
+          type="submit"
           onClick={onSubmit}
           className={`flex-1 ${variantClasses[submitVariant]} ${submitClassName} flex items-center justify-center gap-2`}
           disabled={disabled || loading}
