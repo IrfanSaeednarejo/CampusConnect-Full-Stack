@@ -10,6 +10,7 @@ import dashboardReducer from './slices/dashboardSlice';
 import studyGroupReducer from './slices/studyGroupSlice';
 import taskReducer from './slices/taskSlice';
 import chatReducer from './slices/chatSlice';
+import campusReducer from './slices/campusSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -23,6 +24,8 @@ const rootReducer = combineReducers({
   studyGroups: studyGroupReducer,
   tasks: taskReducer,
   chat: chatReducer,
+  campus: campusReducer,
 });
 
 export default rootReducer;
+

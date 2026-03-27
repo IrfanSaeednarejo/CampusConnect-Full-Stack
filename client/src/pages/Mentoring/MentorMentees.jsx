@@ -1,11 +1,9 @@
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { selectMentees, setMentees } from "../../redux/slices/mentoringSlice";
 import MentorTopBar from "../../components/mentoring/MentorTopBar";
 
 export default function MentorMentees() {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const mentees = useSelector(selectMentees);
 

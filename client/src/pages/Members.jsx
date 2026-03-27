@@ -1,13 +1,8 @@
 import { useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { selectFilteredMembers, setMembers, searchMembers } from "../redux/slices/memberSlice";
+import { selectFilteredMembers, setMembers } from "../redux/slices/memberSlice";
 import SectionHeader from "../components/common/SectionHeader";
 import MemberCard from "../components/common/MemberCard";
-import Card from "../components/common/Card";
-import Input from "../components/common/Input";
-import Button from "../components/common/Button";
-
 export default function Members() {
   const dispatch = useDispatch();
   const members = useSelector(selectFilteredMembers);

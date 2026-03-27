@@ -1,6 +1,3 @@
-// Central export for all custom hooks
-// Makes imports cleaner: import { useFormState, useNavigation } from '@/hooks';
-
 export { useFormState } from './useFormState';
 export { useNavigation } from './useNavigation';
 export { useFilterSort } from './useFilterSort';
@@ -16,8 +13,6 @@ export { useFileUpload } from './useFileUpload';
 export { useResponsive } from './useResponsive';
 export { useTheme } from './useTheme';
 export { useSocket, useSocketListener } from './useSocket.js';
-
-// Re-export context hooks for convenience
 export { useAuth } from '../contexts/AuthContext.jsx';
 export { useNotification } from '../contexts/NotificationContext.jsx';
 export { useAgent } from '../contexts/AgentContext.jsx';
