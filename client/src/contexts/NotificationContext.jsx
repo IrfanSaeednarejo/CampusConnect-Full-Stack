@@ -1,96 +1,40 @@
-// src/contexts/NotificationContext.js
-// Notification Context - manages global notifications and alerts
+import React, { createContext, useContext, useState, useCallback } from 'react';
 
-import React, { createContext, useState, useCallback } from 'react';
-
-export const NotificationContext = createContext(null);
-
-export function NotificationProvider({ children }) {
+const NotificationContext = createContext();
+export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
-  const addNotification = useCallback((notification) => {
-    const id = Date.now();
-    const newNotification = {
-      id,
-      timestamp: new Date(),
-      ...notification,
-    };
+  const showNotification = useCallback((message, type = 'info') => {
+    const id = Date.now().toString() + Math.random().toString();
+    setNotifications(prev => [...prev, { id, message, type }]);
 
-    setNotifications((prev) => [newNotification, ...prev]);
-
-    // Auto-dismiss after duration (default 5 seconds)
-    const duration = notification.duration || 5000;
-    if (duration > 0) {
-      setTimeout(() => {
-        removeNotification(id);
-      }, duration);
-    }
-
-    return id;
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 5000);
   }, []);
+
+  const showSuccess = useCallback((message) => showNotification(message, 'success'), [showNotification]);
+  const showError = useCallback((message) => showNotification(message, 'error'), [showNotification]);
+  const showWarning = useCallback((message) => showNotification(message, 'warning'), [showNotification]);
+  const showInfo = useCallback((message) => showNotification(message, 'info'), [showNotification]);
 
   const removeNotification = useCallback((id) => {
-    setNotifications((prev) => prev.filter((notif) => notif.id !== id));
+    setNotifications(prev => prev.filter(n => n.id !== id));
   }, []);
-
-  const clearNotifications = useCallback(() => {
-    setNotifications([]);
-  }, []);
-
-  const showSuccess = useCallback((message, duration) => {
-    return addNotification({
-      type: 'success',
-      message,
-      duration: duration ?? 5000,
-    });
-  }, [addNotification]);
-
-  const showError = useCallback((message, duration) => {
-    return addNotification({
-      type: 'error',
-      message,
-      duration: duration ?? 7000,
-    });
-  }, [addNotification]);
-
-  const showWarning = useCallback((message, duration) => {
-    return addNotification({
-      type: 'warning',
-      message,
-      duration: duration ?? 5000,
-    });
-  }, [addNotification]);
-
-  const showInfo = useCallback((message, duration) => {
-    return addNotification({
-      type: 'info',
-      message,
-      duration: duration ?? 5000,
-    });
-  }, [addNotification]);
-
-  const value = {
-    notifications,
-    addNotification,
-    removeNotification,
-    clearNotifications,
-    showSuccess,
-    showError,
-    showWarning,
-    showInfo,
-  };
 
   return (
-    <NotificationContext.Provider value={value}>
+    <NotificationContext.Provider value={{
+      notifications,
+      showSuccess,
+      showError,
+      showWarning,
+      showInfo,
+      showNotification,
+      removeNotification
+    }}>
       {children}
     </NotificationContext.Provider>
   );
-}
+};
 
-export function useNotification() {
-  const context = React.useContext(NotificationContext);
-  if (!context) {
-    throw new Error('useNotification must be used within NotificationProvider');
-  }
-  return context;
-}
+export const useNotification = () => useContext(NotificationContext);

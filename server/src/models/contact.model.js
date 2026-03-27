@@ -2,13 +2,13 @@ import mongoose from 'mongoose';
 
 const contactSchema = new mongoose.Schema({
     contactId: {
-        type: mongoose.Schema.Types.ObjectId,   
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true,
     },
     message: {
         type: String,
-        required: true, 
+        required: true,
         trim: true,
         maxlength: 100,
     },
