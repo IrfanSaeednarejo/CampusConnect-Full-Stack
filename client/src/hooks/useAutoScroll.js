@@ -24,7 +24,7 @@ export const useAutoScroll = (dependency, options = {}) => {
 
   useEffect(() => {
     if (enabled && ref.current) {
-      ref.current.scrollTop = ref.current.scrollHeight;
+      ref.current.scrollTo({ top: ref.current.scrollHeight, behavior });
     }
   }, [dependency, behavior, enabled]);
 
