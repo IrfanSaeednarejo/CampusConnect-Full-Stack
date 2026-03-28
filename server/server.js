@@ -11,6 +11,7 @@ dotenv.config({
 
 connectDB()
     .then(async () => {
+<<<<<<< HEAD
         // Auto-verify any existing unverified mentors (one-time migration)
         try {
             const { Mentor } = await import("./src/models/mentor.model.js");
@@ -21,6 +22,8 @@ connectDB()
         } catch (e) {
             console.warn("[Migration] Mentor auto-verify skipped:", e.message);
         }
+=======
+>>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
         app.on("error", (error) => {
             console.log("ERROR: ", error);
             throw error;
@@ -33,7 +36,11 @@ connectDB()
 
         const { initNotificationService } = await import("./src/services/notification.service.js");
         initNotificationService(app);
+<<<<<<< HEAD
 
+=======
+        
+>>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
         try {
             startEventTransitionJob(app);
         } catch (jobErr) {

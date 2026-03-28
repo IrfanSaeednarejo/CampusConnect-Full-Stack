@@ -77,7 +77,11 @@ export const registerAsMentor = async (data, requestUser) => {
         hourlyRate: parseFloat(hourlyRate) || 0,
         currency: currency?.toUpperCase() || "PKR",
         availability: parsedAvailability,
+<<<<<<< HEAD
         verified: true,
+=======
+        verified: false,
+>>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
         isActive: true,
     });
 
@@ -339,7 +343,11 @@ export const getMyBookings = async (queryParams, requestUser) => {
     if (role === "mentor") filter.mentorUserId = requestUser._id;
     else if (role === "mentee") filter.menteeId = requestUser._id;
     else filter.$or = [{ mentorUserId: requestUser._id }, { menteeId: requestUser._id }];
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
     if (status && ["pending", "confirmed", "completed", "cancelled", "no-show"].includes(status)) filter.status = status;
 
     return await paginate(MentorBooking, filter, {

@@ -6,6 +6,7 @@ import MentorWidget from "@/components/dashboard/MentorWidget";
 import SharedFooter from "../../components/common/SharedFooter";
 import MentorTopBar from "../../components/mentoring/MentorTopBar";
 import { useModal, MODAL_TYPES } from "../../contexts/ModalContext";
+<<<<<<< HEAD
 import {
   fetchSessionsThunk,
   confirmSessionThunk,
@@ -15,6 +16,14 @@ import {
   selectMentoringLoading
 } from "../../redux/slices/mentoringSlice";
 import { getMyMentorProfile } from "../../api/mentoringApi";
+=======
+import { 
+  fetchSessionsThunk, 
+  selectScheduledSessions, 
+  selectCompletedSessions, 
+  selectMentoringLoading
+} from "../../redux/slices/mentoringSlice";
+>>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
 
 export default function MentorDashboard() {
   const navigate = useNavigate();
@@ -49,6 +58,32 @@ export default function MentorDashboard() {
     !safeSearchValue || (s.menteeId?.profile?.displayName || "").toLowerCase().includes(safeSearchValue)
   );
   const filteredCompleted = completedSessions.filter(s =>
+    !safeSearchValue || (s.menteeId?.profile?.displayName || "").toLowerCase().includes(safeSearchValue)
+  );
+
+  const upcomingSessions = filteredScheduled.slice(0, 3);
+  const recentRatings = filteredCompleted
+    .filter(s => s.reviewId?.rating)
+    .slice(0, 2);
+  const pendingFeedback = filteredCompleted.filter(s => !s.reviewId);
+
+  const totalEarnings = completedSessions.reduce((sum, s) => sum + (s.mentorPayout || s.fee || 0), 0);
+
+  const scheduledSessions = useSelector(selectScheduledSessions);
+  const completedSessions = useSelector(selectCompletedSessions);
+  const loading = useSelector(selectMentoringLoading);
+  const authUser = useSelector(state => state.auth?.user);
+
+  useEffect(() => {
+    dispatch(fetchSessionsThunk());
+  }, [dispatch]);
+
+  const safeSearchValue = (searchValue || "").toLowerCase();
+
+  const filteredScheduled = scheduledSessions.filter(s => 
+    !safeSearchValue || (s.menteeId?.profile?.displayName || "").toLowerCase().includes(safeSearchValue)
+  );
+  const filteredCompleted = completedSessions.filter(s => 
     !safeSearchValue || (s.menteeId?.profile?.displayName || "").toLowerCase().includes(safeSearchValue)
   );
 
@@ -149,6 +184,7 @@ export default function MentorDashboard() {
                 ) : upcomingSessions.length > 0 ? (
                   <div className="flex flex-col gap-4">
                     {upcomingSessions.map((session) => (
+<<<<<<< HEAD
                       <div key={session._id} className="p-4 bg-[#0d1117] rounded-xl border border-[#30363d] hover:border-[#1dc964] transition-colors">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -183,6 +219,25 @@ export default function MentorDashboard() {
                             </button>
                           </div>
                         )}
+=======
+                      <div key={session._id} className="flex items-center justify-between p-4 bg-[#0d1117] rounded-xl border border-[#30363d] hover:border-[#1dc964] transition-colors cursor-pointer" onClick={() => navigate("/my-sessions")}>
+                        <div className="flex items-center gap-3">
+                          <img 
+                            src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`} 
+                            className="w-10 h-10 rounded-full"
+                            alt="Mentee"
+                          />
+                          <div>
+                            <p className="text-white font-semibold text-sm">{session.menteeId?.profile?.displayName || "Student"}</p>
+                            <p className="text-[#9eb7a9] text-xs">{new Date(session.startAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                          </div>
+                        </div>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                          session.status === 'confirmed' ? 'bg-[#1dc96422] text-[#1dc964]' : 'bg-[#e3b34122] text-[#e3b341]'
+                        }`}>
+                          {session.status}
+                        </span>
+>>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
                       </div>
                     ))}
                   </div>
@@ -251,8 +306,13 @@ export default function MentorDashboard() {
                   <div className="flex flex-col gap-3">
                     {pendingFeedback.slice(0, 3).map((session) => (
                       <div key={session._id} className="flex items-center gap-3 p-3 bg-[#0d1117] rounded-xl border border-[#30363d]">
+<<<<<<< HEAD
                         <img
                           src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`}
+=======
+                        <img 
+                          src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`} 
+>>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
                           className="w-8 h-8 rounded-full"
                           alt="Mentee"
                         />
@@ -263,6 +323,22 @@ export default function MentorDashboard() {
                         <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-[#e3b34122] text-[#e3b341]">Pending</span>
                       </div>
                     ))}
+<<<<<<< HEAD
+=======
+                  </div>
+                ) : (
+                <div
+                  className="flex flex-col items-center justify-center gap-6 py-10 text-center cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => navigate("/my-sessions")}
+                >
+                  <div className="text-[#1dc964]">
+                    <span
+                      className="material-symbols-outlined inline-block"
+                      style={{ fontSize: "64px" }}
+                    >
+                      rate_review
+                    </span>
+>>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
                   </div>
                 ) : (
                   <div
@@ -286,6 +362,10 @@ export default function MentorDashboard() {
                       </p>
                     </div>
                   </div>
+<<<<<<< HEAD
+=======
+                </div>
+>>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
                 )}
               </MentorWidget>
 
@@ -303,8 +383,13 @@ export default function MentorDashboard() {
                     {recentRatings.map((session) => (
                       <div key={session._id} className="p-4 bg-[#0d1117] rounded-xl border border-[#30363d]">
                         <div className="flex items-center gap-3 mb-3">
+<<<<<<< HEAD
                           <img
                             src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`}
+=======
+                          <img 
+                            src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`} 
+>>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
                             className="w-8 h-8 rounded-full"
                             alt="Mentee"
                           />

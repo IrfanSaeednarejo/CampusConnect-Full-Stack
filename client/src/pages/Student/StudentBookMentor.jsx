@@ -8,7 +8,11 @@ export default function StudentBookMentor() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { openModal } = useModal();
+<<<<<<< HEAD
 
+=======
+  
+>>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
   const status = useSelector((state) => state.mentors.status);
   const mentors = useSelector(selectAllMentors);
 
@@ -54,6 +58,7 @@ export default function StudentBookMentor() {
         ) : status === "succeeded" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mentors.map((mentor) => (
+<<<<<<< HEAD
               <div key={mentor._id} className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 flex flex-col hover:border-[#238636]/50 hover:shadow-lg hover:shadow-[#238636]/5 transition-all duration-300 group">
                 <div className="flex gap-4 mb-4">
                   <div
@@ -71,10 +76,24 @@ export default function StudentBookMentor() {
                         {mentor.rating > 0 ? mentor.rating.toFixed(1) : '—'}
                       </div>
                       <span className="text-[#8b949e] text-xs">({mentor.totalSessions} sessions)</span>
+=======
+              <div key={mentor._id} className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 flex flex-col hover:border-[#8b949e] transition-colors">
+                <div className="flex gap-4 mb-4">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#238636]/40 to-[#1f6feb]/40 border border-[#30363d] flex items-center justify-center flex-shrink-0 text-white font-bold text-xl">
+                    {mentor.name.charAt(0)}
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-lg leading-tight">{mentor.name}</h3>
+                    <p className="text-[#8b949e] text-sm">{mentor.title} at {mentor.company}</p>
+                    <div className="flex items-center gap-1 mt-1 text-[#d29922] text-sm font-bold">
+                      <span className="material-symbols-outlined text-[16px] text-[#d29922]">star</span>
+                      {mentor.rating} ({mentor.totalSessions} sessions)
+>>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
                     </div>
                   </div>
                 </div>
 
+<<<<<<< HEAD
                 {mentor.bio && (
                   <p className="text-[#8b949e] text-sm mb-4 line-clamp-2">{mentor.bio}</p>
                 )}
@@ -101,7 +120,23 @@ export default function StudentBookMentor() {
                     <span className="material-symbols-outlined text-[16px]">calendar_month</span>
                     Book
                   </button>
+=======
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {mentor.expertise.map((tag, idx) => (
+                    <span key={idx} className="bg-[#30363d] text-[#c9d1d9] text-xs px-2.5 py-1 rounded-full border border-transparent hover:border-[#8b949e] cursor-default transition-colors">
+                      {tag}
+                    </span>
+                  ))}
+>>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
                 </div>
+
+                <button
+                  onClick={() => openModal(MODAL_TYPES.BOOK_MENTOR, { mentor })}
+                  className="mt-auto w-full bg-[#238636] hover:bg-[#2ea043] text-white py-2.5 rounded-lg font-bold text-sm transition-colors flex items-center justify-center gap-2"
+                >
+                  <span className="material-symbols-outlined text-[18px]">calendar_month</span>
+                  Book Session
+                </button>
               </div>
             ))}
           </div>
