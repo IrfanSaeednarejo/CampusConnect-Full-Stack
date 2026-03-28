@@ -41,7 +41,11 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 // ── Storage config ──────────────────────────────────────────────────────────
 const storage = multer.diskStorage({
     destination(_req, _file, cb) {
-        cb(null, "./public/temp");
+        const dest = "./public/temp";
+        if (!fs.existsSync(dest)) {
+            fs.mkdirSync(dest, { recursive: true });
+        }
+        cb(null, dest);
     },
     filename(_req, file, cb) {
         const uniqueId = crypto.randomUUID();

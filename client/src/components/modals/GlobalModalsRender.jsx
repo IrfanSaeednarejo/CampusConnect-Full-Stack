@@ -125,40 +125,118 @@ function SessionFeedbackModal({ modalProps, closeModal, dispatch }) {
   );
 }
 
-function BookMentorModal({ modalProps, closeModal, dispatch }) {
+function BookMentorModal({ modalProps, closeModal }) {
   const [topic, setTopic] = useState("");
+  const [notes, setNotes] = useState("");
+  const [selectedDate, setSelectedDate] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
-  
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+
   const mentor = modalProps.mentor;
-  // Fallback if slots missing
-  const slots = mentor.availableSlots || ["10:00 AM", "2:00 PM", "4:00 PM"];
-  
+  const availability = mentor.availability || [];
+
+  // Generate next 7 dates that match the mentor's available days
+  const WEEKDAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+  const availableDays = [...new Set(availability.map(s => s.day))];
+
+  const upcomingDates = React.useMemo(() => {
+    const dates = [];
+    const now = new Date();
+    for (let i = 1; i <= 14 && dates.length < 7; i++) {
+      const d = new Date(now);
+      d.setDate(now.getDate() + i);
+      if (availableDays.includes(d.getDay())) {
+        dates.push(d);
+      }
+    }
+    return dates;
+  }, [availableDays]);
+
+  // Generate 1-hour slots for the selected date based on mentor's availability
+  const timeSlots = React.useMemo(() => {
+    if (!selectedDate) return [];
+    const dayOfWeek = selectedDate.getDay();
+    const daySlots = availability.filter(s => s.day === dayOfWeek);
+    const slots = [];
+    daySlots.forEach(slot => {
+      const [sh, sm] = slot.startTime.split(":").map(Number);
+      const [eh, em] = slot.endTime.split(":").map(Number);
+      const startMins = sh * 60 + sm;
+      const endMins = eh * 60 + em;
+      // Generate 1-hour blocks
+      for (let m = startMins; m + 60 <= endMins; m += 60) {
+        const hStart = Math.floor(m / 60);
+        const mStart = m % 60;
+        const hEnd = Math.floor((m + 60) / 60);
+        const mEnd = (m + 60) % 60;
+        const fmtTime = (h, mi) => {
+          const ampm = h >= 12 ? "PM" : "AM";
+          const h12 = h % 12 || 12;
+          return `${h12}:${String(mi).padStart(2, "0")} ${ampm}`;
+        };
+        slots.push({
+          label: `${fmtTime(hStart, mStart)} – ${fmtTime(hEnd, mEnd)}`,
+          startTime: `${String(hStart).padStart(2, "0")}:${String(mStart).padStart(2, "0")}`,
+          endTime: `${String(hEnd).padStart(2, "0")}:${String(mEnd).padStart(2, "0")}`,
+        });
+      }
+    });
+    return slots;
+  }, [selectedDate, availability]);
+
   const handleConfirm = async () => {
-    if (!topic.trim() || !selectedSlot) return;
+    if (!topic.trim() || !selectedSlot || !selectedDate) return;
+    setSubmitting(true);
+    setError(null);
     try {
-      const { bookMentorSession } = await import('../../redux/slices/sessionsSlice');
-      dispatch(bookMentorSession({
-        mentorId: mentor._id,
-        mentorName: mentor.name,
-        mentorTitle: mentor.title,
-        mentorCompany: mentor.company,
-        date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 2 days from now mock
-        time: selectedSlot,
-        duration: "1",
-        topic: topic
-      }));
-      closeModal();
-    } catch (e) { console.error(e); }
+      const { bookSession } = await import("../../api/mentoringApi");
+      // Build ISO date strings in UTC (backend checks availability with getUTCHours)
+      // Use local date parts to avoid timezone shift (midnight UTC+5 → previous day in UTC)
+      const y = selectedDate.getFullYear();
+      const m = String(selectedDate.getMonth() + 1).padStart(2, "0");
+      const d = String(selectedDate.getDate()).padStart(2, "0");
+      const dateStr = `${y}-${m}-${d}`;
+      const startAt = `${dateStr}T${selectedSlot.startTime}:00.000Z`;
+      const endAt = `${dateStr}T${selectedSlot.endTime}:00.000Z`;
+
+      await bookSession(mentor._id, { startAt, endAt, topic: topic.trim(), notes: notes.trim() });
+      setSuccess(true);
+      setTimeout(() => closeModal(), 2000);
+    } catch (e) {
+      console.error("[BookMentor] Error:", e);
+      setError(e?.message || e?.response?.data?.message || "Booking failed. Try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
+  if (success) {
+    return (
+      <BaseModal size="md">
+        <div className="flex flex-col items-center py-8 gap-4">
+          <span className="material-symbols-outlined text-[#238636] text-6xl">check_circle</span>
+          <h2 className="text-xl font-bold text-white">Session Booked!</h2>
+          <p className="text-[#8b949e] text-center">Your request has been sent to <strong className="text-white">{mentor.name}</strong>. They'll confirm shortly.</p>
+        </div>
+      </BaseModal>
+    );
+  }
+
   return (
-    <BaseModal size="md">
+    <BaseModal size="lg">
       <h2 className="text-xl font-bold text-white mb-1">Book a Session</h2>
-      <p className="text-[#8b949e] mb-6">with <strong className="text-white">{mentor.name}</strong> • {mentor.title}</p>
-      
-      <div className="space-y-4 mb-6">
+      <p className="text-[#8b949e] mb-5">with <strong className="text-white capitalize">{mentor.name}</strong> {mentor.hourlyRate > 0 ? `• ${mentor.currency} ${mentor.hourlyRate}/hr` : "• Free"}</p>
+
+      {error && (
+        <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{error}</div>
+      )}
+
+      <div className="space-y-5 mb-6">
+        {/* Topic */}
         <div>
-          <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Topic (Required)</label>
+          <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Topic <span className="text-red-400">*</span></label>
           <input
             type="text"
             value={topic}
@@ -168,34 +246,85 @@ function BookMentorModal({ modalProps, closeModal, dispatch }) {
           />
         </div>
 
+        {/* Notes */}
         <div>
-           <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Available Slots (Next 7 Days)</label>
-           <div className="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto">
-              {slots.map((slot, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedSlot(slot)}
-                  className={`px-3 py-2 text-sm font-medium rounded border transition-colors ${
-                    selectedSlot === slot 
-                      ? "border-[#238636] bg-[#238636]/20 text-white" 
-                      : "border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#8b949e]"
-                  }`}
-                >
-                  {slot}
-                </button>
-              ))}
-           </div>
+          <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Notes <span className="text-[#8b949e]">(optional)</span></label>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="w-full bg-[#0d1117] border border-[#30363d] focus:border-[#238636] focus:ring-1 focus:ring-[#238636] rounded-lg p-2.5 text-white outline-none h-20 resize-none"
+            placeholder="Any extra details for the mentor..."
+          />
         </div>
+
+        {/* Date Picker */}
+        <div>
+          <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Select Date <span className="text-red-400">*</span></label>
+          {upcomingDates.length === 0 ? (
+            <p className="text-[#8b949e] text-sm">This mentor hasn't set their availability yet.</p>
+          ) : (
+            <div className="flex gap-2 overflow-x-auto pb-2">
+              {upcomingDates.map((d, idx) => {
+                const isSelected = selectedDate?.toDateString() === d.toDateString();
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => { setSelectedDate(d); setSelectedSlot(null); }}
+                    className={`flex flex-col items-center min-w-[72px] px-3 py-2.5 rounded-lg border text-xs font-medium transition-all ${isSelected
+                      ? "border-[#238636] bg-[#238636]/20 text-white"
+                      : "border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#8b949e]"
+                      }`}
+                  >
+                    <span className="font-bold text-sm">{WEEKDAYS[d.getDay()].slice(0, 3)}</span>
+                    <span>{d.toLocaleDateString("en-US", { month: "short", day: "numeric" })}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Time Slots */}
+        {selectedDate && (
+          <div>
+            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Select Time <span className="text-red-400">*</span></label>
+            {timeSlots.length === 0 ? (
+              <p className="text-[#8b949e] text-sm">No time slots for this day.</p>
+            ) : (
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+                {timeSlots.map((slot, idx) => {
+                  const isSelected = selectedSlot?.label === slot.label;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => setSelectedSlot(slot)}
+                      className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all ${isSelected
+                        ? "border-[#238636] bg-[#238636]/20 text-white"
+                        : "border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#8b949e]"
+                        }`}
+                    >
+                      {slot.label}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
-      <div className="flex justify-end gap-3 pt-2 border-t border-[#30363d]">
+      <div className="flex justify-end gap-3 pt-3 border-t border-[#30363d]">
         <button onClick={closeModal} className="px-4 py-2 border border-[#30363d] text-[#c9d1d9] rounded-lg hover:bg-[#30363d] transition-colors font-medium">Cancel</button>
-        <button 
-          onClick={handleConfirm} 
-          disabled={!topic.trim() || !selectedSlot} 
-          className="px-4 py-2 bg-[#238636] text-white rounded-lg hover:bg-[#2ea043] transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+        <button
+          onClick={handleConfirm}
+          disabled={!topic.trim() || !selectedSlot || submitting}
+          className="px-5 py-2 bg-[#238636] text-white rounded-lg hover:bg-[#2ea043] transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
-          Confirm Booking
+          {submitting ? (
+            <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> Booking...</>
+          ) : (
+            <><span className="material-symbols-outlined text-[16px]">calendar_month</span> Confirm Booking</>
+          )}
         </button>
       </div>
     </BaseModal>

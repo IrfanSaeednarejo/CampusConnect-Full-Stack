@@ -6,18 +6,22 @@ import MentorWidget from "@/components/dashboard/MentorWidget";
 import SharedFooter from "../../components/common/SharedFooter";
 import MentorTopBar from "../../components/mentoring/MentorTopBar";
 import { useModal, MODAL_TYPES } from "../../contexts/ModalContext";
-import { 
-  fetchSessionsThunk, 
-  selectScheduledSessions, 
-  selectCompletedSessions, 
+import {
+  fetchSessionsThunk,
+  confirmSessionThunk,
+  cancelSessionThunk,
+  selectScheduledSessions,
+  selectCompletedSessions,
   selectMentoringLoading
 } from "../../redux/slices/mentoringSlice";
+import { getMyMentorProfile } from "../../api/mentoringApi";
 
 export default function MentorDashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { openModal } = useModal();
   const [searchValue, setSearchValue] = useState("");
+  const [needsRegistration, setNeedsRegistration] = useState(false);
 
   const scheduledSessions = useSelector(selectScheduledSessions);
   const completedSessions = useSelector(selectCompletedSessions);
@@ -26,14 +30,25 @@ export default function MentorDashboard() {
 
   useEffect(() => {
     dispatch(fetchSessionsThunk());
+    // Check if the mentor profile exists
+    getMyMentorProfile()
+      .then(() => setNeedsRegistration(false))
+      .catch((err) => {
+        console.error("[MentorDashboard] Profile check error:", err);
+        const status = err?.statusCode || err?.response?.status || err?.status;
+        const msg = (err?.message || err?.response?.data?.message || err?.data?.message || "").toLowerCase();
+        if (status === 404 || msg.includes("register as a mentor") || msg.includes("not found")) {
+          setNeedsRegistration(true);
+        }
+      });
   }, [dispatch]);
 
   const safeSearchValue = (searchValue || "").toLowerCase();
 
-  const filteredScheduled = scheduledSessions.filter(s => 
+  const filteredScheduled = scheduledSessions.filter(s =>
     !safeSearchValue || (s.menteeId?.profile?.displayName || "").toLowerCase().includes(safeSearchValue)
   );
-  const filteredCompleted = completedSessions.filter(s => 
+  const filteredCompleted = completedSessions.filter(s =>
     !safeSearchValue || (s.menteeId?.profile?.displayName || "").toLowerCase().includes(safeSearchValue)
   );
 
@@ -96,6 +111,26 @@ export default function MentorDashboard() {
               </button>
             </div>
 
+            {/* Registration Banner */}
+            {needsRegistration && (
+              <div className="mb-6 p-5 bg-[#e3b341]/10 border border-[#e3b341]/30 rounded-xl flex flex-wrap items-center gap-4">
+                <span className="material-symbols-outlined text-[#e3b341] text-3xl">info</span>
+                <div className="flex-1 min-w-[200px]">
+                  <p className="text-white font-bold text-sm">Complete Your Mentor Profile</p>
+                  <p className="text-[#9eb7a9] text-xs mt-0.5">
+                    You need to register as a mentor before you can set availability, accept sessions, or earn.
+                  </p>
+                </div>
+                <button
+                  onClick={() => navigate("/mentor-registration")}
+                  className="flex items-center gap-2 px-5 py-2.5 bg-[#1dc964] text-[#112118] rounded-lg font-bold text-sm hover:opacity-90 transition-opacity"
+                >
+                  <span className="material-symbols-outlined text-sm">how_to_reg</span>
+                  Register Now
+                </button>
+              </div>
+            )}
+
             {/* Widgets Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Upcoming Sessions (2 columns) */}
@@ -114,23 +149,40 @@ export default function MentorDashboard() {
                 ) : upcomingSessions.length > 0 ? (
                   <div className="flex flex-col gap-4">
                     {upcomingSessions.map((session) => (
-                      <div key={session._id} className="flex items-center justify-between p-4 bg-[#0d1117] rounded-xl border border-[#30363d] hover:border-[#1dc964] transition-colors cursor-pointer" onClick={() => navigate("/my-sessions")}>
-                        <div className="flex items-center gap-3">
-                          <img 
-                            src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`} 
-                            className="w-10 h-10 rounded-full"
-                            alt="Mentee"
-                          />
-                          <div>
-                            <p className="text-white font-semibold text-sm">{session.menteeId?.profile?.displayName || "Student"}</p>
-                            <p className="text-[#9eb7a9] text-xs">{new Date(session.startAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                      <div key={session._id} className="p-4 bg-[#0d1117] rounded-xl border border-[#30363d] hover:border-[#1dc964] transition-colors">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`}
+                              className="w-10 h-10 rounded-full"
+                              alt="Mentee"
+                            />
+                            <div>
+                              <p className="text-white font-semibold text-sm">{session.menteeId?.profile?.displayName || "Student"}</p>
+                              <p className="text-[#9eb7a9] text-xs">{new Date(session.startAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} • {session.duration || 60} min</p>
+                            </div>
                           </div>
+                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${session.status === 'confirmed' ? 'bg-[#1dc96422] text-[#1dc964]' : 'bg-[#e3b34122] text-[#e3b341]'}`}>
+                            {session.status}
+                          </span>
                         </div>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                          session.status === 'confirmed' ? 'bg-[#1dc96422] text-[#1dc964]' : 'bg-[#e3b34122] text-[#e3b341]'
-                        }`}>
-                          {session.status}
-                        </span>
+                        {session.topic && <p className="text-[#9eb7a9] text-xs mt-2 pl-[52px]">Topic: {session.topic}</p>}
+                        {session.status === 'pending' && (
+                          <div className="flex gap-2 mt-3 pl-[52px]">
+                            <button
+                              onClick={() => dispatch(confirmSessionThunk(session._id))}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-[#1dc964] text-[#112118] rounded-lg text-xs font-bold hover:opacity-90 transition-opacity"
+                            >
+                              <span className="material-symbols-outlined text-[14px]">check</span> Confirm
+                            </button>
+                            <button
+                              onClick={() => dispatch(cancelSessionThunk(session._id))}
+                              className="flex items-center gap-1 px-3 py-1.5 bg-transparent border border-[#f85149] text-[#f85149] rounded-lg text-xs font-bold hover:bg-[#f85149]/10 transition-colors"
+                            >
+                              <span className="material-symbols-outlined text-[14px]">close</span> Decline
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
@@ -199,8 +251,8 @@ export default function MentorDashboard() {
                   <div className="flex flex-col gap-3">
                     {pendingFeedback.slice(0, 3).map((session) => (
                       <div key={session._id} className="flex items-center gap-3 p-3 bg-[#0d1117] rounded-xl border border-[#30363d]">
-                        <img 
-                          src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`} 
+                        <img
+                          src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`}
                           className="w-8 h-8 rounded-full"
                           alt="Mentee"
                         />
@@ -213,27 +265,27 @@ export default function MentorDashboard() {
                     ))}
                   </div>
                 ) : (
-                <div
-                  className="flex flex-col items-center justify-center gap-6 py-10 text-center cursor-pointer hover:opacity-80 transition-opacity"
-                  onClick={() => navigate("/my-sessions")}
-                >
-                  <div className="text-[#1dc964]">
-                    <span
-                      className="material-symbols-outlined inline-block"
-                      style={{ fontSize: "64px" }}
-                    >
-                      rate_review
-                    </span>
+                  <div
+                    className="flex flex-col items-center justify-center gap-6 py-10 text-center cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => navigate("/my-sessions")}
+                  >
+                    <div className="text-[#1dc964]">
+                      <span
+                        className="material-symbols-outlined inline-block"
+                        style={{ fontSize: "64px" }}
+                      >
+                        rate_review
+                      </span>
+                    </div>
+                    <div className="flex max-w-[480px] flex-col items-center gap-2">
+                      <p className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
+                        All Caught Up!
+                      </p>
+                      <p className="text-[#9eb7a9] text-sm font-normal leading-normal max-w-[480px]">
+                        You have no pending feedback requests.
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex max-w-[480px] flex-col items-center gap-2">
-                    <p className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-                      All Caught Up!
-                    </p>
-                    <p className="text-[#9eb7a9] text-sm font-normal leading-normal max-w-[480px]">
-                      You have no pending feedback requests.
-                    </p>
-                  </div>
-                </div>
                 )}
               </MentorWidget>
 
@@ -251,8 +303,8 @@ export default function MentorDashboard() {
                     {recentRatings.map((session) => (
                       <div key={session._id} className="p-4 bg-[#0d1117] rounded-xl border border-[#30363d]">
                         <div className="flex items-center gap-3 mb-3">
-                          <img 
-                            src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`} 
+                          <img
+                            src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`}
                             className="w-8 h-8 rounded-full"
                             alt="Mentee"
                           />

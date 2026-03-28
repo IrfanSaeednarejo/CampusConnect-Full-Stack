@@ -50,7 +50,7 @@ export default function MentorRegistration() {
 
       const payload = {
         bio: formData.bio,
-        expertise: typeof formData.expertise === 'string' 
+        expertise: typeof formData.expertise === 'string'
           ? formData.expertise.split(',').map(s => s.trim()).filter(Boolean)
           : formData.expertise,
         categories: ["technical"], // Default for now
@@ -63,11 +63,19 @@ export default function MentorRegistration() {
         throw new Error("Please enter at least one area of expertise.");
       }
 
-      await applyAsMentor(payload);
+      console.log("[MentorRegistration] Submitting payload:", payload);
+      const response = await applyAsMentor(payload);
+      console.log("[MentorRegistration] Success response:", response);
       navigate("/mentor/dashboard");
     } catch (err) {
-      console.error("Registration error:", err);
-      setError(err?.message || "Something went wrong. Please try again.");
+      console.error("[MentorRegistration] Full error object:", err);
+      // Extract message from various error shapes
+      const errorMessage =
+        err?.response?.data?.message ||    // Axios error with backend response
+        err?.data?.message ||              // Already unwrapped by API layer
+        err?.message ||                    // Standard error or ApiError
+        "Something went wrong. Please try again.";
+      setError(errorMessage);
     } finally {
       setSubmitting(false);
     }
@@ -359,11 +367,10 @@ export default function MentorRegistration() {
                     <button
                       onClick={handleBack}
                       disabled={currentStep === 1 || submitting}
-                      className={`flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#161b22] border border-[#30363d] text-white text-sm font-bold leading-normal tracking-[0.015em] ${
-                        currentStep === 1 || submitting
-                          ? "opacity-50 cursor-not-allowed"
-                          : "hover:bg-[#21262d]"
-                      }`}
+                      className={`flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#161b22] border border-[#30363d] text-white text-sm font-bold leading-normal tracking-[0.015em] ${currentStep === 1 || submitting
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-[#21262d]"
+                        }`}
                     >
                       <span className="truncate">Back</span>
                     </button>
@@ -382,8 +389,14 @@ export default function MentorRegistration() {
                     </button>
                   </div>
                 </div>
-                {error && <p className="text-red-500 text-xs mt-2 text-right">{error}</p>}
-
+                {error && (
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="material-symbols-outlined text-red-400 text-lg">error</span>
+                      <p className="font-medium">{error}</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Info Box */}
