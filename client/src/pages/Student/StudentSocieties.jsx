@@ -79,14 +79,20 @@ export default function StudentSocieties() {
   
   const [activeTab, setActiveTab] = useState("all");
 
+  // Get user profile and auth state
+  const userProfile = useSelector((state) => state.user?.profile);
+  const authUser = useSelector((state) => state.auth?.user);
+  const campusId = authUser?.campusId || userProfile?.campusId;
+
   const status = useSelector((state) => state.societiesLegacy?.status);
   const allSocieties = useSelector((state) => state.societiesLegacy?.items || []);
   const mySocieties = useSelector(selectMySocieties);
   const discoverSocieties = useSelector(selectDiscoverSocieties);
 
   useEffect(() => {
-    dispatch(fetchSocieties());
-  }, [dispatch]);
+    const filters = campusId ? { campusId } : {};
+    dispatch(fetchSocieties(filters));
+  }, [dispatch, campusId]);
 
   let displaySocieties = [];
   if (activeTab === "all") displaySocieties = allSocieties;
@@ -100,7 +106,7 @@ export default function StudentSocieties() {
       <main className="px-4 sm:px-10 lg:px-20 py-5 md:py-10 max-w-6xl mx-auto">
         <div className="mb-8 flex flex-col gap-2">
           <h1 className="text-4xl font-bold text-white">Societies & Clubs</h1>
-          <p className="text-[#8b949e]">Join communities and make meaningful connections.</p>
+          <p className="text-[#8b949e]">Join communities and make meaningful connections in your campus.</p>
         </div>
 
         {/* Filter Tabs */}
@@ -145,11 +151,13 @@ export default function StudentSocieties() {
           <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-16 flex flex-col items-center justify-center text-center">
             <span className="material-symbols-outlined text-6xl text-[#8b949e] mb-4">search_off</span>
             <h3 className="text-xl font-bold text-white mb-2">No societies found</h3>
-            <p className="text-[#8b949e]">There are no societies in this category.</p>
+            <p className="text-[#8b949e]">There are no societies in this category for your campus.</p>
           </div>
         ) : status === 'succeeded' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displaySocieties.map((society) => (
+            {displaySocieties.map((society) => {
+              const imgUrl = society.media?.logo || society.logo;
+              return (
               <div
                 key={society._id}
                 className="bg-[#161b22] border border-[#30363d] rounded-xl p-5 flex flex-col hover:border-[#238636]/50 transition-colors relative"
@@ -161,9 +169,16 @@ export default function StudentSocieties() {
 
                 {/* Society Header */}
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#238636]/40 to-[#1f6feb]/40 flex flex-shrink-0 items-center justify-center text-white text-xl font-bold border border-[#30363d]">
-                    {society.name.charAt(0)}
-                  </div>
+                  {imgUrl?.length < 5 ? (
+                    <div className="w-14 h-14 rounded-full bg-[#0d1117] flex flex-shrink-0 items-center justify-center text-3xl border border-[#30363d]">
+                      {imgUrl}
+                    </div>
+                  ) : (
+                    <div 
+                      className="w-14 h-14 rounded-full bg-cover bg-center flex flex-shrink-0 border border-[#30363d]"
+                      style={{ backgroundImage: `url("${imgUrl || '/placeholder-society.png'}")` }}
+                    />
+                  )}
                   <div className="flex flex-col pr-12">
                     <h3 className="text-white font-bold text-lg leading-tight">{society.name}</h3>
                     {society.userRole && (
@@ -193,10 +208,10 @@ export default function StudentSocieties() {
                 {/* Buttons Component */}
                 <SocietyActionBlock 
                   society={society} 
-                  tab={society.isMember ? "my" : "discover"} 
+                  tab={society.isMember || society.isCreator ? "my" : "discover"} 
                 />
               </div>
-            ))}
+            )})}
           </div>
         ) : null}
       </main>

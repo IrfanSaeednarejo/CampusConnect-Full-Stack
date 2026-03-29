@@ -292,6 +292,7 @@ userSchema.methods.generateAccessToken = function () {
             email: this.email,
             displayName: this.profile.displayName,
             roles: this.roles,
+            campusId: this.campusId,
             tokenVersion: this.tokenVersion,
         },
         process.env.ACCESS_TOKEN_SECRET,

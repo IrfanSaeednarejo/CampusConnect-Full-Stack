@@ -74,6 +74,7 @@ export function AuthProvider({ children }) {
       email: user.email,
       avatar: user.avatar || '',
       department: user.department || '',
+      campusId: user.campusId,
       // Password MUST NOT be stored in frontend state
     };
 

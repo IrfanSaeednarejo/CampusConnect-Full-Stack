@@ -103,15 +103,20 @@ export default function StudentEvents() {
   
   const [activeTab, setActiveTab] = useState("upcoming");
 
+  // Get user profile and auth state
+  const userProfile = useSelector((state) => state.user?.profile);
+  const authUser = useSelector((state) => state.auth?.user);
+  const campusId = authUser?.campusId || userProfile?.campusId;
+
   const status = useSelector((state) => state.eventsLegacy?.status);
   const upcomingEvents = useSelector(selectUpcomingEvents);
   const pastEvents = useSelector(selectPastEvents);
-  // Also fetching ongoing to display in upcoming tab
   const ongoingEvents = useSelector(selectOngoingEvents);
 
   useEffect(() => {
-    dispatch(fetchEvents());
-  }, [dispatch]);
+    const filters = campusId ? { campusId } : {};
+    dispatch(fetchEvents(filters));
+  }, [dispatch, campusId]);
 
   const displayEvents = activeTab === "upcoming" ? [...ongoingEvents, ...upcomingEvents] : pastEvents;
 
@@ -123,7 +128,7 @@ export default function StudentEvents() {
       <main className="px-4 sm:px-10 lg:px-20 py-5 md:py-10 max-w-6xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">All Events</h1>
-          <p className="text-[#8b949e]">Discover and register for campus events.</p>
+          <p className="text-[#8b949e]">Discover and register for campus events in your institution.</p>
         </div>
 
         {/* Filter Tabs */}
@@ -182,7 +187,12 @@ export default function StudentEvents() {
                 className="bg-[#161b22] border border-[#30363d] rounded-lg flex flex-col overflow-hidden hover:border-[#238636]/50 transition-colors"
               >
                 {/* Event Image Placeholder */}
-                <div className="h-40 bg-gradient-to-tr from-[#238636]/20 to-[#1f6feb]/20 relative">
+                <div className="h-40 bg-[#161b22] relative overflow-hidden">
+                  <div 
+                    className="absolute inset-0 bg-cover bg-center transition-transform hover:scale-105"
+                    style={{ backgroundImage: `url("${event.coverImage || event.image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuD9RA_fMuSaLKstjcMP5ozR-vSaxtqQ_kzINRu0QEbitLaiaOGSvhHQ0t3zi1Py769dste1tAWujcMGzeKsHP3LIDU8GpBrAtxlzAEKMTgoN2PCuAMYnxMVStac_6sgv9hNluDqsTZg4B7sFD-1sE6Uqn7KpdMC_eKzapyTUfan20XYGE2tBdjBB1D9B7MnCMh1-NNhn67QqbuDD5OKhys_-_9nTeollnRzd23QBgopcA4rmFIaSDdXU_42pp-765L5mTwpjWlySM8'}")` }}
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0d1117] to-transparent opacity-60"></div>
                   <div className="absolute top-3 right-3">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-bold border ${
@@ -202,7 +212,7 @@ export default function StudentEvents() {
                 <div className="p-5 flex flex-col flex-1 gap-4">
                   <div>
                     <p className="text-[#8b949e] text-xs font-medium uppercase tracking-wider mb-1">
-                      {event.organizer}
+                      {event.organizer || event.society?.name || "Society Event"}
                     </p>
                     <h3 className="text-white text-lg font-bold leading-tight">
                       {event.title}
@@ -218,7 +228,7 @@ export default function StudentEvents() {
                     <div className="flex items-center gap-2 text-[#c9d1d9] text-sm">
                       <span className="material-symbols-outlined text-[#8b949e]">calendar_month</span>
                       <span>
-                        {new Date(event.startTime).toLocaleDateString()}
+                        {new Date(event.startAt || event.startTime).toLocaleDateString()}
                       </span>
                     </div>
                     <div className="flex items-center gap-2 text-[#c9d1d9] text-sm">

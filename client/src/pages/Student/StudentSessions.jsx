@@ -108,7 +108,7 @@ function SessionCard({ session, activeTab, openModal }) {
     <div className={`bg-[#161b22] border border-[#30363d] p-6 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-[#8b949e] transition-colors ${isLoading ? 'opacity-50' : ''}`}>
       <div className="flex items-start gap-4">
         <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#238636]/40 to-[#1f6feb]/40 flex items-center justify-center flex-shrink-0 border border-[#30363d] text-white font-bold text-xl">
-          {session.mentorName.charAt(0)}
+          {session.mentorName?.charAt(0) || "M"}
         </div>
         <div>
           <h3 className="text-white text-lg font-bold leading-tight flex items-center gap-2 mb-1">

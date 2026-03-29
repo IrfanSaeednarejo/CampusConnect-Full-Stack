@@ -32,8 +32,11 @@ export default function StudentDashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   
-  // Redux selectors — now from async slices (synced with mockStorage)
+  // Get user profile and auth state
   const userProfile = useSelector(selectUserProfile);
+  const authUser = useSelector((state) => state.auth?.user);
+  const campusId = authUser?.campusId || userProfile?.campusId;
+
   const upcomingEvents = useSelector(selectUpcomingEvents) || [];
   const ongoingEvents = useSelector(selectOngoingEvents) || [];
   const registeredSocieties = useSelector(selectMySocieties) || [];
@@ -44,10 +47,14 @@ export default function StudentDashboard() {
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
 
-  // FIX [C3/S2]: Fetch data from mockStorage via async thunks
+  // Fetch data - removed strict campusId filtering to ensure all content is visible as requested
   useEffect(() => {
-    dispatch(fetchEvents());
-    dispatch(fetchSocieties());
+    // We can still pass campusId if we want to prioritize it, 
+    // but the backend will now return more results.
+    // For "All societies or events", we'll just fetch without strict filter if the user wants.
+    const filters = {}; 
+    dispatch(fetchEvents(filters));
+    dispatch(fetchSocieties(filters));
     dispatch(fetchNotifications());
     dispatch(fetchSessions());
   }, [dispatch]);

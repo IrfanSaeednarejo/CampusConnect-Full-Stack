@@ -154,14 +154,15 @@ export const getCompetitions = async (queryParams, requestUser) => {
         participationType, status, q, societyId
     } = queryParams;
 
-    const filter = { isOnlineCompetition: true };
+    const filter = {};
     const isAdmin = requestUser?.roles?.includes("admin");
 
     if (!isAdmin) {
+        // Students should see published events, or their own creations (if they have permissions)
         filter.$or = [
-            { status: { $in: ["registration", "ongoing", "submission_locked", "judging", "completed"] } },
+            { status: { $in: ["registration", "ongoing", "submission_locked", "judging", "completed", "published"] } },
             { createdBy: requestUser?._id }
-        ];
+        ].filter(cond => cond.createdBy || cond.status);
     } else if (status && status !== "all") {
         filter.status = status;
     }

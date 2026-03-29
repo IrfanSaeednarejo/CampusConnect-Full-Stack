@@ -58,8 +58,8 @@ export default function Login() {
         password: form.password,
       });
 
-      // Backend returns: { statusCode, data: { user, accessToken, refreshToken }, message }
-      const { user, accessToken } = response.data.data;
+      // Backend returns: { statusCode, data: { user, accessToken, refreshToken }, message, success }
+      const { user, accessToken } = response.data;
 
       // Determine the user's primary role (backend returns roles as an array)
       const userRole = user.roles?.[0] || "student";
@@ -72,6 +72,7 @@ export default function Login() {
           email: user.email,
           avatar: user.profile?.avatar || "",
           department: user.profile?.department || "",
+          campusId: user.campusId,
         },
         role: userRole,
         token: accessToken,

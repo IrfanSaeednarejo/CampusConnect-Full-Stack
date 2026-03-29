@@ -4,8 +4,18 @@ import { getMentoringSessions, bookSession as bookMentorSessionApi, cancelSessio
 export const fetchSessions = createAsyncThunk('sessions/fetchAll', async (_, { rejectWithValue }) => {
   try {
     const response = await getMentoringSessions();
-    // response is the ApiResponse body: { success, data: { docs, pagination }, ... }
-    return response.data?.docs || (Array.isArray(response.data) ? response.data : []);
+    const docs = response.data?.docs || (Array.isArray(response.data) ? response.data : []);
+    
+    // Map and flatten for UI consumption
+    return docs.map(s => ({
+      ...s,
+      mentorName: s.mentorId?.userId?.profile?.displayName || "Mentor",
+      mentorAvatar: s.mentorId?.userId?.profile?.avatar || "",
+      mentorTitle: s.mentorId?.tier || "Peer Mentor",
+      mentorCompany: "CampusConnect", // Default or extract if available
+      date: s.startAt ? new Date(s.startAt).toLocaleDateString([], { dateStyle: 'medium' }) : "TBD",
+      time: s.startAt ? new Date(s.startAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "TBD",
+    }));
   } catch (error) {
     return rejectWithValue(error?.message || 'Failed to fetch sessions');
   }

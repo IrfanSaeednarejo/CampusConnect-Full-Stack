@@ -4,6 +4,8 @@ import { createNewSociety } from "../../redux/slices/societySlice";
 import { useNavigate } from "react-router-dom";
 import FormField from "@/components/common/FormField";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
+import { useAuth } from "@/contexts/AuthContext";
+import { getAllCampuses } from "../../api/campusApi";
 
 const CATEGORIES = [
   { label: "Academic", value: "academic" },
@@ -26,7 +28,10 @@ export default function CreateSocietyModal({ closeModal }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [campuses, setCampuses] = useState([]);
+  const [fetchingCampuses, setFetchingCampuses] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -34,7 +39,33 @@ export default function CreateSocietyModal({ closeModal }) {
     description: "",
     category: "tech",
     logo: "🚀",
+    campusId: user?.campusId || user?.profile?.campusId || "",
   });
+
+  // Fetch all available campuses on component mount
+  React.useEffect(() => {
+    const fetchCampuses = async () => {
+      setFetchingCampuses(true);
+      try {
+        const response = await getAllCampuses();
+        // Backend returns: { statusCode, data: { campuses: [], pagination: {} }, message, success }
+        const campusesList = response.data?.campuses || response.data || response || [];
+        setCampuses(Array.isArray(campusesList) ? campusesList : []);
+        
+        // If the user's campus is still missing after fetch,
+        // and only one campus exists, default to it.
+        if (!formData.campusId && Array.isArray(campusesList) && campusesList.length === 1) {
+          setFormData(prev => ({ ...prev, campusId: campusesList[0]._id }));
+        }
+      } catch (err) {
+        console.error("Failed to fetch campuses:", err);
+        setCampuses([]);
+      } finally {
+        setFetchingCampuses(false);
+      }
+    };
+    fetchCampuses();
+  }, [user]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -45,19 +76,33 @@ export default function CreateSocietyModal({ closeModal }) {
     e.preventDefault();
     if (!formData.name.trim() || !formData.category) return;
     
+    // Tag pre-validation
+    const tag = formData.tag.trim();
+    if (!tag) {
+        showError("Society tag (acronym) is required.");
+        return;
+    }
+    if (tag.length < 3) {
+        showError("Tag must be at least 3 characters long (e.g., 'DSC').");
+        return;
+    }
+    
     setLoading(true);
     try {
-      // The backend expects an object. Using FormData if there's an actual file, 
-      // but here we just pass the object, since 'logo' is an emoji text here or a tag. 
-      // Our API might expect `{ name, description, Category, etc }`. 
-      // Let's assume it accepts standard JSON for now.
+      // Ensure campusId is present
+      if (!formData.campusId) {
+        throw new Error("Campus selection is required to create a society.");
+      }
+
       await dispatch(createNewSociety(formData)).unwrap();
       showSuccess("Society created successfully!");
       closeModal();
       navigate("/society/dashboard");
     } catch (err) {
-      console.error(err);
-      showError(err?.message || "Failed to create society.");
+      console.error("Failed to create society:", err);
+      // Use the actual error message from the backend if available
+      const errorMessage = typeof err === 'string' ? err : (err.message || 'Failed to create society');
+      showError(errorMessage);
     } finally {
       setLoading(false);
     }
@@ -142,6 +187,27 @@ export default function CreateSocietyModal({ closeModal }) {
                 required
                 className="bg-[#0d1117] border-[#30363d] resize-none"
               />
+
+              {/* Campus Selector - Only show if not automatically determined or multiple options exist */}
+              {(!user?.campusId || campuses.length > 1) && (
+                <FormField
+                  label="Select Campus"
+                  name="campusId"
+                  type="select"
+                  value={formData.campusId}
+                  onChange={handleChange}
+                  required
+                  disabled={fetchingCampuses}
+                  className="bg-[#0d1117] border-[#30363d]"
+                >
+                  <option value="">Select your university campus</option>
+                  {campuses.map((c) => (
+                    <option key={c._id} value={c._id}>
+                      {c.name} ({c.city})
+                    </option>
+                  ))}
+                </FormField>
+              )}
             </div>
           </section>
 

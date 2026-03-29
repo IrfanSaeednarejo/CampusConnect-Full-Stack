@@ -91,8 +91,9 @@ export default function Signup() {
       // Call the real backend API
       const response = await signupApi(formData);
 
-      // Backend returns: { statusCode, data: { ...userObject }, message }
-      const user = response.data.data;
+      // Backend returns: { statusCode, data: { ...userObject }, message, success }
+      const user = response.data;
+      
 
       // Determine the user's primary role
       const userRole = user?.roles?.[0] || form.role;

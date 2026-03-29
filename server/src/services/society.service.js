@@ -170,7 +170,7 @@ export const createSociety = async (data, file, requestUser) => {
     if (!nameTrimmed || !tagTrimmed) throw new ApiError(400, "Name and Tag are required");
     if (tagTrimmed.length < 3) throw new ApiError(400, "Tag must be at least 3 characters");
 
-    const resolvedCampusId = campusId || requestUser.campusId;
+    const resolvedCampusId = campusId || requestUser.campusId || requestUser.profile?.campusId;
     if (!resolvedCampusId) throw new ApiError(400, "Campus ID is required — update your profile or provide campusId");
 
     const existingSociety = await Society.findOne({
@@ -182,16 +182,48 @@ export const createSociety = async (data, file, requestUser) => {
     }
 
     const logoLocalPath = file?.path;
-    const logo = logoLocalPath ? await uploadFile(logoLocalPath) : null;
+    const logoFile = logoLocalPath ? await uploadFile(logoLocalPath) : null;
+    
+    // Use the uploaded file URL, or the emoji/text logo from the body if no file is present
+    const finalLogo = logoFile ? logoFile.secure_url : data.logo;
 
-    const society = await Society.create({
-        name: nameTrimmed, description: description?.trim() || "", tag: tagTrimmed,
-        category: category || "other", campusId: resolvedCampusId, createdBy: requestUser._id,
-        members: [{ memberId: requestUser._id, role: "executive", status: "approved", joinedAt: new Date() }],
-        memberCount: 1, ...(logo && { media: { logo: logo.secure_url, logoPublicId: logo.public_id } }),
-    });
+    try {
+        const society = await Society.create({
+            name: nameTrimmed,
+            description: description || "",
+            tag: tagTrimmed,
+            category: category || "other",
+            campusId: resolvedCampusId,
+            createdBy: requestUser._id,
+            members: [
+                {
+                    memberId: requestUser._id,
+                    role: "executive",
+                    status: "approved",
+                },
+            ],
+            memberCount: 1,
+            media: {
+                logo: finalLogo || "",
+            },
+        });
 
-    return await Society.findById(society._id).populate("createdBy", "profile.displayName profile.avatar");
+        const createdSociety = await Society.findById(society._id)
+            .populate("campusId", "name slug")
+            .populate("createdBy", "name username avatar");
+
+        return createdSociety;
+    } catch (error) {
+        if (error.code === 11000) {
+            const field = Object.keys(error.keyPattern)[0];
+            throw new ApiError(409, `A society with this ${field} already exists globally.`);
+        }
+        if (error.name === "ValidationError") {
+            const messages = Object.values(error.errors).map(err => err.message);
+            throw new ApiError(400, messages.join(", "));
+        }
+        throw error;
+    }
 };
 
 export const updateSociety = async (societyId, data, file, requestUser) => {

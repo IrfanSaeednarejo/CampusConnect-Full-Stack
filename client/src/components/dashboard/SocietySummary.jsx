@@ -56,7 +56,7 @@ export default function SocietySummary({
 						];
 						const colorIndex = society.name ? society.name.length % colors.length : 0;
 						const colorClass = colors[colorIndex];
-						const imgUrl = society.logo || society.image;
+						const imgUrl = society.logo || society.image || society.media?.logo;
 
 						return (
 							<div
@@ -65,10 +65,16 @@ export default function SocietySummary({
 							>
 								<div className="flex items-center gap-4 flex-1 min-w-0">
 									{imgUrl ? (
-										<div
-											className="w-10 h-10 flex-shrink-0 rounded-md bg-cover bg-center border border-[#29382f]"
-											style={{ backgroundImage: `url("${imgUrl}")` }}
-										/>
+										imgUrl.length < 5 ? (
+											<div className={`w-10 h-10 flex-shrink-0 rounded-md flex items-center justify-center text-2xl border border-[#29382f] bg-[#0d1117]`}>
+												{imgUrl}
+											</div>
+										) : (
+											<div
+												className="w-10 h-10 flex-shrink-0 rounded-md bg-cover bg-center border border-[#29382f]"
+												style={{ backgroundImage: `url("${imgUrl}")` }}
+											/>
+										)
 									) : (
 										<div className={`w-10 h-10 flex-shrink-0 rounded-md flex items-center justify-center text-white text-lg font-bold shadow-sm ${colorClass}`}>
 											{initial}
@@ -111,7 +117,7 @@ export default function SocietySummary({
 						const colorClass = colors[
 							(society._id || society.id || "").charCodeAt(0) % colors.length
 						] || colors[0];
-						const imgUrl = society.logo || society.image;
+						const imgUrl = society.logo || society.image || society.media?.logo;
 
 						return (
 							<button
@@ -120,10 +126,16 @@ export default function SocietySummary({
 								className="flex flex-col items-center gap-2 text-center hover:opacity-80 transition-opacity cursor-pointer group"
 							>
 								{imgUrl ? (
-									<div
-										className="w-16 h-16 rounded-full bg-cover bg-center bg-no-repeat ring-2 ring-transparent group-hover:ring-[#238636] transition-all"
-										style={{ backgroundImage: `url("${imgUrl}")` }}
-									/>
+									imgUrl.length < 5 ? (
+										<div className="w-16 h-16 rounded-full flex items-center justify-center text-3xl ring-2 ring-transparent group-hover:ring-[#238636] transition-all bg-[#0d1117] border border-[#30363d]">
+											{imgUrl}
+										</div>
+									) : (
+										<div
+											className="w-16 h-16 rounded-full bg-cover bg-center bg-no-repeat ring-2 ring-transparent group-hover:ring-[#238636] transition-all"
+											style={{ backgroundImage: `url("${imgUrl}")` }}
+										/>
+									)
 								) : (
 									<div className={`w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold ring-2 ring-transparent group-hover:ring-[#238636] transition-all ${colorClass}`}>
 										{initial}
