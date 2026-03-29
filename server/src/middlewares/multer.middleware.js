@@ -1,6 +1,7 @@
 import multer from "multer";
 import crypto from "crypto";
 import path from "path";
+import fs from "fs";
 import { ApiError } from "../utils/ApiError.js";
 
 // ── Allowed MIME types ──────────────────────────────────────────────────────
@@ -41,15 +42,11 @@ const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 // ── Storage config ──────────────────────────────────────────────────────────
 const storage = multer.diskStorage({
     destination(_req, _file, cb) {
-<<<<<<< HEAD
         const dest = "./public/temp";
         if (!fs.existsSync(dest)) {
             fs.mkdirSync(dest, { recursive: true });
         }
         cb(null, dest);
-=======
-        cb(null, "./public/temp");
->>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
     },
     filename(_req, file, cb) {
         const uniqueId = crypto.randomUUID();
