@@ -12,7 +12,7 @@ import {
 } from "../../redux/slices/chatSlice";
 import ChatPageShell from "../../components/chat/ChatPageShell";
 import { useChatPageState } from "./ChatList";
-import groupMessages from "../../data/StudyGroupChatMessagesMock.json";
+const groupMessages = [];
 
 const buildSeedMessages = () =>
 	(groupMessages || []).map((msg) => ({

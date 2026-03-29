@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { selectUserProfile } from "@/redux/slices/userSlice";
-import { selectUpcomingEvents, setUpcomingEvents } from "@/redux/slices/eventSlice";
-import { selectRegisteredSocieties, setRegisteredSocieties } from "@/redux/slices/societySlice";
-import { selectAllNotifications, setNotifications } from "@/redux/slices/notificationSlice";
+import { selectUpcomingEvents } from "@/redux/slices/eventSlice";
+import { selectRegisteredSocieties } from "@/redux/slices/societySlice";
+import { selectNotifications } from "@/redux/slices/notificationSlice";
 import Button from "@/components/common/Button";
 import EventCard from "@/components/dashboard/EventCard";
 import NotificationWidget from "@/components/dashboard/NotificationWidget";
@@ -19,93 +19,16 @@ export default function StudentDashboard() {
   const userProfile = useSelector(selectUserProfile);
   const upcomingEvents = useSelector(selectUpcomingEvents);
   const registeredSocieties = useSelector(selectRegisteredSocieties);
-  const notifications = useSelector(selectAllNotifications);
+  const notifications = useSelector(selectNotifications);
   
   // Local state for tasks
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
 
-  // Initialize mock data in Redux on component mount
+  // Data fetched from API via thunks inside respective pages/components
   useEffect(() => {
-    // Mock upcoming events
-    if (upcomingEvents.length === 0) {
-      dispatch(setUpcomingEvents([
-        {
-          id: 1,
-          society: "IEEE Student Chapter",
-          title: "Annual Tech Symposium",
-          date: "Wed, Oct 26, 10:00 AM",
-          image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuD9RA_fMuSaLKstjcMP5ozR-vSaxtqQ_kzINRu0QEbitLaiaOGSvhHQ0t3zi1Py769dste1tAWujcMGzeKsHP3LIDU8GpBrAtxlzAEKMTgoN2PCuAMYnxMVStac_6sgv9hNluDqsTZg4B7sFD-1sE6Uqn7KpdMC_eKzapyTUfan20XYGE2tBdjBB1D9B7MnCMh1-NNhn67QqbuDD5OKhys_-_9nTeollnRzd23QBgopcA4rmFIaSDdXU_42pp-765L5mTwpjWlySM8",
-        },
-        {
-          id: 2,
-          society: "Debating Society",
-          title: "Inter-University Debate Finals",
-          date: "Fri, Nov 4, 2:00 PM",
-          image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuD3-_oIn91suwJp2Y7wxBTs3ZPaq72Kd3QtdHOL6EAqtQ0n6pEncU7_La8js5jGDp5Kdnq6kTZFIlzvBwNVVXL5B8iD9ywnZP35iPGjqP-dyZRon4S-2U8RENBHlJUtbWJIHeZQJOH_qCScqBVJG5Ri7fhSA5tI5wwhJ4JT1kRXW3-4TlUwqiyRTBJIKwu8tDxKOBltGDVxpO6MiMUlxREPa1y6MTdQbrVx5MJtWEMJiNqfhjjzGPSRGTe4ThsX54Y986W9h7baUy0",
-        },
-      ]));
-    }
-
-    // Mock registered societies
-    if (registeredSocieties.length === 0) {
-      dispatch(setRegisteredSocieties([
-        {
-          id: 1,
-          name: "IEEE Chapter",
-          image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuA5tRFcE_pFi824MNGNisea0s5XZIR-b-IBAuIchECnJ8ET_u-MZqJKAyC1Cd23hxZ-D0-3ffLxaYR2zyFNLQmsHcU3Iruq3o4_vdBPWs1U7i8yk5F34fm_X6kO9H3r8GanzhHM0DrnO_jKDwK2Ab9Xg-H6Tn7lEQKQnLKqhIGiJK9_1BI7njNayzMDHBkmlbjVHXmYsdsbfWllwCUJLUJx0x3aCnvMx8K49KhPKH4lhFB9yeHgKSJb8pin4eAoUF2y0YxIY0qw4GI",
-        },
-        {
-          id: 2,
-          name: "Debating Society",
-          image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuDoQNTWTBvvjCWzGT4LSr1h0qdUOa09wVzKeBx1TX53dyRxgmKHYTDS1TN_XJ-VLe34SDS9ynUpvRNZSRm9Ye3nIOTGeARiF7VoBHRUOoJngE52BBV8TselfYt8GNnQI7A7KevlQzgglbGZlfLMMrKCIFTH_dcWm8clNTFCXKbZchH9FtsE5gMqjY5bl9q-XSz00KbL43PLMbTkQKskFEdjkkYVQLBXyt7kcQRB0O_KhbQDbbDkd0EZRslHm881dAppEobIhYUK95E",
-        },
-        {
-          id: 3,
-          name: "AI Club",
-          image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuDAw7PEHr5CfYENft29JzW_oh8UNy32igeFcIciwY4SLganFizb8gE_yaxTVMUXknXfbbs2veZ4hzrA5Bs6a1Amq2ATMtYS80ZqCfzGd9qYy9u34e2BhMiLfD5hiXIkVwi6DhktH82Ew4leVgs1NDu1MCD6_6Er0SpmlF-WFut93bD157Ns9za1uJCd0Q0dMJoYX8vfND6G0ekTtV3V1Ff_HoP50ErEPHX7P00DVl6K2njjP26CKL39vwnOHDDERwHbVFUbwVixkXY",
-        },
-        {
-          id: 4,
-          name: "Photography Club",
-          image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuBUb85ANOhOOBeBqSWd-wOjgFd2X0JCzolY-1hBJfJLPjgh0RfRot_aA7obi-3MbWJEWkp-4EOoKaQsxsXaQF0pQ9_q_NaYN4s8cQJ4w2_2cSVD2afeq_WLhwcjHdqA2L-hS7UiUQHqGRXQZ8e8Sm4KhRJ2_iwsPPiMvNwiHZ_JYeAdQdFb2EItrr5p2Qq1QGaRbiLF5b1_EN7VGa92MVgICDZ6Bl4CG_zB56DJg_8QU-44tuOXEc9QEJPAmSZPLZFMMJYsIDE-has",
-        },
-      ]));
-    }
-
-    // Mock notifications
-    if (notifications.length === 0) {
-      dispatch(setNotifications([
-        {
-          id: 1,
-          icon: "campaign",
-          title: "New announcement in AI Club.",
-          time: "5 minutes ago",
-          read: false,
-        },
-        {
-          id: 2,
-          icon: "event_available",
-          title: "Annual Tech Symposium starts in 1 hour.",
-          time: "2 hours ago",
-          read: false,
-        },
-        {
-          id: 3,
-          icon: "chat",
-          title: "Dr. Evans sent you a message.",
-          time: "1 day ago",
-          read: true,
-        },
-      ]));
-    }
-  }, [dispatch, upcomingEvents.length, registeredSocieties.length, notifications.length]);
+    // Empty for now: global fetches happen in Root/Layout or specifically in Dashboard component if needed
+  }, [dispatch]);
 
   const handleAddTask = () => {
     if (newTask.trim()) {

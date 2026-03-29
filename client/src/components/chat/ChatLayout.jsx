@@ -7,10 +7,11 @@ import React, { useState } from 'react';
 import { Home, Calendar, Users, Settings, LogOut, MessageSquare } from 'lucide-react';
 import ChatSidebar from './ChatSidebar';
 import ChatWindow from './Chatwindow';
-import mockData from "../../data/ChatMock.json";
 import "../../styles/components/chat.scss";
 
-const { mockUsers, mockGroups, mockMessages } = mockData;
+const mockUsers = [];
+const mockGroups = [];
+const mockMessages = {};
 
 const ChatLayout = () => {
   // Combine users and groups

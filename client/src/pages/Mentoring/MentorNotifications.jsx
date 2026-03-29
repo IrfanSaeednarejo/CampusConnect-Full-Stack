@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { selectAllNotifications, selectUnreadCount, setNotifications, markAsRead, markAllAsRead, removeNotification } from "../../redux/slices/notificationSlice";
+import { selectNotifications as selectAllNotifications, selectUnreadCount, markAsRead, markAllAsRead, removeNotification } from "../../redux/slices/notificationSlice";
 import MentorTopBar from "../../components/mentoring/MentorTopBar";
 
 export default function MentorNotifications() {
@@ -13,65 +13,8 @@ export default function MentorNotifications() {
   const [activeTab, setActiveTab] = useState("all");
 
   useEffect(() => {
-    if (notifications.length === 0) {
-      dispatch(setNotifications([
-        {
-          id: 1,
-          type: "session_booked",
-          title: "New Session Booked",
-          message:
-            "John Doe has booked a session with you on Feb 20, 2024 at 10:00 AM",
-          timestamp: "2024-02-15 10:30 AM",
-          read: false,
-          icon: "calendar_add_on",
-          color: "#1dc964",
-        },
-        {
-          id: 2,
-          type: "rating_received",
-          title: "New Rating Received",
-          message:
-            "Jane Smith left you a 5-star rating for your React Advanced Patterns session",
-          timestamp: "2024-02-14 3:45 PM",
-          read: false,
-          icon: "star",
-          color: "#fbbf24",
-        },
-        {
-          id: 3,
-          type: "message",
-          title: "New Message",
-          message:
-            'Alex Johnson sent you a message: "Thanks for the great session!"',
-          timestamp: "2024-02-13 2:15 PM",
-          read: false,
-          icon: "mail",
-          color: "#3b82f6",
-        },
-        {
-          id: 4,
-          type: "payment",
-          title: "Payment Received",
-          message:
-            "You received $150 for your completed session with Sarah Williams",
-          timestamp: "2024-02-12 11:00 AM",
-          read: true,
-          icon: "attach_money",
-          color: "#10b981",
-        },
-        {
-          id: 5,
-          type: "feedback_pending",
-          title: "Feedback Pending",
-          message: "Please provide feedback for your session with Michael Chen",
-          timestamp: "2024-02-11 4:00 PM",
-          read: true,
-          icon: "rate_review",
-          color: "#f87171",
-        },
-      ]));
-    }
-  }, [dispatch, notifications.length]);
+    // Notifications fetched globally
+  }, [dispatch]);
 
   const handleMarkAsRead = (id) => {
     dispatch(markAsRead(id));

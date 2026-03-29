@@ -17,7 +17,7 @@ import Mentors from "../pages/Mentors";
 import Members from "../pages/Members";
 import Societies from "../pages/Societies";
 import AboutUs from "../pages/Misc/About";
-import ContactUs from "../pages/ContactUs";
+import ContactUs from "../pages/Help/ContactUs";
 import PrivacyPolicy from "../pages/Misc/PrivacyPolicy";
 import TermsOfService from "../pages/Misc/TermsOfService";
 

@@ -189,6 +189,17 @@ const chatSlice = createSlice({
 			state.connection.error = error || null;
 			if (isConnected) state.connection.lastConnectedAt = new Date().toISOString();
 		},
+		setReplyTo: (state) => {},
+		clearReplyTo: (state) => {},
+		setEditingMessage: (state) => {},
+		clearEditingMessage: (state) => {},
+		deleteMessageForMe: (state) => {},
+		toggleArchiveConversation: (state) => {},
+		clearConversation: (state) => {},
+		setSearchQuery: (state) => {},
+		forwardMessageToConversation: (state) => {},
+		syncPendingMessages: (state) => {},
+		retryMessage: (state) => {},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -253,6 +264,17 @@ export const {
 	setForwardingMessage,
 	clearForwardingMessage,
 	setConnectionStatus,
+	setReplyTo,
+	clearReplyTo,
+	setEditingMessage,
+	clearEditingMessage,
+	deleteMessageForMe,
+	toggleArchiveConversation,
+	clearConversation,
+	setSearchQuery,
+	forwardMessageToConversation,
+	syncPendingMessages,
+	retryMessage,
 } = chatSlice.actions;
 
 export const selectConversations = (state) => state.chat.conversations;
@@ -262,5 +284,18 @@ export const selectSelectedConversationId = (state) => state.chat.selectedConver
 export const selectTypingByConversation = (state) => state.chat.typingByConversation;
 export const selectChatLoading = (state) => state.chat.loading;
 export const selectChatConnection = (state) => state.chat.connection;
+export const selectDirectConversations = (state) => state.chat.conversations;
+export const selectDirectConversationById = (id) => (state) =>
+	state.chat.conversations.find((c) => c.id === id);
+export const selectPinnedConversations = (state) => state.chat.pinnedConversations || [];
+export const selectArchivedConversations = (state) => state.chat.archivedConversations || [];
+export const selectMutedConversations = (state) => state.chat.mutedConversations || [];
+export const selectDraftsByConversation = (state) => state.chat.draftsByConversation || {};
+export const selectSearchByConversation = (state) => ({});
+export const selectHiddenMessagesByConversation = (state) => ({});
+export const selectForwardingMessage = (state) => state.chat.forwardingMessage || null;
+export const selectLastSeenByConversation = (state) => ({});
+
+export const sendMessage = sendMessageThunk;
 
 export default chatSlice.reducer;

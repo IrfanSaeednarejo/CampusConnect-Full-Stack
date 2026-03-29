@@ -25,7 +25,7 @@ export const fetchUnreadCount = createAsyncThunk(
   }
 );
 
-export const markAsReadThunk = createAsyncThunk(
+export const markAsRead = createAsyncThunk(
   'notifications/markAsRead',
   async (id, { rejectWithValue }) => {
     try {
@@ -37,11 +37,23 @@ export const markAsReadThunk = createAsyncThunk(
   }
 );
 
-export const markAllReadThunk = createAsyncThunk(
+export const markAllAsRead = createAsyncThunk(
   'notifications/markAllRead',
   async (_, { rejectWithValue }) => {
     try {
       await notificationApi.markAllAsRead();
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
+export const removeNotification = createAsyncThunk(
+  'notifications/remove',
+  async (id, { rejectWithValue }) => {
+    try {
+      await notificationApi.deleteNotification(id);
+      return id;
     } catch (err) {
       return rejectWithValue(err.message);
     }
@@ -99,16 +111,25 @@ const notificationSlice = createSlice({
       state.unreadCount = action.payload;
     });
 
-    builder.addCase(markAsReadThunk.fulfilled, (state, action) => {
+    builder.addCase(markAsRead.fulfilled, (state, action) => {
       const id = action.payload;
       const n = state.notifications.find((n) => n._id === id);
       if (n) n.read = true;
       state.unreadCount = Math.max(0, state.unreadCount - 1);
     });
 
-    builder.addCase(markAllReadThunk.fulfilled, (state) => {
+    builder.addCase(markAllAsRead.fulfilled, (state) => {
       state.notifications.forEach((n) => (n.read = true));
       state.unreadCount = 0;
+    });
+
+    builder.addCase(removeNotification.fulfilled, (state, action) => {
+      const id = action.payload;
+      const n = state.notifications.find((n) => n._id === id);
+      if (n && !n.read) {
+        state.unreadCount = Math.max(0, state.unreadCount - 1);
+      }
+      state.notifications = state.notifications.filter((notif) => notif._id !== id);
     });
   },
 });

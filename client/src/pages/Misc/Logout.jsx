@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { logout as logoutAction, clearOnboarding } from "../../redux/slices/authSlice";
+import { logout as logoutAction } from "../../redux/slices/authSlice";
 import { resetUserState } from "../../redux/slices/userSlice";
 import { clearAllNotifications } from "../../redux/slices/notificationSlice";
 import { useAuth } from "../../contexts/AuthContext.jsx";
@@ -14,7 +14,6 @@ export default function Logout() {
 	useEffect(() => {
 		logout();
 		dispatch(logoutAction());
-		dispatch(clearOnboarding());
 		dispatch(resetUserState());
 		dispatch(clearAllNotifications());
 		navigate("/login", { replace: true });
