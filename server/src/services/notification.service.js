@@ -2,6 +2,9 @@ import mongoose from "mongoose";
 import { ApiError } from "../utils/ApiError.js";
 import { Notification } from "../models/notification.model.js";
 import { paginate } from "../utils/paginate.js";
+import { systemEvents } from "../utils/events.js";
+import { EventTeam } from "../models/eventTeam.model.js";
+import { emitNotification } from "../sockets/notification.socket.js";
 
 export const getMyNotifications = async (queryParams, requestUser) => {
     const { page = 1, limit = 20, unreadOnly } = queryParams;
@@ -66,4 +69,44 @@ export const deleteNotification = async (notificationId, userId) => {
     }
 
     return true;
+};
+
+export const initNotificationService = (app) => {
+    systemEvents.on("notification:create:bulk", async (data) => {
+        try {
+            const { eventId, type, title, body, ref, refModel, actorId } = data;
+            const teams = await EventTeam.find({ eventId, status: { $in: ["forming", "registered"] } }).select("members.userId");
+            const userIds = [...new Set(teams.flatMap(t => t.members.map(m => m.userId.toString())))];
+
+            if (userIds.length === 0) return;
+
+            const notifications = userIds.map(userId => ({
+                userId, type, title, body, ref, refModel, actorId
+            }));
+
+            const created = await Notification.insertMany(notifications);
+            const io = app.get("io");
+            if (io) {
+                created.forEach(notif => {
+                    emitNotification(io, notif.userId, notif);
+                });
+            }
+        } catch (error) {
+            console.error("[Notification Service] Bulk create error:", error.message);
+        }
+    });
+
+    systemEvents.on("notification:create", async (data) => {
+        try {
+            const n = await Notification.create(data);
+            const io = app.get("io");
+            if (io) {
+                emitNotification(io, n.userId, n);
+            }
+        } catch (error) {
+            console.error("[Notification Service] Single create error:", error.message);
+        }
+    });
+
+    console.info("[Notification Service] Initialized — listening for systemEvents");
 };

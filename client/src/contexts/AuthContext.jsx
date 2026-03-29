@@ -8,5 +8,3 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   return <>{children}</>;
 };
-
-export default AuthContext = React.createContext();
