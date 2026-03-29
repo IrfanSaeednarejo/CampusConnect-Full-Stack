@@ -20,8 +20,6 @@ export default function EditProfile() {
   
   const [campuses, setCampuses] = useState([]);
 
-  const [campuses, setCampuses] = useState([]);
-
   const [form, setForm] = useState({
     name: user?.name || userProfile?.name || "",
     email: user?.email || userProfile?.email || "",
@@ -31,11 +29,7 @@ export default function EditProfile() {
     campusId: user?.campusId || userProfile?.campusId || "",
   });
 
-<<<<<<< HEAD
   useEffect(() => {
-=======
-  useState(() => {
->>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
     const fetchCampuses = async () => {
       try {
         const res = await getAllCampuses();
@@ -78,13 +72,8 @@ export default function EditProfile() {
 
       // Update user in AuthContext with fresh data
       if (updateUser) {
-<<<<<<< HEAD
         updateUser({
           name: form.name,
-=======
-        updateUser({ 
-          name: form.name, 
->>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
           email: form.email,
           campusId: form.campusId
         });

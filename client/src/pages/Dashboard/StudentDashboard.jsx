@@ -16,6 +16,10 @@ import {
   fetchNotifications,
   selectAllNotifications,
 } from "@/redux/slices/notificationsSlice";
+import {
+  fetchSessions,
+  selectUpcomingSessions,
+} from "@/redux/slices/sessionsSlice";
 
 import Button from "@/components/common/Button";
 import EventCard from "@/components/dashboard/EventCard";
@@ -34,6 +38,7 @@ export default function StudentDashboard() {
   const ongoingEvents = useSelector(selectOngoingEvents) || [];
   const registeredSocieties = useSelector(selectMySocieties) || [];
   const notifications = useSelector(selectAllNotifications) || [];
+  const upcomingSessions = useSelector(selectUpcomingSessions) || [];
   
   // Local state for tasks
   const [tasks, setTasks] = useState([]);
@@ -44,6 +49,7 @@ export default function StudentDashboard() {
     dispatch(fetchEvents());
     dispatch(fetchSocieties());
     dispatch(fetchNotifications());
+    dispatch(fetchSessions());
   }, [dispatch]);
 
   const handleAddTask = () => {
@@ -135,20 +141,49 @@ export default function StudentDashboard() {
                   <h2 className="text-[#c9d1d9] text-xl font-bold leading-tight tracking-tight mb-4">
                     Mentoring Sessions
                   </h2>
-                  <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 flex flex-col items-center text-center gap-4">
-                    <span className="text-5xl text-[#3d444d]">👨‍💼</span>
-                    <p className="text-[#c9d1d9]">No upcoming sessions.</p>
-                    <p className="text-[#8b949e] text-sm">
-                      Connect with experienced peers and alumni to guide your
-                      academic journey.
-                    </p>
-                    <Button
-                      onClick={() => navigate("/student/sessions")}
-                      variant="primary"
-                      className="w-full"
-                    >
-                      <span>View My Sessions</span>
-                    </Button>
+                  <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 flex flex-col gap-4">
+                    {upcomingSessions.length > 0 ? (
+                      <div className="flex flex-col gap-3">
+                        {upcomingSessions.slice(0, 2).map((session) => (
+                          <div key={session._id} className="p-3 bg-[#0d1117] border border-[#30363d] rounded-lg flex items-center justify-between group hover:border-[#238636] transition-colors">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-[#238636]/20 flex items-center justify-center text-[#238636] font-bold text-xs capitalize">
+                                {session.mentorName?.charAt(0) || "M"}
+                              </div>
+                              <div>
+                                <p className="text-white text-sm font-semibold">{session.mentorName || "Mentor"}</p>
+                                <p className="text-[#8b949e] text-[10px]">{session.date} • {session.time}</p>
+                              </div>
+                            </div>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${session.status === 'confirmed' ? 'bg-[#238636]/20 text-[#238636]' : 'bg-[#e3b341]/20 text-[#e3b341]'}`}>
+                              {session.status}
+                            </span>
+                          </div>
+                        ))}
+                        <Button
+                          onClick={() => navigate("/student/sessions")}
+                          variant="secondary"
+                          className="w-full text-xs py-2"
+                        >
+                          View All ({upcomingSessions.length})
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center text-center gap-3 py-4">
+                        <span className="text-4xl text-[#3d444d]">👨‍💼</span>
+                        <p className="text-[#c9d1d9] text-sm">No upcoming sessions.</p>
+                        <p className="text-[#8b949e] text-xs">
+                          Connect with experienced peers and alumni.
+                        </p>
+                        <Button
+                          onClick={() => navigate("/student/book-mentor")}
+                          variant="primary"
+                          className="w-full py-2 text-sm"
+                        >
+                          <span>Book Now</span>
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </section>
 

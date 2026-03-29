@@ -3,13 +3,9 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import * as mentoringService from "../services/mentoring.service.js";
 
 const registerAsMentor = asyncHandler(async (req, res) => {
-<<<<<<< HEAD
     console.log("[MentorController] registerAsMentor called by user:", req.user?._id, "body:", JSON.stringify(req.body));
     const created = await mentoringService.registerAsMentor(req.body, req.user);
     console.log("[MentorController] Mentor created:", created?._id);
-=======
-    const created = await mentoringService.registerAsMentor(req.body, req.user);
->>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
     return res.status(201).json(new ApiResponse(201, created, "Mentor profile created. Pending admin verification."));
 });
 
@@ -24,13 +20,9 @@ const getMentors = asyncHandler(async (req, res) => {
 });
 
 const getMyMentorProfile = asyncHandler(async (req, res) => {
-<<<<<<< HEAD
     console.log("[MentorController] getMyMentorProfile called by user:", req.user?._id);
     const mentor = await mentoringService.getMyMentorProfile(req.user);
     console.log("[MentorController] getMyMentorProfile result:", mentor?._id || "null");
-=======
-    const mentor = await mentoringService.getMyMentorProfile(req.user);
->>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
     return res.status(200).json(new ApiResponse(200, mentor, "Mentor profile fetched successfully"));
 });
 

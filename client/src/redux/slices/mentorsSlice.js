@@ -4,7 +4,6 @@ import { getAllMentors, getMentorById } from '../../api/mentoringApi';
 export const fetchMentors = createAsyncThunk('mentors/fetchAll', async (filters = {}, { rejectWithValue }) => {
   try {
     const response = await getAllMentors(filters);
-<<<<<<< HEAD
     // Backend returns: { statusCode, data: { docs: [...], pagination }, message }
     const raw = response.data;
     const docs = Array.isArray(raw) ? raw : (raw?.docs || raw?.mentors || []);
@@ -30,9 +29,6 @@ export const fetchMentors = createAsyncThunk('mentors/fetchAll', async (filters 
       verified: m.verified,
       isActive: m.isActive,
     }));
-=======
-    return Array.isArray(response.data) ? response.data : (response.data?.mentors || []);
->>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
   } catch (error) {
     return rejectWithValue(error?.message || 'Failed to fetch mentors');
   }
@@ -62,7 +58,6 @@ const mentorsSlice = createSlice({
     builder.addCase(fetchMentors.pending, (state) => { state.status = 'loading'; state.error = null; })
       .addCase(fetchMentors.fulfilled, (state, action) => { state.status = 'succeeded'; state.items = action.payload; })
       .addCase(fetchMentors.rejected, (state, action) => { state.status = 'failed'; state.error = action.payload; });
-<<<<<<< HEAD
 
     // fetchMentorById
     builder.addCase(fetchMentorById.pending, (state) => { state.actionLoading.currentMentor = true; })
@@ -73,18 +68,6 @@ const mentorsSlice = createSlice({
       .addCase(fetchMentorById.rejected, (state, action) => {
         state.actionLoading.currentMentor = false;
         state.error = action.payload;
-=======
-    
-    // fetchMentorById
-    builder.addCase(fetchMentorById.pending, (state) => { state.actionLoading.currentMentor = true; })
-      .addCase(fetchMentorById.fulfilled, (state, action) => { 
-        state.actionLoading.currentMentor = false; 
-        state.currentMentor = action.payload; 
-      })
-      .addCase(fetchMentorById.rejected, (state, action) => { 
-        state.actionLoading.currentMentor = false; 
-        state.error = action.payload; 
->>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
       });
   }
 });

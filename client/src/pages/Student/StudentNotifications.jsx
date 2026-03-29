@@ -27,9 +27,8 @@ export default function StudentNotifications() {
   const displayedNotifs = activeTab === 'All' 
     ? allNotifs 
     : allNotifs.filter(n => {
-        if (activeTab === 'Events') return n.type === 'event';
         if (activeTab === 'Societies') return n.type === 'society';
-        if (activeTab === 'Sessions') return n.type === 'session';
+        if (activeTab === 'Sessions') return n.type === 'session' || n.type === 'mentor_booking';
         if (activeTab === 'Tasks') return n.type === 'task';
         if (activeTab === 'System') return n.type === 'system';
         return false;
@@ -56,8 +55,8 @@ export default function StudentNotifications() {
 
   const handleNotifClick = (notif) => {
     // FIX BUG 5: isRead becomes true when user clicks anywhere on the row
-    if (!notif.isRead) {
-      dispatch(markNotificationRead(notif.id));
+    if (!notif.read) {
+      dispatch(markNotificationRead(notif._id || notif.id));
     }
     // PRESERVED: Navigate to related path feature works perfectly
     if (notif.relatedPath) {
@@ -74,7 +73,8 @@ export default function StudentNotifications() {
     switch (type) {
       case 'event': return { icon: 'calendar_month', bg: 'bg-blue-500/20', text: 'text-blue-500' };
       case 'society': return { icon: 'groups', bg: 'bg-purple-500/20', text: 'text-purple-500' };
-      case 'session': return { icon: 'videocam', bg: 'bg-green-500/20', text: 'text-green-500' };
+      case 'session':
+      case 'mentor_booking': return { icon: 'videocam', bg: 'bg-green-500/20', text: 'text-green-500' };
       case 'task': return { icon: 'task_alt', bg: 'bg-orange-500/20', text: 'text-orange-500' };
       case 'system': return { icon: 'notifications', bg: 'bg-gray-500/20', text: 'text-gray-400' };
       default: return { icon: 'info', bg: 'bg-gray-500/20', text: 'text-gray-400' };
@@ -166,7 +166,7 @@ export default function StudentNotifications() {
                         className={`
                           group relative flex items-start gap-5 p-6 cursor-pointer
                           border-b border-[#30363d]/30 last:border-0 transition-all duration-300
-                          ${notif.isRead 
+                          ${notif.read 
                             ? 'hover:bg-white/5 bg-transparent' 
                             : 'bg-blue-600/5 hover:bg-blue-600/10 border-l-4 border-l-blue-500 shadow-[inset_0_0_30px_rgba(59,130,246,0.03)]'}
                         `}
@@ -180,7 +180,7 @@ export default function StudentNotifications() {
                         <div className="flex-1 min-w-0 pr-16">
                           <div className="flex justify-between items-start gap-2 mb-1">
                             {/* FIX [Bug 5]: Unread title text is bold white, read is lighter gray text */}
-                            <h3 className={`text-base truncate ${notif.isRead ? 'text-gray-300 font-normal' : 'text-white font-semibold'}`}>
+                            <h3 className={`text-base truncate ${notif.read ? 'text-gray-300 font-normal' : 'text-white font-semibold'}`}>
                               {notif.title}
                             </h3>
                             <span className="text-xs text-[#8b949e] whitespace-nowrap mt-1 flex-none hidden sm:block">
@@ -207,7 +207,7 @@ export default function StudentNotifications() {
                           </button>
 
                           {/* FIX [Bug 5]: Unread dot, right side of row, blue flex-none */}
-                          {!notif.isRead && (
+                          {!notif.read && (
                             <div className="w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)] flex-none group-hover:opacity-0 transition-opacity"></div>
                           )}
                         </div>

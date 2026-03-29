@@ -27,14 +27,9 @@ export default function SocietyDashboard() {
 
   const displayName =
     user?.profile?.displayName ||
-<<<<<<< HEAD
-    `${user?.profile?.firstName || ""} ${user?.profile?.lastName || ""
-      }`.trim() ||
-=======
     `${user?.profile?.firstName || ""} ${
       user?.profile?.lastName || ""
     }`.trim() ||
->>>>>>> 662eb16bfc824ad3e4b2402400cb51f91082e029
     user?.email?.split("@")[0] ||
     "Society Head";
 

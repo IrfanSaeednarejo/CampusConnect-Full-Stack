@@ -4,7 +4,8 @@ import { getMentoringSessions, bookSession as bookMentorSessionApi, cancelSessio
 export const fetchSessions = createAsyncThunk('sessions/fetchAll', async (_, { rejectWithValue }) => {
   try {
     const response = await getMentoringSessions();
-    return Array.isArray(response.data) ? response.data : (response.data?.bookings || response.data?.sessions || []);
+    // response is the ApiResponse body: { success, data: { docs, pagination }, ... }
+    return response.data?.docs || (Array.isArray(response.data) ? response.data : []);
   } catch (error) {
     return rejectWithValue(error?.message || 'Failed to fetch sessions');
   }
@@ -101,6 +102,6 @@ export const { addSessionLocally } = sessionsSlice.actions;
 export default sessionsSlice.reducer;
 
 // Selectors
-export const selectUpcomingSessions = (state) => (state.sessions?.items || []).filter(s => s.status === 'upcoming' || s.status === 'scheduled');
+export const selectUpcomingSessions = (state) => (state.sessions?.items || []).filter(s => ['pending', 'confirmed'].includes(s.status));
 export const selectCompletedSessions = (state) => (state.sessions?.items || []).filter(s => s.status === 'completed');
 export const selectSessionActionLoading = (state, sessionId) => !!state.sessions?.actionLoading?.[sessionId];

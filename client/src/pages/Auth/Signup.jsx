@@ -92,7 +92,7 @@ export default function Signup() {
       const response = await signupApi(formData);
 
       // Backend returns: { statusCode, data: { ...userObject }, message }
-      const user = response.data;
+      const user = response.data.data;
 
       // Determine the user's primary role
       const userRole = user?.roles?.[0] || form.role;

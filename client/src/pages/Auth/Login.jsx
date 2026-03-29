@@ -59,7 +59,7 @@ export default function Login() {
       });
 
       // Backend returns: { statusCode, data: { user, accessToken, refreshToken }, message }
-      const { user, accessToken } = response.data;
+      const { user, accessToken } = response.data.data;
 
       // Determine the user's primary role (backend returns roles as an array)
       const userRole = user.roles?.[0] || "student";

@@ -14,7 +14,8 @@ export const fetchNotifications = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await getUserNotifications();
-      return Array.isArray(response) ? response : (response.notifications || []);
+      // response is the ApiResponse body: { success, data: { docs, pagination }, ... }
+      return response.data?.docs || [];
     } catch (error) {
       return rejectWithValue(error?.message || 'Failed to fetch notifications');
     }
@@ -76,11 +77,11 @@ const notificationsSlice = createSlice({
     // Synchronous optimists
     markAsRead: (state, action) => {
       const notif = state.items.find((n) => n._id === action.payload);
-      if (notif) notif.isRead = true;
+      if (notif) notif.read = true;
     },
     markAllAsRead: (state) => {
       state.items.forEach((n) => {
-        n.isRead = true;
+        n.read = true;
       });
     },
     removeNotification: (state, action) => {
@@ -110,11 +111,11 @@ const notificationsSlice = createSlice({
       })
       .addCase(markNotificationRead.fulfilled, (state, action) => {
         const notif = state.items.find((n) => n._id === action.payload);
-        if (notif) notif.isRead = true;
+        if (notif) notif.read = true;
       })
       .addCase(markAllNotificationsRead.fulfilled, (state) => {
         state.items.forEach((n) => {
-          n.isRead = true;
+          n.read = true;
         });
       })
       .addCase(deleteNotification.fulfilled, (state, action) => {
@@ -135,7 +136,7 @@ export const {
 // Selectors
 export const selectAllNotifications = (state) => state.notifications?.items || [];
 export const selectUnreadCount = (state) =>
-  (state.notifications?.items || []).filter((n) => !n.isRead).length;
+  (state.notifications?.items || []).filter((n) => !n.read).length;
 export const selectNotificationsByType = (state, type) =>
   (state.notifications?.items || []).filter((n) => n.type === type);
 

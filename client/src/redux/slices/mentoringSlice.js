@@ -35,7 +35,8 @@ export const fetchSessionsThunk = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const response = await getMentoringSessions();
-      return response.data; // Paginated response.docs or direct array? Based on service: it returns paginated object.
+      // response is the ApiResponse body: { success, data: { docs, pagination }, ... }
+      return response.data?.docs || (Array.isArray(response.data) ? response.data : []);
     } catch (error) {
       return rejectWithValue(error?.message || 'Failed to fetch sessions');
     }
@@ -217,11 +218,13 @@ const mentoringSlice = createSlice({
       })
       .addCase(fetchSessionsThunk.fulfilled, (state, action) => {
         state.loading = false;
-        // Based on service, it returns a paginated object { docs: [...] }
-        const sessions = action.payload.docs || action.payload;
-        state.scheduledSessions = sessions.filter(s => ['pending', 'confirmed'].includes(s.status));
-        state.completedSessions = sessions.filter(s => s.status === 'completed');
-        state.sessions = sessions;
+        // The thunk now returns the array directly
+        const sessions = action.payload;
+        if (Array.isArray(sessions)) {
+          state.scheduledSessions = sessions.filter(s => ['pending', 'confirmed'].includes(s.status));
+          state.completedSessions = sessions.filter(s => s.status === 'completed');
+          state.sessions = sessions;
+        }
       })
       .addCase(fetchSessionsThunk.rejected, (state, action) => {
         state.loading = false;
