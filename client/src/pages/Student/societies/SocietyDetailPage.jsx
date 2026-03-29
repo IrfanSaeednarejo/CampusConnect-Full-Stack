@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  fetchSocietyDetail, 
-  selectSocietyDetail, 
-  selectSocietyDetailStatus, 
-  selectSocietyDetailError 
+import {
+  fetchSocietyDetail,
+  fetchSocietyMembers,
+  selectSocietyDetail,
+  selectSocietyDetailStatus,
+  selectSocietyDetailError,
+  selectSocietyMembers,
+  selectSocietyMembersStatus
 } from '../../../redux/slices/societyDetailSlice';
-import { 
-  joinSociety, 
-  leaveSociety, 
-  selectSocietyActionLoading 
+import {
+  joinSociety,
+  leaveSociety,
+  selectSocietyActionLoading
 } from '../../../redux/slices/societiesSlice';
 import { useModal, MODAL_TYPES } from '../../../contexts/ModalContext';
 import { timeAgo, getInitials, formatDate } from '../../../utils/helpers';
@@ -21,11 +24,13 @@ export default function SocietyDetailPage() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { openModal } = useModal();
-  
+
   const [activeTab, setActiveTab] = useState('Overview');
 
   const detail = useSelector(selectSocietyDetail);
   const status = useSelector(selectSocietyDetailStatus);
+  const members = useSelector(selectSocietyMembers);
+  const membersStatus = useSelector(selectSocietyMembersStatus);
   const actionLoading = useSelector((state) => selectSocietyActionLoading(state, societyId));
 
   // If the user's prompt said we should use events state, we read it
@@ -34,6 +39,7 @@ export default function SocietyDetailPage() {
   useEffect(() => {
     if (societyId) {
       dispatch(fetchSocietyDetail(societyId));
+      dispatch(fetchSocietyMembers(societyId));
     }
   }, [dispatch, societyId]);
 
@@ -53,14 +59,14 @@ export default function SocietyDetailPage() {
           <h2 className="text-2xl font-bold text-white mb-2">Society not found</h2>
           <p className="text-[#8b949e] mb-6">The society you're looking for doesn't exist or has been removed.</p>
           <div className="flex gap-4 justify-center">
-            <button 
-              onClick={() => navigate(-1)} 
+            <button
+              onClick={() => navigate(-1)}
               className="px-4 py-2 rounded-md bg-[#21262d] border border-[#30363d] text-white hover:bg-[#30363d] transition-colors"
             >
               Go Back
             </button>
-            <button 
-              onClick={() => navigate('/student/societies')} 
+            <button
+              onClick={() => navigate('/student/societies')}
               className="px-4 py-2 rounded-md bg-[#238636] text-white hover:bg-[#2ea043] transition-colors"
             >
               Browse Societies
@@ -95,7 +101,7 @@ export default function SocietyDetailPage() {
     <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen pb-12">
       {/* A) COVER BANNER */}
       <div className="relative w-full h-48 bg-gradient-to-r from-purple-700 to-blue-600">
-        <button 
+        <button
           onClick={() => navigate(-1)}
           className="absolute top-4 left-4 xl:left-8 bg-[#0d1117]/80 hover:bg-[#0d1117] text-white px-3 py-1.5 rounded-lg flex items-center gap-2 backdrop-blur border border-white/20 transition-all"
         >
@@ -119,7 +125,7 @@ export default function SocietyDetailPage() {
 
         <div className="absolute bottom-4 right-4 xl:right-8">
           {detail.membershipStatus === null ? (
-            <button 
+            <button
               onClick={handleAction}
               disabled={actionLoading}
               className="bg-[#2ea043] hover:bg-[#3fb950] text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors disabled:opacity-75"
@@ -127,7 +133,7 @@ export default function SocietyDetailPage() {
               {actionLoading ? <span className="material-symbols-outlined animate-spin text-sm">sync</span> : 'Join Society'}
             </button>
           ) : (
-            <button 
+            <button
               onClick={handleAction}
               disabled={actionLoading}
               className="bg-[#0d1117]/60 hover:bg-[#0d1117]/90 text-white border border-white/30 px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors disabled:opacity-75"
@@ -214,7 +220,7 @@ export default function SocietyDetailPage() {
                     {detail.longDescription || detail.description}
                   </p>
                 </section>
-                
+
                 <section>
                   <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                     <span className="material-symbols-outlined text-purple-400">photo_library</span>
@@ -222,11 +228,11 @@ export default function SocietyDetailPage() {
                   </h3>
                   {detail.gallery && detail.gallery.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                       {detail.gallery.map((img, i) => (
-                         <div key={i} className="aspect-video bg-[#21262d] rounded-lg border border-[#30363d] overflow-hidden">
-                           <img src={img} alt="Gallery" className="w-full h-full object-cover" />
-                         </div>
-                       ))}
+                      {detail.gallery.map((img, i) => (
+                        <div key={i} className="aspect-video bg-[#21262d] rounded-lg border border-[#30363d] overflow-hidden">
+                          <img src={img} alt="Gallery" className="w-full h-full object-cover" />
+                        </div>
+                      ))}
                     </div>
                   ) : (
                     <div className="bg-[#161b22] border border-[#30363d] rounded-lg py-12 flex flex-col items-center justify-center text-[#8b949e]">
@@ -243,7 +249,7 @@ export default function SocietyDetailPage() {
                     <span className="material-symbols-outlined text-purple-400">group</span>
                     Core Team
                   </h3>
-                  
+
                   {detail.president && (
                     <div className="flex items-center gap-4 mb-4 pb-4 border-b border-[#30363d]">
                       <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-400 font-bold border border-purple-500/30">
@@ -275,10 +281,10 @@ export default function SocietyDetailPage() {
                   <h3 className="text-lg font-bold text-white mb-4">Connect</h3>
                   <div className="flex gap-4">
                     {Object.entries(detail.socialLinks || {}).map(([platform, link]) => (
-                      <a 
-                        key={platform} 
-                        href={link} 
-                        target="_blank" 
+                      <a
+                        key={platform}
+                        href={link}
+                        target="_blank"
                         rel="noreferrer"
                         className="w-10 h-10 bg-[#21262d] border border-[#30363d] rounded-full flex items-center justify-center text-[#8b949e] hover:text-white hover:bg-[#30363d] transition-colors capitalize"
                         title={platform}
@@ -321,39 +327,44 @@ export default function SocietyDetailPage() {
 
           {activeTab === 'Members' && (
             <div>
-              <div className="bg-blue-500/10 border border-blue-500/30 text-blue-400 p-4 rounded-lg mb-8 flex items-start gap-4">
-                <span className="material-symbols-outlined">info</span>
-                <div>
-                  <h4 className="font-bold">Member Directory</h4>
-                  <p className="text-sm">Full member directory available after backend integration. Showing leadership team currently.</p>
-                </div>
-              </div>
-              
               <div className="mb-6 flex items-center justify-between">
-                <h3 className="text-xl font-bold text-white">Leadership</h3>
-                <span className="bg-[#21262d] border border-[#30363d] px-3 py-1 rounded-full text-sm">{detail.memberCount} total members</span>
+                <h3 className="text-xl font-bold text-white">All Members</h3>
+                <span className="bg-[#21262d] border border-[#30363d] px-3 py-1 rounded-full text-sm">{members.length || detail.memberCount || 0} members</span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {detail.president && (
-                  <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-5 text-center flex flex-col items-center">
-                    <div className="w-16 h-16 bg-gradient-to-tr from-purple-600 to-blue-500 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg mb-3">
-                      {getInitials(detail.president.name)}
-                    </div>
-                    <div className="text-white font-bold">{detail.president.name}</div>
-                    <div className="text-[#2ea043] text-xs font-semibold uppercase tracking-wider mt-1">{detail.president.role}</div>
-                  </div>
-                )}
-                {detail.coreteam?.map((member, idx) => (
-                  <div key={idx} className="bg-[#161b22] border border-[#30363d] rounded-xl p-5 text-center flex flex-col items-center hover:border-white/10 transition-colors">
-                    <div className="w-16 h-16 bg-[#21262d] border border-[#30363d] rounded-full flex items-center justify-center text-[#8b949e] text-xl font-bold mb-3">
-                      {getInitials(member.name)}
-                    </div>
-                    <div className="text-white font-bold">{member.name}</div>
-                    <div className="text-[#8b949e] text-xs font-semibold uppercase tracking-wider mt-1">{member.role}</div>
-                  </div>
-                ))}
-              </div>
+              {membersStatus === 'loading' ? (
+                <div className="flex justify-center py-12">
+                  <div className="w-8 h-8 border-3 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              ) : members.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  {members.map((member, idx) => {
+                    const name = member.userId?.profile?.displayName || member.profile?.displayName || member.name || 'Member';
+                    const avatar = member.userId?.profile?.avatar || member.profile?.avatar;
+                    const role = member.role || 'member';
+                    const isHead = role === 'president' || role === 'head' || role === 'admin';
+                    return (
+                      <div key={member._id || idx} className="bg-[#161b22] border border-[#30363d] rounded-xl p-5 text-center flex flex-col items-center hover:border-purple-500/30 transition-colors">
+                        {avatar ? (
+                          <img src={avatar} alt={name} className="w-16 h-16 rounded-full object-cover mb-3 border-2 border-[#30363d]" />
+                        ) : (
+                          <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold mb-3 ${isHead ? 'bg-gradient-to-tr from-purple-600 to-blue-500 shadow-lg' : 'bg-[#21262d] border border-[#30363d] text-[#8b949e]'}`}>
+                            {getInitials(name)}
+                          </div>
+                        )}
+                        <div className="text-white font-bold text-sm">{name}</div>
+                        <div className={`text-xs font-semibold uppercase tracking-wider mt-1 ${isHead ? 'text-[#2ea043]' : 'text-[#8b949e]'}`}>{role}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="bg-[#161b22] border border-[#30363d] rounded-lg py-16 flex flex-col items-center justify-center text-center">
+                  <span className="material-symbols-outlined text-6xl text-[#8b949e] mb-4">group_off</span>
+                  <h3 className="text-xl font-bold text-white mb-2">No members yet</h3>
+                  <p className="text-[#8b949e]">Be the first to join this society!</p>
+                </div>
+              )}
             </div>
           )}
 

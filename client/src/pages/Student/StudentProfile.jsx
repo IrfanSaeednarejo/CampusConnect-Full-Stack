@@ -10,70 +10,63 @@ import {
   selectRegisteredSocieties,
   setRegisteredSocieties,
 } from "../../redux/slices/societySlice";
+import { useAuth } from "../../contexts/AuthContext";
+import api from "../../api/axios";
+import { getUserSocieties } from "../../api/societyApi";
 
-const ACHIEVEMENTS = [
-  {
-    id: 1,
-    icon: "emoji_events",
-    title: "Hackathon Winner - Spring 2024",
-    description: "Best project in the AI for Social Good category.",
-  },
-];
+const ACHIEVEMENTS = [];
 
 export default function StudentProfile() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("overview");
+  const { user } = useAuth();
 
   const upcomingEvents = useSelector(selectUpcomingEvents);
   const societies = useSelector(selectRegisteredSocieties);
 
-  useEffect(() => {
-    if (upcomingEvents.length === 0) {
-      const mockEvents = [
-        {
-          id: 1,
-          icon: "event",
-          title: "AI Ethics Debate",
-          time: "Tomorrow at 6 PM",
-        },
-        {
-          id: 2,
-          icon: "event",
-          title: "Annual Tech Summit",
-          time: "Starts in 3 days",
-        },
-      ];
-      dispatch(setUpcomingEvents(mockEvents));
-    }
+  const displayName = user?.profile?.displayName || `${user?.profile?.firstName || ""} ${user?.profile?.lastName || ""}`.trim() || "Student";
+  const username = user?.email?.split("@")[0] || "student";
+  const bio = user?.profile?.bio || "Campus Connect member";
+  const department = user?.profile?.department || "Student";
+  const avatarUrl = user?.profile?.avatar || "";
 
-    if (societies.length === 0) {
-      const mockSocieties = [
-        {
-          id: 1,
-          name: "AI Society",
-          role: "Member",
-          image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuAHYYsdgElSyd-xauGzVWwe7MR_Z28bNcHt2URplRhxneKuwu1KKWIdVlc7oM_e3SEGDL2GJiOhyl66HebNp7yyRtr6YaOFPOn0q7rIT-Z0aO4T99DPGrMCSd4xROyUmuv41pM_N9YKg0tsyQBICwPZ9pXKJBobPtXj-Qmc4uh-l1KxJXKfFzi1g-eoxuN4jQJXW8sqJv_-y2bt9Izw7CmmA-jf9RVlaltAWR6wu4xQlOhcmnd1csfMsbkemkMzdRmCWZcvtJcwEhA",
-        },
-        {
-          id: 2,
-          name: "Debating Club",
-          role: "Member",
-          image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuA5CeuVKkEt85366ovsM9gFP98W-VrjlnfBkcllLm2KV54rCRoD_m4BNoAtEUSuQvcFlytThdRTIO9Z1nXBibQKGdaDAK6LhzpjhmYmbXva2k9oIC8h970iRH-SR6zbL8sHw7xVjy9ZboltlifQlD62MISDAbzDqSzU8FKt2BDFzz0BuTa8mENaA8tE8_wp_k0SwC_eUrxSsx4WPDQksvC4LD4-3ZokmlJRAYp0SCCUueTd_Sw9vg6LsJmch92wQln-EnZaZ9hvjhU",
-        },
-        {
-          id: 3,
-          name: "Coding Hub",
-          role: "Co-founder",
-          image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuCf2pszDHzZ8Hrk883PEi2Cznc1MZx0nBGTczVTe8nxYfIomylA04iCbgpsWtyNy6JV0Ib1LTxtI4XPMlt9g4j3Ft0ppd5lJHw7qbnFL4pS6mXoKfSSvQpP90_ke5lhCaqvTbuIuYfX7SMH_sd3y8qQ532m1LXC_fFdHSY0KsGdCSmXtuKbh0LZk-w1jBIn6MRqd2mjR0Nw2ZipmAXJXshFf6VWAcV9wOgJwFR4SwnqC3JtpDK9tRUS3le1eRWvdcfGPu9NizsZ6bg",
-        },
-      ];
-      dispatch(setRegisteredSocieties(mockSocieties));
-    }
-  }, [dispatch, upcomingEvents.length, societies.length]);
+  useEffect(() => {
+    // Fetch real events from backend
+    const loadEvents = async () => {
+      try {
+        const res = await api.get("/competitions", { params: { limit: 5 } });
+        const data = res.data?.data?.docs || res.data?.data || [];
+        if (Array.isArray(data)) {
+          const mapped = data.map(e => ({
+            id: e._id,
+            icon: "event",
+            title: e.title,
+            time: e.startAt ? new Date(e.startAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "TBD",
+          }));
+          dispatch(setUpcomingEvents(mapped));
+        }
+      } catch (err) {
+        console.error("[StudentProfile] Failed to fetch events:", err);
+      }
+    };
+
+    // Fetch real societies from backend
+    const loadSocieties = async () => {
+      const userId = user?._id || user?.id;
+      if (!userId) return;
+      try {
+        const res = await getUserSocieties(userId);
+        const data = res.data?.docs || res.data?.societies || res.data || [];
+        dispatch(setRegisteredSocieties(Array.isArray(data) ? data : []));
+      } catch (err) {
+        console.error("[StudentProfile] Failed to fetch societies:", err);
+      }
+    };
+
+    loadEvents();
+    loadSocieties();
+  }, [dispatch, user]);
 
   return (
     <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen">
@@ -172,17 +165,23 @@ export default function StudentProfile() {
             {/* Left Sidebar */}
             <aside className="w-full md:w-1/4 flex-shrink-0">
               <div className="flex flex-col gap-6">
-                <img
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzGlrzfaEAmN_FZricBQPbxSsCJrQFKHboMPee2CpXGl-vwQ_LOrRtcLB-4jYYaD7GmxhmZQPiv2Y5G2voagN6WX_210ezdTp6sYS6AdsfXSX28fl0_M-7PACLInMnKB9Tg9zpeCPrfmCD0ag8foIuBPthVTKAclMFa9iL41Pbkl2aWSHaacSRkBDu7nx2hcpdgMZJFdiTwyLDgCw6XAn0eZT4l-8eCMSuR8eTGpr0CEclMcUe-Pc7z-CMHihg83hh1YNOaNyQDYk"
-                  alt="Profile"
-                  className="w-48 h-48 mx-auto md:w-full md:h-auto rounded-lg object-cover"
-                />
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={displayName}
+                    className="w-48 h-48 mx-auto md:w-full md:h-auto rounded-lg object-cover"
+                  />
+                ) : (
+                  <div className="w-48 h-48 mx-auto md:w-full md:h-auto rounded-lg bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white text-6xl font-bold">
+                    {displayName.charAt(0).toUpperCase()}
+                  </div>
+                )}
                 <div>
                   <h1 className="text-white text-2xl font-bold leading-tight tracking-tight">
-                    Alex Doe
+                    {displayName}
                   </h1>
                   <p className="text-[#8b949e] text-lg font-normal leading-normal">
-                    alex.doe
+                    {username}
                   </p>
                 </div>
                 <div className="flex flex-col gap-3">
@@ -197,9 +196,7 @@ export default function StudentProfile() {
                 </div>
                 <div className="border-t border-[#30363d] pt-6">
                   <p className="text-white text-base font-normal leading-normal">
-                    A passionate computer science student with a focus on AI and
-                    machine learning. Actively seeking mentorship opportunities
-                    and collaborating on exciting tech projects.
+                    {bio}
                   </p>
                 </div>
                 <div className="flex flex-col gap-3">
@@ -207,13 +204,13 @@ export default function StudentProfile() {
                     <span className="material-symbols-outlined text-xl">
                       school
                     </span>
-                    <p className="text-sm">BSc Computer Science</p>
+                    <p className="text-sm">{department}</p>
                   </div>
                   <div className="flex items-center gap-3 text-[#8b949e]">
                     <span className="material-symbols-outlined text-xl">
                       group
                     </span>
-                    <p className="text-sm">Member of 3 societies</p>
+                    <p className="text-sm">Member of {societies.length} societies</p>
                   </div>
                   <div className="flex items-center gap-3 text-[#8b949e]">
                     <span className="material-symbols-outlined text-xl">
@@ -227,22 +224,20 @@ export default function StudentProfile() {
                     Interests
                   </h3>
                   <div className="flex gap-2 flex-wrap">
-                    {[
-                      "AI",
-                      "Debating",
-                      "Hackathon",
-                      "Web Development",
-                      "Python",
-                    ].map((interest) => (
-                      <div
-                        key={interest}
-                        className="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#238636]/20 px-3"
-                      >
-                        <p className="text-[#238636] text-xs font-medium leading-normal">
-                          {interest}
-                        </p>
-                      </div>
-                    ))}
+                    {(user?.profile?.interests || []).length > 0 ? (
+                      user.profile.interests.map((interest) => (
+                        <div
+                          key={interest}
+                          className="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#238636]/20 px-3"
+                        >
+                          <p className="text-[#238636] text-xs font-medium leading-normal">
+                            {interest}
+                          </p>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-[#8b949e] text-sm">No interests added yet</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -263,11 +258,10 @@ export default function StudentProfile() {
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
-                        className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-2 px-2 transition-colors ${
-                          activeTab === tab.id
-                            ? "border-b-[#238636] text-white"
-                            : "border-b-transparent text-[#8b949e] hover:text-white"
-                        }`}
+                        className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-2 px-2 transition-colors ${activeTab === tab.id
+                          ? "border-b-[#238636] text-white"
+                          : "border-b-transparent text-[#8b949e] hover:text-white"
+                          }`}
                       >
                         <p className="text-sm font-bold leading-normal tracking-[0.015em]">
                           {tab.label}
@@ -370,26 +364,36 @@ export default function StudentProfile() {
                         My Societies
                       </h2>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {societies.map((society) => (
-                          <div
-                            key={society.id}
-                            className="bg-[#161b22] p-4 rounded-lg border border-[#30363d] flex flex-col gap-3 hover:border-[#238636]/50 transition-colors"
-                          >
-                            <img
-                              src={society.image}
-                              alt={society.name}
-                              className="w-12 h-12 rounded-lg object-cover"
-                            />
-                            <div>
-                              <h3 className="font-bold text-white">
-                                {society.name}
-                              </h3>
-                              <p className="text-[#8b949e] text-sm">
-                                {society.role}
-                              </p>
+                        {societies.map((society) => {
+                          const socName = society.name || 'Society';
+                          const socLogo = society.media?.logo || '';
+                          return (
+                            <div
+                              key={society._id || society.id}
+                              className="bg-[#161b22] p-4 rounded-lg border border-[#30363d] flex flex-col gap-3 hover:border-[#238636]/50 transition-colors"
+                            >
+                              {socLogo && socLogo.startsWith('http') ? (
+                                <img
+                                  src={socLogo}
+                                  alt={socName}
+                                  className="w-12 h-12 rounded-lg object-cover"
+                                />
+                              ) : (
+                                <div className="w-12 h-12 rounded-lg bg-[#238636]/20 flex items-center justify-center text-xl font-bold text-[#238636]">
+                                  {socName.charAt(0)}
+                                </div>
+                              )}
+                              <div>
+                                <h3 className="font-bold text-white">
+                                  {socName}
+                                </h3>
+                                <p className="text-[#8b949e] text-sm capitalize">
+                                  {society.role || 'member'}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   </div>

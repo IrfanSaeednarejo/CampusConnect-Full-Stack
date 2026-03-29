@@ -20,6 +20,9 @@ function SocietyActionBlock({ society, tab }) {
   const { openModal } = useModal();
   const isLoading = useSelector((state) => selectSocietyActionLoading(state, society._id));
 
+  // Check if the user has a pending join request
+  const isPending = society.isPending || society.membershipStatus === 'pending';
+
   return (
     <div className="flex gap-2 w-full mt-4">
       {tab === "my" ? (
@@ -49,6 +52,14 @@ function SocietyActionBlock({ society, tab }) {
             Leave
           </button>
         </>
+      ) : isPending ? (
+        <button
+          disabled
+          className="w-full bg-[#f0883e]/10 border border-[#f0883e]/50 text-[#f0883e] py-2 rounded-lg font-bold text-sm flex items-center justify-center gap-2 cursor-not-allowed"
+        >
+          <span className="material-symbols-outlined text-[18px]">hourglass_top</span>
+          Pending Approval
+        </button>
       ) : (
         <button
           onClick={() => openModal(MODAL_TYPES.JOIN_SOCIETY, {
@@ -76,7 +87,7 @@ function SocietyActionBlock({ society, tab }) {
 export default function StudentSocieties() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   const [activeTab, setActiveTab] = useState("all");
 
   // Get user profile and auth state
@@ -113,25 +124,22 @@ export default function StudentSocieties() {
         <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-2 mb-8 inline-flex flex-wrap gap-2">
           <button
             onClick={() => setActiveTab("all")}
-            className={`px-5 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === "all" ? "bg-[#238636] text-white" : "text-[#c9d1d9] hover:bg-[#30363d]"
-            }`}
+            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "all" ? "bg-[#238636] text-white" : "text-[#c9d1d9] hover:bg-[#30363d]"
+              }`}
           >
             All Societies ({allSocieties.length})
           </button>
           <button
             onClick={() => setActiveTab("my")}
-            className={`px-5 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === "my" ? "bg-[#238636] text-white" : "text-[#c9d1d9] hover:bg-[#30363d]"
-            }`}
+            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "my" ? "bg-[#238636] text-white" : "text-[#c9d1d9] hover:bg-[#30363d]"
+              }`}
           >
             My Societies ({mySocieties.length})
           </button>
           <button
             onClick={() => setActiveTab("discover")}
-            className={`px-5 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === "discover" ? "bg-[#238636] text-white" : "text-[#c9d1d9] hover:bg-[#30363d]"
-            }`}
+            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "discover" ? "bg-[#238636] text-white" : "text-[#c9d1d9] hover:bg-[#30363d]"
+              }`}
           >
             Discover ({discoverSocieties.length})
           </button>
@@ -158,60 +166,61 @@ export default function StudentSocieties() {
             {displaySocieties.map((society) => {
               const imgUrl = society.media?.logo || society.logo;
               return (
-              <div
-                key={society._id}
-                className="bg-[#161b22] border border-[#30363d] rounded-xl p-5 flex flex-col hover:border-[#238636]/50 transition-colors relative"
-              >
-                {/* Category Badge */}
-                <span className="absolute top-5 right-5 bg-[#30363d] text-[#c9d1d9] text-xs px-2 py-1 rounded font-medium">
-                  {society.category}
-                </span>
+                <div
+                  key={society._id}
+                  className="bg-[#161b22] border border-[#30363d] rounded-xl p-5 flex flex-col hover:border-[#238636]/50 transition-colors relative"
+                >
+                  {/* Category Badge */}
+                  <span className="absolute top-5 right-5 bg-[#30363d] text-[#c9d1d9] text-xs px-2 py-1 rounded font-medium">
+                    {society.category}
+                  </span>
 
-                {/* Society Header */}
-                <div className="flex items-center gap-4 mb-4">
-                  {imgUrl?.length < 5 ? (
-                    <div className="w-14 h-14 rounded-full bg-[#0d1117] flex flex-shrink-0 items-center justify-center text-3xl border border-[#30363d]">
-                      {imgUrl}
-                    </div>
-                  ) : (
-                    <div 
-                      className="w-14 h-14 rounded-full bg-cover bg-center flex flex-shrink-0 border border-[#30363d]"
-                      style={{ backgroundImage: `url("${imgUrl || '/placeholder-society.png'}")` }}
-                    />
-                  )}
-                  <div className="flex flex-col pr-12">
-                    <h3 className="text-white font-bold text-lg leading-tight">{society.name}</h3>
-                    {society.userRole && (
-                      <span className="text-[#238636] text-xs font-bold mt-1 uppercase tracking-wider">
-                        Role: {society.userRole}
-                      </span>
+                  {/* Society Header */}
+                  <div className="flex items-center gap-4 mb-4">
+                    {imgUrl?.length < 5 ? (
+                      <div className="w-14 h-14 rounded-full bg-[#0d1117] flex flex-shrink-0 items-center justify-center text-3xl border border-[#30363d]">
+                        {imgUrl}
+                      </div>
+                    ) : (
+                      <div
+                        className="w-14 h-14 rounded-full bg-cover bg-center flex flex-shrink-0 border border-[#30363d]"
+                        style={{ backgroundImage: `url("${imgUrl || '/placeholder-society.png'}")` }}
+                      />
                     )}
+                    <div className="flex flex-col pr-12">
+                      <h3 className="text-white font-bold text-lg leading-tight">{society.name}</h3>
+                      {society.userRole && (
+                        <span className="text-[#238636] text-xs font-bold mt-1 uppercase tracking-wider">
+                          Role: {society.userRole}
+                        </span>
+                      )}
+                    </div>
                   </div>
+
+                  <p className="text-[#8b949e] text-sm mb-6 flex-1">
+                    {society.description}
+                  </p>
+
+                  {/* Stats */}
+                  <div className="flex items-center gap-6 mt-auto">
+                    <div className="flex items-center gap-1.5 text-[#c9d1d9] text-sm font-medium">
+                      <span className="material-symbols-outlined text-[18px] text-[#8b949e]">groups</span>
+                      {society.memberCount}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-[#c9d1d9] text-sm font-medium">
+                      <span className="material-symbols-outlined text-[18px] text-[#8b949e]">event</span>
+                      {society.eventCount}
+                    </div>
+                  </div>
+
+                  {/* Buttons Component */}
+                  <SocietyActionBlock
+                    society={society}
+                    tab={society.isMember || society.isCreator ? "my" : "discover"}
+                  />
                 </div>
-
-                <p className="text-[#8b949e] text-sm mb-6 flex-1">
-                  {society.description}
-                </p>
-
-                {/* Stats */}
-                <div className="flex items-center gap-6 mt-auto">
-                  <div className="flex items-center gap-1.5 text-[#c9d1d9] text-sm font-medium">
-                    <span className="material-symbols-outlined text-[18px] text-[#8b949e]">groups</span>
-                    {society.memberCount}
-                  </div>
-                  <div className="flex items-center gap-1.5 text-[#c9d1d9] text-sm font-medium">
-                    <span className="material-symbols-outlined text-[18px] text-[#8b949e]">event</span>
-                    {society.eventCount}
-                  </div>
-                </div>
-
-                {/* Buttons Component */}
-                <SocietyActionBlock 
-                  society={society} 
-                  tab={society.isMember || society.isCreator ? "my" : "discover"} 
-                />
-              </div>
-            )})}
+              )
+            })}
           </div>
         ) : null}
       </main>

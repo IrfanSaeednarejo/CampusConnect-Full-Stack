@@ -50,7 +50,7 @@ export const register = async (data, files) => {
     const { firstName, lastName, displayName, email, password, role, roles } = data;
 
     if (
-        ![firstName, lastName, displayName, email, password].every(
+        ![firstName, displayName, email, password].every(
             (f) => typeof f === "string" && f.trim()
         )
     ) {
@@ -90,8 +90,8 @@ export const register = async (data, files) => {
     const cover = coverLocalPath ? await uploadFile(coverLocalPath) : null;
 
     const requestedRole = roles || role;
-    const assignedRoles = requestedRole && ["student", "mentor", "society_head", "admin"].includes(requestedRole) 
-        ? [requestedRole.toLowerCase()] 
+    const assignedRoles = requestedRole && ["student", "mentor", "society_head", "admin"].includes(requestedRole)
+        ? [requestedRole.toLowerCase()]
         : ["student"];
 
     const user = await User.create({
@@ -554,7 +554,7 @@ export const softDelete = async (userId, password) => {
     user.deletedAt = new Date();
     user.tokenVersion += 1;
     user.refreshToken = undefined;
-    
+
     user.email = `deleted_${user._id}_${user.email}`;
 
     await user.save({ validateBeforeSave: false });
@@ -577,31 +577,35 @@ export const getSocieties = async (targetId) => {
 export const search = async (requestUser, queryParams) => {
     const { q, page = 1, limit = 20 } = queryParams;
 
-    if (!q || q.trim().length < 2) {
-        throw new ApiError(400, "Search query must be at least 2 characters");
-    }
-
     const pageNum = Math.max(1, parseInt(page, 10));
-    const limitNum = Math.min(50, parseInt(limit, 10));
-    const skip = (pageNum - 1) * limitNum;
-    const escapedQ = q.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    // Support limit=0 for fetching all records without pagination limits
+    const limitNum = limit === "0" || limit === 0 ? 0 : Math.min(50, parseInt(limit, 10));
+    const skip = limitNum === 0 ? 0 : (pageNum - 1) * limitNum;
 
     const filter = {
         campusId: requestUser.campusId,
         status: "active",
-        $or: [
+    };
+
+    if (q && q.trim().length >= 2) {
+        const escapedQ = q.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        filter.$or = [
             { "profile.displayName": { $regex: escapedQ, $options: "i" } },
             { "profile.firstName": { $regex: escapedQ, $options: "i" } },
             { "profile.lastName": { $regex: escapedQ, $options: "i" } },
-        ],
-    };
+        ];
+    } else if (q && q.trim().length > 0 && q.trim().length < 2) {
+        throw new ApiError(400, "Search query must be at least 2 characters if provided");
+    }
+
+    let query = User.find(filter).select("profile.displayName profile.firstName profile.lastName profile.avatar roles campusId");
+
+    if (limitNum > 0) {
+        query = query.skip(skip).limit(limitNum);
+    }
 
     const [users, total] = await Promise.all([
-        User.find(filter)
-            .select("profile.displayName profile.firstName profile.lastName profile.avatar roles campusId")
-            .skip(skip)
-            .limit(limitNum)
-            .lean(),
+        query.lean(),
         User.countDocuments(filter),
     ]);
 

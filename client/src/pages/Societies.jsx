@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useAuth } from "@/contexts/AuthContext.jsx";
-import { 
-  fetchSocieties, 
-  joinSociety, 
-  leaveSociety 
+import {
+  fetchSocieties,
+  joinSociety,
+  leaveSociety
 } from "../redux/slices/societiesSlice";
 import { getAllSocieties } from "../api/societyApi";
 import SectionHeader from "../components/common/SectionHeader";
@@ -46,7 +46,7 @@ export default function Societies() {
     if (isAuthenticated) {
       const postLoginAction = sessionStorage.getItem('postLoginAction');
       const postLoginSocietyId = sessionStorage.getItem('postLoginSocietyId');
-      
+
       if (postLoginAction === 'join' && postLoginSocietyId) {
         dispatch(joinSociety(postLoginSocietyId)).then((res) => {
           if (!res.error) {
@@ -134,14 +134,19 @@ export default function Societies() {
           {societiesToDisplay.map((society) => {
             const societyId = society.id || society._id;
             const isLoading = actionLoadingMap[societyId];
-            
+
             let joinLabel = "Join";
             let joinOutlined = false;
-            
-            // Re-render button locally over "Joined" attributes unconditionally for C Status
+            let joinDisabled = isLoading;
+
+            // Handle membership status locally for the button UI
             if (isAuthenticated && society.isMember) {
               joinLabel = "Joined ✓";
               joinOutlined = true;
+            } else if (isAuthenticated && (society.isPending || society.membershipStatus === 'pending')) {
+              joinLabel = "Pending Approval";
+              joinOutlined = true;
+              joinDisabled = true;
             }
 
             return (
@@ -149,14 +154,14 @@ export default function Societies() {
                 <SocietyCardSimple
                   name={society.name}
                   category={society.category}
-                  members={society.members}
+                  members={society.memberCount || 0}
                   description={society.description}
-                  head={society.head}
+                  head={society.createdBy?.profile?.displayName || "N/A"}
                   onJoin={() => handleJoinClick(society)}
                   onLearnMore={() => handleLearnMore(societyId)}
                   joinLabel={joinLabel}
                   joinLoading={isLoading}
-                  joinDisabled={isLoading}
+                  joinDisabled={joinDisabled}
                   joinOutlined={joinOutlined}
                 />
               </div>

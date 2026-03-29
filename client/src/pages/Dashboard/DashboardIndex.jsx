@@ -12,50 +12,37 @@ import Avatar from "../../components/common/Avatar";
 const DashboardIndex = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   // Redux selectors
   const profile = useSelector(selectUserProfile);
   const upcomingEvents = useSelector(selectUpcomingEvents);
   const recentActivity = useSelector(selectRecentActivity);
 
-  // Initialize mock data
+  // Fetch real data from backend
   useEffect(() => {
-    // Initialize events if empty
-    if (upcomingEvents.length === 0) {
-      dispatch(setUpcomingEvents([
-        { id: 1, title: "CS Society: Hackathon Kick-off", date: "Oct 26, 2024, 6:00 PM" },
-        { id: 2, title: "Alumni Mentorship Mixer", date: "Nov 2, 2024, 7:30 PM" },
-        { id: 3, title: "Final Year Project Showcase", date: "Nov 15, 2024, 10:00 AM" },
-      ]));
-    }
-
-    // Initialize recent activity if empty
+    const loadEvents = async () => {
+      try {
+        const { default: api } = await import("../../api/axios");
+        const res = await api.get("/competitions", { params: { limit: 3 } });
+        const data = res.data?.data?.docs || res.data?.data || [];
+        if (Array.isArray(data) && data.length > 0) {
+          const mapped = data.map(e => ({
+            id: e._id,
+            title: e.title,
+            date: e.startAt ? new Date(e.startAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }) : "TBD"
+          }));
+          dispatch(setUpcomingEvents(mapped));
+        }
+      } catch (err) {
+        console.error("[DashboardIndex] Failed to fetch events:", err);
+      }
+    };
+    loadEvents();
+    // Activity feed — no backend API exists yet, so we show empty state
     if (recentActivity.length === 0) {
-      dispatch(setRecentActivity([
-        {
-          id: 1,
-          type: 'post',
-          img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBnUqFlqtncpo8A-RQPe27lJ_WS8g54tjvBgnIBzcU1Ll7bgw_L2wwGvNZwV7bieV0IZw0IfSjxpDCFUfR3b_T2R9xfAy8PMbfzRXydNPMEmlPz3-_JKNv1tq9Q0GVVlvQVA5FvEL16uDt_dvB3dS1jQekuwt9VXLhsYoGg9mD_SMm9K90_dyc4T1DbRnSwcnemQS558OEoqhtnigYeMBdJ5urG5yfYGtoocbPc4LAtc8AaONwphWDbI-75skX0De7_uDfP-oJDZyA",
-          text: "Sarah L. posted in Biotech Innovators",
-          time: "2 hours ago",
-        },
-        {
-          id: 2,
-          type: 'connection',
-          img: "https://lh3.googleusercontent.com/aida-public/AB6AXuBG8getaXNBPqeoxobLHq4-ezIUQo4TqQ12EPt6maLD--AHUCwHOGgjn2v88p1YabN6wufKDZIU5_kJsHYrin-B8jV4grph9u5sShOAsbbyO3x1iQ4aPYRcqJP7Y6S87a8Lyfe2aq5pNyGP2h2_whIXY8OpnbPDqwQ2mQyF7Pb1xkkt14pL5OehhiTmz9K9dptvHuOB5uMFG0UUMbeBVQSF-sVXyLlEKUpkwq1PABi0oaflwkycL-DgS5ErKi_BzaHE93Kx6ZBiqMw",
-          text: "Mike R. is now connected with David Chen",
-          time: "Yesterday",
-        },
-        {
-          id: 3,
-          type: 'announcement',
-          icon: 'campaign',
-          text: "New announcement in CS Society",
-          time: "3 days ago",
-        },
-      ]));
+      dispatch(setRecentActivity([]));
     }
-  }, [dispatch, upcomingEvents.length, recentActivity.length]);
+  }, [dispatch, recentActivity.length]);
 
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden">
@@ -183,32 +170,18 @@ const DashboardIndex = () => {
                         </h2>
                       </div>
                       <div className="p-4 sm:p-6">
-                        <div className="flex flex-col items-start gap-4 rounded-lg border border-border-dark bg-black p-4 sm:flex-row sm:items-center sm:justify-between">
-                          <div className="flex items-center gap-4">
-                            <Avatar
-                              src="https://lh3.googleusercontent.com/aida-public/AB6AXuA93M4OEVTPSalVWpPg6oniNGkZhlm5SOXDGwxRtAc0Tx-kZ-wozDOkRBZZACWY3_axtayHpazxzohQLZ36P3GPz8s_D40_VhjpsSPxkZnooS6hQ_sTGil0ZNcJGE-CysBHzX6-Uf4sw7z1MDdFvvo6_Y-NzAVy_N44J7sL5JB65EEDIpSnpMj1pk3CQs1Em-3UtF2FCbykoay5NVQpmdFK_lDlB5H9tNcZoRcQCJCGH637Co8KUnklFzVhUzyFhDkEbNXlS_kaOyg"
-                              size="12"
-                            />
-                            <div>
-                              <p className="font-semibold text-text-primary-dark">
-                                Career Advice with Dr. Chen
-                              </p>
-                              <p className="text-sm text-text-secondary-dark">
-                                Tomorrow, 3:00 PM
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex w-full gap-2 sm:w-auto">
-                            <Button
-                              variant="secondary"
-                              className="w-full sm:w-auto h-auto py-2 text-sm"
-                            >
-                              Join Call
-                            </Button>
-                            <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-transparent bg-transparent px-4 py-2 text-sm font-semibold text-text-secondary-dark hover:underline sm:w-auto">
-                              Reschedule
-                            </button>
-                          </div>
+                        <div className="flex flex-col items-center gap-3 rounded-lg border border-border-dark bg-black p-6 text-center">
+                          <span className="material-symbols-outlined text-4xl text-text-secondary-dark">school</span>
+                          <p className="text-text-secondary-dark text-sm">
+                            No mentoring sessions scheduled. Find a mentor to get started!
+                          </p>
+                          <Button
+                            variant="secondary"
+                            className="mt-2 h-auto py-2 text-sm"
+                            onClick={() => navigate("/mentors")}
+                          >
+                            Find a Mentor
+                          </Button>
                         </div>
                       </div>
                     </div>

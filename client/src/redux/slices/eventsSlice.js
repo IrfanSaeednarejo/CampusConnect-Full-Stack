@@ -21,13 +21,26 @@ export const fetchEventById = createAsyncThunk('events/fetchById', async (eventI
   }
 });
 
-// Fallback thunks to prevent UI from crashing if they are imported
-export const registerForEvent = createAsyncThunk('events/register', async (eventId) => {
-  return eventId;
+// Register for an event — creates a solo team (backend uses team-based model)
+export const registerForEvent = createAsyncThunk('events/register', async (eventId, { rejectWithValue }) => {
+  try {
+    const { createTeam } = await import('../../api/eventApi');
+    const response = await createTeam(eventId, { name: `Solo-${Date.now()}` });
+    return { eventId, team: response.data || response };
+  } catch (error) {
+    return rejectWithValue(error?.message || 'Failed to register for event');
+  }
 });
 
-export const cancelEventRegistration = createAsyncThunk('events/cancelRegistration', async (eventId) => {
-  return eventId;
+// Cancel event registration — leave the team
+export const cancelEventRegistration = createAsyncThunk('events/cancelRegistration', async ({ eventId, teamId }, { rejectWithValue }) => {
+  try {
+    const { leaveTeam } = await import('../../api/eventApi');
+    await leaveTeam(eventId, teamId);
+    return { eventId };
+  } catch (error) {
+    return rejectWithValue(error?.message || 'Failed to cancel registration');
+  }
 });
 
 

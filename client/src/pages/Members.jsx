@@ -1,33 +1,70 @@
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { selectFilteredMembers, setMembers, searchMembers } from "../redux/slices/memberSlice";
-import { mockMembers } from "../data/mockMembers";
 import SectionHeader from "../components/common/SectionHeader";
 import MemberCard from "../components/common/MemberCard";
 import Button from "../components/common/Button";
 import LoginPromptModal from "../components/modals/LoginPromptModal";
 import { useAuth } from "@/contexts/AuthContext.jsx";
 import { sendConnectionRequest } from "../redux/slices/academicNetworkSlice";
+import api from "../api/axios";
 
 export default function Members() {
   const dispatch = useDispatch();
   const members = useSelector(selectFilteredMembers);
   const [searchTerm, setSearchTerm] = useState("");
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const { isAuthenticated } = useAuth();
 
-  // FIX: Track loading state per member for connect button spinner
+  // Track loading state per member for connect button spinner
   const actionLoading = useSelector(
     (state) => state.academicNetwork?.actionLoading ?? {}
   );
 
-  // Initialize mock members data in Redux
+  // Fetch real users from the backend
   useEffect(() => {
-    if (members.length === 0) {
-      dispatch(setMembers(mockMembers));
-    }
-  }, [dispatch, members.length]);
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await api.get("/users/search", {
+          params: { limit: 50 },
+        });
+        const data = response.data?.data;
+        const users = data?.users || data?.docs || [];
+        // Normalize backend user data to the shape MemberCard expects
+        const normalized = users.map((u) => ({
+          id: u._id,
+          _id: u._id,
+          name:
+            u.profile?.displayName ||
+            `${u.profile?.firstName || ""} ${u.profile?.lastName || ""}`.trim() ||
+            u.email?.split("@")[0] ||
+            "User",
+          role: u.roles?.[0] || "student",
+          interests: u.interests || u.profile?.interests || [],
+          joinDate: u.createdAt
+            ? new Date(u.createdAt).toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+            })
+            : "Recently",
+          followers: u.followersCount || 0,
+          avatar: u.profile?.avatar || "",
+          department: u.academic?.department || u.profile?.department || "",
+          connectionStatus: "none",
+        }));
+        dispatch(setMembers(normalized));
+      } catch (err) {
+        console.error("[Members] Failed to fetch users:", err);
+        dispatch(setMembers([]));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsers();
+  }, [dispatch]);
 
   // Live search — dispatches on every keystroke
   const handleSearchChange = (e) => {
@@ -41,7 +78,7 @@ export default function Members() {
     dispatch(searchMembers(""));
   };
 
-  // FIX: Connect button logic with auth check and loading indicators
+  // Connect button logic with auth check and loading indicators
   const handleConnect = (memberId) => {
     if (!isAuthenticated) {
       setShowLoginModal(true);
@@ -49,8 +86,6 @@ export default function Members() {
     }
     dispatch(sendConnectionRequest(memberId));
   };
-
-
 
   return (
     <div className="w-full bg-[#0d1117] text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
@@ -94,32 +129,40 @@ export default function Members() {
         </div>
 
         {/* Members Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {members.map((member) => (
-            <MemberCard
-              key={member.id}
-              name={member.name}
-              role={member.role}
-              interests={member.interests}
-              joinDate={member.joinDate}
-              followers={member.followers}
-              onConnect={() => handleConnect(member.id)}
-              connectLoading={actionLoading[member.id]}
-              connectionStatus={member.connectionStatus || 'none'}
-            />
-          ))}
-        </div>
-
-        {members.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-[#8b949e] text-lg mb-4">No members found matching "{searchTerm}"</p>
-            <Button variant="secondary" onClick={handleClear}>
-              Clear Search
-            </Button>
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-10 h-10 border-4 border-[#3fb950] border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {members.map((member) => (
+              <MemberCard
+                key={member.id || member._id}
+                name={member.name}
+                role={member.role}
+                interests={member.interests}
+                joinDate={member.joinDate}
+                followers={member.followers}
+                onConnect={() => handleConnect(member.id || member._id)}
+                connectLoading={actionLoading[member.id || member._id]}
+                connectionStatus={member.connectionStatus || 'none'}
+              />
+            ))}
           </div>
         )}
 
-
+        {!loading && members.length === 0 && (
+          <div className="text-center py-12">
+            <p className="text-[#8b949e] text-lg mb-4">
+              {searchTerm ? `No members found matching "${searchTerm}"` : "No community members found"}
+            </p>
+            {searchTerm && (
+              <Button variant="secondary" onClick={handleClear}>
+                Clear Search
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Login Prompt Modal */}

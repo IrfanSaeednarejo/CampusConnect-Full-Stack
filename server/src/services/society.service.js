@@ -60,19 +60,28 @@ export const getSocieties = async (queryParams, requestUser) => {
     if (requestUser) {
         const userId = requestUser._id.toString();
         // For each society, check if the user is a member or the creator
-        // We fetch the full society documents for those in the page to check membership
+        // Fetch both approved and pending memberships
         const societyIds = result.docs.map(d => d._id);
         const memberships = await Society.find({
             _id: { $in: societyIds },
             "members.memberId": requestUser._id,
-            "members.status": "approved"
-        }).select("_id");
+        }).select("_id members.$");
 
-        const memberSet = new Set(memberships.map(m => m._id.toString()));
+        const approvedSet = new Set();
+        const pendingSet = new Set();
+
+        memberships.forEach(m => {
+            const memberData = m.members[0];
+            if (memberData) {
+                if (memberData.status === "approved") approvedSet.add(m._id.toString());
+                if (memberData.status === "pending") pendingSet.add(m._id.toString());
+            }
+        });
 
         result.docs = result.docs.map(doc => ({
             ...doc,
-            isMember: memberSet.has(doc._id.toString()) || doc.createdBy?._id?.toString() === userId
+            isMember: approvedSet.has(doc._id.toString()) || doc.createdBy?._id?.toString() === userId,
+            isPending: pendingSet.has(doc._id.toString())
         }));
     }
 
@@ -138,7 +147,7 @@ export const getSocietyStats = async (societyId, requestUser) => {
             eventStats[_id] = count;
             eventStats.total += count;
         });
-    } catch {}
+    } catch { }
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const recentJoins = society.members.filter((m) => m.status === "approved" && m.joinedAt >= thirtyDaysAgo).length;
@@ -155,7 +164,7 @@ export const createSociety = async (data, file, requestUser) => {
     // TEMPORARY: Also allow unverified society heads for testing as requested by the user to fix the "persistence" issue.
     const isAdmin = requestUser?.roles?.includes("admin");
     const isSocietyHead = requestUser?.roles?.includes("society_head");
-    
+
     if (!isAdmin && !isSocietyHead) {
         throw new ApiError(403, "You do not have permission to create a society");
     }
@@ -183,7 +192,7 @@ export const createSociety = async (data, file, requestUser) => {
 
     const logoLocalPath = file?.path;
     const logoFile = logoLocalPath ? await uploadFile(logoLocalPath) : null;
-    
+
     // Use the uploaded file URL, or the emoji/text logo from the body if no file is present
     const finalLogo = logoFile ? logoFile.secure_url : data.logo;
 

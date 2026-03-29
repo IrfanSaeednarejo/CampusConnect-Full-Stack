@@ -108,10 +108,10 @@ export const getUserSocieties = async (userId) => {
   }
 };
 
-// Get member requests (society head only)
+// Get member requests (society head only) — uses the /members endpoint with status=pending
 export const getMemberRequests = async (societyId) => {
   try {
-    const response = await api.get(`/societies/${societyId}/member-requests`);
+    const response = await api.get(`/societies/${societyId}/members`, { params: { status: 'pending' } });
     return response.data;
   } catch (error) {
     throw error.response?.data || error;

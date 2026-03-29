@@ -140,7 +140,7 @@ const societySchema = new Schema(
 
         requireApproval: {
             type: Boolean,
-            default: false,
+            default: true,
         },
 
         isActive: {

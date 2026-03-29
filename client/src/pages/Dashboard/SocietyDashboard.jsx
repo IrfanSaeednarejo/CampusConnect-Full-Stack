@@ -10,6 +10,7 @@ import {
   fetchUserSocieties,
   fetchPendingRequests,
   selectMemberRequests,
+  removeMemberRequest,
 } from "@/redux/slices/societySlice";
 import {
   selectUpcomingEvents,
@@ -27,9 +28,8 @@ export default function SocietyDashboard() {
 
   const displayName =
     user?.profile?.displayName ||
-    `${user?.profile?.firstName || ""} ${
-      user?.profile?.lastName || ""
-    }`.trim() ||
+    `${user?.profile?.firstName || ""} ${user?.profile?.lastName || ""
+      }`.trim() ||
     user?.email?.split("@")[0] ||
     "Society Head";
 
@@ -240,25 +240,62 @@ export default function SocietyDashboard() {
               <h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">
                 Approvals Needed
               </h2>
-              <div className="bg-[#1dc964]/20 border border-[#1dc964]/50 rounded-md p-4 flex flex-col items-start gap-4">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[#1dc964]">
-                    person_add
-                  </span>
-                  <p className="text-white">
-                    You have <span className="font-bold">{memberRequests.length}</span> pending member
-                    request{memberRequests.length === 1 ? "" : "s"}.
-                  </p>
+              {memberRequests.length > 0 ? (
+                <div className="flex flex-col gap-3 max-h-[400px] overflow-y-auto">
+                  {memberRequests.map((req) => {
+                    const name = req.memberId?.profile?.displayName || req.userId?.profile?.displayName || req.name || "User";
+                    const avatar = req.memberId?.profile?.avatar || req.userId?.profile?.avatar;
+                    const memberId = req.memberId?._id || req.userId?._id || req._id;
+                    const societyId = req.societyId?._id || req.societyId;
+                    return (
+                      <div key={req._id || memberId} className="bg-[#111714] border border-[#29382f] rounded-lg p-3 flex items-center gap-3">
+                        {avatar ? (
+                          <img src={avatar} alt={name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-[#29382f] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                            {name.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-white text-sm font-medium truncate">{name}</p>
+                          <p className="text-[#9eb7a9] text-xs">Wants to join</p>
+                        </div>
+                        <div className="flex gap-2 flex-shrink-0">
+                          <button
+                            onClick={async () => {
+                              try {
+                                const { approveSocietyMember } = await import("@/api/societyApi");
+                                await approveSocietyMember(societyId, memberId);
+                                dispatch(removeMemberRequest(req._id || memberId));
+                              } catch (err) { console.error("Approve failed:", err); }
+                            }}
+                            className="px-3 py-1.5 bg-[#1dc964] text-[#111714] rounded-md text-xs font-bold hover:opacity-90 transition-opacity"
+                          >
+                            Approve
+                          </button>
+                          <button
+                            onClick={async () => {
+                              try {
+                                const { rejectSocietyMember } = await import("@/api/societyApi");
+                                await rejectSocietyMember(societyId, memberId);
+                                dispatch(removeMemberRequest(req._id || memberId));
+                              } catch (err) { console.error("Reject failed:", err); }
+                            }}
+                            className="px-3 py-1.5 bg-transparent border border-[#f85149] text-[#f85149] rounded-md text-xs font-bold hover:bg-[#f85149]/10 transition-colors"
+                          >
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <button
-                  onClick={() =>
-                    navigate("/society/member-requests")
-                  }
-                  className="flex cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-[#1dc964] text-[#111714] text-sm font-bold leading-normal w-full hover:bg-[#1dc964]/90 transition-colors"
-                >
-                  <span className="truncate">Review Requests</span>
-                </button>
-              </div>
+              ) : (
+                <div className="text-center py-6 text-[#9eb7a9]">
+                  <span className="material-symbols-outlined text-3xl mb-2 block">check_circle</span>
+                  <p className="text-sm">No pending requests</p>
+                </div>
+              )}
             </section>
 
             {/* Upcoming Events Section (2 columns) */}

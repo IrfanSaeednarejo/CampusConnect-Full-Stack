@@ -34,10 +34,10 @@ const profileSchema = new Schema(
         },
         lastName: {
             type: String,
-            required: [true, "Last name is required"],
             trim: true,
             lowercase: true,
             maxlength: [50, "Last name cannot exceed 50 characters"],
+            default: ""
         },
         displayName: {
             type: String,

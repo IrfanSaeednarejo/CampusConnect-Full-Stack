@@ -5,6 +5,7 @@ import {
   selectAllSocieties,
   setSocieties,
 } from "../../redux/slices/societySlice";
+import { getAllSocieties } from "../../api/societyApi";
 import PageHeader from "../../components/common/PageHeader";
 import StatCard from "../../components/common/StatCard";
 import FilterButtons from "../../components/common/FilterButtons";
@@ -17,82 +18,26 @@ export default function SocietiesList() {
   const dispatch = useDispatch();
   const [filterCategory, setFilterCategory] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const allSocieties = useSelector(selectAllSocieties);
 
+  // Fetch real societies from backend API
   useEffect(() => {
-    if (allSocieties.length === 0) {
-      const mockSocieties = [
-        {
-          id: 1,
-          name: "IEEE Student Chapter",
-          logo: "⚡",
-          description: "Professional society focused on electrical, electronics, and computer engineering.",
-          members: 245,
-          category: "STEM",
-          head: "Sarah Chen",
-          events: 8,
-          status: "active",
-        },
-        {
-          id: 2,
-          name: "Debating Society",
-          logo: "🎤",
-          description: "Build your communication and critical thinking skills through debating.",
-          members: 156,
-          category: "Arts",
-          head: "Michael Brown",
-          events: 12,
-          status: "active",
-        },
-        {
-          id: 3,
-          name: "AI & ML Club",
-          logo: "🤖",
-          description: "Explore artificial intelligence, machine learning, and cutting-edge AI applications.",
-          members: 187,
-          category: "STEM",
-          head: "Alex Kumar",
-          events: 15,
-          status: "active",
-        },
-        {
-          id: 4,
-          name: "Photography Club",
-          logo: "📷",
-          description: "Discover your creative eye and connect with fellow photography enthusiasts.",
-          members: 98,
-          category: "Arts",
-          head: "Emma Wilson",
-          events: 6,
-          status: "active",
-        },
-        {
-          id: 5,
-          name: "Entrepreneurship Society",
-          logo: "💼",
-          description: "Supporting student entrepreneurs and startup initiatives.",
-          members: 178,
-          category: "Business",
-          head: "Lisa Wang",
-          events: 10,
-          status: "active",
-        },
-        {
-          id: 6,
-          name: "Environmental Club",
-          logo: "🌍",
-          description: "Promoting sustainability and environmental awareness on campus.",
-          members: 134,
-          category: "Community",
-          head: "David Lee",
-          events: 9,
-          status: "active",
-        },
-      ];
-      dispatch(setSocieties(mockSocieties));
-    }
-  }, [dispatch, allSocieties.length]);
+    const loadSocieties = async () => {
+      setLoading(true);
+      try {
+        const res = await getAllSocieties();
+        const data = res.data?.docs || res.data || [];
+        dispatch(setSocieties(Array.isArray(data) ? data : []));
+      } catch (err) {
+        console.error("[SocietiesList] Failed to load societies:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadSocieties();
+  }, [dispatch]);
 
   const filteredSocieties = useMemo(() => {
     return allSocieties.filter((society) => {
@@ -106,7 +51,7 @@ export default function SocietiesList() {
   }, [allSocieties, filterCategory, searchQuery]);
 
   const totalMembers = useMemo(
-    () => allSocieties.reduce((sum, s) => sum + s.members, 0),
+    () => allSocieties.reduce((sum, s) => sum + (s.memberCount || 0), 0),
     [allSocieties]
   );
 
@@ -136,7 +81,7 @@ export default function SocietiesList() {
           />
           <StatCard
             label="Active Events"
-            value={allSocieties.reduce((sum, s) => sum + s.events, 0)}
+            value={allSocieties.reduce((sum, s) => sum + (s.eventCount || 0), 0)}
             icon="event"
           />
         </div>
@@ -192,8 +137,12 @@ export default function SocietiesList() {
                 <div className="flex flex-col h-full">
                   {/* Society Logo */}
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-lg bg-[#238636]/20 flex items-center justify-center text-3xl">
-                      {society.logo}
+                    <div className="w-16 h-16 rounded-lg bg-[#238636]/20 flex items-center justify-center text-3xl overflow-hidden">
+                      {society.media?.logo && society.media.logo.startsWith('http') ? (
+                        <img src={society.media.logo} alt={society.name} className="w-full h-full object-cover rounded-lg" />
+                      ) : (
+                        society.media?.logo || society.name?.charAt(0) || '🏛️'
+                      )}
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-white mb-1">
@@ -217,13 +166,13 @@ export default function SocietiesList() {
                         <span className="material-symbols-outlined text-sm">
                           people
                         </span>
-                        {society.members}
+                        {society.memberCount || 0}
                       </div>
                       <div className="flex items-center gap-1">
                         <span className="material-symbols-outlined text-sm">
                           event
                         </span>
-                        {society.events}
+                        {society.eventCount || 0}
                       </div>
                     </div>
                   </div>
@@ -233,7 +182,7 @@ export default function SocietiesList() {
                     <span className="material-symbols-outlined text-sm">
                       person
                     </span>
-                    <span>Led by {society.head}</span>
+                    <span>Led by {society.createdBy?.profile?.displayName || 'N/A'}</span>
                   </div>
                 </div>
               </Card>

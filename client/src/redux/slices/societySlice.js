@@ -46,7 +46,12 @@ export const fetchPendingRequests = createAsyncThunk(
   async (societyId, { rejectWithValue }) => {
     try {
       const response = await getMemberRequests(societyId);
-      return response.data || response;
+      const data = response.data || response;
+      // Inject the societyId into each pending member so the dashboard knows which society to approve for
+      if (Array.isArray(data)) {
+        return data.map(member => ({ ...member, societyId }));
+      }
+      return data;
     } catch (error) {
       return rejectWithValue(error?.message || 'Failed to fetch member requests');
     }
@@ -164,7 +169,10 @@ const societySlice = createSlice({
       state.memberRequests.push(action.payload);
     },
     removeMemberRequest: (state, action) => {
-      state.memberRequests = state.memberRequests.filter((r) => r.id !== action.payload);
+      state.memberRequests = state.memberRequests.filter((r) => {
+        const reqId = r.memberId?._id || r.id || r._id;
+        return reqId !== action.payload;
+      });
     },
     approveMemberRequest: (state, action) => {
       state.memberRequests = state.memberRequests.filter((r) => r.id !== action.payload);
@@ -188,7 +196,7 @@ const societySlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-    // fetchSocietyById
+      // fetchSocietyById
       .addCase(fetchSocietyById.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -201,7 +209,7 @@ const societySlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-    // fetchUserSocieties
+      // fetchUserSocieties
       .addCase(fetchUserSocieties.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -214,18 +222,18 @@ const societySlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-    // fetchPendingRequests
+      // fetchPendingRequests
       .addCase(fetchPendingRequests.fulfilled, (state, action) => {
         // Append the fetched requests. 
         // We'll reset the array beforehand in the component, or just append unique ones.
         const newRequests = action.payload;
         if (Array.isArray(newRequests)) {
-            const existingIds = new Set(state.memberRequests.map(r => r.memberId?._id || r.id));
-            const uniqueNew = newRequests.filter(r => !existingIds.has(r.memberId?._id || r.id));
-            state.memberRequests = [...state.memberRequests, ...uniqueNew];
+          const existingIds = new Set(state.memberRequests.map(r => r.memberId?._id || r.id));
+          const uniqueNew = newRequests.filter(r => !existingIds.has(r.memberId?._id || r.id));
+          state.memberRequests = [...state.memberRequests, ...uniqueNew];
         }
       })
-    // createNewSociety
+      // createNewSociety
       .addCase(createNewSociety.pending, (state) => {
         state.loading = true;
         state.error = null;
@@ -235,7 +243,7 @@ const societySlice = createSlice({
         // Ensure state arrays exist before pushing
         if (!Array.isArray(state.societies)) state.societies = [];
         if (!Array.isArray(state.registeredSocieties)) state.registeredSocieties = [];
-        
+
         state.societies.push(action.payload);
         state.registeredSocieties.push(action.payload);
       })
@@ -243,18 +251,18 @@ const societySlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-    // deleteSocietyById
+      // deleteSocietyById
       .addCase(deleteSocietyById.fulfilled, (state, action) => {
         state.societies = state.societies.filter((s) => s._id !== action.payload && s.id !== action.payload);
       })
-    // joinSocietyById
+      // joinSocietyById
       .addCase(joinSocietyById.fulfilled, (state, action) => {
         const society = state.societies.find((s) => s._id === action.payload.societyId || s.id === action.payload.societyId);
         if (society && !state.registeredSocieties.find((s) => s._id === action.payload.societyId)) {
           state.registeredSocieties.push(society);
         }
       })
-    // leaveSocietyById
+      // leaveSocietyById
       .addCase(leaveSocietyById.fulfilled, (state, action) => {
         state.registeredSocieties = state.registeredSocieties.filter(
           (s) => s._id !== action.payload && s.id !== action.payload
