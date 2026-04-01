@@ -83,7 +83,6 @@ const mentoringSlice = createSlice({
     clearMentoringError: (state) => {
       state.error = null;
     },
-    // Pending Feedback actions
     setPendingFeedback: (state, action) => {
       state.pendingFeedback = action.payload;
     },
@@ -93,7 +92,6 @@ const mentoringSlice = createSlice({
     removePendingFeedback: (state, action) => {
       state.pendingFeedback = state.pendingFeedback.filter((f) => f.id !== action.payload);
     },
-    // Mentees actions
     setMentees: (state, action) => {
       state.mentees = action.payload;
     },
@@ -109,7 +107,6 @@ const mentoringSlice = createSlice({
     removeMentee: (state, action) => {
       state.mentees = state.mentees.filter((m) => m.id !== action.payload);
     },
-    // Scheduled Sessions actions
     setScheduledSessions: (state, action) => {
       state.scheduledSessions = action.payload;
     },
@@ -125,14 +122,12 @@ const mentoringSlice = createSlice({
     removeScheduledSession: (state, action) => {
       state.scheduledSessions = state.scheduledSessions.filter((s) => s.id !== action.payload);
     },
-    // Completed Sessions actions
     setCompletedSessions: (state, action) => {
       state.completedSessions = action.payload;
     },
     addCompletedSession: (state, action) => {
       state.completedSessions.push(action.payload);
     },
-    // Earnings actions
     setEarningsData: (state, action) => {
       state.earningsData = action.payload;
     },
@@ -154,7 +149,6 @@ const mentoringSlice = createSlice({
   },
 });
 
-// Actions
 export const {
   setMentors,
   addMentor,
@@ -193,7 +187,6 @@ export const {
   addSessionEarning,
 } = mentoringSlice.actions;
 
-// Selectors
 export const selectAllMentors = (state) => state.mentoring.mentors;
 export const selectSelectedMentor = (state) => state.mentoring.selectedMentor;
 export const selectAllSessions = (state) => state.mentoring.sessions;
@@ -210,5 +203,4 @@ export const selectEarningsData = (state) => state.mentoring.earningsData;
 export const selectWithdrawalHistory = (state) => state.mentoring.withdrawalHistory;
 export const selectSessionEarnings = (state) => state.mentoring.sessionEarnings;
 
-// Reducer
 export default mentoringSlice.reducer;

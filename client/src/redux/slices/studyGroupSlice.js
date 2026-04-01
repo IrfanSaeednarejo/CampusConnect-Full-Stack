@@ -116,7 +116,6 @@ const studyGroupSlice = createSlice({
   },
 });
 
-// Actions
 export const {
   setStudyGroups,
   addStudyGroup,
@@ -141,7 +140,6 @@ export const {
   clearStudyGroupError,
 } = studyGroupSlice.actions;
 
-// Selectors
 export const selectAllStudyGroups = (state) => state.studyGroups.groups;
 export const selectMyStudyGroups = (state) => state.studyGroups.myGroups;
 export const selectSelectedGroup = (state) => state.studyGroups.selectedGroup;
@@ -174,7 +172,7 @@ export const selectFilteredStudyGroups = (state) => {
 export const selectSortedStudyGroups = (state) => {
   const filtered = selectFilteredStudyGroups(state);
   const { sortBy } = state.studyGroups;
-  
+
   return [...filtered].sort((a, b) => {
     if (sortBy === 'course') return a.course.localeCompare(b.course);
     if (sortBy === 'popularity') return b.members - a.members;
@@ -182,5 +180,4 @@ export const selectSortedStudyGroups = (state) => {
   });
 };
 
-// Reducer
 export default studyGroupSlice.reducer;

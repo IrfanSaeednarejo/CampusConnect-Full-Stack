@@ -72,7 +72,6 @@ const societySlice = createSlice({
   },
 });
 
-// Actions
 export const {
   setSocieties,
   setRegisteredSocieties,
@@ -92,7 +91,6 @@ export const {
   rejectMemberRequest,
 } = societySlice.actions;
 
-// Selectors
 export const selectAllSocieties = (state) => state.societies.societies;
 export const selectRegisteredSocieties = (state) => state.societies.registeredSocieties;
 export const selectSelectedSociety = (state) => state.societies.selectedSociety;
@@ -102,5 +100,4 @@ export const selectSocietyError = (state) => state.societies.error;
 export const selectSocietyById = (societyId) => (state) =>
   state.societies.societies.find((society) => society.id === societyId);
 
-// Reducer
 export default societySlice.reducer;

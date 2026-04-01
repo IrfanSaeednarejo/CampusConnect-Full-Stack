@@ -47,7 +47,6 @@ const userSlice = createSlice({
   },
 });
 
-// Actions
 export const {
   setUserProfile,
   updateUserProfile,
@@ -58,7 +57,6 @@ export const {
   resetUserState,
 } = userSlice.actions;
 
-// Selectors
 export const selectUserProfile = (state) => state.user.profile;
 export const selectUserName = (state) => state.user.profile.name;
 export const selectUserEmail = (state) => state.user.profile.email;
@@ -68,5 +66,4 @@ export const selectUserPreferences = (state) => state.user.preferences;
 export const selectUserLoading = (state) => state.user.loading;
 export const selectUserError = (state) => state.user.error;
 
-// Reducer
 export default userSlice.reducer;

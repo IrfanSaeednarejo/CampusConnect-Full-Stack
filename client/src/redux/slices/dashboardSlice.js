@@ -46,7 +46,6 @@ const dashboardSlice = createSlice({
   },
 });
 
-// Actions
 export const {
   setRecentActivity,
   addActivity,
@@ -58,11 +57,9 @@ export const {
   clearDashboardError,
 } = dashboardSlice.actions;
 
-// Selectors
 export const selectRecentActivity = (state) => state.dashboard.recentActivity;
 export const selectDashboardStats = (state) => state.dashboard.stats;
 export const selectDashboardLoading = (state) => state.dashboard.loading;
 export const selectDashboardError = (state) => state.dashboard.error;
 
-// Reducer
 export default dashboardSlice.reducer;

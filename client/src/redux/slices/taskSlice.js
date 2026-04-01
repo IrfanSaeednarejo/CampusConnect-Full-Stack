@@ -43,7 +43,6 @@ const taskSlice = createSlice({
   },
 });
 
-// Actions
 export const {
   setTasks,
   addTask,
@@ -55,7 +54,6 @@ export const {
   clearTaskError,
 } = taskSlice.actions;
 
-// Selectors
 export const selectAllTasks = (state) => state.tasks.tasks;
 export const selectTaskLoading = (state) => state.tasks.loading;
 export const selectTaskError = (state) => state.tasks.error;
@@ -72,5 +70,4 @@ export const selectTasksByPriority = (priority) => (state) =>
     ? state.tasks.tasks
     : state.tasks.tasks.filter((t) => t.priority === priority);
 
-// Reducer
 export default taskSlice.reducer;
