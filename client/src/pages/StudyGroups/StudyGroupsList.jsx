@@ -113,7 +113,7 @@ export default function StudyGroupsList() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
+    <div className="min-h-screen bg-background text-text-primary">
       {/* Header */}
       <PageHeader
         title="Find a Study Group"
@@ -124,7 +124,7 @@ export default function StudyGroupsList() {
         action={
           <button
             onClick={() => goTo("/study-groups/create")}
-            className="px-4 py-2 rounded-lg bg-[#238636] text-white text-sm font-semibold hover:bg-[#2ea043] transition-colors flex items-center gap-2"
+            className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-hover transition-colors flex items-center gap-2"
           >
              <span className="material-symbols-outlined text-[18px]">add</span>
              Create Study Group
@@ -135,7 +135,7 @@ export default function StudyGroupsList() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filter & Sort Controls */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-[#30363d]">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-border">
           <SortControls sortBy={sortBy} onSortChange={setSortBy} />
         </div>
 
@@ -150,14 +150,14 @@ export default function StudyGroupsList() {
 
         {/* Study Groups Grid */}
         {sortedGroups.length === 0 ? (
-          <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-12 text-center">
+          <div className="bg-surface border border-border rounded-lg p-12 text-center">
             <span className="material-symbols-outlined text-6xl text-[#30363d] block mb-4">
               groups
             </span>
-            <h3 className="text-xl font-semibold text-[#c9d1d9] mb-2">
+            <h3 className="text-xl font-semibold text-text-primary mb-2">
               No study groups found
             </h3>
-            <p className="text-[#8b949e]">
+            <p className="text-text-secondary">
               Try changing your filters or create a new study group.
             </p>
           </div>

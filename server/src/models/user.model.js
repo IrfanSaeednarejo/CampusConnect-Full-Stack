@@ -257,15 +257,11 @@ userSchema.index(
     { createdAt: -1 },
     { partialFilterExpression: { status: "active" } }
 );
-userSchema.index(
-    { emailVerificationExpiry: 1 },
-    { expireAfterSeconds: 0, sparse: true }
-);
+// NOTE: TTL indexes on emailVerificationExpiry and passwordResetExpiry were REMOVED.
+// They were causing MongoDB to auto-delete entire user documents when the expiry
+// passed (e.g., 24h after signup). The expiry fields are still used for validation
+// logic, but documents must only be deleted explicitly by admin or user action.
 
-userSchema.index(
-    { passwordResetExpiry: 1 },
-    { expireAfterSeconds: 0, sparse: true }
-);
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
     this.password = await bcrypt.hash(this.password, 12);

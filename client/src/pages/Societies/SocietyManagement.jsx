@@ -116,10 +116,10 @@ export default function SocietyManagement() {
 
   if (loading || !societyData) {
     return (
-      <div className="min-h-screen bg-[#111714] text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <span className="material-symbols-outlined text-4xl animate-spin text-[#1dc964]">sync</span>
-          <p className="text-[#9eb7a9]">Loading society data...</p>
+          <p className="text-text-secondary">Loading society data...</p>
         </div>
       </div>
     );
@@ -137,7 +137,7 @@ export default function SocietyManagement() {
   const societyLogo = societyData.media?.logo || societyData.logoUrl || "🏛️";
 
   return (
-    <div className="min-h-screen bg-[#111714] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Header */}
       <SocietyPageHeader
         title={societyName}
@@ -154,13 +154,13 @@ export default function SocietyManagement() {
           <>
             <button
               onClick={() => navigate(`/society/edit/${societyId}`)}
-              className="px-4 py-2 rounded-lg bg-[#29382f] text-white text-sm font-medium hover:bg-[#29382f]/80 transition-colors"
+              className="px-4 py-2 rounded-lg bg-surface-hover text-white text-sm font-medium hover:bg-surface-hover/80 transition-colors"
             >
               Edit Society
             </button>
             <button
               onClick={() => navigate("/society/events/create")}
-              className="px-4 py-2 rounded-lg bg-[#1dc964] text-[#111714] text-sm font-bold hover:bg-[#1dc964]/90 transition-colors"
+              className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors"
             >
               Add Event
             </button>
@@ -182,37 +182,37 @@ export default function SocietyManagement() {
           <div className="space-y-6">
             {/* Stats Cards — REAL DATA */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+              <div className="bg-surface border border-border rounded-lg p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[#9eb7a9] text-sm">Total Members</p>
+                    <p className="text-text-secondary text-sm">Total Members</p>
                     <p className="text-3xl font-bold text-white mt-2">{totalMembers}</p>
                   </div>
                   <span className="material-symbols-outlined text-[#1dc964] text-4xl">group</span>
                 </div>
               </div>
-              <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+              <div className="bg-surface border border-border rounded-lg p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[#9eb7a9] text-sm">Total Events</p>
+                    <p className="text-text-secondary text-sm">Total Events</p>
                     <p className="text-3xl font-bold text-white mt-2">{totalEvents}</p>
                   </div>
                   <span className="material-symbols-outlined text-[#1dc964] text-4xl">event</span>
                 </div>
               </div>
-              <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+              <div className="bg-surface border border-border rounded-lg p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[#9eb7a9] text-sm">Pending Requests</p>
+                    <p className="text-text-secondary text-sm">Pending Requests</p>
                     <p className="text-3xl font-bold text-white mt-2">{pendingCount}</p>
                   </div>
                   <span className="material-symbols-outlined text-[#1dc964] text-4xl">person_add</span>
                 </div>
               </div>
-              <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+              <div className="bg-surface border border-border rounded-lg p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-[#9eb7a9] text-sm">Upcoming Events</p>
+                    <p className="text-text-secondary text-sm">Upcoming Events</p>
                     <p className="text-3xl font-bold text-white mt-2">{upcomingEvents}</p>
                   </div>
                   <span className="material-symbols-outlined text-[#1dc964] text-4xl">upcoming</span>
@@ -221,25 +221,25 @@ export default function SocietyManagement() {
             </div>
 
             {/* Society Details — REAL DATA */}
-            <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+            <div className="bg-surface border border-border rounded-lg p-6">
               <h2 className="text-xl font-bold mb-4">Society Details</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <p className="text-[#9eb7a9] text-sm mb-1">Description</p>
+                  <p className="text-text-secondary text-sm mb-1">Description</p>
                   <p className="text-white">{societyDesc || "No description provided"}</p>
                 </div>
                 <div>
-                  <p className="text-[#9eb7a9] text-sm mb-1">Category</p>
+                  <p className="text-text-secondary text-sm mb-1">Category</p>
                   <p className="text-white capitalize">{societyCategory}</p>
                 </div>
                 <div>
-                  <p className="text-[#9eb7a9] text-sm mb-1">Founded</p>
+                  <p className="text-text-secondary text-sm mb-1">Founded</p>
                   <p className="text-white">{societyFounded}</p>
                 </div>
                 <div>
-                  <p className="text-[#9eb7a9] text-sm mb-1">Status</p>
+                  <p className="text-text-secondary text-sm mb-1">Status</p>
                   <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${societyStatus === "approved"
-                      ? "bg-[#1dc964]/20 text-[#1dc964]"
+                      ? "bg-primary/20 text-[#1dc964]"
                       : "bg-yellow-500/20 text-yellow-400"
                     }`}>
                     {societyStatus === "approved" ? "Active" : societyStatus}
@@ -252,12 +252,12 @@ export default function SocietyManagement() {
 
         {/* Members Tab — REAL DATA */}
         {activeTab === "members" && (
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+          <div className="bg-surface border border-border rounded-lg p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Members ({members.length})</h2>
             </div>
             {members.length === 0 ? (
-              <div className="text-center py-12 text-[#9eb7a9]">
+              <div className="text-center py-12 text-text-secondary">
                 <span className="material-symbols-outlined text-5xl mb-3">group_off</span>
                 <p>No approved members yet</p>
               </div>
@@ -265,11 +265,11 @@ export default function SocietyManagement() {
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[#29382f]">
-                      <th className="text-left py-3 px-4 text-[#9eb7a9] text-sm font-medium">Name</th>
-                      <th className="text-left py-3 px-4 text-[#9eb7a9] text-sm font-medium">Role</th>
-                      <th className="text-left py-3 px-4 text-[#9eb7a9] text-sm font-medium">Joined</th>
-                      <th className="text-left py-3 px-4 text-[#9eb7a9] text-sm font-medium">Status</th>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-3 px-4 text-text-secondary text-sm font-medium">Name</th>
+                      <th className="text-left py-3 px-4 text-text-secondary text-sm font-medium">Role</th>
+                      <th className="text-left py-3 px-4 text-text-secondary text-sm font-medium">Joined</th>
+                      <th className="text-left py-3 px-4 text-text-secondary text-sm font-medium">Status</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -280,17 +280,17 @@ export default function SocietyManagement() {
                       const joinedDate = member.joinedAt ? new Date(member.joinedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "N/A";
 
                       return (
-                        <tr key={user?._id || idx} className="border-b border-[#29382f] hover:bg-white/5">
+                        <tr key={user?._id || idx} className="border-b border-border hover:bg-white/5">
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-3">
                               <Avatar name={displayName} src={avatarUrl} size="sm" />
                               <span className="text-white">{displayName}</span>
                             </div>
                           </td>
-                          <td className="py-3 px-4 text-[#9eb7a9] capitalize">{member.role}</td>
-                          <td className="py-3 px-4 text-[#9eb7a9]">{joinedDate}</td>
+                          <td className="py-3 px-4 text-text-secondary capitalize">{member.role}</td>
+                          <td className="py-3 px-4 text-text-secondary">{joinedDate}</td>
                           <td className="py-3 px-4">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#1dc964]/20 text-[#1dc964]">
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/20 text-[#1dc964]">
                               {member.status}
                             </span>
                           </td>
@@ -306,18 +306,18 @@ export default function SocietyManagement() {
 
         {/* Events Tab — REAL DATA */}
         {activeTab === "events" && (
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+          <div className="bg-surface border border-border rounded-lg p-6">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-bold">Society Events ({events.length})</h2>
               <button
                 onClick={() => navigate("/society/events/create")}
-                className="px-4 py-2 rounded-lg bg-[#1dc964] text-[#111714] text-sm font-bold hover:bg-[#1dc964]/90"
+                className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90"
               >
                 Create Event
               </button>
             </div>
             {events.length === 0 ? (
-              <div className="text-center py-12 text-[#9eb7a9]">
+              <div className="text-center py-12 text-text-secondary">
                 <span className="material-symbols-outlined text-5xl mb-3">event_busy</span>
                 <p>No events created yet</p>
               </div>
@@ -328,11 +328,11 @@ export default function SocietyManagement() {
                   return (
                     <div
                       key={event._id}
-                      className="flex items-center justify-between p-4 bg-[#111714] rounded-lg border border-[#29382f]"
+                      className="flex items-center justify-between p-4 bg-background rounded-lg border border-border"
                     >
                       <div className="flex-1">
                         <h3 className="text-white font-semibold mb-1">{event.title}</h3>
-                        <div className="flex items-center gap-4 text-sm text-[#9eb7a9]">
+                        <div className="flex items-center gap-4 text-sm text-text-secondary">
                           <span className="flex items-center gap-1">
                             <span className="material-symbols-outlined text-sm">calendar_today</span>
                             {eventDate}
@@ -344,10 +344,10 @@ export default function SocietyManagement() {
                         </div>
                       </div>
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${event.status === "registration" || event.status === "ongoing"
-                          ? "bg-[#1dc964]/20 text-[#1dc964]"
+                          ? "bg-primary/20 text-[#1dc964]"
                           : event.status === "draft"
                             ? "bg-yellow-500/20 text-yellow-400"
-                            : "bg-[#9eb7a9]/20 text-[#9eb7a9]"
+                            : "bg-[#9eb7a9]/20 text-text-secondary"
                         }`}>
                         {event.status}
                       </span>
@@ -361,10 +361,10 @@ export default function SocietyManagement() {
 
         {/* Pending Requests Tab — REAL DATA */}
         {activeTab === "pending" && (
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+          <div className="bg-surface border border-border rounded-lg p-6">
             <h2 className="text-xl font-bold mb-6">Pending Join Requests ({pendingCount})</h2>
             {pendingMembers.length === 0 ? (
-              <div className="text-center py-12 text-[#9eb7a9]">
+              <div className="text-center py-12 text-text-secondary">
                 <span className="material-symbols-outlined text-5xl mb-3">check_circle</span>
                 <p>No pending requests</p>
               </div>
@@ -378,18 +378,18 @@ export default function SocietyManagement() {
                   const requestDate = member.joinedAt ? new Date(member.joinedAt).toLocaleDateString() : "";
 
                   return (
-                    <div key={memberId || idx} className="flex items-center justify-between p-4 bg-[#111714] rounded-lg border border-[#29382f]">
+                    <div key={memberId || idx} className="flex items-center justify-between p-4 bg-background rounded-lg border border-border">
                       <div className="flex items-center gap-3">
                         <Avatar name={displayName} src={avatarUrl} size="sm" />
                         <div>
                           <p className="text-white font-medium">{displayName}</p>
-                          {requestDate && <p className="text-[#9eb7a9] text-xs">Requested {requestDate}</p>}
+                          {requestDate && <p className="text-text-secondary text-xs">Requested {requestDate}</p>}
                         </div>
                       </div>
                       <div className="flex gap-2">
                         <button
                           onClick={() => handleApprove(memberId)}
-                          className="px-3 py-1.5 text-xs font-bold rounded-lg bg-[#238636] hover:bg-[#2ea043] text-white transition-colors"
+                          className="px-3 py-1.5 text-xs font-bold rounded-lg bg-primary hover:bg-primary-hover text-white transition-colors"
                         >
                           Approve
                         </button>
@@ -411,25 +411,25 @@ export default function SocietyManagement() {
         {/* Analytics Tab — REAL DATA */}
         {activeTab === "analytics" && (
           <div className="space-y-6">
-            <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+            <div className="bg-surface border border-border rounded-lg p-6">
               <h2 className="text-xl font-bold mb-4">Society Analytics</h2>
               {stats ? (
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-[#111714] rounded-lg p-4 border border-[#29382f]">
-                    <p className="text-[#9eb7a9] text-sm">Total Members</p>
+                  <div className="bg-background rounded-lg p-4 border border-border">
+                    <p className="text-text-secondary text-sm">Total Members</p>
                     <p className="text-2xl font-bold text-white">{stats.members?.total || 0}</p>
                   </div>
-                  <div className="bg-[#111714] rounded-lg p-4 border border-[#29382f]">
-                    <p className="text-[#9eb7a9] text-sm">Total Events</p>
+                  <div className="bg-background rounded-lg p-4 border border-border">
+                    <p className="text-text-secondary text-sm">Total Events</p>
                     <p className="text-2xl font-bold text-white">{stats.events?.total || 0}</p>
                   </div>
-                  <div className="bg-[#111714] rounded-lg p-4 border border-[#29382f]">
-                    <p className="text-[#9eb7a9] text-sm">Joined Last 30 Days</p>
+                  <div className="bg-background rounded-lg p-4 border border-border">
+                    <p className="text-text-secondary text-sm">Joined Last 30 Days</p>
                     <p className="text-2xl font-bold text-white">{stats.members?.joinedLast30Days || 0}</p>
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-12 text-[#9eb7a9]">
+                <div className="text-center py-12 text-text-secondary">
                   <span className="material-symbols-outlined text-6xl mb-4">analytics</span>
                   <p>Analytics data could not be loaded</p>
                 </div>

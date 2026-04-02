@@ -22,7 +22,7 @@ export default function Avatar({
 
   const borderClasses = border ? `border-2 border-${borderColor}` : "";
   const hoverClasses = hover
-    ? "cursor-pointer hover:border hover:border-[#238636] transition-colors"
+    ? "cursor-pointer hover:border hover:border-primary transition-colors"
     : "";
 
   return (

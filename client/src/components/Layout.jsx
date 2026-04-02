@@ -28,14 +28,14 @@ export default function Layout() {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0d1117] text-[#e6edf3]">
+    <div className="flex flex-col min-h-screen bg-background text-[#e6edf3]">
       {/* Navigation Header */}
-      <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-[#21262d] px-4 sm:px-10 md:px-20 lg:px-40 py-3 bg-[#0d1117]/70 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 flex items-center justify-between whitespace-nowrap border-b border-solid border-[#21262d] px-4 sm:px-10 md:px-20 lg:px-40 py-3 bg-background/70 backdrop-blur-xl">
         <Link
           to="/"
           className="flex items-center gap-3 text-[#e6edf3] hover:text-[#e6edf3]"
         >
-          <div className="w-8 h-8 rounded-full bg-[#238636] flex items-center justify-center shadow-lg shadow-[#238636]/20">
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-[#238636]/20">
             <svg
               className="w-4 h-4"
               fill="white"
@@ -59,8 +59,8 @@ export default function Layout() {
                 to={link.to}
                 className={`text-sm font-medium leading-normal transition-colors relative py-1 ${
                   isActive(link.to)
-                    ? "text-white after:absolute after:bottom-[-16px] after:left-0 after:right-0 after:h-[3px] after:bg-[#238636] after:rounded-t-full shadow-[0_4px_10px_rgba(35,134,54,0.3)]"
-                    : "text-[#8b949e] hover:text-[#e6edf3]"
+                    ? "text-white after:absolute after:bottom-[-16px] after:left-0 after:right-0 after:h-[3px] after:bg-primary after:rounded-t-full shadow-[0_4px_10px_rgba(35,134,54,0.3)]"
+                    : "text-text-secondary hover:text-[#e6edf3]"
                 }`}
               >
                 {link.label}
@@ -74,16 +74,16 @@ export default function Layout() {
             <div className="flex items-center gap-3">
               <button
                 onClick={() => navigate(getDashboardRoute(role))}
-                className="flex items-center gap-2 cursor-pointer rounded-lg h-9 px-4 bg-[#238636] text-white text-xs font-bold hover:bg-[#2ea043] transition-colors shadow-lg shadow-[#238636]/10"
+                className="flex items-center gap-2 cursor-pointer rounded-lg h-9 px-4 bg-primary text-white text-xs font-bold hover:bg-primary-hover transition-colors shadow-lg shadow-[#238636]/10"
               >
                 <span className="material-symbols-outlined text-[18px]">dashboard</span>
                 <span className="truncate">Dashboard</span>
               </button>
               <button
                 onClick={() => navigate("/profile/view")}
-                className="flex items-center gap-2 cursor-pointer rounded-lg h-9 px-3 bg-[#161b22] text-white text-xs font-bold border border-[#30363d] hover:bg-[#21262d] transition-colors"
+                className="flex items-center gap-2 cursor-pointer rounded-lg h-9 px-3 bg-surface text-white text-xs font-bold border border-border hover:bg-surface-hover transition-colors"
               >
-                <div className="w-6 h-6 rounded-full bg-[#238636] flex items-center justify-center text-[10px] font-bold text-white">
+                <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-[10px] font-bold text-white">
                   {(user?.name || "U")[0].toUpperCase()}
                 </div>
                 <span className="truncate">
@@ -92,7 +92,7 @@ export default function Layout() {
               </button>
               <button
                 onClick={handleLogout}
-                className="flex items-center cursor-pointer rounded-lg h-9 px-3 text-[#f85149] text-xs font-bold border border-[#30363d] hover:bg-[#21262d] transition-colors"
+                className="flex items-center cursor-pointer rounded-lg h-9 px-3 text-[#f85149] text-xs font-bold border border-border hover:bg-surface-hover transition-colors"
               >
                 <span className="truncate">Logout</span>
               </button>
@@ -101,13 +101,13 @@ export default function Layout() {
             <div className="flex gap-2">
               <button
                 onClick={() => navigate("/login")}
-                className="flex items-center justify-center rounded-lg h-9 px-4 bg-[#161b22] text-white text-xs font-bold border border-[#30363d] hover:bg-[#21262d] transition-colors"
+                className="flex items-center justify-center rounded-lg h-9 px-4 bg-surface text-white text-xs font-bold border border-border hover:bg-surface-hover transition-colors"
               >
                 Log In
               </button>
               <button
                 onClick={() => navigate("/signup")}
-                className="flex items-center justify-center rounded-lg h-9 px-4 bg-[#238636] text-white text-xs font-bold hover:bg-[#2ea043] transition-colors shadow-lg shadow-[#238636]/10"
+                className="flex items-center justify-center rounded-lg h-9 px-4 bg-primary text-white text-xs font-bold hover:bg-primary-hover transition-colors shadow-lg shadow-[#238636]/10"
               >
                 Sign Up
               </button>
@@ -118,7 +118,7 @@ export default function Layout() {
         {/* Mobile Hamburger */}
         <button
           onClick={() => setMobileMenuOpen(true)}
-          className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg text-[#c9d1d9] hover:bg-[#21262d] transition-colors"
+          className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg text-text-primary hover:bg-surface-hover transition-colors"
           aria-label="Open menu"
         >
           <span className="material-symbols-outlined text-[24px]">menu</span>
@@ -135,10 +135,10 @@ export default function Layout() {
           />
           
           {/* Drawer Content */}
-          <div className="relative w-72 h-full bg-[#0d1117] border-l border-[#30363d] shadow-2xl animate-slideInRight flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-[#21262d] bg-[#161b22]/50">
+          <div className="relative w-72 h-full bg-background border-l border-border shadow-2xl animate-slideInRight flex flex-col">
+            <div className="flex items-center justify-between p-4 border-b border-[#21262d] bg-surface/50">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#238636] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
                   <span className="text-white font-bold text-xs uppercase">CC</span>
                 </div>
                 <span className="font-bold text-[#e6edf3]">Menu</span>
@@ -147,7 +147,7 @@ export default function Layout() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[#30363d] transition-colors"
               >
-                <span className="material-symbols-outlined text-[20px] text-[#8b949e]">close</span>
+                <span className="material-symbols-outlined text-[20px] text-text-secondary">close</span>
               </button>
             </div>
 
@@ -159,8 +159,8 @@ export default function Layout() {
                   onClick={() => setMobileMenuOpen(false)}
                   className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                     isActive(link.to)
-                      ? "bg-[#238636]/20 text-[#238636] border border-[#238636]/30 shadow-[inset_0_0_20px_rgba(35,134,54,0.05)]"
-                      : "text-[#c9d1d9] hover:bg-[#161b22] hover:translate-x-1"
+                      ? "bg-primary/20 text-primary border border-primary/30 shadow-[inset_0_0_20px_rgba(35,134,54,0.05)]"
+                      : "text-text-primary hover:bg-surface hover:translate-x-1"
                   }`}
                 >
                   <span className="material-symbols-outlined text-[18px]">
@@ -179,26 +179,26 @@ export default function Layout() {
 
               {isAuthenticated ? (
                 <div className="space-y-3 px-2">
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#161b22] border border-[#30363d] mb-4">
-                    <div className="w-10 h-10 rounded-full bg-[#238636] flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-[#238636]/20">
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-surface border border-border mb-4">
+                    <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-sm font-bold text-white shadow-lg shadow-[#238636]/20">
                       {(user?.name || "U")[0].toUpperCase()}
                     </div>
                     <div className="flex flex-col overflow-hidden">
                       <span className="text-sm font-bold text-[#e6edf3] truncate">{user?.name}</span>
-                      <span className="text-[10px] text-[#8b949e] uppercase tracking-wider">{role}</span>
+                      <span className="text-[10px] text-text-secondary uppercase tracking-wider">{role}</span>
                     </div>
                   </div>
 
                   <button
                     onClick={() => { setMobileMenuOpen(false); navigate(getDashboardRoute(role)); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-[#238636] text-white text-sm font-bold transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-primary text-white text-sm font-bold transition-transform hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <span className="material-symbols-outlined text-[20px]">dashboard</span>
                     Dashboard
                   </button>
                   <button
                     onClick={() => { setMobileMenuOpen(false); navigate("/profile/view"); }}
-                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-[#c9d1d9] border border-[#30363d] hover:bg-[#161b22] transition-colors"
+                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-text-primary border border-border hover:bg-surface transition-colors"
                   >
                     <span className="material-symbols-outlined text-[20px]">person</span>
                     Profile Settings
@@ -215,13 +215,13 @@ export default function Layout() {
                 <div className="flex flex-col gap-3 px-2 mt-2">
                   <button
                     onClick={() => { setMobileMenuOpen(false); navigate("/login"); }}
-                    className="w-full py-3 rounded-xl text-sm font-bold border border-[#30363d] text-white hover:bg-[#161b22] transition-all hover:scale-[1.02]"
+                    className="w-full py-3 rounded-xl text-sm font-bold border border-border text-white hover:bg-surface transition-all hover:scale-[1.02]"
                   >
                     Log In
                   </button>
                   <button
                     onClick={() => { setMobileMenuOpen(false); navigate("/signup"); }}
-                    className="w-full py-3 rounded-xl text-sm font-bold bg-[#238636] text-white hover:bg-[#2ea043] transition-all hover:scale-[1.02] shadow-lg shadow-[#238636]/10"
+                    className="w-full py-3 rounded-xl text-sm font-bold bg-primary text-white hover:bg-primary-hover transition-all hover:scale-[1.02] shadow-lg shadow-[#238636]/10"
                   >
                     Sign Up
                   </button>
@@ -229,8 +229,8 @@ export default function Layout() {
               )}
             </nav>
 
-            <div className="p-4 border-t border-[#21262d] bg-[#161b22]/30">
-              <p className="text-[10px] text-[#8b949e] text-center">
+            <div className="p-4 border-t border-[#21262d] bg-surface/30">
+              <p className="text-[10px] text-text-secondary text-center">
                 CampusConnect v1.0 • {new Date().getFullYear()}
               </p>
             </div>
@@ -249,8 +249,8 @@ export default function Layout() {
       {isAuthenticated && <MobileBottomNav />}
 
       {/* Footer */}
-      <footer className="flex items-center justify-center px-5 py-5 text-center border-t border-solid border-[#161b22] bg-[#0d1117] lg:pb-5 pb-20">
-        <p className="text-[#8b949e] text-xs font-normal leading-normal">
+      <footer className="flex items-center justify-center px-5 py-5 text-center border-t border-solid border-[#161b22] bg-background lg:pb-5 pb-20">
+        <p className="text-text-secondary text-xs font-normal leading-normal">
           © {new Date().getFullYear()} CampusConnect. All rights reserved. |
           <Link className="hover:text-[#e6edf3] ml-1" to="/privacy">
             Privacy Policy

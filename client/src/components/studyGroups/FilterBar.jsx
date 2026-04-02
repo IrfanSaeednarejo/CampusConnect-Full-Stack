@@ -7,8 +7,8 @@ export default function FilterBar({ filters, activeFilter, onFilterChange }) {
           onClick={() => onFilterChange(filter.value)}
           className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
             activeFilter === filter.value
-              ? "bg-[#238636] text-white"
-              : "bg-[#161b22] text-[#8b949e] border border-[#30363d] hover:text-[#c9d1d9]"
+              ? "bg-primary text-white"
+              : "bg-surface text-text-secondary border border-border hover:text-text-primary"
           }`}
         >
           {filter.label}

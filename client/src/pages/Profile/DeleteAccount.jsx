@@ -45,7 +45,7 @@ export default function DeleteAccount() {
   };
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen">
+    <div className="w-full bg-background text-text-primary min-h-screen">
       {/* Header */}
       <ProfilePageHeader
         title="Delete Account"
@@ -57,16 +57,16 @@ export default function DeleteAccount() {
         {!showConfirmation ? (
           <div className="space-y-6">
             {/* Warning Card */}
-            <Card padding="p-6" className="bg-[#da3633]/10 border-[#da3633]">
+            <Card padding="p-6" className="bg-danger/10 border-[#da3633]">
               <div className="flex gap-4">
-                <span className="material-symbols-outlined text-[#da3633] text-3xl">
+                <span className="material-symbols-outlined text-danger text-3xl">
                   warning
                 </span>
                 <div>
-                  <h2 className="text-lg font-semibold text-[#da3633] mb-2">
+                  <h2 className="text-lg font-semibold text-danger mb-2">
                     Warning: This action is irreversible
                   </h2>
-                  <p className="text-[#c9d1d9]">
+                  <p className="text-text-primary">
                     Deleting your account will permanently remove all your data
                     and cannot be undone.
                   </p>
@@ -90,8 +90,8 @@ export default function DeleteAccount() {
                   "Direct messages and conversations",
                   "Notes and academic content",
                 ].map((item, index) => (
-                  <li key={index} className="flex items-center gap-3 text-[#c9d1d9]">
-                    <span className="material-symbols-outlined text-[#da3633]">
+                  <li key={index} className="flex items-center gap-3 text-text-primary">
+                    <span className="material-symbols-outlined text-danger">
                       close
                     </span>
                     {item}
@@ -106,27 +106,27 @@ export default function DeleteAccount() {
                 Consider These Alternatives
               </h3>
               <div className="space-y-3">
-                <div className="p-4 bg-[#0d1117] rounded-lg">
+                <div className="p-4 bg-background rounded-lg">
                   <h4 className="font-medium text-white mb-1">
                     Deactivate temporarily
                   </h4>
-                  <p className="text-sm text-[#8b949e]">
+                  <p className="text-sm text-text-secondary">
                     Hide your profile without losing your data
                   </p>
                 </div>
-                <div className="p-4 bg-[#0d1117] rounded-lg">
+                <div className="p-4 bg-background rounded-lg">
                   <h4 className="font-medium text-white mb-1">
                     Adjust privacy settings
                   </h4>
-                  <p className="text-sm text-[#8b949e]">
+                  <p className="text-sm text-text-secondary">
                     Control who can see your information
                   </p>
                 </div>
-                <div className="p-4 bg-[#0d1117] rounded-lg">
+                <div className="p-4 bg-background rounded-lg">
                   <h4 className="font-medium text-white mb-1">
                     Manage notifications
                   </h4>
-                  <p className="text-sm text-[#8b949e]">
+                  <p className="text-sm text-text-secondary">
                     Reduce notification frequency
                   </p>
                 </div>
@@ -137,13 +137,13 @@ export default function DeleteAccount() {
             <div className="flex gap-3">
               <button
                 onClick={() => navigate("/profile/view")}
-                className="flex-1 px-6 py-3 bg-[#238636] text-white rounded-lg hover:bg-[#2ea043] transition-colors font-medium"
+                className="flex-1 px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors font-medium"
               >
                 Keep My Account
               </button>
               <button
                 onClick={() => setShowConfirmation(true)}
-                className="flex-1 px-6 py-3 bg-[#da3633] text-white rounded-lg hover:bg-[#b62324] transition-colors font-medium"
+                className="flex-1 px-6 py-3 bg-danger text-white rounded-lg hover:bg-[#b62324] transition-colors font-medium"
               >
                 Continue to Delete
               </button>
@@ -156,22 +156,22 @@ export default function DeleteAccount() {
               <h2 className="text-lg font-semibold text-white mb-4">
                 Confirm Account Deletion
               </h2>
-              <p className="text-[#c9d1d9] mb-4">
+              <p className="text-text-primary mb-4">
                 Are you absolutely sure you want to delete your account for{" "}
                 <span className="font-semibold text-white">
                   {user?.email || "your account"}
                 </span>
                 ?
               </p>
-              <p className="text-[#c9d1d9] mb-6">
-                Type <span className="font-mono font-bold text-[#da3633]">DELETE</span> to confirm:
+              <p className="text-text-primary mb-6">
+                Type <span className="font-mono font-bold text-danger">DELETE</span> to confirm:
               </p>
               <input
                 type="text"
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
                 placeholder="Type DELETE here"
-                className="w-full px-4 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#da3633]"
+                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-white focus:outline-none focus:border-[#da3633]"
               />
             </Card>
 
@@ -182,14 +182,14 @@ export default function DeleteAccount() {
                   setShowConfirmation(false);
                   setConfirmText("");
                 }}
-                className="flex-1 px-6 py-3 bg-[#21262d] text-white rounded-lg hover:bg-[#30363d] transition-colors font-medium"
+                className="flex-1 px-6 py-3 bg-surface-hover text-white rounded-lg hover:bg-[#30363d] transition-colors font-medium"
               >
                 Cancel
               </button>
               <button
                 onClick={handleDelete}
                 disabled={confirmText !== "DELETE" || loading}
-                className="flex-1 px-6 py-3 bg-[#da3633] text-white rounded-lg hover:bg-[#b62324] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 px-6 py-3 bg-danger text-white rounded-lg hover:bg-[#b62324] transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? "Deleting..." : "Delete My Account"}
               </button>

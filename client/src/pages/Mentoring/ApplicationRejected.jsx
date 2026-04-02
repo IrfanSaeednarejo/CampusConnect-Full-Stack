@@ -69,7 +69,7 @@ export default function ApplicationRejected() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#19e65e] text-[#112116] text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
+          <button className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity">
             <span className="truncate">Notifications</span>
           </button>
           <Avatar
@@ -124,13 +124,13 @@ export default function ApplicationRejected() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6 w-full">
               <button
                 onClick={() => navigate("/mentor-registration")}
-                className="flex w-full sm:w-auto min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-[#19e65e] text-[#112116] text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity"
+                className="flex w-full sm:w-auto min-w-[5rem] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity"
               >
                 <span className="truncate">Update Application</span>
               </button>
               <button
                 onClick={() => navigate("/contact-us")}
-                className="flex w-full sm:w-auto min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-transparent text-white border border-white/30 text-base font-bold leading-normal tracking-[0.015em] hover:bg-white/10 transition-colors"
+                className="flex w-full sm:w-auto min-w-[5rem] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-6 bg-transparent text-white border border-white/30 text-base font-bold leading-normal tracking-[0.015em] hover:bg-white/10 transition-colors"
               >
                 <span className="truncate">Contact Support</span>
               </button>

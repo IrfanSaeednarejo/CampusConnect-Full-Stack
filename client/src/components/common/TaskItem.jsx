@@ -6,7 +6,7 @@ export default function TaskItem({
 }) {
   return (
     <div
-      className={`bg-[#161b22] border border-[#30363d] rounded-lg p-4 flex items-start gap-4 hover:border-[#238636]/50 transition-colors ${className}`}
+      className={`bg-surface border border-border rounded-lg p-4 flex items-start gap-4 hover:border-primary/50 transition-colors ${className}`}
     >
       <input
         type="checkbox"
@@ -16,33 +16,33 @@ export default function TaskItem({
       />
       <div className="flex-1 min-w-0">
         <p
-          className={`text-base font-medium ${task.completed ? "text-[#8b949e] line-through" : "text-white"}`}
+          className={`text-base font-medium ${task.completed ? "text-text-secondary line-through" : "text-white"}`}
         >
           {task.text}
         </p>
         <div className="flex flex-wrap gap-2 mt-2">
-          <span className="text-xs px-2 py-1 rounded bg-[#0d1117] text-[#8b949e] border border-[#30363d]">
+          <span className="text-xs px-2 py-1 rounded bg-background text-text-secondary border border-border">
             {task.category}
           </span>
           <span
             className={`text-xs px-2 py-1 rounded border ${
               task.priority === "high"
-                ? "bg-[#da3633]/20 border-[#da3633]/50 text-[#f85149]"
+                ? "bg-danger/20 border-[#da3633]/50 text-[#f85149]"
                 : task.priority === "medium"
                   ? "bg-[#d29922]/20 border-[#d29922]/50 text-[#e0ad3e]"
-                  : "bg-[#0d1117] border-[#30363d] text-[#8b949e]"
+                  : "bg-background border-border text-text-secondary"
             }`}
           >
             {task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
           </span>
-          <span className="text-xs px-2 py-1 rounded bg-[#0d1117] text-[#8b949e] border border-[#30363d]">
+          <span className="text-xs px-2 py-1 rounded bg-background text-text-secondary border border-border">
             Due: {new Date(task.dueDate).toLocaleDateString()}
           </span>
         </div>
       </div>
       <button
         onClick={() => onDelete(task.id)}
-        className="text-[#8b949e] hover:text-[#da3633] transition-colors p-2"
+        className="text-text-secondary hover:text-danger transition-colors p-2"
       >
         <span className="material-symbols-outlined">delete</span>
       </button>

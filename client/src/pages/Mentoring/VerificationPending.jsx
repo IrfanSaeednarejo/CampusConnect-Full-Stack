@@ -79,7 +79,7 @@ export default function VerificationPending() {
 
               <button
                 onClick={() => navigate("/student/dashboard")}
-                className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-[#20df60] text-[#112116] text-base font-bold leading-normal tracking-[0.015em] w-full transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] w-full transition-transform hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span className="truncate">Back to Dashboard</span>
               </button>

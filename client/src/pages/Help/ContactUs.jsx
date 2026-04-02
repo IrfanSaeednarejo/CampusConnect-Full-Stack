@@ -29,19 +29,19 @@ export default function ContactUs() {
   };
 
   return (
-    <div className="font-display text-text-primary-dark min-h-screen w-full bg-[#0d1117]">
+    <div className="font-display text-text-primary-dark min-h-screen w-full bg-background">
       {/* HEADER */}
       <Header />
 
       <PageContent
-        maxWidth="max-w-[960px]"
+        maxWidth="max-w-4xl"
         className="flex flex-col gap-8 md:gap-12 py-8 md:py-16"
       >
         <div className="flex flex-col gap-3 text-center">
           <h1 className="text-4xl md:text-5xl font-black text-[#e6edf3] leading-tight tracking-[-0.033em]">
             Send Us a Message
           </h1>
-          <p className="text-[#8b949e] text-base md:text-lg">
+          <p className="text-text-secondary text-base md:text-lg">
             Have questions, feedback, or just want to say hello? We’d love to
             hear from you.
           </p>

@@ -140,13 +140,13 @@ export default function MentorAvailability() {
     return (
       <div className="relative flex h-screen w-full flex-col bg-[#112118] items-center justify-center">
         <div className="w-10 h-10 border-4 border-[#1dc964] border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p className="text-[#9eb7a9]">Loading availability...</p>
+        <p className="text-text-secondary">Loading availability...</p>
       </div>
     );
   }
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
       <div className="layout-container flex h-full grow flex-col">
         <MentorTopBar backPath="/mentor/dashboard" />
 
@@ -156,7 +156,7 @@ export default function MentorAvailability() {
               <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                 Set Your Availability
               </h1>
-              <p className="text-[#9eb7a9] text-base font-normal leading-normal">
+              <p className="text-text-secondary text-base font-normal leading-normal">
                 Define your mentoring time slots to let students know when you're available.
               </p>
             </div>
@@ -167,15 +167,15 @@ export default function MentorAvailability() {
               </div>
             )}
 
-            <div className="p-4 bg-[#161b22] border border-[#30363d] rounded-xl mb-8">
-              <p className="text-[#9eb7a9] text-sm">
+            <div className="p-4 bg-surface border border-border rounded-xl mb-8">
+              <p className="text-text-secondary text-sm">
                 💡 Tip: Add time slots for each day. Ensure start time is before end time.
               </p>
             </div>
 
             <div className="space-y-6">
               {WEEKDAYS.map((day) => (
-                <div key={day} className="p-5 bg-[#161b22] border border-[#30363d] rounded-xl">
+                <div key={day} className="p-5 bg-surface border border-border rounded-xl">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-white font-semibold text-lg">{day}</h3>
                     <button
@@ -190,14 +190,14 @@ export default function MentorAvailability() {
                   {(availability[day.toLowerCase()] || []).length > 0 ? (
                     <div className="space-y-2">
                       {availability[day.toLowerCase()].map((slot, idx) => (
-                        <div key={idx} className="flex items-center gap-3 p-3 bg-[#0d1117] rounded group">
+                        <div key={idx} className="flex items-center gap-3 p-3 bg-background rounded group">
                           <input
                             type="time"
                             value={slot.start}
                             onChange={(e) => handleTimeChange(day, idx, 'start', e.target.value)}
                             className="px-3 py-2 bg-[#30363d] text-white rounded border border-[#404851] focus:outline-none focus:border-[#1dc964]"
                           />
-                          <span className="text-[#9eb7a9]">to</span>
+                          <span className="text-text-secondary">to</span>
                           <input
                             type="time"
                             value={slot.end}
@@ -206,7 +206,7 @@ export default function MentorAvailability() {
                           />
                           <button 
                             onClick={() => handleRemoveSlot(day, idx)}
-                            className="ml-auto text-[#9eb7a9] hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                            className="ml-auto text-text-secondary hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
                           >
                             <span className="material-symbols-outlined">close</span>
                           </button>
@@ -214,7 +214,7 @@ export default function MentorAvailability() {
                       ))}
                     </div>
                   ) : (
-                    <p className="text-[#9eb7a9] text-sm italic">No slots added for {day}</p>
+                    <p className="text-text-secondary text-sm italic">No slots added for {day}</p>
                   )}
                 </div>
               ))}
@@ -224,7 +224,7 @@ export default function MentorAvailability() {
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className={`flex items-center justify-center gap-2 px-6 py-3 bg-[#1dc964] text-[#112118] font-bold rounded-lg transition-opacity flex-1 ${saving ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
+                className={`flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-lg transition-opacity flex-1 ${saving ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
               >
                 {saving ? (
                   <div className="w-5 h-5 border-2 border-[#112118] border-t-transparent rounded-full animate-spin"></div>

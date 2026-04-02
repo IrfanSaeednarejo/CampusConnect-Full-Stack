@@ -117,14 +117,14 @@ export default function StudyGroupResources() {
 
   if (!group) {
     return (
-      <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9] flex items-center justify-center">
-        <p className="text-[#8b949e]">Study group not found.</p>
+      <div className="min-h-screen bg-background text-text-primary flex items-center justify-center">
+        <p className="text-text-secondary">Study group not found.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
+    <div className="min-h-screen bg-background text-text-primary">
       {/* Header */}
       <PageHeader
         title="Study Resources"
@@ -132,7 +132,7 @@ export default function StudyGroupResources() {
         icon="folder_open"
         backPath={`/study-groups/${id}`}
         action={
-          <button className="px-4 py-2 rounded-lg bg-[#238636] text-white font-bold hover:bg-[#2ea043] transition-colors flex items-center gap-2">
+          <button className="px-4 py-2 rounded-lg bg-primary text-white font-bold hover:bg-primary-hover transition-colors flex items-center gap-2">
             <span className="material-symbols-outlined text-lg">upload</span>
             Upload Resource
           </button>
@@ -152,7 +152,7 @@ export default function StudyGroupResources() {
         />
 
         {/* Resources List */}
-        <div className="bg-[#161b22] border border-[#30363d] rounded-lg overflow-hidden">
+        <div className="bg-surface border border-border rounded-lg overflow-hidden">
           {filteredResources.length === 0 ? (
             <EmptyState
               icon="folder_open"
@@ -174,23 +174,23 @@ export default function StudyGroupResources() {
 
         {/* Stats */}
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-[#238636]">
+          <div className="bg-surface border border-border rounded-lg p-4 text-center">
+            <div className="text-3xl font-bold text-primary">
               {resources.length}
             </div>
-            <div className="text-sm text-[#8b949e] mt-1">Total Resources</div>
+            <div className="text-sm text-text-secondary mt-1">Total Resources</div>
           </div>
-          <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-[#238636]">
+          <div className="bg-surface border border-border rounded-lg p-4 text-center">
+            <div className="text-3xl font-bold text-primary">
               {totalDownloads}
             </div>
-            <div className="text-sm text-[#8b949e] mt-1">Total Downloads</div>
+            <div className="text-sm text-text-secondary mt-1">Total Downloads</div>
           </div>
-          <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-[#238636]">
+          <div className="bg-surface border border-border rounded-lg p-4 text-center">
+            <div className="text-3xl font-bold text-primary">
               {totalSize} MB
             </div>
-            <div className="text-sm text-[#8b949e] mt-1">Total Size</div>
+            <div className="text-sm text-text-secondary mt-1">Total Size</div>
           </div>
         </div>
       </main>

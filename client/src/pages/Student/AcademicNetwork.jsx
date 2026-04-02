@@ -95,17 +95,17 @@ export default function AcademicNetwork() {
   };
 
   return (
-    <div className="flex h-screen bg-[#0d1117] overflow-hidden">
+    <div className="flex h-screen bg-background overflow-hidden">
 
 
       <main className="flex-1 overflow-y-auto w-full custom-scrollbar">
         <div className="p-4 sm:p-8 lg:p-12 max-w-7xl mx-auto space-y-8">
           
           {/* FIX [Bug 5]: Removed floating bell icon — sidebar already has Notifications link with badge */}
-          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-[#30363d] pb-6">
+          <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-border pb-6">
             <div>
               <h1 className="text-3xl font-extrabold text-white tracking-tight">Academic Network</h1>
-              <p className="text-[#8b949e] mt-1">Connect with students, faculty, alumni, and mentors.</p>
+              <p className="text-text-secondary mt-1">Connect with students, faculty, alumni, and mentors.</p>
             </div>
           </header>
 
@@ -117,18 +117,18 @@ export default function AcademicNetwork() {
           </nav>
 
           <section id="directory" className="pt-4" ref={gridTopRef}>
-            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 shadow-sm mb-8">
+            <div className="bg-surface border border-border rounded-xl p-6 shadow-sm mb-8">
               
               <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
                 {/* Search Bar */}
                 <div className="relative w-full md:w-1/3">
-                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e]">search</span>
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">search</span>
                   <input
                     type="text"
                     value={searchTerm}
                     onChange={onSearchType}
                     placeholder="Search by name, dept, or bio..."
-                    className="w-full bg-[#0d1117] border border-[#30363d] text-white pl-10 pr-10 py-2.5 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
+                    className="w-full bg-background border border-border text-white pl-10 pr-10 py-2.5 rounded-lg focus:outline-none focus:border-blue-500 transition-colors"
                   />
                   {searchTerm && (
                     <button 
@@ -136,7 +136,7 @@ export default function AcademicNetwork() {
                         setSearchTerm('');
                         dispatch(setFilter({ field: 'search', value: '' }));
                       }}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8b949e] hover:text-white"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-white"
                     >
                       <span className="material-symbols-outlined text-sm">close</span>
                     </button>
@@ -162,7 +162,7 @@ export default function AcademicNetwork() {
                 <select 
                   value={filters.department}
                   onChange={(e) => handleFilterChange('department', e.target.value)}
-                  className="bg-[#0d1117] border border-[#30363d] text-white py-2 px-3 rounded-lg focus:outline-none focus:border-blue-500 transition-colors appearance-none"
+                  className="bg-background border border-border text-white py-2 px-3 rounded-lg focus:outline-none focus:border-blue-500 transition-colors appearance-none"
                 >
                   {['All', 'Computer Science', 'Software Engineering', 'Business Administration', 'Electrical Engineering', 'Social Sciences', 'Fine Arts'].map(opt => (
                     <option key={opt} value={opt}>{opt === 'All' ? 'All Departments' : opt}</option>
@@ -172,7 +172,7 @@ export default function AcademicNetwork() {
                 <select 
                   value={filters.interests}
                   onChange={(e) => handleFilterChange('interests', e.target.value)}
-                  className="bg-[#0d1117] border border-[#30363d] text-white py-2 px-3 rounded-lg focus:outline-none focus:border-blue-500 transition-colors appearance-none"
+                  className="bg-background border border-border text-white py-2 px-3 rounded-lg focus:outline-none focus:border-blue-500 transition-colors appearance-none"
                 >
                   {['All', 'AI', 'Machine Learning', 'Web Development', 'Cloud Computing', 'Data Science', 'Cybersecurity', 'Mobile Development', 'UI/UX Design', 'Research'].map(opt => (
                     <option key={opt} value={opt}>{opt === 'All' ? 'All Interests' : opt}</option>
@@ -182,7 +182,7 @@ export default function AcademicNetwork() {
                 <select 
                   value={filters.society}
                   onChange={(e) => handleFilterChange('society', e.target.value)}
-                  className="bg-[#0d1117] border border-[#30363d] text-white py-2 px-3 rounded-lg focus:outline-none focus:border-blue-500 transition-colors appearance-none"
+                  className="bg-background border border-border text-white py-2 px-3 rounded-lg focus:outline-none focus:border-blue-500 transition-colors appearance-none"
                 >
                   <option value="All">All Societies</option>
                   <option value="soc_1">Tech Society</option>
@@ -195,7 +195,7 @@ export default function AcademicNetwork() {
                 <select 
                   value={filters.role}
                   onChange={(e) => handleFilterChange('role', e.target.value)}
-                  className="bg-[#0d1117] border border-[#30363d] text-white py-2 px-3 rounded-lg focus:outline-none focus:border-blue-500 transition-colors appearance-none"
+                  className="bg-background border border-border text-white py-2 px-3 rounded-lg focus:outline-none focus:border-blue-500 transition-colors appearance-none"
                 >
                   {['All', 'Student', 'Faculty', 'Alumni', 'Mentor'].map(opt => (
                     <option key={opt} value={opt}>{opt === 'All' ? 'All Roles' : opt}</option>
@@ -205,11 +205,11 @@ export default function AcademicNetwork() {
 
               {/* Sort By Dropdown */}
               <div className="mt-6 flex justify-start items-center gap-3">
-                <span className="text-sm font-medium text-[#8b949e] shrink-0">Sort By:</span>
+                <span className="text-sm font-medium text-text-secondary shrink-0">Sort By:</span>
                 <select 
                   value={filters.sortBy}
                   onChange={(e) => handleFilterChange('sortBy', e.target.value)}
-                  className="bg-[#0d1117] border border-[#30363d] text-white py-1.5 px-3 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors appearance-none"
+                  className="bg-background border border-border text-white py-1.5 px-3 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors appearance-none"
                 >
                   <option value="name">Name A-Z</option>
                   <option value="role">Role</option>
@@ -221,13 +221,13 @@ export default function AcademicNetwork() {
             {/* Profile Grid */}
             {status === 'loading' ? (
               <div className="flex justify-center items-center py-20">
-                <span className="material-symbols-outlined text-4xl text-[#8b949e] animate-spin">refresh</span>
+                <span className="material-symbols-outlined text-4xl text-text-secondary animate-spin">refresh</span>
               </div>
             ) : profiles.length > 0 ? (
               <>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
                   {profiles.map(profile => (
-                    <div key={profile.id} className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 flex flex-col hover:border-blue-500/30 transition-all shadow-sm">
+                    <div key={profile.id} className="bg-surface border border-border rounded-xl p-6 flex flex-col hover:border-blue-500/30 transition-all shadow-sm">
                       <div className="flex items-start gap-4 mb-4">
                         <div className="relative">
                           <div className={`w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold border-2 ${
@@ -242,25 +242,25 @@ export default function AcademicNetwork() {
                         </div>
                         <div className="flex-1">
                           <h3 className="text-lg font-bold text-white leading-tight">{profile.name}</h3>
-                          <p className="text-sm text-[#8b949e] mt-1">{profile.department}</p>
+                          <p className="text-sm text-text-secondary mt-1">{profile.department}</p>
                           <span className={`inline-block mt-2 px-2 py-0.5 rounded text-xs font-bold border ${roleColors[profile.role] || 'bg-gray-800 border-gray-600 text-gray-300'}`}>
                             {profile.role} {profile.year ? `· ${profile.year}` : ''}
                           </span>
                         </div>
                       </div>
 
-                      <p className="text-sm text-[#c9d1d9] mb-4 line-clamp-2 min-h-[40px]">
+                      <p className="text-sm text-text-primary mb-4 line-clamp-2 min-h-[40px]">
                         {profile.bio}
                       </p>
 
                       <div className="flex flex-wrap gap-1.5 mb-6 mt-auto">
                         {profile.academicInterests?.slice(0, 2).map((interest, idx) => (
-                          <span key={idx} className="bg-[#21262d] border border-[#30363d] px-2 py-1 rounded text-xs text-[#8b949e]">
+                          <span key={idx} className="bg-surface-hover border border-border px-2 py-1 rounded text-xs text-text-secondary">
                             {interest}
                           </span>
                         ))}
                         {profile.academicInterests?.length > 2 && (
-                          <span className="bg-[#21262d] border border-[#30363d] px-2 py-1 rounded text-xs text-[#8b949e]">
+                          <span className="bg-surface-hover border border-border px-2 py-1 rounded text-xs text-text-secondary">
                             +{profile.academicInterests.length - 2} more
                           </span>
                         )}
@@ -293,7 +293,7 @@ export default function AcademicNetwork() {
                         {profile.connectionStatus === 'pending' && (
                           <button
                             disabled
-                            className="w-full bg-[#21262d] text-[#8b949e] border border-[#30363d] font-bold py-2 px-4 rounded-lg flex justify-center items-center h-10 cursor-not-allowed"
+                            className="w-full bg-surface-hover text-text-secondary border border-border font-bold py-2 px-4 rounded-lg flex justify-center items-center h-10 cursor-not-allowed"
                           >
                             Pending
                           </button>
@@ -303,13 +303,13 @@ export default function AcademicNetwork() {
                           <div className="flex gap-2">
                             <button
                               onClick={() => navigate(`/student/academic-network/${profile.id}`)}
-                              className="flex-1 bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] border border-[#30363d] font-bold py-2 rounded-lg flex justify-center items-center h-10 transition-colors text-sm"
+                              className="flex-1 bg-surface-hover hover:bg-[#30363d] text-text-primary border border-border font-bold py-2 rounded-lg flex justify-center items-center h-10 transition-colors text-sm"
                             >
                               Profile
                             </button>
                             <button
                               onClick={() => navigate('/student/messages', { state: { openChatWith: profile.id } })}
-                              className="flex-1 bg-[#238636] hover:bg-[#2ea043] text-white font-bold py-2 rounded-lg flex justify-center items-center h-10 transition-colors text-sm gap-1.5"
+                              className="flex-1 bg-primary hover:bg-primary-hover text-white font-bold py-2 rounded-lg flex justify-center items-center h-10 transition-colors text-sm gap-1.5"
                             >
                               <span className="material-symbols-outlined text-[18px]">chat</span>
                               Message
@@ -327,7 +327,7 @@ export default function AcademicNetwork() {
                     <button
                       onClick={() => handlePageChange(currentPage - 1)}
                       disabled={currentPage === 1}
-                      className="w-10 h-10 rounded-lg border border-[#30363d] flex items-center justify-center text-[#8b949e] hover:text-white hover:bg-[#21262d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-text-secondary hover:text-white hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <span className="material-symbols-outlined">chevron_left</span>
                     </button>
@@ -338,8 +338,8 @@ export default function AcademicNetwork() {
                         onClick={() => handlePageChange(page)}
                         className={`w-10 h-10 rounded-lg border font-medium flex items-center justify-center transition-colors ${
                           currentPage === page
-                            ? 'bg-[#238636] border-[#2ea043] text-white'
-                            : 'bg-[#0d1117] border-[#30363d] text-[#8b949e] hover:text-white hover:bg-[#21262d]'
+                            ? 'bg-primary border-[#2ea043] text-white'
+                            : 'bg-background border-border text-text-secondary hover:text-white hover:bg-surface-hover'
                         }`}
                       >
                         {page}
@@ -349,7 +349,7 @@ export default function AcademicNetwork() {
                     <button
                       onClick={() => handlePageChange(currentPage + 1)}
                       disabled={currentPage === totalPages}
-                      className="w-10 h-10 rounded-lg border border-[#30363d] flex items-center justify-center text-[#8b949e] hover:text-white hover:bg-[#21262d] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      className="w-10 h-10 rounded-lg border border-border flex items-center justify-center text-text-secondary hover:text-white hover:bg-surface-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
                       <span className="material-symbols-outlined">chevron_right</span>
                     </button>
@@ -357,15 +357,15 @@ export default function AcademicNetwork() {
                 )}
               </>
             ) : (
-              <div className="flex flex-col items-center justify-center py-24 px-6 text-center border border-[#30363d] rounded-xl bg-[#161b22]">
-                <span className="material-symbols-outlined text-6xl text-[#8b949e] mb-4">search_off</span>
+              <div className="flex flex-col items-center justify-center py-24 px-6 text-center border border-border rounded-xl bg-surface">
+                <span className="material-symbols-outlined text-6xl text-text-secondary mb-4">search_off</span>
                 <h3 className="text-xl font-bold text-white mb-2">No matching profiles found</h3>
-                <p className="text-[#8b949e] max-w-md">
+                <p className="text-text-secondary max-w-md">
                   Try adjusting your filters or search terms to see more results from the Campus Connect network.
                 </p>
                 <button
                   onClick={() => { setSearchTerm(''); dispatch(clearFilters()); }}
-                  className="mt-6 px-6 py-2 bg-[#21262d] border border-[#30363d] rounded-lg text-white hover:bg-[#30363d] transition-colors font-medium"
+                  className="mt-6 px-6 py-2 bg-surface-hover border border-border rounded-lg text-white hover:bg-[#30363d] transition-colors font-medium"
                 >
                   Clear Filters
                 </button>

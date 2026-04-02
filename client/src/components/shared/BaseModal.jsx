@@ -48,7 +48,7 @@ export default function BaseModal({ children, size = 'md' }) {
         className={`relative z-10 w-full ${sizeClasses[size] || sizeClasses.md} transform transition-all animate-in fade-in zoom-in-95 duration-200 ease-out`}
         onClick={(e) => e.stopPropagation()} // Stop backdrop click
       >
-        <div className="bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl p-6 relative overflow-hidden">
+        <div className="bg-surface border border-border rounded-xl shadow-2xl p-6 relative overflow-hidden">
           {children}
         </div>
       </div>

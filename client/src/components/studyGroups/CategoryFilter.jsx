@@ -11,8 +11,8 @@ export default function CategoryFilter({
           onClick={() => onFilterChange(cat)}
           className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
             activeFilter === cat
-              ? "bg-[#238636] text-white"
-              : "bg-[#161b22] text-[#8b949e] border border-[#30363d] hover:text-[#c9d1d9]"
+              ? "bg-primary text-white"
+              : "bg-surface text-text-secondary border border-border hover:text-text-primary"
           }`}
         >
           {cat === "all" ? "All Groups" : cat}

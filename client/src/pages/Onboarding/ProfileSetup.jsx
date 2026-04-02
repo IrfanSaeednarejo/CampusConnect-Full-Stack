@@ -42,7 +42,7 @@ export default function ProfileSetup() {
                 Set Up Your Profile
               </h1>
               <div className="group relative flex items-center">
-                <span className="material-symbols-outlined cursor-help text-[#8b949e]">
+                <span className="material-symbols-outlined cursor-help text-text-secondary">
                   help
                 </span>
                 <div className="absolute bottom-full left-1/2 mb-2 w-max -translate-x-1/2 scale-0 transform rounded-md bg-gray-900 px-3 py-1 text-xs text-white transition-all duration-150 group-hover:scale-100">
@@ -53,7 +53,7 @@ export default function ProfileSetup() {
             <OnboardingProgress
               currentStep={2}
               totalSteps={4}
-              textClassName="text-[#8b949e] text-sm font-normal"
+              textClassName="text-text-secondary text-sm font-normal"
             />
           </div>
 
@@ -80,15 +80,15 @@ export default function ProfileSetup() {
               <h2 className="text-base font-medium text-[#e6edf3]">
                 Profile Photo
               </h2>
-              <div className="flex flex-col items-center gap-6 rounded-lg border-2 border-dashed border-[#30363d] px-6 py-10 text-center">
-                <span className="material-symbols-outlined text-4xl text-[#8b949e]">
+              <div className="flex flex-col items-center gap-6 rounded-lg border-2 border-dashed border-border px-6 py-10 text-center">
+                <span className="material-symbols-outlined text-4xl text-text-secondary">
                   cloud_upload
                 </span>
                 <div className="flex flex-col items-center gap-1">
                   <p className="text-lg font-bold text-[#e6edf3]">
                     Drag &amp; drop
                   </p>
-                  <p className="text-sm text-[#8b949e]">or click to upload</p>
+                  <p className="text-sm text-text-secondary">or click to upload</p>
                 </div>
                 <button className="flex h-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-gray-700 px-4 text-sm font-bold text-[#e6edf3] transition-colors hover:bg-gray-600">
                   <span>Upload Photo</span>

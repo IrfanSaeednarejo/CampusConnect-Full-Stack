@@ -1,17 +1,17 @@
 export default function SocietyCard({ society, className = "" }) {
   return (
     <div
-      className={`bg-[#161b22] border border-[#30363d] rounded-lg overflow-hidden hover:border-[#238636]/50 transition-colors group cursor-pointer ${className}`}
+      className={`bg-surface border border-border rounded-lg overflow-hidden hover:border-primary/50 transition-colors group cursor-pointer ${className}`}
     >
       {/* Society Image */}
-      <div className="relative w-full h-40 overflow-hidden bg-[#0d1117]">
+      <div className="relative w-full h-40 overflow-hidden bg-background">
         <div
           className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-300"
           style={{ backgroundImage: `url("${society.image}")` }}
         />
         {/* Category Badge */}
         <div className="absolute top-4 right-4">
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#161b22]/80 text-[#238636] border border-[#238636]">
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-surface/80 text-primary border border-primary">
             {society.category}
           </span>
         </div>
@@ -25,22 +25,22 @@ export default function SocietyCard({ society, className = "" }) {
           </h3>
         </div>
 
-        <p className="text-[#8b949e] text-sm line-clamp-2">
+        <p className="text-text-secondary text-sm line-clamp-2">
           {society.description}
         </p>
 
         {/* Society Stats */}
-        <div className="space-y-1 py-3 border-t border-b border-[#30363d]">
-          <div className="flex items-center gap-2 text-[#8b949e] text-sm">
+        <div className="space-y-1 py-3 border-t border-b border-border">
+          <div className="flex items-center gap-2 text-text-secondary text-sm">
             <span className="material-symbols-outlined text-base">group</span>
             <span>{society.members} members</span>
           </div>
-          <div className="flex items-center gap-2 text-[#8b949e] text-sm">
+          <div className="flex items-center gap-2 text-text-secondary text-sm">
             <span className="material-symbols-outlined text-base">event</span>
             <span>{society.events} events this year</span>
           </div>
           {society.status === "registered" && (
-            <div className="flex items-center gap-2 text-[#238636] text-sm font-medium">
+            <div className="flex items-center gap-2 text-primary text-sm font-medium">
               <span className="material-symbols-outlined text-base">
                 verified
               </span>
@@ -53,8 +53,8 @@ export default function SocietyCard({ society, className = "" }) {
         <button
           className={`w-full flex items-center justify-center overflow-hidden rounded-lg h-9 px-4 gap-2 text-sm font-bold leading-normal tracking-[0.015em] transition-colors ${
             society.status === "registered"
-              ? "bg-[#30363d] text-[#c9d1d9] hover:bg-[#3d444d]"
-              : "bg-[#238636] text-[#0d1117] hover:bg-[#2ea043]"
+              ? "bg-[#30363d] text-text-primary hover:bg-[#3d444d]"
+              : "bg-primary text-[#0d1117] hover:bg-primary-hover"
           }`}
         >
           <span className="material-symbols-outlined text-base">

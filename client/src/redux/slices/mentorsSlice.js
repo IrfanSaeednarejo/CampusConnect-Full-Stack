@@ -12,7 +12,7 @@ export const fetchMentors = createAsyncThunk('mentors/fetchAll', async (filters 
       _id: m._id,
       name: m.userId?.profile?.displayName
         || `${m.userId?.profile?.firstName || ''} ${m.userId?.profile?.lastName || ''}`.trim()
-        || 'Mentor',
+        || (m.userId?.email ? m.userId.email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) : 'Mentor'),
       avatar: m.userId?.profile?.avatar || '',
       department: m.userId?.academic?.department || '',
       email: m.userId?.email || '',

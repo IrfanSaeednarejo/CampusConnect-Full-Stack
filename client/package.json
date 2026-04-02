@@ -4,9 +4,9 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "client": "vite",
-    "dev": "vite",
-    "build": "vite build",
+    "client": "node --max-old-space-size=4096 ./node_modules/vite/bin/vite.js",
+    "dev": "node --max-old-space-size=4096 ./node_modules/vite/bin/vite.js",
+    "build": "node --max-old-space-size=4096 ./node_modules/vite/bin/vite.js build",
     "preview": "vite preview"
   },
   "dependencies": {

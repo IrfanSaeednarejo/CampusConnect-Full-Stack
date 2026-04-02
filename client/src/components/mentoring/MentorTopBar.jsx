@@ -36,7 +36,7 @@ export default function MentorTopBar({
 
   return (
     <header
-      className={`flex items-center justify-between whitespace-nowrap border-b border-solid border-[#30363d] px-6 py-3 lg:px-10 bg-[#161b22] ${className}`}
+      className={`flex items-center justify-between whitespace-nowrap border-b border-solid border-border px-6 py-3 lg:px-10 bg-surface ${className}`}
     >
       <div className="flex items-center gap-8">
         {showBack && (
@@ -68,11 +68,11 @@ export default function MentorTopBar({
         {onSearchChange && (
           <label className="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
             <div className="flex w-full flex-1 items-stretch rounded-lg h-full">
-              <div className="text-[#9eb7a9] flex border-none bg-[#0d1117] items-center justify-center pl-4 rounded-l-lg">
+              <div className="text-text-secondary flex border-none bg-background items-center justify-center pl-4 rounded-l-lg">
                 <span className="material-symbols-outlined text-xl">search</span>
               </div>
               <input
-                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-[#0d1117] h-full placeholder:text-[#9eb7a9] px-4 rounded-l-none pl-2 text-base font-normal"
+                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-background h-full placeholder:text-text-secondary px-4 rounded-l-none pl-2 text-base font-normal"
                 placeholder="Search"
                 value={searchValue}
                 onChange={(e) => onSearchChange(e.target.value)}

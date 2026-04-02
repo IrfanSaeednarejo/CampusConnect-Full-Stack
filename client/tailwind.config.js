@@ -4,12 +4,43 @@ export default {
   theme: {
     extend: {
       colors: {
-        primary: "#238636",
+        background: {
+          DEFAULT: "var(--bg-background)",
+          surface: "var(--bg-surface)",
+        },
+        surface: {
+          DEFAULT: "var(--bg-surface)",
+          hover: "var(--bg-surface-hover)",
+          dark: "#161b22",
+        },
+        border: {
+          DEFAULT: "var(--border-default)",
+          hover: "var(--border-hover)",
+          dark: "#30363d",
+        },
+        text: {
+          primary: "var(--text-primary)",
+          secondary: "var(--text-secondary)",
+          tertiary: "var(--text-tertiary)",
+          "primary-dark": "#c9d1d9",
+          "secondary-dark": "#8b949e",
+        },
+        primary: {
+          DEFAULT: "var(--accent-primary)",
+          hover: "var(--accent-primary-hover)",
+        },
+        danger: {
+          DEFAULT: "var(--accent-danger)",
+          hover: "var(--accent-danger-hover)",
+        },
+        warning: {
+          DEFAULT: "var(--accent-warning)",
+        },
+        // Legacy colors kept temporarily to prevent app crashes during transition
         "background-light": "#f6f8f7",
         "background-dark": "#0d1117",
         "dark-gray": "#161b22",
         "light-gray": "#8b949e",
-        border: "#30363d",
       },
       fontFamily: {
         display: ["Inter", "sans-serif"],

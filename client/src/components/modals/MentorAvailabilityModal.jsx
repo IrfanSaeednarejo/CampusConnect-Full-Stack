@@ -109,14 +109,14 @@ export default function MentorAvailabilityModal({ closeModal }) {
   return (
     <BaseModal size="xl">
       <div className="flex flex-col max-h-[85vh]">
-        <div className="flex justify-between items-center mb-4 pb-4 border-b border-[#30363d] shrink-0">
+        <div className="flex justify-between items-center mb-4 pb-4 border-b border-border shrink-0">
           <div>
             <h2 className="text-2xl font-black text-white tracking-tight">Set Availability</h2>
-            <p className="text-[#8b949e] text-sm mt-1">Define your mentoring time slots</p>
+            <p className="text-text-secondary text-sm mt-1">Define your mentoring time slots</p>
           </div>
           <button 
             onClick={closeModal}
-            className="p-2 text-[#8b949e] hover:text-white rounded-full hover:bg-[#30363d] transition-colors"
+            className="p-2 text-text-secondary hover:text-white rounded-full hover:bg-[#30363d] transition-colors"
           >
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -137,14 +137,14 @@ export default function MentorAvailabilityModal({ closeModal }) {
             </div>
             <div className="flex flex-col items-center gap-2 max-w-md">
               <p className="text-white text-lg font-bold">Complete Your Mentor Profile</p>
-              <p className="text-[#8b949e] text-sm">
+              <p className="text-text-secondary text-sm">
                 You have the mentor role, but you haven't created your mentor profile yet.
                 Register as a mentor to set your expertise, hourly rate, and availability.
               </p>
             </div>
             <button
               onClick={() => { closeModal(); navigate("/mentor-registration"); }}
-              className="flex items-center gap-2 px-6 py-3 bg-[#1dc964] text-[#112118] rounded-lg hover:opacity-90 transition-opacity font-bold"
+              className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity font-bold"
             >
               <span className="material-symbols-outlined text-sm">how_to_reg</span>
               Complete Mentor Registration
@@ -156,11 +156,11 @@ export default function MentorAvailabilityModal({ closeModal }) {
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="w-8 h-8 border-4 border-[#1dc964] border-t-transparent rounded-full animate-spin mb-3"></div>
-                  <p className="text-[#8b949e] text-sm">Loading schedule...</p>
+                  <p className="text-text-secondary text-sm">Loading schedule...</p>
                 </div>
               ) : (
                 WEEKDAYS.map((day) => (
-                  <div key={day} className="p-4 bg-[#0d1117] border border-[#30363d] rounded-xl">
+                  <div key={day} className="p-4 bg-background border border-border rounded-xl">
                     <div className="flex items-center justify-between mb-3">
                       <h3 className="text-white font-semibold flex items-center gap-2">
                         <span className="material-symbols-outlined text-[#1dc964] text-lg">calendar_month</span>
@@ -168,7 +168,7 @@ export default function MentorAvailabilityModal({ closeModal }) {
                       </h3>
                       <button
                         onClick={() => handleAddSlot(day)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-[#21262d] text-white text-xs font-medium rounded hover:bg-[#30363d] transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-hover text-white text-xs font-medium rounded hover:bg-[#30363d] transition-colors"
                       >
                         <span className="material-symbols-outlined text-sm">add</span>
                         Add Slot
@@ -178,23 +178,23 @@ export default function MentorAvailabilityModal({ closeModal }) {
                     {(availability[day.toLowerCase()] || []).length > 0 ? (
                       <div className="space-y-2">
                         {availability[day.toLowerCase()].map((slot, idx) => (
-                          <div key={idx} className="flex flex-wrap items-center gap-3 p-2.5 bg-[#161b22] border border-[#21262d] rounded-lg group">
+                          <div key={idx} className="flex flex-wrap items-center gap-3 p-2.5 bg-surface border border-[#21262d] rounded-lg group">
                             <input
                               type="time"
                               value={slot.start}
                               onChange={(e) => handleTimeChange(day, idx, 'start', e.target.value)}
-                              className="px-2 py-1.5 bg-[#21262d] text-sm text-white rounded outline-none focus:ring-1 focus:ring-[#1dc964]"
+                              className="px-2 py-1.5 bg-surface-hover text-sm text-white rounded outline-none focus:ring-1 focus:ring-[#1dc964]"
                             />
-                            <span className="text-[#8b949e] text-sm font-medium">to</span>
+                            <span className="text-text-secondary text-sm font-medium">to</span>
                             <input
                               type="time"
                               value={slot.end}
                               onChange={(e) => handleTimeChange(day, idx, 'end', e.target.value)}
-                              className="px-2 py-1.5 bg-[#21262d] text-sm text-white rounded outline-none focus:ring-1 focus:ring-[#1dc964]"
+                              className="px-2 py-1.5 bg-surface-hover text-sm text-white rounded outline-none focus:ring-1 focus:ring-[#1dc964]"
                             />
                             <button
                               onClick={() => handleRemoveSlot(day, idx)}
-                              className="ml-auto text-[#8b949e] hover:text-red-400 opacity-70 hover:opacity-100 transition-opacity p-1 rounded hover:bg-[#21262d]"
+                              className="ml-auto text-text-secondary hover:text-red-400 opacity-70 hover:opacity-100 transition-opacity p-1 rounded hover:bg-surface-hover"
                               title="Remove time slot"
                             >
                               <span className="material-symbols-outlined text-sm">close</span>
@@ -203,24 +203,24 @@ export default function MentorAvailabilityModal({ closeModal }) {
                         ))}
                       </div>
                     ) : (
-                      <p className="text-[#8b949e] text-xs font-medium italic pl-1">Unavailable</p>
+                      <p className="text-text-secondary text-xs font-medium italic pl-1">Unavailable</p>
                     )}
                   </div>
                 ))
               )}
             </div>
 
-            <div className="flex justify-end gap-3 pt-5 mt-4 border-t border-[#30363d] shrink-0">
+            <div className="flex justify-end gap-3 pt-5 mt-4 border-t border-border shrink-0">
               <button
                 onClick={closeModal}
-                className="px-5 py-2.5 font-medium text-[#c9d1d9] hover:text-white rounded-lg hover:bg-[#30363d] transition-colors"
+                className="px-5 py-2.5 font-medium text-text-primary hover:text-white rounded-lg hover:bg-[#30363d] transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving || loading}
-                className="flex items-center gap-2 px-6 py-2.5 bg-[#1dc964] text-[#112118] rounded-lg hover:opacity-90 transition-opacity font-bold disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center gap-2 px-6 py-2.5 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity font-bold disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saving ? (
                   <div className="w-4 h-4 border-2 border-[#112118] border-t-transparent rounded-full animate-spin"></div>

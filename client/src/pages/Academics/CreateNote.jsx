@@ -24,10 +24,10 @@ export default function CreateNote() {
         <div className="flex flex-col gap-6">
           <header className="flex justify-between items-center">
             <div className="flex flex-col gap-1">
-              <h1 className="text-3xl font-bold text-[#24292f] dark:text-[#c9d1d9] tracking-tight">
+              <h1 className="text-3xl font-bold text-[#24292f] dark:text-text-primary tracking-tight">
                 Create New Note
               </h1>
-              <p className="text-sm text-[#57606a] dark:text-[#8b949e]">
+              <p className="text-sm text-[#57606a] dark:text-text-secondary">
                 Write your thoughts, lecture notes, or study materials
               </p>
             </div>
@@ -52,8 +52,8 @@ export default function CreateNote() {
           />
 
           {/* Rich Text Editor */}
-          <div className="bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg overflow-hidden">
-            <div className="p-2 border-b border-[#d0d7de] dark:border-[#30363d]">
+          <div className="bg-white dark:bg-surface border border-[#d0d7de] dark:border-border rounded-lg overflow-hidden">
+            <div className="p-2 border-b border-[#d0d7de] dark:border-border">
               <NoteEditorToolbar
                 buttonClassName="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
                 dividerClassName="w-px h-5 bg-[#d0d7de] dark:bg-[#30363d] mx-1"
@@ -62,7 +62,7 @@ export default function CreateNote() {
             <textarea
               value={noteContent}
               onChange={(e) => setNoteContent(e.target.value)}
-              className="w-full h-96 p-4 bg-transparent focus:outline-none resize-y text-[#24292f] dark:text-[#c9d1d9] placeholder:text-[#57606a] dark:placeholder:text-[#8b949e]"
+              className="w-full h-96 p-4 bg-transparent focus:outline-none resize-y text-[#24292f] dark:text-text-primary placeholder:text-[#57606a] dark:placeholder:text-text-secondary"
               placeholder="Start writing your note..."
             />
           </div>

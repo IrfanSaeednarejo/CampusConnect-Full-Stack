@@ -31,11 +31,11 @@ export default function MentorEvents() {
     const colors = {
       draft: "bg-gray-500/20 text-gray-400",
       registration: "bg-blue-500/20 text-blue-400",
-      ongoing: "bg-[#1dc964]/20 text-[#1dc964]",
-      completed: "bg-[#9eb7a9]/20 text-[#9eb7a9]",
+      ongoing: "bg-primary/20 text-[#1dc964]",
+      completed: "bg-[#9eb7a9]/20 text-text-secondary",
       cancelled: "bg-red-500/20 text-red-400",
     };
-    return colors[status?.toLowerCase()] || "bg-[#1dc964]/20 text-[#1dc964]";
+    return colors[status?.toLowerCase()] || "bg-primary/20 text-[#1dc964]";
   };
 
   const formatDate = (dateStr) => {
@@ -48,7 +48,7 @@ export default function MentorEvents() {
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
       <div className="layout-container flex h-full grow flex-col">
         <MentorTopBar backPath="/mentor/dashboard" />
 
@@ -59,7 +59,7 @@ export default function MentorEvents() {
               <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                 Campus Events
               </h1>
-              <p className="text-[#9eb7a9] text-base font-normal leading-normal">
+              <p className="text-text-secondary text-base font-normal leading-normal">
                 Browse and participate in campus events and competitions
               </p>
             </div>
@@ -74,7 +74,7 @@ export default function MentorEvents() {
             {loading ? (
               <div className="flex flex-col items-center justify-center gap-4 py-16">
                 <div className="w-10 h-10 border-4 border-[#1dc964] border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-[#9eb7a9]">Loading events...</p>
+                <p className="text-text-secondary">Loading events...</p>
               </div>
             ) : events.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -92,7 +92,7 @@ export default function MentorEvents() {
                   return (
                     <div
                       key={eId}
-                      className="flex flex-col bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden hover:border-[#1dc964] transition-colors"
+                      className="flex flex-col bg-surface border border-border rounded-xl overflow-hidden hover:border-[#1dc964] transition-colors"
                     >
                       {coverImage ? (
                         <img
@@ -120,28 +120,28 @@ export default function MentorEvents() {
                         </div>
 
                         {description && (
-                          <p className="text-[#9eb7a9] text-sm line-clamp-2">{description}</p>
+                          <p className="text-text-secondary text-sm line-clamp-2">{description}</p>
                         )}
 
-                        <div className="flex items-center gap-2 text-[#9eb7a9] text-sm">
+                        <div className="flex items-center gap-2 text-text-secondary text-sm">
                           <span className="material-symbols-outlined text-base">calendar_today</span>
                           {formatDate(startDate)}
                           {endDate && ` — ${formatDate(endDate)}`}
                         </div>
 
-                        <div className="flex items-center gap-2 text-[#9eb7a9] text-sm">
+                        <div className="flex items-center gap-2 text-text-secondary text-sm">
                           <span className="material-symbols-outlined text-base">location_on</span>
                           {location}
                         </div>
 
-                        <div className="flex items-center gap-2 text-[#9eb7a9] text-sm mt-1">
+                        <div className="flex items-center gap-2 text-text-secondary text-sm mt-1">
                           <span className="material-symbols-outlined text-base">people</span>
                           {participants} participant{participants !== 1 ? "s" : ""}
                         </div>
 
                         <button
                           onClick={() => navigate(`/event/dashboard?id=${eId}`)}
-                          className="mt-4 w-full px-4 py-2 bg-[#1dc964] text-[#112118] font-bold rounded hover:opacity-90 transition-opacity"
+                          className="mt-4 w-full px-4 py-2 bg-primary text-white font-bold rounded hover:opacity-90 transition-opacity"
                         >
                           View Details
                         </button>
@@ -152,12 +152,12 @@ export default function MentorEvents() {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-6 py-16 text-center">
-                <span className="material-symbols-outlined text-6xl text-[#9eb7a9]">
+                <span className="material-symbols-outlined text-6xl text-text-secondary">
                   event_busy
                 </span>
                 <div>
                   <p className="text-white text-lg font-bold">No events yet</p>
-                  <p className="text-[#9eb7a9] text-sm">
+                  <p className="text-text-secondary text-sm">
                     Campus events and competitions will appear here once they're created.
                   </p>
                 </div>

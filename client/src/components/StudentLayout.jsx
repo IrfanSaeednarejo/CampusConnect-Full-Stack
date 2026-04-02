@@ -3,7 +3,7 @@ import StudentSidebar from "./layout/StudentSidebar";
 
 export default function StudentLayout() {
   return (
-    <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen">
+    <div className="w-full bg-background text-text-primary min-h-screen">
       <div className="flex h-full min-h-[calc(100vh-65px)]">
         {/* Shared Sidebar */}
         <StudentSidebar />

@@ -56,7 +56,7 @@ export default function SocietiesList() {
   );
 
   return (
-    <div className="flex flex-col min-h-screen overflow-y-auto bg-[#0d1117]">
+    <div className="flex flex-col min-h-screen overflow-y-auto bg-background">
       {/* Header */}
       <PageHeader
         title="All Societies"
@@ -89,7 +89,7 @@ export default function SocietiesList() {
         {/* Search Bar */}
         <div className="mb-6">
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e]">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">
               search
             </span>
             <input
@@ -97,7 +97,7 @@ export default function SocietiesList() {
               placeholder="Search societies..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-[#161b22] border border-[#30363d] rounded-lg text-[#e6edf3] placeholder-[#8b949e] focus:outline-none focus:border-[#238636]"
+              className="w-full pl-12 pr-4 py-3 bg-surface border border-border rounded-lg text-[#e6edf3] placeholder-[#8b949e] focus:outline-none focus:border-primary"
             />
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function SocietiesList() {
                 <div className="flex flex-col h-full">
                   {/* Society Logo */}
                   <div className="flex items-center gap-4 mb-4">
-                    <div className="w-16 h-16 rounded-lg bg-[#238636]/20 flex items-center justify-center text-3xl overflow-hidden">
+                    <div className="w-16 h-16 rounded-lg bg-primary/20 flex items-center justify-center text-3xl overflow-hidden">
                       {society.media?.logo && society.media.logo.startsWith('http') ? (
                         <img src={society.media.logo} alt={society.name} className="w-full h-full object-cover rounded-lg" />
                       ) : (
@@ -148,20 +148,20 @@ export default function SocietiesList() {
                       <h3 className="text-lg font-bold text-white mb-1">
                         {society.name}
                       </h3>
-                      <span className="px-2 py-1 bg-[#238636]/20 text-[#238636] text-xs rounded-full font-medium">
+                      <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full font-medium">
                         {society.category}
                       </span>
                     </div>
                   </div>
 
                   {/* Description */}
-                  <p className="text-[#8b949e] text-sm mb-4 line-clamp-2 flex-1">
+                  <p className="text-text-secondary text-sm mb-4 line-clamp-2 flex-1">
                     {society.description}
                   </p>
 
                   {/* Society Info */}
-                  <div className="flex items-center justify-between pt-4 border-t border-[#30363d]">
-                    <div className="flex items-center gap-4 text-sm text-[#8b949e]">
+                  <div className="flex items-center justify-between pt-4 border-t border-border">
+                    <div className="flex items-center gap-4 text-sm text-text-secondary">
                       <div className="flex items-center gap-1">
                         <span className="material-symbols-outlined text-sm">
                           people
@@ -178,7 +178,7 @@ export default function SocietiesList() {
                   </div>
 
                   {/* Society Head */}
-                  <div className="flex items-center gap-2 mt-3 text-xs text-[#8b949e]">
+                  <div className="flex items-center gap-2 mt-3 text-xs text-text-secondary">
                     <span className="material-symbols-outlined text-sm">
                       person
                     </span>

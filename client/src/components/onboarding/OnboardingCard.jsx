@@ -5,7 +5,7 @@ export default function OnboardingCard({
 }) {
   return (
     <div
-      className={`rounded-lg border border-[#30363d] bg-[#161b22] ${padding} ${className}`}
+      className={`rounded-lg border border-border bg-surface ${padding} ${className}`}
     >
       {children}
     </div>

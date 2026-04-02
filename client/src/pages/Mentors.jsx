@@ -64,8 +64,8 @@ export default function Mentors() {
   };
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
-      <div className="max-w-[960px] mx-auto">
+    <div className="w-full bg-background text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-10">
           <SectionHeader
@@ -78,8 +78,8 @@ export default function Mentors() {
         {/* Loading State */}
         {loading ? (
           <div className="flex flex-col items-center justify-center gap-4 py-16">
-            <div className="w-10 h-10 border-4 border-[#238636] border-t-transparent rounded-full animate-spin"></div>
-            <p className="text-[#8b949e]">Loading mentors...</p>
+            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-text-secondary">Loading mentors...</p>
           </div>
         ) : mentors.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -106,12 +106,12 @@ export default function Mentors() {
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center gap-6 py-16 text-center">
-            <span className="material-symbols-outlined text-6xl text-[#8b949e]">
+            <span className="material-symbols-outlined text-6xl text-text-secondary">
               people
             </span>
             <div>
               <p className="text-white text-lg font-bold">No mentors available yet</p>
-              <p className="text-[#8b949e] text-sm">
+              <p className="text-text-secondary text-sm">
                 Be the first to register as a mentor and help fellow students!
               </p>
             </div>

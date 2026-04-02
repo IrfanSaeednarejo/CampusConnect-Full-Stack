@@ -8,13 +8,13 @@ export default function NoteBreadcrumbs({
   return (
     <nav className="flex items-center text-sm mb-6">
       <Link
-        className="text-[#57606a] dark:text-[#8b949e] hover:underline"
+        className="text-[#57606a] dark:text-text-secondary hover:underline"
         to={baseTo}
       >
         {baseLabel}
       </Link>
-      <span className="mx-2 text-[#57606a] dark:text-[#8b949e]">/</span>
-      <span className="text-[#24292f] dark:text-[#c9d1d9] font-medium">
+      <span className="mx-2 text-[#57606a] dark:text-text-secondary">/</span>
+      <span className="text-[#24292f] dark:text-text-primary font-medium">
         {currentLabel}
       </span>
     </nav>

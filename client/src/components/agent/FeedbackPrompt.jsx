@@ -38,15 +38,15 @@ export default function FeedbackPrompt() {
 
   if (!isActive) {
     return (
-      <div className="p-4 border border-[#30363d] rounded-lg bg-[#161b22]">
+      <div className="p-4 border border-border rounded-lg bg-surface">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-[#c9d1d9] font-semibold mb-1">Share Your Feedback</h3>
-            <p className="text-[#8b949e] text-sm">Help us improve your experience.</p>
+            <h3 className="text-text-primary font-semibold mb-1">Share Your Feedback</h3>
+            <p className="text-text-secondary text-sm">Help us improve your experience.</p>
           </div>
           <button
             onClick={handleActivateFeedback}
-            className="px-4 py-2 bg-[#238636] text-white rounded-md text-sm font-medium hover:bg-[#2ea043] transition-colors"
+            className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary-hover transition-colors"
           >
             Share Feedback
           </button>
@@ -56,12 +56,12 @@ export default function FeedbackPrompt() {
   }
 
   return (
-    <div className="p-4 border border-[#30363d] rounded-lg bg-[#161b22]">
+    <div className="p-4 border border-border rounded-lg bg-surface">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-[#c9d1d9] font-semibold">Feedback</h3>
+        <h3 className="text-text-primary font-semibold">Feedback</h3>
         <button
           onClick={() => stopAgent()}
-          className="px-3 py-1 bg-[#da3633] text-white rounded text-xs font-medium hover:bg-[#f85149] transition-colors"
+          className="px-3 py-1 bg-danger text-white rounded text-xs font-medium hover:bg-[#f85149] transition-colors"
         >
           Close
         </button>
@@ -71,12 +71,12 @@ export default function FeedbackPrompt() {
         value={feedback}
         onChange={(e) => setFeedback(e.target.value)}
         placeholder="Tell us what you think..."
-        className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded text-[#c9d1d9] text-sm placeholder:text-[#8b949e] focus:outline-none focus:ring-2 focus:ring-[#238636] min-h-[100px] resize-none"
+        className="w-full px-3 py-2 bg-background border border-border rounded text-text-primary text-sm placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-primary min-h-[100px] resize-none"
       />
 
       <button
         onClick={handleSubmitFeedback}
-        className="mt-3 px-4 py-2 bg-[#238636] text-white rounded-md text-sm font-medium hover:bg-[#2ea043] transition-colors w-full"
+        className="mt-3 px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary-hover transition-colors w-full"
       >
         Submit Feedback
       </button>

@@ -195,7 +195,7 @@ export default function Events() {
       return (
         <button
           disabled
-          className="h-8 px-4 text-xs font-semibold rounded-lg bg-[#238636] text-white flex items-center justify-center gap-2 opacity-70"
+          className="h-8 px-4 text-xs font-semibold rounded-lg bg-primary text-white flex items-center justify-center gap-2 opacity-70"
         >
           {spinner}
         </button>
@@ -206,7 +206,7 @@ export default function Events() {
       return (
         <button
           disabled
-          className="h-8 px-4 text-xs font-semibold rounded-lg bg-[#30363d] text-[#8b949e] cursor-not-allowed"
+          className="h-8 px-4 text-xs font-semibold rounded-lg bg-[#30363d] text-text-secondary cursor-not-allowed"
         >
           Ended
         </button>
@@ -229,7 +229,7 @@ export default function Events() {
       return (
         <button
           disabled
-          className="h-8 px-4 text-xs font-semibold rounded-lg bg-[#30363d] text-[#8b949e] cursor-not-allowed"
+          className="h-8 px-4 text-xs font-semibold rounded-lg bg-[#30363d] text-text-secondary cursor-not-allowed"
         >
           Registration Closed
         </button>
@@ -241,7 +241,7 @@ export default function Events() {
       return (
         <button
           onClick={() => handleCancel(event._id)}
-          className="h-8 px-4 text-xs font-semibold rounded-lg border border-[#238636] text-[#3fb950] hover:bg-[#238636]/10 transition-colors"
+          className="h-8 px-4 text-xs font-semibold rounded-lg border border-primary text-[#3fb950] hover:bg-primary/10 transition-colors"
         >
           Registered ✓
         </button>
@@ -251,7 +251,7 @@ export default function Events() {
     return (
       <button
         onClick={() => handleRegister(event._id)}
-        className="h-8 px-4 text-xs font-semibold rounded-lg bg-[#238636] hover:bg-[#2ea043] text-white transition-colors"
+        className="h-8 px-4 text-xs font-semibold rounded-lg bg-primary hover:bg-primary-hover text-white transition-colors"
       >
         Register
       </button>
@@ -262,7 +262,7 @@ export default function Events() {
   const renderStatusBadge = (liveStatus) => {
     if (liveStatus === "upcoming") {
       return (
-        <span className="absolute top-3 right-3 px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-full bg-[#238636]/20 text-[#3fb950] border border-[#238636]/40">
+        <span className="absolute top-3 right-3 px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-full bg-primary/20 text-[#3fb950] border border-primary/40">
           Upcoming
         </span>
       );
@@ -275,7 +275,7 @@ export default function Events() {
       );
     }
     return (
-      <span className="absolute top-3 right-3 px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-full bg-[#30363d] text-[#8b949e] border border-[#484f58]">
+      <span className="absolute top-3 right-3 px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-full bg-[#30363d] text-text-secondary border border-[#484f58]">
         Ended
       </span>
     );
@@ -298,21 +298,21 @@ export default function Events() {
   ];
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
-      <div className="max-w-[960px] mx-auto">
+    <div className="w-full bg-background text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
             Campus Events
           </h1>
-          <p className="text-[#8b949e] text-base mt-2">
+          <p className="text-text-secondary text-base mt-2">
             Discover and join exciting events happening on campus. From tech
             talks to social gatherings, find what interests you.
           </p>
         </div>
 
         {/* FIX [Bug 4]: Tab Navigation */}
-        <div className="flex gap-1 mb-6 border-b border-[#30363d]">
+        <div className="flex gap-1 mb-6 border-b border-border">
           {tabs.map((tab) => (
             <button
               key={tab.key}
@@ -320,15 +320,15 @@ export default function Events() {
               className={`px-4 py-3 text-sm font-medium transition-colors ${
                 activeTab === tab.key
                   ? "text-[#3fb950] border-b-2 border-[#3fb950] font-semibold"
-                  : "text-[#8b949e] hover:text-white"
+                  : "text-text-secondary hover:text-white"
               }`}
             >
               {tab.label}{" "}
               <span
                 className={`ml-1 text-xs px-1.5 py-0.5 rounded-full ${
                   activeTab === tab.key
-                    ? "bg-[#238636]/20 text-[#3fb950]"
-                    : "bg-[#30363d] text-[#8b949e]"
+                    ? "bg-primary/20 text-[#3fb950]"
+                    : "bg-[#30363d] text-text-secondary"
                 }`}
               >
                 {tab.count}
@@ -340,7 +340,7 @@ export default function Events() {
         {/* FIX [Bug 5]: Search Bar */}
         <div className="mb-4">
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e] text-[20px]">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary text-[20px]">
               search
             </span>
             <input
@@ -348,12 +348,12 @@ export default function Events() {
               placeholder="Search events by title, description, or location..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-[#0d1117] border border-[#30363d] text-[#e6edf3] text-sm placeholder-[#484f58] focus:outline-none focus:border-[#3fb950] transition-colors"
+              className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-background border border-border text-[#e6edf3] text-sm placeholder-[#484f58] focus:outline-none focus:border-[#3fb950] transition-colors"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8b949e] hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-white"
               >
                 <span className="material-symbols-outlined text-[18px]">
                   close
@@ -371,8 +371,8 @@ export default function Events() {
               onClick={() => setActiveTag(tag)}
               className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                 activeTag === tag
-                  ? "bg-[#238636] text-white"
-                  : "bg-[#161b22] text-[#8b949e] border border-[#30363d] hover:text-white hover:border-[#484f58]"
+                  ? "bg-primary text-white"
+                  : "bg-surface text-text-secondary border border-border hover:text-white hover:border-[#484f58]"
               }`}
             >
               {tag}
@@ -381,7 +381,7 @@ export default function Events() {
         </div>
 
         {/* Result count */}
-        <p className="text-[#8b949e] text-xs mb-6">
+        <p className="text-text-secondary text-xs mb-6">
           Showing {displayedEvents.length} event
           {displayedEvents.length !== 1 ? "s" : ""}
         </p>
@@ -392,7 +392,7 @@ export default function Events() {
             {[1, 2, 3, 4].map((i) => (
               <div
                 key={i}
-                className="rounded-xl bg-[#161b22] border border-[#30363d] h-64 animate-pulse"
+                className="rounded-xl bg-surface border border-border h-64 animate-pulse"
               >
                 <div className="p-5 space-y-4">
                   <div className="h-5 bg-[#30363d] rounded w-3/4" />
@@ -421,12 +421,12 @@ export default function Events() {
             <h3 className="text-xl font-bold text-white mb-2">
               Could not load events
             </h3>
-            <p className="text-[#8b949e] mb-6">
+            <p className="text-text-secondary mb-6">
               {error || "Try refreshing the page."}
             </p>
             <button
               onClick={() => dispatch(fetchEvents())}
-              className="flex items-center gap-2 px-5 py-2.5 bg-[#238636] hover:bg-[#2ea043] text-white rounded-lg font-medium text-sm transition-colors"
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-lg font-medium text-sm transition-colors"
             >
               <span className="material-symbols-outlined text-[18px]">
                 refresh
@@ -444,7 +444,7 @@ export default function Events() {
                 {displayedEvents.map((event) => (
                   <div
                     key={event._id}
-                    className="relative flex flex-col gap-3 p-5 rounded-xl border border-[#30363d] bg-[#161b22] hover:bg-[#21262d] transition-colors group"
+                    className="relative flex flex-col gap-3 p-5 rounded-xl border border-border bg-surface hover:bg-surface-hover transition-colors group"
                   >
                     {/* FIX [Bug 2]: Status Badge */}
                     {renderStatusBadge(event.liveStatus)}
@@ -457,7 +457,7 @@ export default function Events() {
                       {event.title}
                     </h2>
 
-                    <div className="flex flex-col gap-1.5 text-sm text-[#8b949e]">
+                    <div className="flex flex-col gap-1.5 text-sm text-text-secondary">
                       <p>
                         📅 {formatDate(event.startTime)}{" "}
                         {event.liveStatus !== "completed" &&
@@ -470,7 +470,7 @@ export default function Events() {
                       )}
                     </div>
 
-                    <p className="text-[#8b949e] text-sm font-normal leading-normal line-clamp-2">
+                    <p className="text-text-secondary text-sm font-normal leading-normal line-clamp-2">
                       {event.description}
                     </p>
 
@@ -480,7 +480,7 @@ export default function Events() {
                         {event.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="px-2 py-0.5 text-[10px] rounded-full bg-[#30363d] text-[#8b949e]"
+                            className="px-2 py-0.5 text-[10px] rounded-full bg-[#30363d] text-text-secondary"
                           >
                             {tag}
                           </span>
@@ -488,11 +488,11 @@ export default function Events() {
                       </div>
                     )}
 
-                    <div className="flex justify-between items-center pt-3 border-t border-[#30363d] mt-auto">
+                    <div className="flex justify-between items-center pt-3 border-t border-border mt-auto">
                       {/* FIX [Bug 6]: View Details link */}
                       <span
                         onClick={() => handleViewDetails(event._id)}
-                        className="text-sm text-[#8b949e] hover:text-[#3fb950] transition-colors cursor-pointer"
+                        className="text-sm text-text-secondary hover:text-[#3fb950] transition-colors cursor-pointer"
                       >
                         View Details →
                       </span>
@@ -518,7 +518,7 @@ export default function Events() {
                   events
                   {search ? ` matching "${search}"` : ""}
                 </h3>
-                <p className="text-[#8b949e] text-sm">
+                <p className="text-text-secondary text-sm">
                   Check back soon for new events.
                 </p>
               </div>

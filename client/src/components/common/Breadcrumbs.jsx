@@ -12,18 +12,18 @@ export default function Breadcrumbs({ items = [] }) {
   if (!items || items.length === 0) return null;
 
   return (
-    <nav className="flex items-center gap-1.5 text-xs text-[#8b949e] mb-4 px-1 animate-fadeIn">
+    <nav className="flex items-center gap-1.5 text-xs text-text-secondary mb-4 px-1 animate-fadeIn">
       {items.map((item, index) => {
         const isLast = index === items.length - 1;
         return (
           <span key={index} className="flex items-center gap-1.5">
             {index > 0 && (
-              <span className="material-symbols-outlined text-[14px] text-[#484f58]">
+              <span className="material-symbols-outlined text-[14px] text-text-tertiary">
                 chevron_right
               </span>
             )}
             {isLast || !item.to ? (
-              <span className="text-[#c9d1d9] font-medium">{item.label}</span>
+              <span className="text-text-primary font-medium">{item.label}</span>
             ) : (
               <Link
                 to={item.to}

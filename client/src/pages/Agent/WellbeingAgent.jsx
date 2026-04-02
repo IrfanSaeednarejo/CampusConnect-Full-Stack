@@ -101,7 +101,7 @@ export default function WellbeingAgent() {
   };
 
   return (
-    <div className="h-screen bg-[#0d1117] text-[#c9d1d9] flex flex-col">
+    <div className="h-screen bg-background text-text-primary flex flex-col">
       {/* Header */}
       <AgentHeader
         title="Wellbeing Support"
@@ -112,9 +112,9 @@ export default function WellbeingAgent() {
       />
 
       {/* Mood Check-In */}
-      <div className="p-4 border-b border-[#30363d] bg-[#161b22]">
+      <div className="p-4 border-b border-border bg-surface">
         <div className="flex items-center gap-3">
-          <label className="text-sm text-[#8b949e] whitespace-nowrap">
+          <label className="text-sm text-text-secondary whitespace-nowrap">
             How are you feeling?
           </label>
           <input
@@ -129,7 +129,7 @@ export default function WellbeingAgent() {
             {moodLevel}/10
           </span>
         </div>
-        <p className="text-xs text-[#8b949e] mt-2">
+        <p className="text-xs text-text-secondary mt-2">
           1 = Not great | 5 = Okay | 10 = Excellent
         </p>
       </div>

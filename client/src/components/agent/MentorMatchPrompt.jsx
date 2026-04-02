@@ -42,15 +42,15 @@ export default function MentorMatchPrompt() {
 
   if (!isActive) {
     return (
-      <div className="p-4 border border-[#30363d] rounded-lg bg-[#161b22]">
+      <div className="p-4 border border-border rounded-lg bg-surface">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-[#c9d1d9] font-semibold mb-1">Find Your Mentor</h3>
-            <p className="text-[#8b949e] text-sm">AI-powered mentor matching for your needs.</p>
+            <h3 className="text-text-primary font-semibold mb-1">Find Your Mentor</h3>
+            <p className="text-text-secondary text-sm">AI-powered mentor matching for your needs.</p>
           </div>
           <button
             onClick={handleStartMatching}
-            className="px-4 py-2 bg-[#238636] text-white rounded-md text-sm font-medium hover:bg-[#2ea043] transition-colors"
+            className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary-hover transition-colors"
           >
             Find Mentor
           </button>
@@ -60,9 +60,9 @@ export default function MentorMatchPrompt() {
   }
 
   return (
-    <div className="p-4 border border-[#30363d] rounded-lg bg-[#161b22]">
+    <div className="p-4 border border-border rounded-lg bg-surface">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-[#c9d1d9] font-semibold">Mentor Matching</h3>
+        <h3 className="text-text-primary font-semibold">Mentor Matching</h3>
         <button
           onClick={() => {
             stopAgent();
@@ -70,14 +70,14 @@ export default function MentorMatchPrompt() {
             setCurrentStep(0);
             showInfo("Mentor matching closed.");
           }}
-          className="px-3 py-1 bg-[#da3633] text-white rounded text-xs font-medium hover:bg-[#f85149] transition-colors"
+          className="px-3 py-1 bg-danger text-white rounded text-xs font-medium hover:bg-[#f85149] transition-colors"
         >
           Close
         </button>
       </div>
 
       {/* Progress */}
-      <div className="mb-4 text-xs text-[#8b949e]">
+      <div className="mb-4 text-xs text-text-secondary">
         Question {currentStep + 1} of {questions.length}
       </div>
 
@@ -91,8 +91,8 @@ export default function MentorMatchPrompt() {
             <div
               className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
                 msg.sender === "user"
-                  ? "bg-[#238636] text-white"
-                  : "bg-[#30363d] text-[#c9d1d9]"
+                  ? "bg-primary text-white"
+                  : "bg-[#30363d] text-text-primary"
               }`}
             >
               {msg.message}
@@ -108,13 +108,13 @@ export default function MentorMatchPrompt() {
             <>
               <button
                 onClick={() => handleAnswerQuestion("Computer Science and Mathematics")}
-                className="w-full px-3 py-2 text-left bg-[#0d1117] border border-[#30363d] rounded text-[#c9d1d9] text-sm hover:border-[#238636] transition-colors"
+                className="w-full px-3 py-2 text-left bg-background border border-border rounded text-text-primary text-sm hover:border-primary transition-colors"
               >
                 Computer Science &amp; Math
               </button>
               <button
                 onClick={() => handleAnswerQuestion("Physics and Chemistry")}
-                className="w-full px-3 py-2 text-left bg-[#0d1117] border border-[#30363d] rounded text-[#c9d1d9] text-sm hover:border-[#238636] transition-colors"
+                className="w-full px-3 py-2 text-left bg-background border border-border rounded text-text-primary text-sm hover:border-primary transition-colors"
               >
                 Physics &amp; Chemistry
               </button>
@@ -124,13 +124,13 @@ export default function MentorMatchPrompt() {
             <>
               <button
                 onClick={() => handleAnswerQuestion("Improve my grades and understand concepts better")}
-                className="w-full px-3 py-2 text-left bg-[#0d1117] border border-[#30363d] rounded text-[#c9d1d9] text-sm hover:border-[#238636] transition-colors"
+                className="w-full px-3 py-2 text-left bg-background border border-border rounded text-text-primary text-sm hover:border-primary transition-colors"
               >
                 Improve grades
               </button>
               <button
                 onClick={() => handleAnswerQuestion("Prepare for exams and competitions")}
-                className="w-full px-3 py-2 text-left bg-[#0d1117] border border-[#30363d] rounded text-[#c9d1d9] text-sm hover:border-[#238636] transition-colors"
+                className="w-full px-3 py-2 text-left bg-background border border-border rounded text-text-primary text-sm hover:border-primary transition-colors"
               >
                 Exam preparation
               </button>
@@ -140,13 +140,13 @@ export default function MentorMatchPrompt() {
             <>
               <button
                 onClick={() => handleAnswerQuestion("5-10 hours per week")}
-                className="w-full px-3 py-2 text-left bg-[#0d1117] border border-[#30363d] rounded text-[#c9d1d9] text-sm hover:border-[#238636] transition-colors"
+                className="w-full px-3 py-2 text-left bg-background border border-border rounded text-text-primary text-sm hover:border-primary transition-colors"
               >
                 5-10 hours
               </button>
               <button
                 onClick={() => handleAnswerQuestion("10+ hours per week")}
-                className="w-full px-3 py-2 text-left bg-[#0d1117] border border-[#30363d] rounded text-[#c9d1d9] text-sm hover:border-[#238636] transition-colors"
+                className="w-full px-3 py-2 text-left bg-background border border-border rounded text-text-primary text-sm hover:border-primary transition-colors"
               >
                 10+ hours
               </button>

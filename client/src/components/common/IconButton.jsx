@@ -13,10 +13,10 @@ export default function IconButton({
 }) {
   const variantClasses = {
     default:
-      "bg-[#161b22] text-white hover:bg-[#30363d] transition-colors",
-    primary: "bg-[#238636] text-white hover:bg-[#2aaa4b] transition-colors",
+      "bg-surface text-white hover:bg-[#30363d] transition-colors",
+    primary: "bg-primary text-white hover:bg-[#2aaa4b] transition-colors",
     transparent:
-      "bg-transparent text-[#8b949e] hover:bg-[#161b22] transition-colors",
+      "bg-transparent text-text-secondary hover:bg-surface transition-colors",
   };
 
   const sizeClasses = {

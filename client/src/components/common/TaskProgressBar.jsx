@@ -10,19 +10,19 @@ export default function TaskProgressBar({
 
   return (
     <div
-      className={`bg-[#161b22] border border-[#30363d] rounded-lg p-6 ${className}`}
+      className={`bg-surface border border-border rounded-lg p-6 ${className}`}
     >
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-white font-bold">Task Progress</h3>
-        <span className="text-[#238636] font-bold">{progressPercent}%</span>
+        <span className="text-primary font-bold">{progressPercent}%</span>
       </div>
-      <div className="w-full bg-[#0d1117] rounded-full h-3 overflow-hidden">
+      <div className="w-full bg-background rounded-full h-3 overflow-hidden">
         <div
-          className="bg-[#238636] h-full transition-all duration-300"
+          className="bg-primary h-full transition-all duration-300"
           style={{ width: `${progressPercent}%` }}
         />
       </div>
-      <p className="text-[#8b949e] text-sm mt-2">
+      <p className="text-text-secondary text-sm mt-2">
         {completedCount} of {totalCount} tasks completed
       </p>
     </div>

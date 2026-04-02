@@ -17,10 +17,10 @@ export default function GlobalModalsRender() {
       return (
         <BaseModal size="md">
           <h2 className="text-xl font-bold text-white mb-4">Register for Event</h2>
-          <p className="text-[#c9d1d9] mb-6">Are you sure you want to register for this event?</p>
+          <p className="text-text-primary mb-6">Are you sure you want to register for this event?</p>
           <div className="flex justify-end gap-3">
-            <button onClick={closeModal} className="px-4 py-2 border border-[#30363d] text-[#c9d1d9] rounded-lg hover:bg-[#30363d] transition-colors font-medium">Cancel</button>
-            <button onClick={() => { modal.props.onConfirm(); closeModal(); }} className="px-4 py-2 bg-[#238636] text-white rounded-lg hover:bg-[#2ea043] transition-colors font-bold">Confirm Registration</button>
+            <button onClick={closeModal} className="px-4 py-2 border border-border text-text-primary rounded-lg hover:bg-[#30363d] transition-colors font-medium">Cancel</button>
+            <button onClick={() => { modal.props.onConfirm(); closeModal(); }} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors font-bold">Confirm Registration</button>
           </div>
         </BaseModal>
       );
@@ -29,9 +29,9 @@ export default function GlobalModalsRender() {
       return (
         <BaseModal size="md">
           <h2 className="text-xl font-bold text-white mb-4">Cancel Registration</h2>
-          <p className="text-[#c9d1d9] mb-6">Are you sure you want to cancel your registration? You might lose your spot.</p>
+          <p className="text-text-primary mb-6">Are you sure you want to cancel your registration? You might lose your spot.</p>
           <div className="flex justify-end gap-3">
-            <button onClick={closeModal} className="px-4 py-2 border border-[#30363d] text-[#c9d1d9] rounded-lg hover:bg-[#30363d] transition-colors font-medium">Keep Spot</button>
+            <button onClick={closeModal} className="px-4 py-2 border border-border text-text-primary rounded-lg hover:bg-[#30363d] transition-colors font-medium">Keep Spot</button>
             <button onClick={() => { modal.props.onConfirm(); closeModal(); }} className="px-4 py-2 bg-[#f85149] text-white rounded-lg hover:bg-[#ff7b72] transition-colors font-bold">Cancel Registration</button>
           </div>
         </BaseModal>
@@ -41,10 +41,10 @@ export default function GlobalModalsRender() {
       return (
         <BaseModal size="md">
           <h2 className="text-xl font-bold text-white mb-4">Join Society</h2>
-          <p className="text-[#c9d1d9] mb-6">Would you like to become a member of <strong>{modal.props.societyName}</strong>?</p>
+          <p className="text-text-primary mb-6">Would you like to become a member of <strong>{modal.props.societyName}</strong>?</p>
           <div className="flex justify-end gap-3">
-            <button onClick={closeModal} className="px-4 py-2 border border-[#30363d] text-[#c9d1d9] rounded-lg hover:bg-[#30363d] transition-colors font-medium">Cancel</button>
-            <button onClick={() => { modal.props.onConfirm(); closeModal(); }} className="px-4 py-2 bg-[#238636] text-white rounded-lg hover:bg-[#2ea043] transition-colors font-bold">Join Society</button>
+            <button onClick={closeModal} className="px-4 py-2 border border-border text-text-primary rounded-lg hover:bg-[#30363d] transition-colors font-medium">Cancel</button>
+            <button onClick={() => { modal.props.onConfirm(); closeModal(); }} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors font-bold">Join Society</button>
           </div>
         </BaseModal>
       );
@@ -53,9 +53,9 @@ export default function GlobalModalsRender() {
       return (
         <BaseModal size="md">
           <h2 className="text-xl font-bold text-white mb-4">Leave Society</h2>
-          <p className="text-[#c9d1d9] mb-6">Are you sure you want to leave <strong>{modal.props.societyName}</strong>?</p>
+          <p className="text-text-primary mb-6">Are you sure you want to leave <strong>{modal.props.societyName}</strong>?</p>
           <div className="flex justify-end gap-3">
-            <button onClick={closeModal} className="px-4 py-2 border border-[#30363d] text-[#c9d1d9] rounded-lg hover:bg-[#30363d] transition-colors font-medium">Cancel</button>
+            <button onClick={closeModal} className="px-4 py-2 border border-border text-text-primary rounded-lg hover:bg-[#30363d] transition-colors font-medium">Cancel</button>
             <button onClick={() => { modal.props.onConfirm(); closeModal(); }} className="px-4 py-2 bg-[#f85149] text-white rounded-lg hover:bg-[#ff7b72] transition-colors font-bold">Leave Society</button>
           </div>
         </BaseModal>
@@ -65,9 +65,9 @@ export default function GlobalModalsRender() {
       return (
         <BaseModal size="md">
           <h2 className="text-xl font-bold text-white mb-4">Cancel Session</h2>
-          <p className="text-[#c9d1d9] mb-6">Are you sure you want to cancel your mentoring session with <strong>{modal.props.mentorName}</strong>?</p>
+          <p className="text-text-primary mb-6">Are you sure you want to cancel your mentoring session with <strong>{modal.props.mentorName}</strong>?</p>
           <div className="flex justify-end gap-3">
-            <button onClick={closeModal} className="px-4 py-2 border border-[#30363d] text-[#c9d1d9] rounded-lg hover:bg-[#30363d] transition-colors font-medium">Go Back</button>
+            <button onClick={closeModal} className="px-4 py-2 border border-border text-text-primary rounded-lg hover:bg-[#30363d] transition-colors font-medium">Go Back</button>
             <button onClick={() => { modal.props.onConfirm(); closeModal(); }} className="px-4 py-2 bg-[#f85149] text-white rounded-lg hover:bg-[#ff7b72] transition-colors font-bold">Cancel Session</button>
           </div>
         </BaseModal>
@@ -107,16 +107,16 @@ function SessionFeedbackModal({ modalProps, closeModal, dispatch }) {
   return (
     <BaseModal size="md">
       <h2 className="text-xl font-bold text-white mb-4">Session Feedback</h2>
-      <p className="text-[#8b949e] text-sm mb-4">How was your session with {modalProps.mentorName}?</p>
+      <p className="text-text-secondary text-sm mb-4">How was your session with {modalProps.mentorName}?</p>
       <textarea
         value={feedback}
         onChange={(e) => setFeedback(e.target.value)}
-        className="w-full bg-[#0d1117] border border-[#30363d] focus:border-[#238636] focus:ring-1 focus:ring-[#238636] rounded-lg p-3 text-white h-32 mb-6 outline-none resize-none"
+        className="w-full bg-background border border-border focus:border-primary focus:ring-1 focus:ring-primary rounded-lg p-3 text-white h-32 mb-6 outline-none resize-none"
         placeholder="Share your thoughts..."
       />
       <div className="flex justify-end gap-3">
-        <button onClick={closeModal} className="px-4 py-2 border border-[#30363d] text-[#c9d1d9] rounded-lg hover:bg-[#30363d] transition-colors font-medium">Cancel</button>
-        <button onClick={handleSubmit} disabled={!feedback.trim()} className="px-4 py-2 bg-[#238636] text-white rounded-lg hover:bg-[#2ea043] transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed">Submit Feedback</button>
+        <button onClick={closeModal} className="px-4 py-2 border border-border text-text-primary rounded-lg hover:bg-[#30363d] transition-colors font-medium">Cancel</button>
+        <button onClick={handleSubmit} disabled={!feedback.trim()} className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed">Submit Feedback</button>
       </div>
     </BaseModal>
   );
@@ -208,9 +208,9 @@ function BookMentorModal({ modalProps, closeModal }) {
     return (
       <BaseModal size="md">
         <div className="flex flex-col items-center py-8 gap-4">
-          <span className="material-symbols-outlined text-[#238636] text-6xl">check_circle</span>
+          <span className="material-symbols-outlined text-primary text-6xl">check_circle</span>
           <h2 className="text-xl font-bold text-white">Session Booked!</h2>
-          <p className="text-[#8b949e] text-center">Your request has been sent to <strong className="text-white">{mentor.name}</strong>. They'll confirm shortly.</p>
+          <p className="text-text-secondary text-center">Your request has been sent to <strong className="text-white">{mentor.name}</strong>. They'll confirm shortly.</p>
         </div>
       </BaseModal>
     );
@@ -219,7 +219,7 @@ function BookMentorModal({ modalProps, closeModal }) {
   return (
     <BaseModal size="lg">
       <h2 className="text-xl font-bold text-white mb-1">Book a Session</h2>
-      <p className="text-[#8b949e] mb-5">with <strong className="text-white capitalize">{mentor.name}</strong> {mentor.hourlyRate > 0 ? `• ${mentor.currency} ${mentor.hourlyRate}/hr` : "• Free"}</p>
+      <p className="text-text-secondary mb-5">with <strong className="text-white capitalize">{mentor.name}</strong> {mentor.hourlyRate > 0 ? `• ${mentor.currency} ${mentor.hourlyRate}/hr` : "• Free"}</p>
 
       {error && (
         <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm">{error}</div>
@@ -227,30 +227,30 @@ function BookMentorModal({ modalProps, closeModal }) {
 
       <div className="space-y-5 mb-6">
         <div>
-          <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Topic <span className="text-red-400">*</span></label>
+          <label className="block text-sm font-medium text-text-primary mb-2">Topic <span className="text-red-400">*</span></label>
           <input
             type="text"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            className="w-full bg-[#0d1117] border border-[#30363d] focus:border-[#238636] focus:ring-1 focus:ring-[#238636] rounded-lg p-2.5 text-white outline-none"
+            className="w-full bg-background border border-border focus:border-primary focus:ring-1 focus:ring-primary rounded-lg p-2.5 text-white outline-none"
             placeholder="What do you want to discuss?"
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Notes <span className="text-[#8b949e]">(optional)</span></label>
+          <label className="block text-sm font-medium text-text-primary mb-2">Notes <span className="text-text-secondary">(optional)</span></label>
           <textarea
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
-            className="w-full bg-[#0d1117] border border-[#30363d] focus:border-[#238636] focus:ring-1 focus:ring-[#238636] rounded-lg p-2.5 text-white outline-none h-20 resize-none"
+            className="w-full bg-background border border-border focus:border-primary focus:ring-1 focus:ring-primary rounded-lg p-2.5 text-white outline-none h-20 resize-none"
             placeholder="Any extra details for the mentor..."
           />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Select Date <span className="text-red-400">*</span></label>
+          <label className="block text-sm font-medium text-text-primary mb-2">Select Date <span className="text-red-400">*</span></label>
           {upcomingDates.length === 0 ? (
-            <p className="text-[#8b949e] text-sm">This mentor hasn't set their availability yet.</p>
+            <p className="text-text-secondary text-sm">This mentor hasn't set their availability yet.</p>
           ) : (
             <div className="flex gap-2 overflow-x-auto pb-2">
               {upcomingDates.map((d, idx) => {
@@ -260,8 +260,8 @@ function BookMentorModal({ modalProps, closeModal }) {
                     key={idx}
                     onClick={() => { setSelectedDate(d); setSelectedSlot(null); }}
                     className={`flex flex-col items-center min-w-[72px] px-3 py-2.5 rounded-lg border text-xs font-medium transition-all ${isSelected
-                      ? "border-[#238636] bg-[#238636]/20 text-white"
-                      : "border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#8b949e]"
+                      ? "border-primary bg-primary/20 text-white"
+                      : "border-border bg-background text-text-secondary hover:border-[#8b949e]"
                       }`}
                   >
                     <span className="font-bold text-sm">{WEEKDAYS[d.getDay()].slice(0, 3)}</span>
@@ -275,9 +275,9 @@ function BookMentorModal({ modalProps, closeModal }) {
 
         {selectedDate && (
           <div>
-            <label className="block text-sm font-medium text-[#c9d1d9] mb-2">Select Time <span className="text-red-400">*</span></label>
+            <label className="block text-sm font-medium text-text-primary mb-2">Select Time <span className="text-red-400">*</span></label>
             {timeSlots.length === 0 ? (
-              <p className="text-[#8b949e] text-sm">No time slots for this day.</p>
+              <p className="text-text-secondary text-sm">No time slots for this day.</p>
             ) : (
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-40 overflow-y-auto">
                 {timeSlots.map((slot, idx) => {
@@ -287,8 +287,8 @@ function BookMentorModal({ modalProps, closeModal }) {
                       key={idx}
                       onClick={() => setSelectedSlot(slot)}
                       className={`px-3 py-2 text-sm font-medium rounded-lg border transition-all ${isSelected
-                        ? "border-[#238636] bg-[#238636]/20 text-white"
-                        : "border-[#30363d] bg-[#0d1117] text-[#8b949e] hover:border-[#8b949e]"
+                        ? "border-primary bg-primary/20 text-white"
+                        : "border-border bg-background text-text-secondary hover:border-[#8b949e]"
                         }`}
                     >
                       {slot.label}
@@ -301,12 +301,12 @@ function BookMentorModal({ modalProps, closeModal }) {
         )}
       </div>
 
-      <div className="flex justify-end gap-3 pt-3 border-t border-[#30363d]">
-        <button onClick={closeModal} className="px-4 py-2 border border-[#30363d] text-[#c9d1d9] rounded-lg hover:bg-[#30363d] transition-colors font-medium">Cancel</button>
+      <div className="flex justify-end gap-3 pt-3 border-t border-border">
+        <button onClick={closeModal} className="px-4 py-2 border border-border text-text-primary rounded-lg hover:bg-[#30363d] transition-colors font-medium">Cancel</button>
         <button
           onClick={handleConfirm}
           disabled={!topic.trim() || !selectedSlot || submitting}
-          className="px-5 py-2 bg-[#238636] text-white rounded-lg hover:bg-[#2ea043] transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+          className="px-5 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors font-bold disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
         >
           {submitting ? (
             <><span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span> Booking...</>

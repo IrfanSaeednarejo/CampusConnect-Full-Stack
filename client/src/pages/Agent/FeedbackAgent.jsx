@@ -97,7 +97,7 @@ export default function FeedbackAgent() {
   };
 
   return (
-    <div className="h-screen bg-[#0d1117] text-[#c9d1d9] flex flex-col">
+    <div className="h-screen bg-background text-text-primary flex flex-col">
       {/* Header */}
       <AgentHeader
         title="Feedback Portal"
@@ -109,15 +109,15 @@ export default function FeedbackAgent() {
 
       {/* Progress Bar */}
       <div className="px-4 pt-4">
-        <div className="flex items-center justify-between text-xs text-[#8b949e] mb-2">
+        <div className="flex items-center justify-between text-xs text-text-secondary mb-2">
           <span>Progress</span>
           <span>
             {stage === "complete" ? 4 : stage === "rating" ? 3 : stage === "details" ? 2 : 1}/4
           </span>
         </div>
-        <div className="w-full bg-[#161b22] rounded-full h-2">
+        <div className="w-full bg-surface rounded-full h-2">
           <div
-            className="bg-[#238636] h-2 rounded-full transition-all duration-300"
+            className="bg-primary h-2 rounded-full transition-all duration-300"
             style={{
               width: `${stage === "complete" ? 100 : stage === "rating" ? 75 : stage === "details" ? 50 : 25}%`,
             }}
@@ -133,21 +133,21 @@ export default function FeedbackAgent() {
       >
         {stage === "complete" && (
           <div className="flex justify-start">
-            <div className="bg-[#161b22] border border-[#238636] rounded-lg p-4 rounded-bl-none">
+            <div className="bg-surface border border-primary rounded-lg p-4 rounded-bl-none">
               <div className="flex items-start gap-3">
-                <CheckCircle size={24} className="text-[#238636] flex-shrink-0 mt-1" />
+                <CheckCircle size={24} className="text-primary flex-shrink-0 mt-1" />
                 <div>
-                  <h3 className="font-bold text-[#238636]">Thank you!</h3>
-                  <p className="text-sm text-[#c9d1d9] mt-1">
+                  <h3 className="font-bold text-primary">Thank you!</h3>
+                  <p className="text-sm text-text-primary mt-1">
                     Your feedback has been successfully submitted. We'll use it to continue improving
                     the platform.
                   </p>
-                  <div className="mt-3 bg-[#0d1117] rounded p-3 text-xs">
-                    <p className="text-[#8b949e]">📊 Your feedback summary:</p>
-                    <p className="text-[#c9d1d9] mt-2">
+                  <div className="mt-3 bg-background rounded p-3 text-xs">
+                    <p className="text-text-secondary">📊 Your feedback summary:</p>
+                    <p className="text-text-primary mt-2">
                       <strong>Category:</strong> {feedback.category}
                     </p>
-                    <p className="text-[#c9d1d9] mt-1">
+                    <p className="text-text-primary mt-1">
                       <strong>Rating:</strong> {feedback.rating}/10
                     </p>
                   </div>
@@ -160,10 +160,10 @@ export default function FeedbackAgent() {
 
       {/* Input Area */}
       {stage !== "complete" && (
-        <div className="p-4 border-t border-[#30363d]">
+        <div className="p-4 border-t border-border">
           {stage === "rating" && (
             <div className="mb-4">
-              <p className="text-sm text-[#8b949e] mb-2">Select a rating:</p>
+              <p className="text-sm text-text-secondary mb-2">Select a rating:</p>
               <div className="flex gap-2 flex-wrap">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((rate) => (
                   <button
@@ -194,8 +194,8 @@ export default function FeedbackAgent() {
                     }}
                     className={`px-3 py-2 rounded text-sm font-bold transition ${
                       feedback.rating === rate
-                        ? "bg-[#238636] text-white"
-                        : "bg-[#161b22] border border-[#30363d] text-[#c9d1d9] hover:border-[#238636]"
+                        ? "bg-primary text-white"
+                        : "bg-surface border border-border text-text-primary hover:border-primary"
                     }`}
                   >
                     {rate}
@@ -221,10 +221,10 @@ export default function FeedbackAgent() {
       )}
 
       {stage === "complete" && (
-        <div className="p-4 border-t border-[#30363d] text-center">
+        <div className="p-4 border-t border-border text-center">
           <button
             onClick={() => navigate("/student/dashboard")}
-            className="w-full bg-[#238636] hover:bg-[#2ea043] text-white py-2 rounded-lg transition"
+            className="w-full bg-primary hover:bg-primary-hover text-white py-2 rounded-lg transition"
           >
             Back to Dashboard
           </button>

@@ -4,8 +4,8 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="flex items-center justify-center px-5 py-5 text-center border-t border-solid border-[#161b22] bg-[#0d1117]">
-      <p className="text-[#8b949e] text-xs font-normal leading-normal">
+    <footer className="flex items-center justify-center px-5 py-5 text-center border-t border-solid border-[#161b22] bg-background">
+      <p className="text-text-secondary text-xs font-normal leading-normal">
         © 2024 CampusConnect. All rights reserved. |
         <Link className="hover:text-[#e6edf3] mx-1" to="/privacy">
           Privacy Policy

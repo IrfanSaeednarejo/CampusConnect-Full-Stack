@@ -62,9 +62,9 @@ export default function SocietyDashboard() {
   }, [dispatch, societies, user]);
 
   return (
-    <div className="flex min-h-screen bg-[#111714]">
+    <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 bg-[#111714] border-r border-[#29382f] hidden lg:flex">
+      <aside className="w-64 flex-shrink-0 bg-background border-r border-border hidden lg:flex">
         <div className="flex h-full flex-col justify-between p-4">
           {/* Top Section */}
           <div className="flex flex-col gap-4">
@@ -77,7 +77,7 @@ export default function SocietyDashboard() {
                 <img
                   src={user.profile.avatar}
                   alt={displayName}
-                  className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-[#29382f]"
+                  className="w-10 h-10 rounded-full object-cover flex-shrink-0 border border-border"
                 />
               ) : (
                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white font-bold flex-shrink-0">
@@ -88,7 +88,7 @@ export default function SocietyDashboard() {
                 <h1 className="text-white text-base font-medium leading-normal truncate">
                   {displayName}
                 </h1>
-                <p className="text-[#9eb7a9] text-sm font-normal leading-normal truncate">
+                <p className="text-text-secondary text-sm font-normal leading-normal truncate">
                   Society Head
                 </p>
               </div>
@@ -97,7 +97,7 @@ export default function SocietyDashboard() {
             {/* Navigation */}
             <nav className="flex flex-col gap-2 mt-4">
               <Link
-                className="flex items-center gap-3 px-3 py-2 rounded-md bg-[#1a241e]"
+                className="flex items-center gap-3 px-3 py-2 rounded-md bg-surface"
                 to="/society/dashboard"
               >
                 <span className="material-symbols-outlined text-white">
@@ -108,57 +108,57 @@ export default function SocietyDashboard() {
                 </p>
               </Link>
               <Link
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-surface/50 transition-colors"
                 to="/societies"
               >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
+                <span className="material-symbols-outlined text-text-secondary">
                   groups
                 </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
+                <p className="text-text-secondary text-sm font-medium leading-normal">
                   Societies
                 </p>
               </Link>
               <Link
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-surface/50 transition-colors"
                 to="/society/events"
               >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
+                <span className="material-symbols-outlined text-text-secondary">
                   event
                 </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
+                <p className="text-text-secondary text-sm font-medium leading-normal">
                   Events
                 </p>
               </Link>
               <Link
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-surface/50 transition-colors"
                 to="/society/mentoring"
               >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
+                <span className="material-symbols-outlined text-text-secondary">
                   school
                 </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
+                <p className="text-text-secondary text-sm font-medium leading-normal">
                   Mentoring
                 </p>
               </Link>
               <Link
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-surface/50 transition-colors"
                 to="/society/networking"
               >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
+                <span className="material-symbols-outlined text-text-secondary">
                   lan
                 </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
+                <p className="text-text-secondary text-sm font-medium leading-normal">
                   Networking
                 </p>
               </Link>
               <Link
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-surface/50 transition-colors"
                 to="/society/analytics"
               >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
+                <span className="material-symbols-outlined text-text-secondary">
                   analytics
                 </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
+                <p className="text-text-secondary text-sm font-medium leading-normal">
                   Analytics
                 </p>
               </Link>
@@ -169,30 +169,30 @@ export default function SocietyDashboard() {
           <div className="flex flex-col gap-2">
             <button
               onClick={() => openModal(MODAL_TYPES.CREATE_SOCIETY)}
-              className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-[#1dc964] text-[#111714] text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#1dc964]/90 transition-colors"
+              className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
             >
               <span className="truncate">Create New</span>
             </button>
-            <div className="flex flex-col gap-1 border-t border-[#29382f] pt-2 mt-2">
+            <div className="flex flex-col gap-1 border-t border-border pt-2 mt-2">
               <Link
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-surface/50 transition-colors"
                 to="/society/settings"
               >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
+                <span className="material-symbols-outlined text-text-secondary">
                   settings
                 </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
+                <p className="text-text-secondary text-sm font-medium leading-normal">
                   Settings
                 </p>
               </Link>
               <Link
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
+                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-surface/50 transition-colors"
                 to="/logout"
               >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
+                <span className="material-symbols-outlined text-text-secondary">
                   logout
                 </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
+                <p className="text-text-secondary text-sm font-medium leading-normal">
                   Logout
                 </p>
               </Link>
@@ -210,15 +210,15 @@ export default function SocietyDashboard() {
               <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
                 Society HQ
               </h1>
-              <p className="text-[#9eb7a9] text-base font-normal leading-normal">
+              <p className="text-text-secondary text-base font-normal leading-normal">
                 Oversee your societies and campus impact
               </p>
             </div>
             <button
               onClick={() => openModal(MODAL_TYPES.CREATE_SOCIETY)}
-              className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-12 px-5 bg-[#1dc964] text-[#111714] gap-2 text-base font-bold leading-normal tracking-[0.015em] hover:bg-[#1dc964]/90 transition-colors"
+              className="flex min-w-[5rem] cursor-pointer items-center justify-center overflow-hidden rounded-md h-12 px-5 bg-primary text-white gap-2 text-base font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
             >
-              <span className="material-symbols-outlined text-[#111714]">
+              <span className="material-symbols-outlined text-white">
                 add_circle
               </span>
               <span className="truncate">Create New Society</span>
@@ -236,7 +236,7 @@ export default function SocietyDashboard() {
             />
 
             {/* Approvals Needed Widget */}
-            <section className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+            <section className="bg-surface border border-border rounded-lg p-6">
               <h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">
                 Approvals Needed
               </h2>
@@ -248,17 +248,17 @@ export default function SocietyDashboard() {
                     const memberId = req.memberId?._id || req.userId?._id || req._id;
                     const societyId = req.societyId?._id || req.societyId;
                     return (
-                      <div key={req._id || memberId} className="bg-[#111714] border border-[#29382f] rounded-lg p-3 flex items-center gap-3">
+                      <div key={req._id || memberId} className="bg-background border border-border rounded-lg p-3 flex items-center gap-3">
                         {avatar ? (
                           <img src={avatar} alt={name} className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-[#29382f] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                          <div className="w-10 h-10 rounded-full bg-surface-hover flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
                             {name.charAt(0).toUpperCase()}
                           </div>
                         )}
                         <div className="flex-1 min-w-0">
                           <p className="text-white text-sm font-medium truncate">{name}</p>
-                          <p className="text-[#9eb7a9] text-xs">Wants to join</p>
+                          <p className="text-text-secondary text-xs">Wants to join</p>
                         </div>
                         <div className="flex gap-2 flex-shrink-0">
                           <button
@@ -269,7 +269,7 @@ export default function SocietyDashboard() {
                                 dispatch(removeMemberRequest(req._id || memberId));
                               } catch (err) { console.error("Approve failed:", err); }
                             }}
-                            className="px-3 py-1.5 bg-[#1dc964] text-[#111714] rounded-md text-xs font-bold hover:opacity-90 transition-opacity"
+                            className="px-3 py-1.5 bg-primary text-white rounded-md text-xs font-bold hover:opacity-90 transition-opacity"
                           >
                             Approve
                           </button>
@@ -291,7 +291,7 @@ export default function SocietyDashboard() {
                   })}
                 </div>
               ) : (
-                <div className="text-center py-6 text-[#9eb7a9]">
+                <div className="text-center py-6 text-text-secondary">
                   <span className="material-symbols-outlined text-3xl mb-2 block">check_circle</span>
                   <p className="text-sm">No pending requests</p>
                 </div>
@@ -299,14 +299,14 @@ export default function SocietyDashboard() {
             </section>
 
             {/* Upcoming Events Section (2 columns) */}
-            <section className="lg:col-span-2 bg-[#1a241e] border border-[#29382f] rounded-lg p-6 flex flex-col">
+            <section className="lg:col-span-2 bg-surface border border-border rounded-lg p-6 flex flex-col">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">
                   Upcoming Events
                 </h2>
                 <button
                   onClick={() => navigate("/society/events")}
-                  className="flex cursor-pointer items-center justify-center overflow-hidden rounded-md h-9 px-4 bg-[#29382f] text-white gap-2 text-sm font-medium leading-normal hover:bg-[#29382f]/80 transition-colors"
+                  className="flex cursor-pointer items-center justify-center overflow-hidden rounded-md h-9 px-4 bg-surface-hover text-white gap-2 text-sm font-medium leading-normal hover:bg-surface-hover/80 transition-colors"
                 >
                   <span className="material-symbols-outlined">add</span>
                   <span className="truncate">Add Event</span>
@@ -322,8 +322,8 @@ export default function SocietyDashboard() {
 
                     return (
                       <div key={event._id || event.id} className="flex items-start gap-4">
-                        <div className="flex flex-col items-center justify-center bg-[#29382f] rounded-md p-2 w-14 text-center flex-shrink-0">
-                          <span className="text-[#9eb7a9] text-xs font-bold uppercase">
+                        <div className="flex flex-col items-center justify-center bg-surface-hover rounded-md p-2 w-14 text-center flex-shrink-0">
+                          <span className="text-text-secondary text-xs font-bold uppercase">
                             {month}
                           </span>
                           <span className="text-white text-2xl font-black">
@@ -332,7 +332,7 @@ export default function SocietyDashboard() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-white truncate">{event.title}</p>
-                          <p className="text-sm text-[#9eb7a9] truncate">
+                          <p className="text-sm text-text-secondary truncate">
                             {event.societyId?.name || "Campus Event"} • {timeObj}
                           </p>
                         </div>
@@ -340,7 +340,7 @@ export default function SocietyDashboard() {
                     );
                   })
                 ) : (
-                  <p className="text-[#9eb7a9] text-sm">No upcoming events scheduled.</p>
+                  <p className="text-text-secondary text-sm">No upcoming events scheduled.</p>
                 )}
               </div>
             </section>

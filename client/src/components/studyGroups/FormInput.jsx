@@ -14,7 +14,7 @@ export default function FormInput({
   if (type === "textarea") {
     return (
       <div className="flex flex-col gap-2">
-        <label htmlFor={name} className="text-sm font-semibold text-[#c9d1d9]">
+        <label htmlFor={name} className="text-sm font-semibold text-text-primary">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -26,7 +26,7 @@ export default function FormInput({
           required={required}
           placeholder={placeholder}
           rows={rows || 3}
-          className="w-full px-4 py-2 rounded-lg bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] placeholder-[#8b949e] focus:outline-none focus:border-[#238636] focus:ring-1 focus:ring-[#238636] transition-colors"
+          className="w-full px-4 py-2 rounded-lg bg-background border border-border text-text-primary placeholder-[#8b949e] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
           {...props}
         />
       </div>
@@ -35,7 +35,7 @@ export default function FormInput({
 
   return (
     <div className="flex flex-col gap-2">
-      <label htmlFor={name} className="text-sm font-semibold text-[#c9d1d9]">
+      <label htmlFor={name} className="text-sm font-semibold text-text-primary">
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </label>
@@ -49,7 +49,7 @@ export default function FormInput({
         placeholder={placeholder}
         min={min}
         max={max}
-        className="w-full px-4 py-2 rounded-lg bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] placeholder-[#8b949e] focus:outline-none focus:border-[#238636] focus:ring-1 focus:ring-[#238636] transition-colors"
+        className="w-full px-4 py-2 rounded-lg bg-background border border-border text-text-primary placeholder-[#8b949e] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
         {...props}
       />
     </div>

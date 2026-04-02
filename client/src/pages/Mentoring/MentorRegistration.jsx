@@ -82,11 +82,11 @@ export default function MentorRegistration() {
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] bg-[#0d1117] overflow-x-hidden">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary bg-background overflow-x-hidden">
       {/* TopNavBar */}
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#30363d] px-10 py-3">
+      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-border px-10 py-3">
         <div className="flex items-center gap-4">
-          <div className="size-6 text-[#238636]">
+          <div className="size-6 text-primary">
             <svg
               fill="none"
               viewBox="0 0 48 48"
@@ -133,13 +133,13 @@ export default function MentorRegistration() {
           <div className="flex gap-2">
             <button
               onClick={() => navigate("/signup")}
-              className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#238636] text-white text-sm font-bold leading-normal tracking-[0.015em]"
+              className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]"
             >
               <span className="truncate">Sign Up</span>
             </button>
             <button
               onClick={() => navigate("/login")}
-              className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#161b22] text-white text-sm font-bold leading-normal tracking-[0.015em]"
+              className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-surface text-white text-sm font-bold leading-normal tracking-[0.015em]"
             >
               <span className="truncate">Log In</span>
             </button>
@@ -160,7 +160,7 @@ export default function MentorRegistration() {
                 <p className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
                   Mentor Registration
                 </p>
-                <p className="text-[#c9d1d9] text-base font-normal leading-normal">
+                <p className="text-text-primary text-base font-normal leading-normal">
                   Share your expertise and help students succeed on campus.
                 </p>
               </div>
@@ -168,31 +168,31 @@ export default function MentorRegistration() {
 
             {/* Progress Bar */}
             <div className="flex flex-col gap-3">
-              <div className="flex w-full justify-between px-2 text-sm font-medium text-[#c9d1d9]">
+              <div className="flex w-full justify-between px-2 text-sm font-medium text-text-primary">
                 <span
-                  className={currentStep >= 1 ? "text-white" : "text-[#8b949e]"}
+                  className={currentStep >= 1 ? "text-white" : "text-text-secondary"}
                 >
                   1. Personal Info
                 </span>
                 <span
-                  className={currentStep >= 2 ? "text-white" : "text-[#8b949e]"}
+                  className={currentStep >= 2 ? "text-white" : "text-text-secondary"}
                 >
                   2. Expertise
                 </span>
                 <span
-                  className={currentStep >= 3 ? "text-white" : "text-[#8b949e]"}
+                  className={currentStep >= 3 ? "text-white" : "text-text-secondary"}
                 >
                   3. Profile Details
                 </span>
                 <span
-                  className={currentStep >= 4 ? "text-white" : "text-[#8b949e]"}
+                  className={currentStep >= 4 ? "text-white" : "text-text-secondary"}
                 >
                   4. Review
                 </span>
               </div>
-              <div className="rounded bg-[#161b22] h-2">
+              <div className="rounded bg-surface h-2">
                 <div
-                  className="h-2 rounded bg-[#238636]"
+                  className="h-2 rounded bg-primary"
                   style={{ width: `${progressPercentage}%` }}
                 ></div>
               </div>
@@ -201,7 +201,7 @@ export default function MentorRegistration() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               {/* Form Container */}
               <div className="lg:col-span-2 flex flex-col gap-6">
-                <div className="flex flex-col gap-6 rounded-lg border border-[#30363d] bg-[#161b22] p-6">
+                <div className="flex flex-col gap-6 rounded-lg border border-border bg-surface p-6">
                   <h3 className="text-xl font-bold text-white">
                     {currentStep === 1 && "Step 1: Personal Information"}
                     {currentStep === 2 && "Step 2: Expertise"}
@@ -221,7 +221,7 @@ export default function MentorRegistration() {
                           name="fullName"
                           value={formData.fullName}
                           onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#238636]/50 border border-[#30363d] bg-[#0d1117] focus:border-[#238636] h-12 placeholder:text-[#c9d1d9]/50 px-3 text-base font-normal leading-normal"
+                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-12 placeholder:text-text-primary/50 px-3 text-base font-normal leading-normal"
                           placeholder="Enter your full name"
                         />
                       </label>
@@ -232,7 +232,7 @@ export default function MentorRegistration() {
                           name="email"
                           value={formData.email}
                           onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#238636]/50 border border-[#30363d] bg-[#0d1117] focus:border-[#238636] h-12 placeholder:text-[#c9d1d9]/50 px-3 text-base font-normal leading-normal"
+                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-12 placeholder:text-text-primary/50 px-3 text-base font-normal leading-normal"
                           placeholder="Enter your email"
                         />
                       </label>
@@ -245,7 +245,7 @@ export default function MentorRegistration() {
                           name="phone"
                           value={formData.phone}
                           onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#238636]/50 border border-[#30363d] bg-[#0d1117] focus:border-[#238636] h-12 placeholder:text-[#c9d1d9]/50 px-3 text-base font-normal leading-normal"
+                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-12 placeholder:text-text-primary/50 px-3 text-base font-normal leading-normal"
                           placeholder="Enter your phone number"
                         />
                       </label>
@@ -263,11 +263,11 @@ export default function MentorRegistration() {
                           name="expertise"
                           value={formData.expertise}
                           onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#238636]/50 border border-[#30363d] bg-[#0d1117] focus:border-[#238636] h-32 placeholder:text-[#c9d1d9]/50 px-3 py-3 text-base font-normal leading-normal"
+                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-32 placeholder:text-text-primary/50 px-3 py-3 text-base font-normal leading-normal"
                           placeholder="List your areas of expertise (e.g., Python, Data Science, Web Development)"
                         />
                       </label>
-                      <p className="text-sm text-[#8b949e]">
+                      <p className="text-sm text-text-secondary">
                         Separate multiple areas with commas
                       </p>
                     </div>
@@ -282,7 +282,7 @@ export default function MentorRegistration() {
                           name="bio"
                           value={formData.bio}
                           onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#238636]/50 border border-[#30363d] bg-[#0d1117] focus:border-[#238636] h-32 placeholder:text-[#c9d1d9]/50 px-3 py-3 text-base font-normal leading-normal"
+                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-32 placeholder:text-text-primary/50 px-3 py-3 text-base font-normal leading-normal"
                           placeholder="Write a brief bio about yourself..."
                         />
                       </label>
@@ -294,7 +294,7 @@ export default function MentorRegistration() {
                           name="availability"
                           value={formData.availability}
                           onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#238636]/50 border border-[#30363d] bg-[#0d1117] focus:border-[#238636] h-12 placeholder:text-[#c9d1d9]/50 px-3 text-base font-normal leading-normal"
+                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-12 placeholder:text-text-primary/50 px-3 text-base font-normal leading-normal"
                         >
                           <option value="">Select your availability</option>
                           <option value="weekdays">Weekdays</option>
@@ -308,37 +308,37 @@ export default function MentorRegistration() {
                   {/* Step 4: Review */}
                   {currentStep === 4 && (
                     <div className="flex flex-col gap-6">
-                      <div className="border border-[#30363d] rounded-lg p-4">
+                      <div className="border border-border rounded-lg p-4">
                         <h4 className="text-white font-bold mb-4">
                           Review Your Information
                         </h4>
                         <div className="space-y-3 text-sm">
                           <p>
-                            <span className="text-[#8b949e]">Full Name:</span>{" "}
+                            <span className="text-text-secondary">Full Name:</span>{" "}
                             <span className="text-white">
                               {formData.fullName || "Not provided"}
                             </span>
                           </p>
                           <p>
-                            <span className="text-[#8b949e]">Email:</span>{" "}
+                            <span className="text-text-secondary">Email:</span>{" "}
                             <span className="text-white">
                               {formData.email || "Not provided"}
                             </span>
                           </p>
                           <p>
-                            <span className="text-[#8b949e]">Phone:</span>{" "}
+                            <span className="text-text-secondary">Phone:</span>{" "}
                             <span className="text-white">
                               {formData.phone || "Not provided"}
                             </span>
                           </p>
                           <p>
-                            <span className="text-[#8b949e]">Expertise:</span>{" "}
+                            <span className="text-text-secondary">Expertise:</span>{" "}
                             <span className="text-white">
                               {formData.expertise || "Not provided"}
                             </span>
                           </p>
                           <p>
-                            <span className="text-[#8b949e]">
+                            <span className="text-text-secondary">
                               Availability:
                             </span>{" "}
                             <span className="text-white capitalize">
@@ -347,7 +347,7 @@ export default function MentorRegistration() {
                           </p>
                         </div>
                       </div>
-                      <p className="text-[#8b949e] text-sm">
+                      <p className="text-text-secondary text-sm">
                         By submitting this form, you agree to our mentorship
                         terms and privacy policy.
                       </p>
@@ -359,7 +359,7 @@ export default function MentorRegistration() {
                 <div className="flex justify-between items-center mt-4">
                   <button
                     onClick={() => navigate("/")}
-                    className="text-sm font-bold leading-normal tracking-[0.015em] text-white hover:text-[#238636]"
+                    className="text-sm font-bold leading-normal tracking-[0.015em] text-white hover:text-primary"
                   >
                     Cancel
                   </button>
@@ -367,10 +367,10 @@ export default function MentorRegistration() {
                     <button
                       onClick={handleBack}
                       disabled={currentStep === 1 || submitting}
-                      className={`flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#161b22] border border-[#30363d] text-white text-sm font-bold leading-normal tracking-[0.015em] ${
+                      className={`flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-surface border border-border text-white text-sm font-bold leading-normal tracking-[0.015em] ${
                         currentStep === 1 || submitting
                           ? "opacity-50 cursor-not-allowed"
-                          : "hover:bg-[#21262d]"
+                          : "hover:bg-surface-hover"
                       }`}
                     >
                       <span className="truncate">Back</span>
@@ -382,7 +382,7 @@ export default function MentorRegistration() {
                           : handleNext
                       }
                       disabled={submitting}
-                      className={`flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-6 bg-[#238636] text-white text-sm font-bold leading-normal tracking-[0.015em] ${submitting ? 'opacity-50' : 'hover:bg-[#2ea043]'}`}
+                      className={`flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-6 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] ${submitting ? 'opacity-50' : 'hover:bg-primary-hover'}`}
                     >
                       <span className="truncate">
                         {submitting ? "Submitting..." : (currentStep === 4 ? "Submit" : "Next")}
@@ -402,7 +402,7 @@ export default function MentorRegistration() {
 
               {/* Info Box */}
               <aside className="lg:col-span-1">
-                <div className="flex flex-1 flex-col items-start justify-between gap-4 rounded-lg border border-[#30363d] bg-[#161b22] p-5">
+                <div className="flex flex-1 flex-col items-start justify-between gap-4 rounded-lg border border-border bg-surface p-5">
                   <div className="flex items-center gap-3">
                     <span className="material-symbols-outlined text-white">
                       info
@@ -411,7 +411,7 @@ export default function MentorRegistration() {
                       Application Review
                     </p>
                   </div>
-                  <p className="text-[#c9d1d9] text-sm font-normal leading-normal">
+                  <p className="text-text-primary text-sm font-normal leading-normal">
                     All mentor applications are reviewed by campus admins before
                     approval.
                   </p>

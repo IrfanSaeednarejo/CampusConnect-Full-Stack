@@ -297,17 +297,17 @@ export const joinSociety = async (societyId, requestUser) => {
         if (existing.status === "pending") throw new ApiError(409, "Your join request is already pending approval");
         if (existing.status === "rejected") throw new ApiError(403, "Your previous join request was rejected. Contact the society head.");
 
-        existing.status = society.requireApproval ? "pending" : "approved";
+        existing.status = "pending";
         existing.joinedAt = new Date();
         await society.save();
-        return { status: existing.status, message: society.requireApproval ? "Re-join request submitted — awaiting approval" : "You have re-joined the society" };
+        return { status: existing.status, message: "Re-join request submitted — awaiting approval" };
     }
 
-    const memberStatus = society.requireApproval ? "pending" : "approved";
+    const memberStatus = "pending";
     society.members.push({ memberId: requestUser._id, role: "student", status: memberStatus, joinedAt: new Date() });
     await society.save();
 
-    return { status: memberStatus, message: society.requireApproval ? "Join request submitted — awaiting approval from the society head" : "You have successfully joined the society", isNew: true };
+    return { status: memberStatus, message: "Join request submitted — awaiting approval from the society head", isNew: true };
 };
 
 export const leaveSociety = async (societyId, requestUser) => {

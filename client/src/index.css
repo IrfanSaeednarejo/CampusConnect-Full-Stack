@@ -5,6 +5,30 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ===== Theme Variables ===== */
+@layer base {
+  :root {
+    --bg-background: #0d1117;
+    --bg-surface: #161b22;
+    --bg-surface-hover: #1c2128;
+    
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --text-tertiary: #484f58;
+    
+    --border-default: #30363d;
+    --border-hover: #8b949e;
+    
+    --accent-primary: #238636;
+    --accent-primary-hover: #2ea043;
+    
+    --accent-danger: #da3633;
+    --accent-danger-hover: #f85149;
+    
+    --accent-warning: #e3b341;
+  }
+}
+
 body {
   margin: 0;
   padding: 0;
@@ -13,13 +37,14 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0d1117;
-  color: #c9d1d9;
+  background-color: var(--bg-background);
+  color: var(--text-primary);
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
+
 
 /* ===== Keyframes ===== */
 @keyframes fadeIn {

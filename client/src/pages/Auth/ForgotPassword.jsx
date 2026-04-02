@@ -47,19 +47,19 @@ export default function ForgotPassword() {
   };
 
   return (
-    <AuthShell className="h-auto items-center justify-center overflow-x-hidden p-4 bg-[#0d1117] group/design-root">
+    <AuthShell className="h-auto items-center justify-center overflow-x-hidden p-4 bg-background group/design-root">
       <div className="flex flex-col items-center justify-center py-10">
         {/* Header with Icon */}
         <div className="flex flex-col items-center gap-4 text-center">
           <svg
-            className="h-10 w-10 text-[#238636]"
+            className="h-10 w-10 text-primary"
             fill="currentColor"
             viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg"
           >
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2ZM8.41 17.41 12 13.83l3.59 3.58L17 16l-3.59-3.59L17 8.83 15.59 7.41 12 11.01 8.41 7.41 7 8.83l3.59 3.58L7 16l1.41 1.41Z"></path>
           </svg>
-          <p className="font-bold text-[#c9d1d9] text-lg">CampusConnect</p>
+          <p className="font-bold text-text-primary text-lg">CampusConnect</p>
         </div>
 
         {/* Form Container */}
@@ -67,10 +67,10 @@ export default function ForgotPassword() {
           <AuthCard className="p-6 sm:p-8">
             {/* Headings */}
             <div className="flex flex-col gap-3">
-              <p className="text-[#c9d1d9] text-2xl font-bold leading-tight">
+              <p className="text-text-primary text-2xl font-bold leading-tight">
                 Forgot Your Password?
               </p>
-              <p className="text-[#8b949e] text-sm font-normal leading-normal">
+              <p className="text-text-secondary text-sm font-normal leading-normal">
                 Enter your registered email and we'll send you instructions to
                 reset your password.
               </p>
@@ -105,7 +105,7 @@ export default function ForgotPassword() {
               <button
                 type="button"
                 onClick={() => navigate("/login")}
-                className="text-[#238636] text-sm font-normal leading-normal hover:underline cursor-pointer"
+                className="text-primary text-sm font-normal leading-normal hover:underline cursor-pointer"
               >
                 Back to login
               </button>

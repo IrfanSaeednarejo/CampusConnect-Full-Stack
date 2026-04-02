@@ -1,14 +1,14 @@
 export default function StatCard({ label, value, icon, className = "" }) {
   return (
     <div
-      className={`bg-[#161b22] border border-[#30363d] rounded-lg p-4 ${className}`}
+      className={`bg-surface border border-border rounded-lg p-4 ${className}`}
     >
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-[#8b949e] text-sm">{label}</p>
-          <p className="text-[#238636] text-2xl font-bold">{value}</p>
+          <p className="text-text-secondary text-sm">{label}</p>
+          <p className="text-primary text-2xl font-bold">{value}</p>
         </div>
-        <span className="material-symbols-outlined text-4xl text-[#238636]">
+        <span className="material-symbols-outlined text-4xl text-primary">
           {icon}
         </span>
       </div>

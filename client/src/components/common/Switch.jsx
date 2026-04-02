@@ -9,7 +9,7 @@ export default function Switch({ checked, onChange, className = "" }) {
 			/>
 			<div
 				className={`w-9 h-5 rounded-full transition-colors ${
-					checked ? "bg-[#238636]" : "bg-[#30363d]"
+					checked ? "bg-primary" : "bg-[#30363d]"
 				}`}
 			></div>
 			<div

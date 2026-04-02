@@ -1,19 +1,26 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { academicNetworkApi } from '../../api/mock/academicNetworkApi';
+import { getNetworkProfiles, sendConnectionRequest as sendConnectionRequestApi } from '../../api/networkApi';
 
 export const fetchProfiles = createAsyncThunk(
   'academicNetwork/fetchProfiles',
-  async () => {
-    const response = await academicNetworkApi.getAll();
-    return response;
+  async (_, { rejectWithValue }) => {
+    try {
+      return await getNetworkProfiles();
+    } catch (error) {
+      return rejectWithValue(error?.message || 'Failed to fetch network profiles');
+    }
   }
 );
 
 export const sendConnectionRequest = createAsyncThunk(
   'academicNetwork/sendConnectionRequest',
-  async (profileId) => {
-    const response = await academicNetworkApi.sendConnectionRequest(profileId);
-    return response.profileId;
+  async (profileId, { rejectWithValue }) => {
+    try {
+      const response = await sendConnectionRequestApi(profileId);
+      return response.profileId;
+    } catch (error) {
+      return rejectWithValue(error?.message || 'Failed to send connection request');
+    }
   }
 );
 
@@ -43,9 +50,9 @@ const applyFilters = (items, filters) => {
   // 1. Search
   if (filters.search) {
     const q = filters.search.toLowerCase();
-    result = result.filter(p => 
-      p.name.toLowerCase().includes(q) || 
-      p.department?.toLowerCase().includes(q) || 
+    result = result.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.department?.toLowerCase().includes(q) ||
       p.bio?.toLowerCase().includes(q)
     );
   }
@@ -120,7 +127,7 @@ const academicNetworkSlice = createSlice({
         state.actionLoading[action.payload] = false;
         const profile = state.items.find(p => p.id === action.payload);
         if (profile) profile.connectionStatus = 'pending';
-        
+
         const filteredProfile = state.filteredItems.find(p => p.id === action.payload);
         if (filteredProfile) filteredProfile.connectionStatus = 'pending';
       })

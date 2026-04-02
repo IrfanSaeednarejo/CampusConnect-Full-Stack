@@ -27,7 +27,7 @@ export default function CTACard({
       <h2 className="text-[#e6edf3] text-2xl font-bold mb-3">
         {title}
       </h2>
-      <p className="text-[#8b949e] text-sm mb-6">
+      <p className="text-text-secondary text-sm mb-6">
         {description}
       </p>
       <div className="flex justify-center">

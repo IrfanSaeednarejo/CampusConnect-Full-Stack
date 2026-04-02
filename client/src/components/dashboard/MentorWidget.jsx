@@ -10,7 +10,7 @@ export default function MentorWidget({
 }) {
 	return (
 		<div
-			className={`flex flex-col gap-4 p-6 bg-[#161b22] border border-[#30363d] rounded-xl ${className}`}
+			className={`flex flex-col gap-4 p-6 bg-surface border border-border rounded-xl ${className}`}
 		>
 			<div className={`flex items-center justify-between mb-2 ${headerClassName}`}>
 				<h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">

@@ -30,7 +30,7 @@ export default function StudentSidebar() {
 
   return (
     <aside 
-      className={`hidden lg:flex flex-col p-4 text-[#c9d1d9] shrink-0 border-r border-[#21262d] sticky top-[65px] h-[calc(100vh-65px)] overflow-y-auto transition-all duration-300 ease-in-out glass backdrop-blur-xl ${
+      className={`hidden lg:flex flex-col p-4 text-text-primary shrink-0 border-r border-[#21262d] sticky top-[65px] h-[calc(100vh-65px)] overflow-y-auto transition-all duration-300 ease-in-out glass backdrop-blur-xl ${
         isExpanded ? 'w-64' : 'w-[72px] items-center'
       }`}
     >
@@ -39,13 +39,13 @@ export default function StudentSidebar() {
         <div className={`flex items-center ${isExpanded ? 'justify-between' : 'justify-center'} px-1 pt-2`}>
           {isExpanded && (
             <div className="flex items-center gap-2 overflow-hidden">
-              <div className="w-8 h-8 shrink-0 rounded-full bg-[#238636] flex items-center justify-center text-white font-bold text-xs">CC</div>
+              <div className="w-8 h-8 shrink-0 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs">CC</div>
               <h1 className="text-white text-lg font-semibold truncate tracking-tight">CampusConnect</h1>
             </div>
           )}
           <button 
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-[#8b949e] hover:text-[#c9d1d9] p-1.5 rounded-md hover:bg-[#21262d] transition-colors flex items-center justify-center shrink-0"
+            className="text-text-secondary hover:text-text-primary p-1.5 rounded-md hover:bg-surface-hover transition-colors flex items-center justify-center shrink-0"
             title={isExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
           >
             <span className="material-symbols-outlined text-[20px]">
@@ -64,22 +64,22 @@ export default function StudentSidebar() {
                 to={item.path}
                 title={!isExpanded ? item.label : undefined}
                 className={`group relative flex items-center ${isExpanded ? 'justify-between px-3' : 'justify-center px-0 w-10 h-10 mx-auto'} py-2 rounded-lg transition-colors ${
-                  isActive ? 'bg-[#21262d]' : 'hover:bg-[#21262d]'
+                  isActive ? 'bg-surface-hover' : 'hover:bg-surface-hover'
                 }`}
               >
                 <div className={`flex items-center gap-3 ${isExpanded ? 'overflow-hidden' : 'justify-center w-full'}`}>
-                  <span className={`material-symbols-outlined text-xl shrink-0 ${isActive ? 'text-[#c9d1d9]' : 'text-[#8b949e] group-hover:text-[#c9d1d9]'}`}>
+                  <span className={`material-symbols-outlined text-xl shrink-0 ${isActive ? 'text-text-primary' : 'text-text-secondary group-hover:text-text-primary'}`}>
                     {item.icon}
                   </span>
                   {isExpanded && (
-                    <span className={`text-sm font-medium truncate transition-colors ${isActive ? 'text-white' : 'text-[#c9d1d9] group-hover:text-white'}`}>
+                    <span className={`text-sm font-medium truncate transition-colors ${isActive ? 'text-white' : 'text-text-primary group-hover:text-white'}`}>
                       {item.label}
                     </span>
                   )}
                 </div>
                 {/* Notification Badge */}
                 {item.showBadge && unreadCount > 0 && (
-                  <span className={`flex items-center justify-center font-semibold text-white bg-[#238636] rounded-full shrink-0 ${
+                  <span className={`flex items-center justify-center font-semibold text-white bg-primary rounded-full shrink-0 ${
                     isExpanded ? 'min-w-[20px] h-5 px-1.5 text-xs' : 'absolute top-1 right-1 w-2.5 h-2.5 text-[0px]'
                   }`}>
                     {isExpanded ? unreadCount : ''}

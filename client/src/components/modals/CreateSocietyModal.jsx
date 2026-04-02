@@ -117,16 +117,16 @@ export default function CreateSocietyModal({ closeModal }) {
       />
       
       {/* Side-Drawer */}
-      <div className="relative w-full max-w-xl bg-[#161b22] h-full shadow-2xl border-l border-[#30363d] flex flex-col animate-in slide-in-from-right duration-500 ease-out">
+      <div className="relative w-full max-w-xl bg-surface h-full shadow-2xl border-l border-border flex flex-col animate-in slide-in-from-right duration-500 ease-out">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#30363d] flex items-center justify-between bg-[#0d1117]/50">
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-background/50">
           <div>
             <h2 className="text-xl font-bold text-white">Create New Society</h2>
-            <p className="text-[#8b949e] text-sm">Start a new community on campus</p>
+            <p className="text-text-secondary text-sm">Start a new community on campus</p>
           </div>
           <button 
             onClick={closeModal}
-            className="p-2 text-[#8b949e] hover:text-white rounded-full hover:bg-[#30363d] transition-colors"
+            className="p-2 text-text-secondary hover:text-white rounded-full hover:bg-[#30363d] transition-colors"
           >
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -146,7 +146,7 @@ export default function CreateSocietyModal({ closeModal }) {
                 onChange={handleChange}
                 placeholder="e.g. Tech Innovators Club"
                 required
-                className="bg-[#0d1117] border-[#30363d]"
+                className="bg-background border-border"
               />
 
               <FormField
@@ -157,7 +157,7 @@ export default function CreateSocietyModal({ closeModal }) {
                 onChange={handleChange}
                 placeholder="e.g. TIC"
                 required
-                className="bg-[#0d1117] border-[#30363d]"
+                className="bg-background border-border"
               />
 
               <FormField
@@ -167,7 +167,7 @@ export default function CreateSocietyModal({ closeModal }) {
                 value={formData.category}
                 onChange={handleChange}
                 required
-                className="bg-[#0d1117] border-[#30363d]"
+                className="bg-background border-border"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat.value} value={cat.value}>
@@ -185,7 +185,7 @@ export default function CreateSocietyModal({ closeModal }) {
                 placeholder="Describe your society's mission and activities"
                 rows={4}
                 required
-                className="bg-[#0d1117] border-[#30363d] resize-none"
+                className="bg-background border-border resize-none"
               />
 
               {/* Campus Selector - Only show if not automatically determined or multiple options exist */}
@@ -198,7 +198,7 @@ export default function CreateSocietyModal({ closeModal }) {
                   onChange={handleChange}
                   required
                   disabled={fetchingCampuses}
-                  className="bg-[#0d1117] border-[#30363d]"
+                  className="bg-background border-border"
                 >
                   <option value="">Select your university campus</option>
                   {campuses.map((c) => (
@@ -215,7 +215,7 @@ export default function CreateSocietyModal({ closeModal }) {
             <h3 className="text-[#1dc964] text-xs font-bold uppercase tracking-wider mb-4">Visual Identity</h3>
             
             <div>
-              <label className="block text-sm font-medium text-[#c9d1d9] mb-3">
+              <label className="block text-sm font-medium text-text-primary mb-3">
                 Choose an Icon Logo
               </label>
               <div className="grid grid-cols-5 gap-3">
@@ -226,8 +226,8 @@ export default function CreateSocietyModal({ closeModal }) {
                     onClick={() => setFormData({ ...formData, logo: emoji })}
                     className={`p-3 text-3xl rounded-lg border transition-all hover:scale-110 ${
                       formData.logo === emoji
-                        ? "border-[#1dc964] bg-[#1dc964]/20"
-                        : "border-[#30363d] bg-[#0d1117] hover:border-[#1dc964]/50"
+                        ? "border-[#1dc964] bg-primary/20"
+                        : "border-border bg-background hover:border-[#1dc964]/50"
                     }`}
                   >
                     {emoji}
@@ -237,21 +237,21 @@ export default function CreateSocietyModal({ closeModal }) {
             </div>
             
             {/* Preview */}
-            <div className="pt-6 mt-6 border-t border-[#30363d]">
+            <div className="pt-6 mt-6 border-t border-border">
               <h3 className="text-lg font-semibold text-white mb-4">Preview</h3>
-              <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-5">
+              <div className="bg-background border border-border rounded-lg p-5">
                 <div className="flex items-center gap-4 mb-3">
                   <div className="text-4xl">{formData.logo}</div>
                   <div className="flex-1 min-w-0">
                     <h4 className="text-white font-bold text-lg truncate">
                       {formData.name || "Society Name"}
                     </h4>
-                    <p className="text-[#8b949e] text-sm">
+                    <p className="text-text-secondary text-sm">
                       {formData.category}
                     </p>
                   </div>
                 </div>
-                <p className="text-[#c9d1d9] text-sm line-clamp-2">
+                <p className="text-text-primary text-sm line-clamp-2">
                   {formData.description || "Society description will appear here..."}
                 </p>
               </div>
@@ -260,18 +260,18 @@ export default function CreateSocietyModal({ closeModal }) {
         </form>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 border-t border-[#30363d] bg-[#0d1117]/50 flex gap-4">
+        <div className="px-6 py-4 border-t border-border bg-background/50 flex gap-4">
           <button
             type="button"
             onClick={closeModal}
-            className="flex-1 px-4 py-2 border border-[#30363d] text-white rounded-lg hover:bg-[#30363d] transition-colors font-medium"
+            className="flex-1 px-4 py-2 border border-border text-white rounded-lg hover:bg-[#30363d] transition-colors font-medium"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading || !formData.name.trim()}
-            className="flex-[2] px-4 py-2 bg-[#1dc964] text-[#112118] rounded-lg hover:opacity-90 transition-opacity font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex-[2] px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity font-bold flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-[#112118] border-t-transparent rounded-full animate-spin"></div>

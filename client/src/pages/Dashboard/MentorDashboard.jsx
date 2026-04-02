@@ -61,7 +61,7 @@ export default function MentorDashboard() {
   const totalEarnings = completedSessions.reduce((sum, s) => sum + (s.mentorPayout || s.fee || 0), 0);
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
       <div className="layout-container flex h-full grow flex-col">
         <MentorTopBar
           showBack={false}
@@ -96,13 +96,13 @@ export default function MentorDashboard() {
                 <p className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
                   Mentor Portal
                 </p>
-                <p className="text-[#9eb7a9] text-base font-normal leading-normal">
+                <p className="text-text-secondary text-base font-normal leading-normal">
                   Manage your sessions, ratings, and mentee feedback.
                 </p>
               </div>
               <button
                 onClick={() => openModal(MODAL_TYPES.SET_AVAILABILITY)}
-                className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-[#1dc964] text-[#112118] text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity"
+                className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity"
               >
                 <span className="material-symbols-outlined mr-2">
                   calendar_add_on
@@ -117,13 +117,13 @@ export default function MentorDashboard() {
                 <span className="material-symbols-outlined text-[#e3b341] text-3xl">info</span>
                 <div className="flex-1 min-w-[200px]">
                   <p className="text-white font-bold text-sm">Complete Your Mentor Profile</p>
-                  <p className="text-[#9eb7a9] text-xs mt-0.5">
+                  <p className="text-text-secondary text-xs mt-0.5">
                     You need to register as a mentor before you can set availability, accept sessions, or earn.
                   </p>
                 </div>
                 <button
                   onClick={() => navigate("/mentor-registration")}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-[#1dc964] text-[#112118] rounded-lg font-bold text-sm hover:opacity-90 transition-opacity"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition-opacity"
                 >
                   <span className="material-symbols-outlined text-sm">how_to_reg</span>
                   Register Now
@@ -149,7 +149,7 @@ export default function MentorDashboard() {
                 ) : upcomingSessions.length > 0 ? (
                   <div className="flex flex-col gap-4">
                     {upcomingSessions.map((session) => (
-                      <div key={session._id} className="p-4 bg-[#0d1117] rounded-xl border border-[#30363d] hover:border-[#1dc964] transition-colors">
+                      <div key={session._id} className="p-4 bg-background rounded-xl border border-border hover:border-[#1dc964] transition-colors">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <img
@@ -159,19 +159,19 @@ export default function MentorDashboard() {
                             />
                             <div>
                               <p className="text-white font-semibold text-sm">{session.menteeId?.profile?.displayName || "Student"}</p>
-                              <p className="text-[#9eb7a9] text-xs">{new Date(session.startAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} • {session.duration || 60} min</p>
+                              <p className="text-text-secondary text-xs">{new Date(session.startAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} • {session.duration || 60} min</p>
                             </div>
                           </div>
                           <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${session.status === 'confirmed' ? 'bg-[#1dc96422] text-[#1dc964]' : 'bg-[#e3b34122] text-[#e3b341]'}`}>
                             {session.status}
                           </span>
                         </div>
-                        {session.topic && <p className="text-[#9eb7a9] text-xs mt-2 pl-[52px]">Topic: {session.topic}</p>}
+                        {session.topic && <p className="text-text-secondary text-xs mt-2 pl-[52px]">Topic: {session.topic}</p>}
                         {session.status === 'pending' && (
                           <div className="flex gap-2 mt-3 pl-[52px]">
                             <button
                               onClick={() => dispatch(confirmSessionThunk(session._id))}
-                              className="flex items-center gap-1 px-3 py-1.5 bg-[#1dc964] text-[#112118] rounded-lg text-xs font-bold hover:opacity-90 transition-opacity"
+                              className="flex items-center gap-1 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-bold hover:opacity-90 transition-opacity"
                             >
                               <span className="material-symbols-outlined text-[14px]">check</span> Confirm
                             </button>
@@ -196,11 +196,11 @@ export default function MentorDashboard() {
                         event_busy
                       </span>
                     </div>
-                    <div className="flex max-w-[480px] flex-col items-center gap-2">
+                    <div className="flex max-w-lg flex-col items-center gap-2">
                       <p className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
                         No sessions yet
                       </p>
-                      <p className="text-[#9eb7a9] text-sm font-normal leading-normal max-w-[480px]">
+                      <p className="text-text-secondary text-sm font-normal leading-normal max-w-lg">
                         Once a student books a session, it will appear here!
                       </p>
                     </div>
@@ -217,19 +217,19 @@ export default function MentorDashboard() {
               >
                 <div className="flex flex-col gap-6 flex-1">
                   <div className="flex flex-col gap-2">
-                    <p className="text-[#9eb7a9] text-sm">Total Earnings</p>
+                    <p className="text-text-secondary text-sm">Total Earnings</p>
                     <p className="text-white text-4xl font-bold tracking-tight">
                       ${totalEarnings.toFixed(2)}
                     </p>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <p className="text-[#9eb7a9] text-sm">Sessions Completed</p>
+                    <p className="text-text-secondary text-sm">Sessions Completed</p>
                     <p className="text-white text-2xl font-bold">{completedSessions.length}</p>
                   </div>
                   <div className="mt-auto">
                     <button
                       onClick={() => navigate("/earnings")}
-                      className="flex w-full min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#30363d] text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#404851] transition-colors gap-2"
+                      className="flex w-full min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#30363d] text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#404851] transition-colors gap-2"
                     >
                       <span className="material-symbols-outlined">
                         account_balance_wallet
@@ -250,7 +250,7 @@ export default function MentorDashboard() {
                 {pendingFeedback.length > 0 ? (
                   <div className="flex flex-col gap-3">
                     {pendingFeedback.slice(0, 3).map((session) => (
-                      <div key={session._id} className="flex items-center gap-3 p-3 bg-[#0d1117] rounded-xl border border-[#30363d]">
+                      <div key={session._id} className="flex items-center gap-3 p-3 bg-background rounded-xl border border-border">
                         <img
                           src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`}
                           className="w-8 h-8 rounded-full"
@@ -258,7 +258,7 @@ export default function MentorDashboard() {
                         />
                         <div className="flex-1">
                           <p className="text-white text-sm font-medium">{session.menteeId?.profile?.displayName || "Student"}</p>
-                          <p className="text-[#9eb7a9] text-xs">Awaiting review</p>
+                          <p className="text-text-secondary text-xs">Awaiting review</p>
                         </div>
                         <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-[#e3b34122] text-[#e3b341]">Pending</span>
                       </div>
@@ -277,11 +277,11 @@ export default function MentorDashboard() {
                         rate_review
                       </span>
                     </div>
-                    <div className="flex max-w-[480px] flex-col items-center gap-2">
+                    <div className="flex max-w-lg flex-col items-center gap-2">
                       <p className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
                         All Caught Up!
                       </p>
-                      <p className="text-[#9eb7a9] text-sm font-normal leading-normal max-w-[480px]">
+                      <p className="text-text-secondary text-sm font-normal leading-normal max-w-lg">
                         You have no pending feedback requests.
                       </p>
                     </div>
@@ -301,7 +301,7 @@ export default function MentorDashboard() {
                 {recentRatings.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {recentRatings.map((session) => (
-                      <div key={session._id} className="p-4 bg-[#0d1117] rounded-xl border border-[#30363d]">
+                      <div key={session._id} className="p-4 bg-background rounded-xl border border-border">
                         <div className="flex items-center gap-3 mb-3">
                           <img
                             src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`}
@@ -318,7 +318,7 @@ export default function MentorDashboard() {
                           </div>
                         </div>
                         {session.reviewId?.comment && (
-                          <p className="text-[#9eb7a9] text-xs italic line-clamp-2">"{session.reviewId.comment}"</p>
+                          <p className="text-text-secondary text-xs italic line-clamp-2">"{session.reviewId.comment}"</p>
                         )}
                       </div>
                     ))}
@@ -333,11 +333,11 @@ export default function MentorDashboard() {
                         star_outline
                       </span>
                     </div>
-                    <div className="flex max-w-[480px] flex-col items-center gap-2">
+                    <div className="flex max-w-lg flex-col items-center gap-2">
                       <p className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
                         No ratings yet
                       </p>
-                      <p className="text-[#9eb7a9] text-sm font-normal leading-normal max-w-[480px]">
+                      <p className="text-text-secondary text-sm font-normal leading-normal max-w-lg">
                         Your mentee ratings will appear here after completed
                         sessions.
                       </p>

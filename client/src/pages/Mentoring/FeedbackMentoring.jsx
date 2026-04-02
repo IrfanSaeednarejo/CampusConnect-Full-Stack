@@ -55,7 +55,7 @@ export default function FeedbackMentoring() {
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
       <div className="layout-container flex h-full grow flex-col">
         {/* TopNavBar */}
         <MentorTopBar backPath="/mentor/dashboard" />
@@ -68,7 +68,7 @@ export default function FeedbackMentoring() {
               <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                 Session Feedback & Ratings
               </h1>
-              <p className="text-[#9eb7a9] text-base font-normal leading-normal">
+              <p className="text-text-secondary text-base font-normal leading-normal">
                 Review and provide feedback for completed mentoring sessions
               </p>
             </div>
@@ -85,20 +85,20 @@ export default function FeedbackMentoring() {
                     onClick={() => setSelectedSession(session)}
                     className={`p-4 rounded-xl cursor-pointer transition-all border ${
                       selectedSession?.id === session.id
-                        ? "bg-[#161b22] border-[#1dc964]"
-                        : "bg-[#161b22] border-[#30363d] hover:border-[#1dc964]"
+                        ? "bg-surface border-[#1dc964]"
+                        : "bg-surface border-border hover:border-[#1dc964]"
                     }`}
                   >
                     <img
                       src={session.menteeImage}
                       alt={session.mentee}
-                      className="w-10 h-10 rounded-full mb-2 border border-[#30363d]"
+                      className="w-10 h-10 rounded-full mb-2 border border-border"
                     />
                     <h3 className="text-white font-semibold">
                       {session.mentee}
                     </h3>
-                    <p className="text-[#9eb7a9] text-sm">{session.topic}</p>
-                    <p className="text-[#9eb7a9] text-xs mt-1">
+                    <p className="text-text-secondary text-sm">{session.topic}</p>
+                    <p className="text-text-secondary text-xs mt-1">
                       {session.sessionDate}
                     </p>
                   </div>
@@ -108,13 +108,13 @@ export default function FeedbackMentoring() {
               {/* Feedback Form */}
               <div className="lg:col-span-2">
                 {selectedSession ? (
-                  <div className="p-6 bg-[#161b22] border border-[#30363d] rounded-xl">
+                  <div className="p-6 bg-surface border border-border rounded-xl">
                     <h2 className="text-white font-bold text-xl mb-6">
                       Provide Feedback for {selectedSession.mentee}
                     </h2>
 
                     {/* Session Details */}
-                    <div className="bg-[#0d1117] p-4 rounded-lg mb-6">
+                    <div className="bg-background p-4 rounded-lg mb-6">
                       <div className="flex items-center gap-3 mb-3">
                         <img
                           src={selectedSession.menteeImage}
@@ -125,12 +125,12 @@ export default function FeedbackMentoring() {
                           <p className="text-white font-semibold">
                             {selectedSession.mentee}
                           </p>
-                          <p className="text-[#9eb7a9] text-sm">
+                          <p className="text-text-secondary text-sm">
                             {selectedSession.topic}
                           </p>
                         </div>
                       </div>
-                      <div className="flex gap-4 text-[#9eb7a9] text-sm">
+                      <div className="flex gap-4 text-text-secondary text-sm">
                         <span className="flex items-center gap-1">
                           <span className="material-symbols-outlined text-base">
                             calendar_today
@@ -177,7 +177,7 @@ export default function FeedbackMentoring() {
                         value={feedback}
                         onChange={(e) => setFeedback(e.target.value)}
                         placeholder="Share your thoughts about this session..."
-                        className="w-full p-4 bg-[#0d1117] text-white rounded-lg border border-[#30363d] focus:border-[#1dc964] focus:outline-none resize-none"
+                        className="w-full p-4 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none resize-none"
                         rows="5"
                       ></textarea>
                     </div>
@@ -186,7 +186,7 @@ export default function FeedbackMentoring() {
                     <div className="flex gap-4">
                       <button
                         onClick={handleSubmitFeedback}
-                        className="flex items-center gap-2 px-6 py-3 bg-[#1dc964] text-[#112118] font-bold rounded-lg hover:opacity-90 transition-opacity flex-1"
+                        className="flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-lg hover:opacity-90 transition-opacity flex-1"
                       >
                         <span className="material-symbols-outlined">send</span>
                         Submit Feedback
@@ -200,11 +200,11 @@ export default function FeedbackMentoring() {
                     </div>
                   </div>
                 ) : (
-                  <div className="p-6 bg-[#161b22] border border-[#30363d] rounded-xl text-center">
-                    <span className="material-symbols-outlined text-6xl text-[#9eb7a9] mb-4 inline-block">
+                  <div className="p-6 bg-surface border border-border rounded-xl text-center">
+                    <span className="material-symbols-outlined text-6xl text-text-secondary mb-4 inline-block">
                       rate_review
                     </span>
-                    <p className="text-[#9eb7a9]">
+                    <p className="text-text-secondary">
                       Select a session from the list to provide feedback
                     </p>
                   </div>

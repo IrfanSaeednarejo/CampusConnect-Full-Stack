@@ -20,7 +20,7 @@ export default function AccessDenied() {
   return (
     <ErrorPageShell
       icon="block"
-      iconClassName="text-[#da3633]"
+      iconClassName="text-danger"
       title="Access Denied"
       message="You don't have permission to access this page. Please check your account role or contact support."
       actions={

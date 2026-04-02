@@ -69,19 +69,19 @@ export default function StudentProfile() {
   }, [dispatch, user]);
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen">
+    <div className="w-full bg-background text-text-primary min-h-screen">
       {/* Header */}
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#30363d] px-6 sm:px-10 lg:px-20 py-3 sticky top-0 bg-[#0d1117]/80 backdrop-blur-sm z-50">
+      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-border px-6 sm:px-10 lg:px-20 py-3 sticky top-0 bg-background/80 backdrop-blur-sm z-50">
         <div className="flex items-center gap-8">
           <button
             onClick={() => navigate("/student/dashboard")}
-            className="text-white hover:text-[#238636] transition-colors"
+            className="text-white hover:text-primary transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
           <div className="flex items-center gap-4 text-white">
             <svg
-              className="size-6 text-[#238636]"
+              className="size-6 text-primary"
               fill="none"
               viewBox="0 0 48 48"
               xmlns="http://www.w3.org/2000/svg"
@@ -98,13 +98,13 @@ export default function StudentProfile() {
 
           <label className="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
             <div className="flex w-full flex-1 items-stretch rounded-lg h-full">
-              <div className="text-[#8b949e] flex border-none bg-[#161b22] items-center justify-center pl-4 rounded-l-lg border-r-0">
+              <div className="text-text-secondary flex border-none bg-surface items-center justify-center pl-4 rounded-l-lg border-r-0">
                 <span className="material-symbols-outlined text-xl">
                   search
                 </span>
               </div>
               <input
-                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-[#161b22] focus:border-none h-full placeholder:text-[#8b949e] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
+                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-surface focus:border-none h-full placeholder:text-text-secondary px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
                 placeholder="Search"
               />
             </div>
@@ -115,36 +115,36 @@ export default function StudentProfile() {
           <div className="hidden lg:flex items-center gap-9">
             <button
               onClick={() => navigate("/student/dashboard")}
-              className="text-white text-sm font-medium leading-normal hover:text-[#238636] transition-colors"
+              className="text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
             >
               Dashboard
             </button>
             <a
-              className="text-white text-sm font-medium leading-normal hover:text-[#238636] transition-colors"
+              className="text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
               href="/events"
             >
               Events
             </a>
             <a
-              className="text-white text-sm font-medium leading-normal hover:text-[#238636] transition-colors"
+              className="text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
               href="/societies"
             >
               Societies
             </a>
             <a
-              className="text-white text-sm font-medium leading-normal hover:text-[#238636] transition-colors"
+              className="text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
               href="/mentors"
             >
               Mentors
             </a>
           </div>
           <div className="flex gap-2">
-            <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#161b22] text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-[#30363d] transition-colors">
+            <button className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-surface text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-[#30363d] transition-colors">
               <span className="material-symbols-outlined text-xl">
                 notifications
               </span>
             </button>
-            <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#161b22] text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-[#30363d] transition-colors">
+            <button className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-surface text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-[#30363d] transition-colors">
               <span className="material-symbols-outlined text-xl">
                 chat_bubble
               </span>
@@ -180,7 +180,7 @@ export default function StudentProfile() {
                   <h1 className="text-white text-2xl font-bold leading-tight tracking-tight">
                     {displayName}
                   </h1>
-                  <p className="text-[#8b949e] text-lg font-normal leading-normal">
+                  <p className="text-text-secondary text-lg font-normal leading-normal">
                     {username}
                   </p>
                 </div>
@@ -189,37 +189,37 @@ export default function StudentProfile() {
                     <span className="material-symbols-outlined">edit</span>
                     <span className="truncate">Edit Profile</span>
                   </button>
-                  <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#238636] text-[#0d1117] text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity gap-2">
+                  <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-[#0d1117] text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity gap-2">
                     <span className="material-symbols-outlined">people</span>
                     <span className="truncate">View Connections</span>
                   </button>
                 </div>
-                <div className="border-t border-[#30363d] pt-6">
+                <div className="border-t border-border pt-6">
                   <p className="text-white text-base font-normal leading-normal">
                     {bio}
                   </p>
                 </div>
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-3 text-[#8b949e]">
+                  <div className="flex items-center gap-3 text-text-secondary">
                     <span className="material-symbols-outlined text-xl">
                       school
                     </span>
                     <p className="text-sm">{department}</p>
                   </div>
-                  <div className="flex items-center gap-3 text-[#8b949e]">
+                  <div className="flex items-center gap-3 text-text-secondary">
                     <span className="material-symbols-outlined text-xl">
                       group
                     </span>
                     <p className="text-sm">Member of {societies.length} societies</p>
                   </div>
-                  <div className="flex items-center gap-3 text-[#8b949e]">
+                  <div className="flex items-center gap-3 text-text-secondary">
                     <span className="material-symbols-outlined text-xl">
                       location_on
                     </span>
                     <p className="text-sm">London, UK</p>
                   </div>
                 </div>
-                <div className="border-t border-[#30363d] pt-6">
+                <div className="border-t border-border pt-6">
                   <h3 className="text-white text-base font-bold leading-normal mb-3">
                     Interests
                   </h3>
@@ -228,15 +228,15 @@ export default function StudentProfile() {
                       user.profile.interests.map((interest) => (
                         <div
                           key={interest}
-                          className="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#238636]/20 px-3"
+                          className="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-primary/20 px-3"
                         >
-                          <p className="text-[#238636] text-xs font-medium leading-normal">
+                          <p className="text-primary text-xs font-medium leading-normal">
                             {interest}
                           </p>
                         </div>
                       ))
                     ) : (
-                      <p className="text-[#8b949e] text-sm">No interests added yet</p>
+                      <p className="text-text-secondary text-sm">No interests added yet</p>
                     )}
                   </div>
                 </div>
@@ -247,7 +247,7 @@ export default function StudentProfile() {
             <main className="w-full md:w-3/4">
               <div className="flex flex-col gap-8">
                 {/* Tabs */}
-                <div className="border-b border-[#30363d]">
+                <div className="border-b border-border">
                   <div className="flex gap-4 sm:gap-8 -mb-px">
                     {[
                       { id: "overview", label: "Overview" },
@@ -260,7 +260,7 @@ export default function StudentProfile() {
                         onClick={() => setActiveTab(tab.id)}
                         className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-2 px-2 transition-colors ${activeTab === tab.id
                           ? "border-b-[#238636] text-white"
-                          : "border-b-transparent text-[#8b949e] hover:text-white"
+                          : "border-b-transparent text-text-secondary hover:text-white"
                           }`}
                       >
                         <p className="text-sm font-bold leading-normal tracking-[0.015em]">
@@ -282,10 +282,10 @@ export default function StudentProfile() {
                       {ACHIEVEMENTS.map((achievement) => (
                         <div
                           key={achievement.id}
-                          className="bg-[#161b22] p-6 rounded-lg border border-[#30363d] flex items-center justify-between hover:border-[#238636]/50 transition-colors"
+                          className="bg-surface p-6 rounded-lg border border-border flex items-center justify-between hover:border-primary/50 transition-colors"
                         >
                           <div className="flex items-center gap-4">
-                            <div className="text-[#238636]">
+                            <div className="text-primary">
                               <span className="material-symbols-outlined text-4xl">
                                 {achievement.icon}
                               </span>
@@ -294,12 +294,12 @@ export default function StudentProfile() {
                               <h3 className="font-bold text-white">
                                 {achievement.title}
                               </h3>
-                              <p className="text-[#8b949e] text-sm">
+                              <p className="text-text-secondary text-sm">
                                 {achievement.description}
                               </p>
                             </div>
                           </div>
-                          <span className="material-symbols-outlined text-[#8b949e]">
+                          <span className="material-symbols-outlined text-text-secondary">
                             arrow_forward_ios
                           </span>
                         </div>
@@ -315,9 +315,9 @@ export default function StudentProfile() {
                         {upcomingEvents.map((event) => (
                           <div
                             key={event.id}
-                            className="bg-[#161b22] p-4 rounded-lg border border-[#30363d] flex items-start gap-4 hover:border-[#238636]/50 transition-colors"
+                            className="bg-surface p-4 rounded-lg border border-border flex items-start gap-4 hover:border-primary/50 transition-colors"
                           >
-                            <div className="bg-[#238636]/20 rounded-lg p-3 text-[#238636]">
+                            <div className="bg-primary/20 rounded-lg p-3 text-primary">
                               <span className="material-symbols-outlined">
                                 {event.icon}
                               </span>
@@ -326,7 +326,7 @@ export default function StudentProfile() {
                               <h3 className="font-bold text-white">
                                 {event.title}
                               </h3>
-                              <p className="text-[#8b949e] text-sm">
+                              <p className="text-text-secondary text-sm">
                                 {event.time}
                               </p>
                             </div>
@@ -340,17 +340,17 @@ export default function StudentProfile() {
                       <h2 className="text-xl font-bold text-white mb-4">
                         Mentorship Status
                       </h2>
-                      <div className="bg-[#161b22] p-4 rounded-lg border border-[#30363d] flex items-start gap-4">
-                        <div className="bg-[#238636]/20 rounded-lg p-3 text-[#238636]">
+                      <div className="bg-surface p-4 rounded-lg border border-border flex items-start gap-4">
+                        <div className="bg-primary/20 rounded-lg p-3 text-primary">
                           <span className="material-symbols-outlined">
                             school
                           </span>
                         </div>
                         <div>
-                          <h3 className="font-bold text-[#238636]">
+                          <h3 className="font-bold text-primary">
                             Available to Mentor
                           </h3>
-                          <p className="text-[#8b949e] text-sm">
+                          <p className="text-text-secondary text-sm">
                             Looking to mentor students in Python and Machine
                             Learning. Reach out!
                           </p>
@@ -370,7 +370,7 @@ export default function StudentProfile() {
                           return (
                             <div
                               key={society._id || society.id}
-                              className="bg-[#161b22] p-4 rounded-lg border border-[#30363d] flex flex-col gap-3 hover:border-[#238636]/50 transition-colors"
+                              className="bg-surface p-4 rounded-lg border border-border flex flex-col gap-3 hover:border-primary/50 transition-colors"
                             >
                               {socLogo && socLogo.startsWith('http') ? (
                                 <img
@@ -379,7 +379,7 @@ export default function StudentProfile() {
                                   className="w-12 h-12 rounded-lg object-cover"
                                 />
                               ) : (
-                                <div className="w-12 h-12 rounded-lg bg-[#238636]/20 flex items-center justify-center text-xl font-bold text-[#238636]">
+                                <div className="w-12 h-12 rounded-lg bg-primary/20 flex items-center justify-center text-xl font-bold text-primary">
                                   {socName.charAt(0)}
                                 </div>
                               )}
@@ -387,7 +387,7 @@ export default function StudentProfile() {
                                 <h3 className="font-bold text-white">
                                   {socName}
                                 </h3>
-                                <p className="text-[#8b949e] text-sm capitalize">
+                                <p className="text-text-secondary text-sm capitalize">
                                   {society.role || 'member'}
                                 </p>
                               </div>
@@ -400,8 +400,8 @@ export default function StudentProfile() {
                 )}
 
                 {activeTab === "societies" && (
-                  <div className="bg-[#161b22] p-8 rounded-lg border border-[#30363d] text-center">
-                    <span className="material-symbols-outlined text-6xl text-[#8b949e] block mb-4">
+                  <div className="bg-surface p-8 rounded-lg border border-border text-center">
+                    <span className="material-symbols-outlined text-6xl text-text-secondary block mb-4">
                       groups
                     </span>
                     <p className="text-white">
@@ -411,8 +411,8 @@ export default function StudentProfile() {
                 )}
 
                 {activeTab === "events" && (
-                  <div className="bg-[#161b22] p-8 rounded-lg border border-[#30363d] text-center">
-                    <span className="material-symbols-outlined text-6xl text-[#8b949e] block mb-4">
+                  <div className="bg-surface p-8 rounded-lg border border-border text-center">
+                    <span className="material-symbols-outlined text-6xl text-text-secondary block mb-4">
                       event
                     </span>
                     <p className="text-white">
@@ -422,8 +422,8 @@ export default function StudentProfile() {
                 )}
 
                 {activeTab === "mentorship" && (
-                  <div className="bg-[#161b22] p-8 rounded-lg border border-[#30363d] text-center">
-                    <span className="material-symbols-outlined text-6xl text-[#8b949e] block mb-4">
+                  <div className="bg-surface p-8 rounded-lg border border-border text-center">
+                    <span className="material-symbols-outlined text-6xl text-text-secondary block mb-4">
                       school
                     </span>
                     <p className="text-white">

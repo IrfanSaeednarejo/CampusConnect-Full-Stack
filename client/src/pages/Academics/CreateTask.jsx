@@ -163,13 +163,13 @@ export default function CreateTask() {
           <div className="flex gap-2">
             <Link
               to="/student/notifications"
-              className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-white/5 text-white/80 hover:text-white hover:bg-white/10 gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
+              className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-white/5 text-white/80 hover:text-white hover:bg-white/10 gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
             >
               <span className="material-symbols-outlined">notifications</span>
             </Link>
             <Link
               to="/student/profile"
-              className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-white/5 text-white/80 hover:text-white hover:bg-white/10 gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
+              className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-white/5 text-white/80 hover:text-white hover:bg-white/10 gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
             >
               <span className="material-symbols-outlined">settings</span>
             </Link>
@@ -198,7 +198,7 @@ export default function CreateTask() {
             <div className="flex gap-3 flex-wrap">
               <Link
                 to="/academics/notes/create"
-                className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#17cf60] text-[#112117] text-sm font-bold leading-normal tracking-[0.015em] gap-2"
+                className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] gap-2"
               >
                 <span className="material-symbols-outlined">add</span>
                 <span className="truncate">New Document</span>
@@ -217,7 +217,7 @@ export default function CreateTask() {
                   };
                   input.click();
                 }}
-                className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-white/10 hover:bg-white/20 text-white text-sm font-bold leading-normal tracking-[0.015em] gap-2"
+                className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-white/10 hover:bg-white/20 text-white text-sm font-bold leading-normal tracking-[0.015em] gap-2"
               >
                 <span className="material-symbols-outlined">upload_file</span>
                 <span className="truncate">Upload File</span>
@@ -273,7 +273,7 @@ export default function CreateTask() {
                 Popular Tags:
               </p>
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-[#17cf60]/20 text-[#17cf60] text-xs rounded-full cursor-pointer hover:bg-[#17cf60]/30">
+                <span className="px-3 py-1 bg-primary/20 text-[#17cf60] text-xs rounded-full cursor-pointer hover:bg-primary/30">
                   #AI Ethics
                 </span>
                 <span className="px-3 py-1 bg-white/10 text-white/80 text-xs rounded-full cursor-pointer hover:bg-white/20">
@@ -402,13 +402,13 @@ export default function CreateTask() {
               placeholder="Jot down quick thoughts, ideas, or to-dos..."
             ></textarea>
             <div className="flex justify-end mt-4 gap-2">
-              <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-3 bg-white/10 hover:bg-white/20 text-white text-sm font-bold leading-normal tracking-[0.015em] gap-1">
+              <button className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-3 bg-white/10 hover:bg-white/20 text-white text-sm font-bold leading-normal tracking-[0.015em] gap-1">
                 <span className="material-symbols-outlined !text-base">
                   auto_awesome
                 </span>
                 <span className="truncate">AI Assist</span>
               </button>
-              <button className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-3 bg-[#17cf60] text-[#112117] text-sm font-bold leading-normal tracking-[0.015em] gap-1">
+              <button className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-3 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] gap-1">
                 <span className="material-symbols-outlined !text-base">
                   save
                 </span>

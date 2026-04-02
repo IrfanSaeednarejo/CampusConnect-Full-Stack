@@ -21,7 +21,7 @@ const Header = () => {
     {
       label: "Log In",
       path: "/login",
-      style: "bg-[#161b22] hover:bg-[#21262d] border border-[#30363d]",
+      style: "bg-surface hover:bg-surface-hover border border-border",
     },
     {
       label: "Sign Up",
@@ -34,7 +34,7 @@ const Header = () => {
   const isLoginPage = ["/login", "/signup"].includes(location.pathname);
 
   return (
-    <header className="bg-[#0d1117] border-b border-[#161b22] px-4 sm:px-10 py-3 sticky top-0 z-50">
+    <header className="bg-background border-b border-[#161b22] px-4 sm:px-10 py-3 sticky top-0 z-50">
       <div className="flex items-center justify-between">
         {/* Logo */}
         <div
@@ -87,7 +87,7 @@ const Header = () => {
 
       {/* Mobile Menu */}
       {!isLoginPage && mobileMenuOpen && (
-        <div className="md:hidden mt-2 flex flex-col gap-3 bg-[#0d1117] px-4 py-3 border-t border-[#161b22]">
+        <div className="md:hidden mt-2 flex flex-col gap-3 bg-background px-4 py-3 border-t border-[#161b22]">
           {navLinks.map((link) => (
             <NavLinkItem
               key={link.label}
@@ -137,7 +137,7 @@ const NavLinkItem = ({ link, isActive, mobile, onClick }) => (
     className={`text-sm font-medium ${
       isActive
         ? "text-white font-bold border-b-2 border-green-500 md:border-b-2 md:border-green-500"
-        : "text-[#8b949e] hover:text-white"
+        : "text-text-secondary hover:text-white"
     } ${mobile ? "block w-full" : ""}`}
   >
     {link.label}

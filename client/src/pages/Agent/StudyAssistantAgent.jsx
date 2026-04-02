@@ -85,7 +85,7 @@ export default function StudyAssistantAgent() {
   };
 
   return (
-    <div className="h-screen bg-[#0d1117] text-[#c9d1d9] flex flex-col">
+    <div className="h-screen bg-background text-text-primary flex flex-col">
       {/* Header */}
       <AgentHeader
         title="Study Assistant"

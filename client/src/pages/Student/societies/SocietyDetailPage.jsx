@@ -45,29 +45,29 @@ export default function SocietyDetailPage() {
 
   if (status === 'loading' || status === 'idle') {
     return (
-      <div className="min-h-screen bg-[#0d1117] flex justify-center items-center">
-        <span className="material-symbols-outlined text-4xl text-[#8b949e] animate-spin">refresh</span>
+      <div className="min-h-screen bg-background flex justify-center items-center">
+        <span className="material-symbols-outlined text-4xl text-text-secondary animate-spin">refresh</span>
       </div>
     );
   }
 
   if (status === 'failed' || !detail) {
     return (
-      <div className="min-h-screen bg-[#0d1117] flex justify-center items-center p-4">
-        <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-8 max-w-md w-full text-center">
+      <div className="min-h-screen bg-background flex justify-center items-center p-4">
+        <div className="bg-surface border border-border rounded-xl p-8 max-w-md w-full text-center">
           <span className="material-symbols-outlined text-[#f85149] text-6xl mb-4">warning</span>
           <h2 className="text-2xl font-bold text-white mb-2">Society not found</h2>
-          <p className="text-[#8b949e] mb-6">The society you're looking for doesn't exist or has been removed.</p>
+          <p className="text-text-secondary mb-6">The society you're looking for doesn't exist or has been removed.</p>
           <div className="flex gap-4 justify-center">
             <button
               onClick={() => navigate(-1)}
-              className="px-4 py-2 rounded-md bg-[#21262d] border border-[#30363d] text-white hover:bg-[#30363d] transition-colors"
+              className="px-4 py-2 rounded-md bg-surface-hover border border-border text-white hover:bg-[#30363d] transition-colors"
             >
               Go Back
             </button>
             <button
               onClick={() => navigate('/student/societies')}
-              className="px-4 py-2 rounded-md bg-[#238636] text-white hover:bg-[#2ea043] transition-colors"
+              className="px-4 py-2 rounded-md bg-primary text-white hover:bg-primary-hover transition-colors"
             >
               Browse Societies
             </button>
@@ -98,12 +98,12 @@ export default function SocietyDetailPage() {
   const societyEvents = upcomingEvents.filter(e => detail.upcomingEvents?.includes(e.id) || e.societyId === societyId);
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen pb-12">
+    <div className="w-full bg-background text-text-primary min-h-screen pb-12">
       {/* A) COVER BANNER */}
       <div className="relative w-full h-48 bg-gradient-to-r from-purple-700 to-blue-600">
         <button
           onClick={() => navigate(-1)}
-          className="absolute top-4 left-4 xl:left-8 bg-[#0d1117]/80 hover:bg-[#0d1117] text-white px-3 py-1.5 rounded-lg flex items-center gap-2 backdrop-blur border border-white/20 transition-all"
+          className="absolute top-4 left-4 xl:left-8 bg-background/80 hover:bg-background text-white px-3 py-1.5 rounded-lg flex items-center gap-2 backdrop-blur border border-white/20 transition-all"
         >
           <span className="material-symbols-outlined text-sm">arrow_back</span>
           Back
@@ -136,7 +136,7 @@ export default function SocietyDetailPage() {
             <button
               onClick={handleAction}
               disabled={actionLoading}
-              className="bg-[#0d1117]/60 hover:bg-[#0d1117]/90 text-white border border-white/30 px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors disabled:opacity-75"
+              className="bg-background/60 hover:bg-background/90 text-white border border-white/30 px-6 py-2 rounded-lg font-bold flex items-center gap-2 transition-colors disabled:opacity-75"
             >
               {actionLoading ? <span className="material-symbols-outlined animate-spin text-sm">sync</span> : 'Leave Society'}
             </button>
@@ -146,8 +146,8 @@ export default function SocietyDetailPage() {
 
       <main className="px-4 xl:px-8 py-6 max-w-7xl mx-auto">
         {/* B) STATS BAR */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-[#8b949e]">
-          <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 flex items-center gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-text-secondary">
+          <div className="bg-surface border border-border rounded-lg p-4 flex items-center gap-4">
             <div className="bg-[#2ea043]/20 text-[#2ea043] p-2 rounded-full flex">
               <span className="material-symbols-outlined">people</span>
             </div>
@@ -156,7 +156,7 @@ export default function SocietyDetailPage() {
               <div className="text-xs">Members</div>
             </div>
           </div>
-          <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 flex items-center gap-4">
+          <div className="bg-surface border border-border rounded-lg p-4 flex items-center gap-4">
             <div className="bg-blue-500/20 text-blue-400 p-2 rounded-full flex">
               <span className="material-symbols-outlined">event</span>
             </div>
@@ -165,7 +165,7 @@ export default function SocietyDetailPage() {
               <div className="text-xs">Events</div>
             </div>
           </div>
-          <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 flex items-center gap-4">
+          <div className="bg-surface border border-border rounded-lg p-4 flex items-center gap-4">
             <div className="bg-purple-500/20 text-purple-400 p-2 rounded-full flex">
               <span className="material-symbols-outlined">flag</span>
             </div>
@@ -174,7 +174,7 @@ export default function SocietyDetailPage() {
               <div className="text-xs">Founded</div>
             </div>
           </div>
-          <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 flex items-center gap-4">
+          <div className="bg-surface border border-border rounded-lg p-4 flex items-center gap-4">
             <div className={`p-2 rounded-full flex ${detail.isOpen ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
               <span className="material-symbols-outlined">{detail.isOpen ? 'lock_open' : 'lock'}</span>
             </div>
@@ -186,7 +186,7 @@ export default function SocietyDetailPage() {
         </div>
 
         {/* C) TABS */}
-        <div className="border-b border-[#30363d] sticky top-0 bg-[#0d1117]/95 backdrop-blur z-10 mb-8 overflow-x-auto whitespace-nowrap hide-scrollbar">
+        <div className="border-b border-border sticky top-0 bg-background/95 backdrop-blur z-10 mb-8 overflow-x-auto whitespace-nowrap hide-scrollbar">
           <nav className="-mb-px flex space-x-8">
             {['Overview', 'Events', 'Members', 'Announcements'].map(tab => (
               <button
@@ -196,7 +196,7 @@ export default function SocietyDetailPage() {
                   whitespace-nowrap py-4 px-1 border-b-2 font-medium text-lg transition-colors
                   ${activeTab === tab
                     ? 'border-purple-500 text-purple-400'
-                    : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9] hover:border-[#8b949e]'
+                    : 'border-transparent text-text-secondary hover:text-text-primary hover:border-[#8b949e]'
                   }
                 `}
               >
@@ -216,7 +216,7 @@ export default function SocietyDetailPage() {
                     <span className="material-symbols-outlined text-purple-400">info</span>
                     About {detail.name}
                   </h3>
-                  <p className="text-[#8b949e] leading-relaxed text-lg whitespace-pre-wrap">
+                  <p className="text-text-secondary leading-relaxed text-lg whitespace-pre-wrap">
                     {detail.longDescription || detail.description}
                   </p>
                 </section>
@@ -229,13 +229,13 @@ export default function SocietyDetailPage() {
                   {detail.gallery && detail.gallery.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {detail.gallery.map((img, i) => (
-                        <div key={i} className="aspect-video bg-[#21262d] rounded-lg border border-[#30363d] overflow-hidden">
+                        <div key={i} className="aspect-video bg-surface-hover rounded-lg border border-border overflow-hidden">
                           <img src={img} alt="Gallery" className="w-full h-full object-cover" />
                         </div>
                       ))}
                     </div>
                   ) : (
-                    <div className="bg-[#161b22] border border-[#30363d] rounded-lg py-12 flex flex-col items-center justify-center text-[#8b949e]">
+                    <div className="bg-surface border border-border rounded-lg py-12 flex flex-col items-center justify-center text-text-secondary">
                       <span className="material-symbols-outlined text-4xl mb-2">image_not_supported</span>
                       <p>No photos yet</p>
                     </div>
@@ -244,14 +244,14 @@ export default function SocietyDetailPage() {
               </div>
 
               <div className="md:w-1/3 space-y-8">
-                <section className="bg-[#161b22] border border-[#30363d] rounded-xl p-6">
+                <section className="bg-surface border border-border rounded-xl p-6">
                   <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
                     <span className="material-symbols-outlined text-purple-400">group</span>
                     Core Team
                   </h3>
 
                   {detail.president && (
-                    <div className="flex items-center gap-4 mb-4 pb-4 border-b border-[#30363d]">
+                    <div className="flex items-center gap-4 mb-4 pb-4 border-b border-border">
                       <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-400 font-bold border border-purple-500/30">
                         {getInitials(detail.president.name)}
                       </div>
@@ -265,19 +265,19 @@ export default function SocietyDetailPage() {
                   <div className="space-y-4">
                     {detail.coreteam?.map((member, idx) => (
                       <div key={idx} className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-[#30363d]/50 border border-[#30363d] rounded-full flex items-center justify-center text-[#c9d1d9] text-sm">
+                        <div className="w-10 h-10 bg-[#30363d]/50 border border-border rounded-full flex items-center justify-center text-text-primary text-sm">
                           {getInitials(member.name)}
                         </div>
                         <div>
                           <div className="text-sm font-medium text-white">{member.name}</div>
-                          <div className="text-xs text-[#8b949e]">{member.role}</div>
+                          <div className="text-xs text-text-secondary">{member.role}</div>
                         </div>
                       </div>
                     ))}
                   </div>
                 </section>
 
-                <section className="bg-[#161b22] border border-[#30363d] rounded-xl p-6">
+                <section className="bg-surface border border-border rounded-xl p-6">
                   <h3 className="text-lg font-bold text-white mb-4">Connect</h3>
                   <div className="flex gap-4">
                     {Object.entries(detail.socialLinks || {}).map(([platform, link]) => (
@@ -286,7 +286,7 @@ export default function SocietyDetailPage() {
                         href={link}
                         target="_blank"
                         rel="noreferrer"
-                        className="w-10 h-10 bg-[#21262d] border border-[#30363d] rounded-full flex items-center justify-center text-[#8b949e] hover:text-white hover:bg-[#30363d] transition-colors capitalize"
+                        className="w-10 h-10 bg-surface-hover border border-border rounded-full flex items-center justify-center text-text-secondary hover:text-white hover:bg-[#30363d] transition-colors capitalize"
                         title={platform}
                       >
                         {platform === 'facebook' && <span className="material-symbols-outlined">facebook</span>}
@@ -305,10 +305,10 @@ export default function SocietyDetailPage() {
               {societyEvents.length > 0 ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {societyEvents.map(event => (
-                    <div key={event.id || event._id} className="bg-[#161b22] border border-[#30363d] rounded-xl p-5 hover:border-blue-500/50 transition-colors">
+                    <div key={event.id || event._id} className="bg-surface border border-border rounded-xl p-5 hover:border-blue-500/50 transition-colors">
                       <h4 className="font-bold text-white text-lg mb-2">{event.title}</h4>
-                      <p className="text-sm text-[#8b949e] mb-4 line-clamp-2">{event.description}</p>
-                      <div className="flex gap-4 text-xs text-[#8b949e]">
+                      <p className="text-sm text-text-secondary mb-4 line-clamp-2">{event.description}</p>
+                      <div className="flex gap-4 text-xs text-text-secondary">
                         <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">calendar_today</span> {formatDate(event.date || event.dateTime)}</span>
                         <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[16px]">location_on</span> {event.location}</span>
                       </div>
@@ -316,10 +316,10 @@ export default function SocietyDetailPage() {
                   ))}
                 </div>
               ) : (
-                <div className="bg-[#161b22] border border-[#30363d] rounded-lg py-16 flex flex-col items-center justify-center text-center">
-                  <span className="material-symbols-outlined text-6xl text-[#8b949e] mb-4">event_busy</span>
+                <div className="bg-surface border border-border rounded-lg py-16 flex flex-col items-center justify-center text-center">
+                  <span className="material-symbols-outlined text-6xl text-text-secondary mb-4">event_busy</span>
                   <h3 className="text-xl font-bold text-white mb-2">No upcoming events</h3>
-                  <p className="text-[#8b949e]">Check back later for new activities.</p>
+                  <p className="text-text-secondary">Check back later for new activities.</p>
                 </div>
               )}
             </div>
@@ -329,7 +329,7 @@ export default function SocietyDetailPage() {
             <div>
               <div className="mb-6 flex items-center justify-between">
                 <h3 className="text-xl font-bold text-white">All Members</h3>
-                <span className="bg-[#21262d] border border-[#30363d] px-3 py-1 rounded-full text-sm">{members.length || detail.memberCount || 0} members</span>
+                <span className="bg-surface-hover border border-border px-3 py-1 rounded-full text-sm">{members.length || detail.memberCount || 0} members</span>
               </div>
 
               {membersStatus === 'loading' ? (
@@ -344,25 +344,25 @@ export default function SocietyDetailPage() {
                     const role = member.role || 'member';
                     const isHead = role === 'president' || role === 'head' || role === 'admin';
                     return (
-                      <div key={member._id || idx} className="bg-[#161b22] border border-[#30363d] rounded-xl p-5 text-center flex flex-col items-center hover:border-purple-500/30 transition-colors">
+                      <div key={member._id || idx} className="bg-surface border border-border rounded-xl p-5 text-center flex flex-col items-center hover:border-purple-500/30 transition-colors">
                         {avatar ? (
-                          <img src={avatar} alt={name} className="w-16 h-16 rounded-full object-cover mb-3 border-2 border-[#30363d]" />
+                          <img src={avatar} alt={name} className="w-16 h-16 rounded-full object-cover mb-3 border-2 border-border" />
                         ) : (
-                          <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold mb-3 ${isHead ? 'bg-gradient-to-tr from-purple-600 to-blue-500 shadow-lg' : 'bg-[#21262d] border border-[#30363d] text-[#8b949e]'}`}>
+                          <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold mb-3 ${isHead ? 'bg-gradient-to-tr from-purple-600 to-blue-500 shadow-lg' : 'bg-surface-hover border border-border text-text-secondary'}`}>
                             {getInitials(name)}
                           </div>
                         )}
                         <div className="text-white font-bold text-sm">{name}</div>
-                        <div className={`text-xs font-semibold uppercase tracking-wider mt-1 ${isHead ? 'text-[#2ea043]' : 'text-[#8b949e]'}`}>{role}</div>
+                        <div className={`text-xs font-semibold uppercase tracking-wider mt-1 ${isHead ? 'text-[#2ea043]' : 'text-text-secondary'}`}>{role}</div>
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <div className="bg-[#161b22] border border-[#30363d] rounded-lg py-16 flex flex-col items-center justify-center text-center">
-                  <span className="material-symbols-outlined text-6xl text-[#8b949e] mb-4">group_off</span>
+                <div className="bg-surface border border-border rounded-lg py-16 flex flex-col items-center justify-center text-center">
+                  <span className="material-symbols-outlined text-6xl text-text-secondary mb-4">group_off</span>
                   <h3 className="text-xl font-bold text-white mb-2">No members yet</h3>
-                  <p className="text-[#8b949e]">Be the first to join this society!</p>
+                  <p className="text-text-secondary">Be the first to join this society!</p>
                 </div>
               )}
             </div>
@@ -372,12 +372,12 @@ export default function SocietyDetailPage() {
             <div className="max-w-4xl space-y-4">
               {detail.announcements && detail.announcements.length > 0 ? (
                 detail.announcements.map((ann) => (
-                  <div key={ann.id} className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 relative">
-                    <div className="absolute top-6 right-6 text-xs text-[#8b949e] bg-[#21262d] px-2 py-1 border border-[#30363d] rounded-md">
+                  <div key={ann.id} className="bg-surface border border-border rounded-xl p-6 relative">
+                    <div className="absolute top-6 right-6 text-xs text-text-secondary bg-surface-hover px-2 py-1 border border-border rounded-md">
                       {timeAgo(ann.date)}
                     </div>
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 bg-[#30363d]/50 border border-[#30363d] rounded-full flex items-center justify-center text-[#c9d1d9] text-sm">
+                      <div className="w-10 h-10 bg-[#30363d]/50 border border-border rounded-full flex items-center justify-center text-text-primary text-sm">
                         {getInitials(ann.author)}
                       </div>
                       <div>
@@ -386,14 +386,14 @@ export default function SocietyDetailPage() {
                       </div>
                     </div>
                     <h3 className="text-xl font-bold text-white mb-2">{ann.title}</h3>
-                    <p className="text-[#8b949e] text-base leading-relaxed whitespace-pre-wrap">{ann.body}</p>
+                    <p className="text-text-secondary text-base leading-relaxed whitespace-pre-wrap">{ann.body}</p>
                   </div>
                 ))
               ) : (
-                <div className="bg-[#161b22] border border-[#30363d] rounded-lg py-16 flex flex-col items-center justify-center text-center">
-                  <span className="material-symbols-outlined text-6xl text-[#8b949e] mb-4">campaign</span>
+                <div className="bg-surface border border-border rounded-lg py-16 flex flex-col items-center justify-center text-center">
+                  <span className="material-symbols-outlined text-6xl text-text-secondary mb-4">campaign</span>
                   <h3 className="text-xl font-bold text-white mb-2">No announcements yet</h3>
-                  <p className="text-[#8b949e]">The leadership team hasn't posted anything.</p>
+                  <p className="text-text-secondary">The leadership team hasn't posted anything.</p>
                 </div>
               )}
             </div>

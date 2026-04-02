@@ -30,7 +30,7 @@ export default function PageHeader({
 
   return (
     <header
-      className={`border-b border-[#30363d] bg-[#0d1117] py-6 ${
+      className={`border-b border-border bg-background py-6 ${
         sticky ? "sticky top-0 z-10" : ""
       } ${className}`}
     >
@@ -40,7 +40,7 @@ export default function PageHeader({
             {showBack && (
               <button
                 onClick={handleBack}
-                className="text-[#8b949e] hover:text-[#c9d1d9] transition-colors"
+                className="text-text-secondary hover:text-text-primary transition-colors"
                 aria-label="Go back"
               >
                 <span className="material-symbols-outlined text-2xl">
@@ -49,14 +49,14 @@ export default function PageHeader({
               </button>
             )}
             {icon && (
-              <span className="material-symbols-outlined text-3xl text-[#238636]">
+              <span className="material-symbols-outlined text-3xl text-primary">
                 {icon}
               </span>
             )}
             <div>
-              <h1 className="text-2xl font-bold text-[#c9d1d9]">{title}</h1>
+              <h1 className="text-2xl font-bold text-text-primary">{title}</h1>
               {subtitle && (
-                <p className="text-sm text-[#8b949e] mt-1">{subtitle}</p>
+                <p className="text-sm text-text-secondary mt-1">{subtitle}</p>
               )}
             </div>
           </div>

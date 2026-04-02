@@ -20,7 +20,7 @@ export default function Forbidden() {
   return (
     <ErrorPageShell
       icon="do_not_disturb"
-      iconClassName="text-[#da3633]"
+      iconClassName="text-danger"
       code="403"
       title="Forbidden"
       message="You are not authorized to access this resource. Contact your administrator if you believe this is an error."

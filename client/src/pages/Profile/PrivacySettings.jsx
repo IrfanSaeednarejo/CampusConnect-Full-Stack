@@ -48,7 +48,7 @@ export default function PrivacySettings() {
   };
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen">
+    <div className="w-full bg-background text-text-primary min-h-screen">
       {/* Header */}
       <PageHeader
         title="Privacy Settings"
@@ -138,20 +138,20 @@ export default function PrivacySettings() {
             <div className="space-y-3">
               <button
                 type="button"
-                className="w-full text-left px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg hover:bg-[#21262d] transition-colors"
+                className="w-full text-left px-4 py-3 bg-background border border-border rounded-lg hover:bg-surface-hover transition-colors"
               >
                 <p className="font-medium text-white">Download Your Data</p>
-                <p className="text-sm text-[#8b949e]">
+                <p className="text-sm text-text-secondary">
                   Request a copy of your data
                 </p>
               </button>
 
               <button
                 type="button"
-                className="w-full text-left px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg hover:bg-[#21262d] transition-colors"
+                className="w-full text-left px-4 py-3 bg-background border border-border rounded-lg hover:bg-surface-hover transition-colors"
               >
                 <p className="font-medium text-white">Manage Data Sharing</p>
-                <p className="text-sm text-[#8b949e]">
+                <p className="text-sm text-text-secondary">
                   Control what data is shared with third parties
                 </p>
               </button>

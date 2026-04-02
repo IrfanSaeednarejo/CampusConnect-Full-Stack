@@ -1,32 +1,44 @@
 // src/contexts/SocketContext.jsx
 import React, { createContext, useState, useCallback, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
+import { useAuth } from './AuthContext.jsx';
 
 export const SocketContext = createContext(null);
 
 export function SocketProvider({ children, socketUrl = 'http://localhost:8000' }) {
+  const { isAuthenticated, token } = useAuth();
   const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState(null);
   const socketRef = useRef(null);
 
-  // Initialize socket connection
+  // Connect when authenticated, disconnect when not
   useEffect(() => {
-    if (!socketUrl) return;
+    if (!socketUrl || !isAuthenticated) {
+      // Disconnect if logged out
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+        setSocket(null);
+        setIsConnected(false);
+      }
+      return;
+    }
 
     try {
-      // Connect specifically with credentials so cookies (JWTs) are sent
       const newSocket = io(socketUrl, {
         withCredentials: true,
+        auth: { token },
         reconnection: true,
-        reconnectionAttempts: 5,
+        reconnectionAttempts: 10,
         reconnectionDelay: 1000,
+        reconnectionDelayMax: 5000,
       });
 
       newSocket.on('connect', () => {
         setIsConnected(true);
         setError(null);
-        console.log('[Socket] Connected to backend on', socketUrl);
+        console.log('[Socket] Connected to backend');
       });
 
       newSocket.on('disconnect', (reason) => {
@@ -40,6 +52,11 @@ export function SocketProvider({ children, socketUrl = 'http://localhost:8000' }
         console.error('[Socket] Connection error:', err.message);
       });
 
+      newSocket.on('error:auth', () => {
+        console.warn('[Socket] Auth error — session may have expired');
+        newSocket.disconnect();
+      });
+
       socketRef.current = newSocket;
       setSocket(newSocket);
     } catch (err) {
@@ -50,9 +67,10 @@ export function SocketProvider({ children, socketUrl = 'http://localhost:8000' }
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
+        socketRef.current = null;
       }
     };
-  }, [socketUrl]);
+  }, [socketUrl, isAuthenticated, token]);
 
   const emit = useCallback(
     (event, data, callback) => {
@@ -73,9 +91,13 @@ export function SocketProvider({ children, socketUrl = 'http://localhost:8000' }
     }
   }, []);
 
-  const off = useCallback((event) => {
+  const off = useCallback((event, callback) => {
     if (socketRef.current) {
-      socketRef.current.off(event);
+      if (callback) {
+        socketRef.current.off(event, callback);
+      } else {
+        socketRef.current.off(event);
+      }
     }
   }, []);
 

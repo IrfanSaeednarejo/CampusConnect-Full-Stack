@@ -3,7 +3,7 @@ export default function ChatMessage({ message, isOwn }) {
     <div className={`flex gap-3 ${isOwn ? "justify-end" : "justify-start"}`}>
       {!isOwn && (
         <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-[#238636] flex items-center justify-center text-xs font-bold text-white">
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white">
             {message.avatar}
           </div>
         </div>
@@ -11,8 +11,8 @@ export default function ChatMessage({ message, isOwn }) {
       <div
         className={`max-w-xs lg:max-w-md ${
           isOwn
-            ? "bg-[#238636] text-white rounded-l-lg rounded-tr-lg"
-            : "bg-[#161b22] text-[#c9d1d9] rounded-r-lg rounded-tl-lg"
+            ? "bg-primary text-white rounded-l-lg rounded-tr-lg"
+            : "bg-surface text-text-primary rounded-r-lg rounded-tl-lg"
         } px-4 py-2`}
       >
         {!isOwn && (
@@ -23,7 +23,7 @@ export default function ChatMessage({ message, isOwn }) {
         <p className="text-sm break-words">{message.message}</p>
         <p
           className={`text-xs mt-1 ${
-            isOwn ? "text-white/70" : "text-[#8b949e]"
+            isOwn ? "text-white/70" : "text-text-secondary"
           }`}
         >
           {message.timestamp}
@@ -31,7 +31,7 @@ export default function ChatMessage({ message, isOwn }) {
       </div>
       {isOwn && (
         <div className="flex-shrink-0">
-          <div className="w-8 h-8 rounded-full bg-[#238636] flex items-center justify-center text-xs font-bold text-white">
+          <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-white">
             {message.avatar}
           </div>
         </div>

@@ -21,16 +21,16 @@ export default function NoteDetail() {
           <div id="view-mode">
             <header className="flex flex-wrap justify-between items-start gap-4 mb-4">
               <div className="flex flex-col gap-1">
-                <h1 className="text-3xl font-bold text-[#24292f] dark:text-[#c9d1d9] tracking-tight">
+                <h1 className="text-3xl font-bold text-[#24292f] dark:text-text-primary tracking-tight">
                   Note Details
                 </h1>
-                <h2 className="text-xl font-semibold text-[#57606a] dark:text-[#8b949e]">
+                <h2 className="text-xl font-semibold text-[#57606a] dark:text-text-secondary">
                   CS101 Lecture 5 Recap
                 </h2>
               </div>
               <div className="flex items-center gap-2">
                 <div className="relative group">
-                  <span className="material-symbols-outlined text-[#57606a] dark:text-[#8b949e] cursor-pointer">
+                  <span className="material-symbols-outlined text-[#57606a] dark:text-text-secondary cursor-pointer">
                     share
                   </span>
                   <div className="absolute bottom-full mb-2 w-max max-w-xs px-3 py-2 text-xs font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-opacity dark:bg-gray-700 whitespace-nowrap">
@@ -43,7 +43,7 @@ export default function NoteDetail() {
                     alert("Downloading note: CS101 Lecture 5 Recap");
                     // Download logic here
                   }}
-                  className="px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center gap-2"
+                  className="px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-surface border border-[#d0d7de] dark:border-border rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center gap-2"
                 >
                   <span className="material-symbols-outlined text-base">
                     download
@@ -57,13 +57,13 @@ export default function NoteDetail() {
                       navigate("/academics/notes");
                     }
                   }}
-                  className="px-4 py-2 text-sm font-medium text-[#da3633] bg-[#da3633]/10 border border-[#da3633]/20 rounded-lg hover:bg-[#da3633]/20"
+                  className="px-4 py-2 text-sm font-medium text-danger bg-danger/10 border border-[#da3633]/20 rounded-lg hover:bg-danger/20"
                 >
                   Delete
                 </button>
                 <button
                   onClick={() => setIsEditMode(true)}
-                  className="px-4 py-2 text-sm font-medium text-white bg-[#238636] rounded-lg hover:bg-opacity-90 flex items-center gap-2"
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-opacity-90 flex items-center gap-2"
                 >
                   <span className="material-symbols-outlined text-base">
                     edit
@@ -72,11 +72,11 @@ export default function NoteDetail() {
                 </button>
               </div>
             </header>
-            <p className="text-sm text-[#57606a] dark:text-[#8b949e] mb-6">
+            <p className="text-sm text-[#57606a] dark:text-text-secondary mb-6">
               Last Edited: 2 days ago
             </p>
-            <div className="p-6 bg-white dark:bg-[#161b22] border border-[#d0d7de] dark:border-[#30363d] rounded-lg">
-              <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-[#24292f] dark:text-[#c9d1d9]">
+            <div className="p-6 bg-white dark:bg-surface border border-[#d0d7de] dark:border-border rounded-lg">
+              <div className="prose prose-sm md:prose-base dark:prose-invert max-w-none text-[#24292f] dark:text-text-primary">
                 <p>
                   This lecture covered the fundamentals of data structures,
                   including arrays, linked lists, and stacks. Key topics
@@ -105,31 +105,31 @@ export default function NoteDetail() {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
           id="edit-modal"
         >
-          <div className="w-full max-w-4xl h-[90vh] bg-[#0d1117] border border-[#30363d] rounded-xl flex flex-col shadow-2xl">
-            <header className="flex justify-between items-center p-4 border-b border-[#30363d] flex-shrink-0">
+          <div className="w-full max-w-4xl h-[90vh] bg-background border border-border rounded-xl flex flex-col shadow-2xl">
+            <header className="flex justify-between items-center p-4 border-b border-border flex-shrink-0">
               <div className="flex flex-col">
-                <h2 className="text-lg font-semibold text-[#c9d1d9]">
+                <h2 className="text-lg font-semibold text-text-primary">
                   Edit Note
                 </h2>
-                <p className="text-sm text-[#8b949e]">CS101 Lecture 5 Recap</p>
+                <p className="text-sm text-text-secondary">CS101 Lecture 5 Recap</p>
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsEditMode(false)}
-                  className="px-4 py-2 text-sm font-medium bg-[#161b22] border border-[#30363d] rounded-lg hover:bg-gray-800"
+                  className="px-4 py-2 text-sm font-medium bg-surface border border-border rounded-lg hover:bg-gray-800"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => setIsEditMode(false)}
-                  className="px-4 py-2 text-sm font-medium text-white bg-[#238636] rounded-lg hover:bg-opacity-90"
+                  className="px-4 py-2 text-sm font-medium text-white bg-primary rounded-lg hover:bg-opacity-90"
                 >
                   Save Changes
                 </button>
               </div>
             </header>
             <div className="flex flex-col flex-grow min-h-0">
-              <div className="p-2 border-b border-[#30363d] flex-shrink-0">
+              <div className="p-2 border-b border-border flex-shrink-0">
                 <NoteEditorToolbar
                   buttonClassName="p-2 rounded hover:bg-gray-800"
                   dividerClassName="w-px h-5 bg-[#30363d] mx-1"
@@ -139,7 +139,7 @@ export default function NoteDetail() {
                 <textarea
                   value={noteContent}
                   onChange={(e) => setNoteContent(e.target.value)}
-                  className="w-full h-full p-6 bg-transparent focus:outline-none resize-none text-[#c9d1d9] placeholder:text-[#8b949e] text-base leading-relaxed"
+                  className="w-full h-full p-6 bg-transparent focus:outline-none resize-none text-text-primary placeholder:text-text-secondary text-base leading-relaxed"
                   placeholder="Start writing your note..."
                 />
               </div>

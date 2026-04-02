@@ -61,8 +61,9 @@ export default function Login() {
       // Backend returns: { statusCode, data: { user, accessToken, refreshToken }, message, success }
       const { user, accessToken } = response.data;
 
-      // Determine the user's primary role (backend returns roles as an array)
-      const userRole = user.roles?.[0] || "student";
+      // Determine the user's primary role using priority (admin first)
+      const rolePriority = ["admin", "society_head", "mentor", "student"];
+      const userRole = rolePriority.find((r) => user.roles?.includes(r)) || "student";
 
       // Create auth data for Redux
       const authData = {
@@ -81,8 +82,12 @@ export default function Login() {
       // Store in Redux
       dispatch(loginSuccess(authData));
 
-      // Store in AuthContext
-      contextLogin(authData.user, authData.token, authData.role);
+      // Determine onboarding status from the backend user data
+      // Admin users always skip onboarding; other users check DB field
+      const isOnboardingDone = userRole === "admin" || user.onboarding?.isComplete === true;
+
+      // Store in AuthContext (pass onboarding status so users aren't forced to onboard every login)
+      contextLogin(authData.user, authData.token, authData.role, isOnboardingDone);
 
       showSuccess("Login successful! Redirecting...");
 
@@ -102,94 +107,94 @@ export default function Login() {
   };
 
   return (
-    <AuthShell className="h-auto bg-[#0d1117] group/design-root overflow-x-hidden">
+    <AuthShell className="h-auto bg-background group/design-root overflow-x-hidden">
       <div className="px-4 flex flex-1 justify-center items-center py-10">
         <div className="layout-content-container flex flex-col w-full max-w-[384px] flex-1">
-            {/* Header */}
-            <div className="flex flex-col items-center gap-4 text-center mb-8">
-              <div className="w-16 h-16 rounded-full bg-[#238636] flex items-center justify-center shadow-2xl shadow-[#238636]/40 border border-white/10 glass">
-                <svg
-                  className="w-8 h-8"
-                  fill="white"
-                  viewBox="0 0 48 48"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="white" />
-                </svg>
-              </div>
-              <div className="flex flex-col gap-2">
-                <p className="text-[#c9d1d9] text-2xl font-semibold leading-tight tracking-[-0.033em]">
-                  Sign In to CampusConnect
-                </p>
-                <p className="text-[#8b949e] text-sm font-normal leading-normal">
-                  Enter your credentials to access your personalized campus
-                  experience.
-                </p>
-              </div>
+          {/* Header */}
+          <div className="flex flex-col items-center gap-4 text-center mb-8">
+            <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-2xl shadow-[#238636]/40 border border-white/10 glass">
+              <svg
+                className="w-8 h-8"
+                fill="white"
+                viewBox="0 0 48 48"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="white" />
+              </svg>
             </div>
-
-            {/* Form */}
-            <AuthCard className="p-8 glass border-white/5 shadow-2xl">
-              <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-                {/* Email */}
-                <FormField
-                  label="Email Address"
-                  name="email"
-                  type="email"
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="Enter your email address"
-                  error={errors.email}
-                />
-
-                {/* Password */}
-                <div className="flex flex-col w-full">
-                  <div className="flex justify-between items-baseline mb-2">
-                    <p className="text-[#c9d1d9] text-sm font-medium leading-normal">
-                      Password
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => navigate("/forgot-password")}
-                      className="text-[#58a6ff] text-xs font-normal leading-normal hover:underline"
-                    >
-                      Forgot your password?
-                    </button>
-                  </div>
-                  <FormField
-                    name="password"
-                    type="password"
-                    value={form.password}
-                    onChange={handleChange}
-                    placeholder="Enter your password"
-                    error={errors.password}
-                  />
-                </div>
-
-                {/* Sign In Button */}
-                <FormActions
-                  onSubmit={handleSubmit}
-                  submitText={isSubmitting ? "Signing in..." : "Sign in"}
-                  submitVariant="primary"
-                  className="flex-col-reverse"
-                  onCancel={null}
-                />
-              </form>
-            </AuthCard>
-
-            {/* Sign Up Link */}
-            <div className="flex justify-center mt-6 p-4 border border-[#30363d] rounded-lg">
-              <p className="text-[#8b949e] text-sm">
-                New to CampusConnect?{" "}
-                <button
-                  type="button"
-                  onClick={() => navigate("/signup")}
-                  className="text-[#58a6ff] hover:underline cursor-pointer"
-                >
-                  Sign up
-                </button>
+            <div className="flex flex-col gap-2">
+              <p className="text-text-primary text-2xl font-semibold leading-tight tracking-[-0.033em]">
+                Sign In to CampusConnect
+              </p>
+              <p className="text-text-secondary text-sm font-normal leading-normal">
+                Enter your credentials to access your personalized campus
+                experience.
               </p>
             </div>
+          </div>
+
+          {/* Form */}
+          <AuthCard className="p-8 glass border-white/5 shadow-2xl">
+            <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+              {/* Email */}
+              <FormField
+                label="Email Address"
+                name="email"
+                type="email"
+                value={form.email}
+                onChange={handleChange}
+                placeholder="Enter your email address"
+                error={errors.email}
+              />
+
+              {/* Password */}
+              <div className="flex flex-col w-full">
+                <div className="flex justify-between items-baseline mb-2">
+                  <p className="text-text-primary text-sm font-medium leading-normal">
+                    Password
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => navigate("/forgot-password")}
+                    className="text-[#58a6ff] text-xs font-normal leading-normal hover:underline"
+                  >
+                    Forgot your password?
+                  </button>
+                </div>
+                <FormField
+                  name="password"
+                  type="password"
+                  value={form.password}
+                  onChange={handleChange}
+                  placeholder="Enter your password"
+                  error={errors.password}
+                />
+              </div>
+
+              {/* Sign In Button */}
+              <FormActions
+                onSubmit={handleSubmit}
+                submitText={isSubmitting ? "Signing in..." : "Sign in"}
+                submitVariant="primary"
+                className="flex-col-reverse"
+                onCancel={null}
+              />
+            </form>
+          </AuthCard>
+
+          {/* Sign Up Link */}
+          <div className="flex justify-center mt-6 p-4 border border-border rounded-lg">
+            <p className="text-text-secondary text-sm">
+              New to CampusConnect?{" "}
+              <button
+                type="button"
+                onClick={() => navigate("/signup")}
+                className="text-[#58a6ff] hover:underline cursor-pointer"
+              >
+                Sign up
+              </button>
+            </p>
+          </div>
         </div>
       </div>
     </AuthShell>

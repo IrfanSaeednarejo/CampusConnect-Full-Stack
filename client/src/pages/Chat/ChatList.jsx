@@ -150,14 +150,14 @@ export const useChatPageState = ({ allowedTypes }) => {
 				...meta,
 			};
 		}), [
-			directConversations,
-			messagesByConversation,
-			unreadByConversation,
-			pinnedConversations,
-			archivedConversations,
-			mutedConversations,
-			lastSeenByConversation,
-		]
+		directConversations,
+		messagesByConversation,
+		unreadByConversation,
+		pinnedConversations,
+		archivedConversations,
+		mutedConversations,
+		lastSeenByConversation,
+	]
 	);
 
 	const groupList = useMemo(() =>
@@ -180,13 +180,13 @@ export const useChatPageState = ({ allowedTypes }) => {
 				...meta,
 			};
 		}), [
-			myGroups,
-			messagesByConversation,
-			unreadByConversation,
-			pinnedConversations,
-			archivedConversations,
-			mutedConversations,
-		]
+		myGroups,
+		messagesByConversation,
+		unreadByConversation,
+		pinnedConversations,
+		archivedConversations,
+		mutedConversations,
+	]
 	);
 
 	const eventSource = registeredEvents.length > 0
@@ -214,13 +214,13 @@ export const useChatPageState = ({ allowedTypes }) => {
 				lastMessage: meta.lastMessage,
 			};
 		}), [
-			eventSource,
-			messagesByConversation,
-			unreadByConversation,
-			pinnedConversations,
-			archivedConversations,
-			mutedConversations,
-		]
+		eventSource,
+		messagesByConversation,
+		unreadByConversation,
+		pinnedConversations,
+		archivedConversations,
+		mutedConversations,
+	]
 	);
 
 	const combined = useMemo(() => {
@@ -269,7 +269,7 @@ export const useChatPageState = ({ allowedTypes }) => {
 			forwarded: options.forwarded || false,
 		};
 		dispatch(sendMessage({ conversationId, message }));
-		emit("message", { conversationId, ...message });
+		emit("message:send", { chatId: conversationId, content: message.text, type: "text", idempotencyKey: message.id });
 
 		if (!isConnected) {
 			setTimeout(() => {
@@ -307,7 +307,7 @@ export const useChatPageState = ({ allowedTypes }) => {
 		dispatch(newMessage({ conversationId: data.conversationId, message }));
 	}, [dispatch]);
 
-	useSocketListener("message", handleIncomingMessage, [handleIncomingMessage]);
+	useSocketListener("message:new", handleIncomingMessage, [handleIncomingMessage]);
 
 	useEffect(() => {
 		dispatch(setConnectionStatus({ isConnected, error }));

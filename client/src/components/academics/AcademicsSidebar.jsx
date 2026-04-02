@@ -48,13 +48,13 @@ const footerItems = [
 
 export default function AcademicsSidebar({ activePath = "/academics/notes" }) {
   return (
-    <aside className="flex-shrink-0 w-64 bg-white dark:bg-[#161b22] border-r border-[#d0d7de] dark:border-[#30363d] flex flex-col justify-between p-4">
+    <aside className="flex-shrink-0 w-64 bg-white dark:bg-surface border-r border-[#d0d7de] dark:border-border flex flex-col justify-between p-4">
       <div className="flex flex-col gap-6">
         <div className="flex items-center gap-3 px-2">
-          <span className="material-symbols-outlined text-[#238636] text-3xl">
+          <span className="material-symbols-outlined text-primary text-3xl">
             school
           </span>
-          <h1 className="text-lg font-bold text-[#24292f] dark:text-[#c9d1d9]">
+          <h1 className="text-lg font-bold text-[#24292f] dark:text-text-primary">
             CampusConnect
           </h1>
         </div>
@@ -66,8 +66,8 @@ export default function AcademicsSidebar({ activePath = "/academics/notes" }) {
                 key={item.to}
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
                   isActive
-                    ? "bg-[#238636]/20 text-[#238636]"
-                    : "text-[#24292f] dark:text-[#c9d1d9] hover:bg-gray-100 dark:hover:bg-gray-800"
+                    ? "bg-primary/20 text-primary"
+                    : "text-[#24292f] dark:text-text-primary hover:bg-gray-100 dark:hover:bg-gray-800"
                 }`}
                 to={item.to}
               >
@@ -90,7 +90,7 @@ export default function AcademicsSidebar({ activePath = "/academics/notes" }) {
         {footerItems.map((item) => (
           <Link
             key={item.to}
-            className="flex items-center gap-3 px-3 py-2 text-[#24292f] dark:text-[#c9d1d9] hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+            className="flex items-center gap-3 px-3 py-2 text-[#24292f] dark:text-text-primary hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
             to={item.to}
           >
             <span className="material-symbols-outlined">{item.icon}</span>

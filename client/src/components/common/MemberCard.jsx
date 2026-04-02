@@ -14,17 +14,17 @@ export default function MemberCard({
 }) {
   return (
     <div
-      className={`flex flex-col gap-4 p-4 rounded-lg border border-[#30363d] bg-[#161b22] hover:bg-[#21262d] transition-colors ${className}`}
+      className={`flex flex-col gap-4 p-4 rounded-lg border border-border bg-surface hover:bg-surface-hover transition-colors ${className}`}
     >
       <div>
         <h2 className="text-[#e6edf3] text-lg font-bold leading-tight">
           {name}
         </h2>
-        <p className="text-[#8b949e] text-sm mt-1">{role}</p>
+        <p className="text-text-secondary text-sm mt-1">{role}</p>
       </div>
 
       <div>
-        <p className="text-[#8b949e] text-xs mb-2">Interests:</p>
+        <p className="text-text-secondary text-xs mb-2">Interests:</p>
         <div className="flex flex-wrap gap-2">
           {interests.map((interest, idx) => (
             <Badge key={idx} variant="primary">
@@ -34,7 +34,7 @@ export default function MemberCard({
         </div>
       </div>
 
-      <div className="flex flex-col gap-1 text-sm text-[#8b949e] border-t border-[#30363d] pt-3">
+      <div className="flex flex-col gap-1 text-sm text-text-secondary border-t border-border pt-3">
         <p>📅 Joined: {joinDate}</p>
         <p>👥 {followers} followers</p>
       </div>
@@ -45,7 +45,7 @@ export default function MemberCard({
           connectionStatus === 'pending'
             ? 'bg-[#30363d] text-white border-transparent cursor-default hover:bg-[#30363d]'
             : connectionStatus === 'connected'
-            ? 'bg-[#238636] text-white hover:bg-[#2ea043] border-transparent'
+            ? 'bg-primary text-white hover:bg-primary-hover border-transparent'
             : ''
         }`}
         disabled={connectLoading || connectionStatus === 'pending'}

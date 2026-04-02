@@ -63,11 +63,11 @@ export default function SocietyDetail() {
 
   if (isLoading || loadingData || !society) {
     return (
-      <div className="flex flex-col min-h-screen overflow-y-auto bg-[#0d1117]">
+      <div className="flex flex-col min-h-screen overflow-y-auto bg-background">
         <div className="flex items-center justify-center h-screen">
           <div className="flex flex-col items-center gap-3">
-            <span className="material-symbols-outlined text-4xl animate-spin text-[#238636]">sync</span>
-            <p className="text-[#8b949e]">Loading society...</p>
+            <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
+            <p className="text-text-secondary">Loading society...</p>
           </div>
         </div>
       </div>
@@ -81,7 +81,7 @@ export default function SocietyDetail() {
   const category = society.category || "other";
 
   return (
-    <div className="flex flex-col min-h-screen overflow-y-auto bg-[#0d1117]">
+    <div className="flex flex-col min-h-screen overflow-y-auto bg-background">
       {/* Header */}
       <PageHeader
         title={societyName}
@@ -106,43 +106,43 @@ export default function SocietyDetail() {
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
           <Card padding="p-6">
             <div className="text-center">
-              <span className="material-symbols-outlined text-3xl text-[#238636] mb-2">people</span>
+              <span className="material-symbols-outlined text-3xl text-primary mb-2">people</span>
               <div className="text-2xl font-bold text-white">{memberCount}</div>
-              <div className="text-sm text-[#8b949e] mt-1">Members</div>
+              <div className="text-sm text-text-secondary mt-1">Members</div>
             </div>
           </Card>
           <Card padding="p-6">
             <div className="text-center">
-              <span className="material-symbols-outlined text-3xl text-[#238636] mb-2">event</span>
+              <span className="material-symbols-outlined text-3xl text-primary mb-2">event</span>
               <div className="text-2xl font-bold text-white">{events.length}</div>
-              <div className="text-sm text-[#8b949e] mt-1">Events</div>
+              <div className="text-sm text-text-secondary mt-1">Events</div>
             </div>
           </Card>
           <Card padding="p-6">
             <div className="text-center">
-              <span className="material-symbols-outlined text-3xl text-[#238636] mb-2">category</span>
+              <span className="material-symbols-outlined text-3xl text-primary mb-2">category</span>
               <div className="text-2xl font-bold text-white capitalize">{category}</div>
-              <div className="text-sm text-[#8b949e] mt-1">Category</div>
+              <div className="text-sm text-text-secondary mt-1">Category</div>
             </div>
           </Card>
           <Card padding="p-6">
             <div className="text-center">
-              <span className="material-symbols-outlined text-3xl text-[#238636] mb-2">person</span>
+              <span className="material-symbols-outlined text-3xl text-primary mb-2">person</span>
               <div className="text-lg font-bold text-white">{headName}</div>
-              <div className="text-sm text-[#8b949e] mt-1">Society Head</div>
+              <div className="text-sm text-text-secondary mt-1">Society Head</div>
             </div>
           </Card>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-[#30363d]">
+        <div className="flex gap-2 mb-6 border-b border-border">
           {["overview", "members", "events"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-3 text-sm font-medium capitalize transition-colors ${activeTab === tab
-                  ? "text-[#238636] border-b-2 border-[#238636]"
-                  : "text-[#8b949e] hover:text-white"
+                  ? "text-primary border-b-2 border-primary"
+                  : "text-text-secondary hover:text-white"
                 }`}
             >
               {tab}
@@ -154,7 +154,7 @@ export default function SocietyDetail() {
         {activeTab === "overview" && (
           <Card padding="p-6">
             <h3 className="text-xl font-bold text-white mb-4">About</h3>
-            <p className="text-[#8b949e] mb-6">{societyDesc || "No description available."}</p>
+            <p className="text-text-secondary mb-6">{societyDesc || "No description available."}</p>
           </Card>
         )}
 
@@ -176,7 +176,7 @@ export default function SocietyDetail() {
                         <Avatar name={displayName} src={avatarUrl} size="12" borderColor="[#238636]" />
                         <div>
                           <h4 className="text-white font-medium">{displayName}</h4>
-                          <p className="text-sm text-[#8b949e] capitalize">{member.role}</p>
+                          <p className="text-sm text-text-secondary capitalize">{member.role}</p>
                         </div>
                       </div>
                     </div>
@@ -202,7 +202,7 @@ export default function SocietyDetail() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <h4 className="text-lg font-bold text-white mb-2">{event.title}</h4>
-                        <div className="space-y-1 text-sm text-[#8b949e]">
+                        <div className="space-y-1 text-sm text-text-secondary">
                           <div className="flex items-center gap-2">
                             <span className="material-symbols-outlined text-sm">calendar_today</span>
                             <span>{eventDate}</span>

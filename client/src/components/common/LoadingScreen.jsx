@@ -8,12 +8,12 @@ export default function LoadingScreen({
       <div className="layout-container flex h-full grow flex-col">
         <div className="flex flex-1 items-center justify-center p-4">
           <div className="layout-content-container flex flex-col max-w-md w-full items-center justify-center text-center">
-            <h1 className="text-[#c9d1d9] tracking-tight text-3xl font-bold leading-tight px-4 pb-4">
+            <h1 className="text-text-primary tracking-tight text-3xl font-bold leading-tight px-4 pb-4">
               {title}
             </h1>
             <div className="py-4">
               <svg
-                className="animate-spin h-10 w-10 text-[#238636]"
+                className="animate-spin h-10 w-10 text-primary"
                 fill="none"
                 viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg"
@@ -35,12 +35,12 @@ export default function LoadingScreen({
             </div>
             <div className="flex flex-col gap-3 p-4 w-full">
               <div className="flex justify-center">
-                <p className="text-[#c9d1d9] text-base font-medium leading-normal">
+                <p className="text-text-primary text-base font-medium leading-normal">
                   {message}
                 </p>
               </div>
             </div>
-            <p className="text-[#8b949e] text-sm font-normal leading-normal pt-1 px-4 text-center absolute bottom-8">
+            <p className="text-text-secondary text-sm font-normal leading-normal pt-1 px-4 text-center absolute bottom-8">
               {footer}
             </p>
           </div>

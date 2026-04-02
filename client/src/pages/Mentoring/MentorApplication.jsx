@@ -49,7 +49,7 @@ export default function MentorApplication() {
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
       <div className="layout-container flex h-full grow flex-col">
         {/* TopNavBar */}
         <MentorTopBar backPath="/mentor/dashboard" />
@@ -62,7 +62,7 @@ export default function MentorApplication() {
               <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                 Become a Mentor
               </h1>
-              <p className="text-[#9eb7a9] text-base font-normal leading-normal">
+              <p className="text-text-secondary text-base font-normal leading-normal">
                 Share your expertise and help students grow
               </p>
             </div>
@@ -78,8 +78,8 @@ export default function MentorApplication() {
                     <div
                       className={`w-12 h-12 rounded-full flex items-center justify-center font-bold mb-2 transition-colors ${
                         activeStep >= step.id
-                          ? "bg-[#1dc964] text-[#112118]"
-                          : "bg-[#30363d] text-[#9eb7a9]"
+                          ? "bg-primary text-white"
+                          : "bg-[#30363d] text-text-secondary"
                       }`}
                     >
                       <span className="material-symbols-outlined">
@@ -87,7 +87,7 @@ export default function MentorApplication() {
                       </span>
                     </div>
                     <span
-                      className={`text-sm font-medium ${activeStep >= step.id ? "text-white" : "text-[#9eb7a9]"}`}
+                      className={`text-sm font-medium ${activeStep >= step.id ? "text-white" : "text-text-secondary"}`}
                     >
                       {step.title}
                     </span>
@@ -96,14 +96,14 @@ export default function MentorApplication() {
               </div>
               <div className="h-2 bg-[#30363d] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#1dc964] transition-all"
+                  className="h-full bg-primary transition-all"
                   style={{ width: `${(activeStep / 4) * 100}%` }}
                 ></div>
               </div>
             </div>
 
             {/* Form Content */}
-            <div className="p-8 bg-[#161b22] border border-[#30363d] rounded-xl mb-6">
+            <div className="p-8 bg-surface border border-border rounded-xl mb-6">
               {activeStep === 1 && (
                 <div className="space-y-6">
                   <h2 className="text-white text-2xl font-bold mb-6">
@@ -119,7 +119,7 @@ export default function MentorApplication() {
                       value={formData.fullName}
                       onChange={handleInputChange}
                       placeholder="Enter your full name"
-                      className="w-full p-3 bg-[#0d1117] text-white rounded-lg border border-[#30363d] focus:border-[#1dc964] focus:outline-none placeholder:text-[#9eb7a9]"
+                      className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none placeholder:text-text-secondary"
                     />
                   </div>
                   <div>
@@ -132,7 +132,7 @@ export default function MentorApplication() {
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="your@email.com"
-                      className="w-full p-3 bg-[#0d1117] text-white rounded-lg border border-[#30363d] focus:border-[#1dc964] focus:outline-none placeholder:text-[#9eb7a9]"
+                      className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none placeholder:text-text-secondary"
                     />
                   </div>
                   <div>
@@ -144,7 +144,7 @@ export default function MentorApplication() {
                       value={formData.bio}
                       onChange={handleInputChange}
                       placeholder="Tell us about yourself..."
-                      className="w-full p-3 bg-[#0d1117] text-white rounded-lg border border-[#30363d] focus:border-[#1dc964] focus:outline-none placeholder:text-[#9eb7a9] resize-none"
+                      className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none placeholder:text-text-secondary resize-none"
                       rows="4"
                     ></textarea>
                   </div>
@@ -166,7 +166,7 @@ export default function MentorApplication() {
                       value={formData.expertise}
                       onChange={handleInputChange}
                       placeholder="e.g., Web Development, Data Science..."
-                      className="w-full p-3 bg-[#0d1117] text-white rounded-lg border border-[#30363d] focus:border-[#1dc964] focus:outline-none placeholder:text-[#9eb7a9]"
+                      className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none placeholder:text-text-secondary"
                     />
                   </div>
                   <div>
@@ -177,7 +177,7 @@ export default function MentorApplication() {
                       name="yearsExperience"
                       value={formData.yearsExperience}
                       onChange={handleInputChange}
-                      className="w-full p-3 bg-[#0d1117] text-white rounded-lg border border-[#30363d] focus:border-[#1dc964] focus:outline-none"
+                      className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none"
                     >
                       <option value="">Select years of experience</option>
                       <option value="0-2">0-2 years</option>
@@ -196,7 +196,7 @@ export default function MentorApplication() {
                       value={formData.hourlyRate}
                       onChange={handleInputChange}
                       placeholder="50"
-                      className="w-full p-3 bg-[#0d1117] text-white rounded-lg border border-[#30363d] focus:border-[#1dc964] focus:outline-none placeholder:text-[#9eb7a9]"
+                      className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none placeholder:text-text-secondary"
                     />
                   </div>
                 </div>
@@ -207,14 +207,14 @@ export default function MentorApplication() {
                   <h2 className="text-white text-2xl font-bold mb-6">
                     Supporting Documents
                   </h2>
-                  <div className="p-6 border-2 border-dashed border-[#30363d] rounded-lg text-center">
-                    <span className="material-symbols-outlined text-5xl text-[#9eb7a9] mb-3 inline-block">
+                  <div className="p-6 border-2 border-dashed border-border rounded-lg text-center">
+                    <span className="material-symbols-outlined text-5xl text-text-secondary mb-3 inline-block">
                       upload_file
                     </span>
                     <p className="text-white font-semibold mb-2">
                       Upload your credentials
                     </p>
-                    <p className="text-[#9eb7a9] text-sm mb-4">
+                    <p className="text-text-secondary text-sm mb-4">
                       PDF, DOC, or IMAGE files up to 5MB
                     </p>
                     <input
@@ -232,13 +232,13 @@ export default function MentorApplication() {
                       onClick={() =>
                         document.getElementById("fileInput").click()
                       }
-                      className="px-6 py-2 bg-[#1dc964] text-[#112118] font-bold rounded-lg hover:opacity-90 transition-opacity"
+                      className="px-6 py-2 bg-primary text-white font-bold rounded-lg hover:opacity-90 transition-opacity"
                     >
                       Select File
                     </button>
                   </div>
                   {formData.documents && (
-                    <div className="p-3 bg-[#0d1117] rounded-lg flex items-center gap-2">
+                    <div className="p-3 bg-background rounded-lg flex items-center gap-2">
                       <span className="material-symbols-outlined text-[#1dc964]">
                         check_circle
                       </span>
@@ -247,8 +247,8 @@ export default function MentorApplication() {
                       </span>
                     </div>
                   )}
-                  <div className="p-4 bg-[#0d1117] rounded-lg">
-                    <p className="text-[#9eb7a9] text-sm">
+                  <div className="p-4 bg-background rounded-lg">
+                    <p className="text-text-secondary text-sm">
                       💡 We accept certificates, degrees, or work experience
                       documents
                     </p>
@@ -262,32 +262,32 @@ export default function MentorApplication() {
                     Review Your Application
                   </h2>
                   <div className="space-y-4">
-                    <div className="p-4 bg-[#0d1117] rounded-lg">
-                      <p className="text-[#9eb7a9] text-sm mb-1">Full Name</p>
+                    <div className="p-4 bg-background rounded-lg">
+                      <p className="text-text-secondary text-sm mb-1">Full Name</p>
                       <p className="text-white font-semibold">
                         {formData.fullName || "Not provided"}
                       </p>
                     </div>
-                    <div className="p-4 bg-[#0d1117] rounded-lg">
-                      <p className="text-[#9eb7a9] text-sm mb-1">Email</p>
+                    <div className="p-4 bg-background rounded-lg">
+                      <p className="text-text-secondary text-sm mb-1">Email</p>
                       <p className="text-white font-semibold">
                         {formData.email || "Not provided"}
                       </p>
                     </div>
-                    <div className="p-4 bg-[#0d1117] rounded-lg">
-                      <p className="text-[#9eb7a9] text-sm mb-1">Expertise</p>
+                    <div className="p-4 bg-background rounded-lg">
+                      <p className="text-text-secondary text-sm mb-1">Expertise</p>
                       <p className="text-white font-semibold">
                         {formData.expertise || "Not provided"}
                       </p>
                     </div>
-                    <div className="p-4 bg-[#0d1117] rounded-lg">
-                      <p className="text-[#9eb7a9] text-sm mb-1">Hourly Rate</p>
+                    <div className="p-4 bg-background rounded-lg">
+                      <p className="text-text-secondary text-sm mb-1">Hourly Rate</p>
                       <p className="text-white font-semibold">
                         ${formData.hourlyRate || "0"}/hour
                       </p>
                     </div>
                   </div>
-                  <div className="p-4 bg-[#1dc964]/10 border border-[#1dc964] rounded-lg">
+                  <div className="p-4 bg-primary/10 border border-[#1dc964] rounded-lg">
                     <p className="text-[#1dc964] font-semibold">
                       ✓ All information verified and ready to submit
                     </p>
@@ -303,7 +303,7 @@ export default function MentorApplication() {
                 disabled={activeStep === 1}
                 className={`flex items-center gap-2 px-6 py-3 font-bold rounded-lg transition-colors ${
                   activeStep === 1
-                    ? "bg-[#30363d] text-[#9eb7a9] cursor-not-allowed"
+                    ? "bg-[#30363d] text-text-secondary cursor-not-allowed"
                     : "bg-[#30363d] text-white hover:bg-[#404851]"
                 }`}
               >
@@ -313,7 +313,7 @@ export default function MentorApplication() {
               {activeStep < 4 ? (
                 <button
                   onClick={handleNextStep}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#1dc964] text-[#112118] font-bold rounded-lg hover:opacity-90 transition-opacity flex-1"
+                  className="flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-lg hover:opacity-90 transition-opacity flex-1"
                 >
                   Next
                   <span className="material-symbols-outlined">
@@ -323,7 +323,7 @@ export default function MentorApplication() {
               ) : (
                 <button
                   onClick={handleSubmitApplication}
-                  className="flex items-center gap-2 px-6 py-3 bg-[#1dc964] text-[#112118] font-bold rounded-lg hover:opacity-90 transition-opacity flex-1"
+                  className="flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-lg hover:opacity-90 transition-opacity flex-1"
                 >
                   <span className="material-symbols-outlined">check</span>
                   Submit Application

@@ -44,14 +44,14 @@ export default function StudySuggestionBox() {
 
   if (!isStudyMode) {
     return (
-      <div className="flex items-center justify-center p-6 border border-[#30363d] rounded-lg bg-[#161b22] gap-4">
+      <div className="flex items-center justify-center p-6 border border-border rounded-lg bg-surface gap-4">
         <div className="flex-1">
-          <h3 className="text-[#c9d1d9] font-semibold mb-2">Study Suggestions</h3>
-          <p className="text-[#8b949e] text-sm">Get AI-powered study recommendations tailored to your subjects.</p>
+          <h3 className="text-text-primary font-semibold mb-2">Study Suggestions</h3>
+          <p className="text-text-secondary text-sm">Get AI-powered study recommendations tailored to your subjects.</p>
         </div>
         <button
           onClick={handleActivateStudyAgent}
-          className="px-4 py-2 bg-[#238636] text-white rounded-md text-sm font-medium hover:bg-[#2ea043] transition-colors"
+          className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary-hover transition-colors"
         >
           Activate
         </button>
@@ -60,21 +60,21 @@ export default function StudySuggestionBox() {
   }
 
   return (
-    <div className="flex flex-col gap-4 p-4 border border-[#30363d] rounded-lg bg-[#161b22]">
+    <div className="flex flex-col gap-4 p-4 border border-border rounded-lg bg-surface">
       <div className="flex items-center justify-between">
-        <h3 className="text-[#c9d1d9] font-semibold">Study Agent</h3>
+        <h3 className="text-text-primary font-semibold">Study Agent</h3>
         <button
           onClick={handleDeactivate}
-          className="px-3 py-1 bg-[#da3633] text-white rounded text-xs font-medium hover:bg-[#f85149] transition-colors"
+          className="px-3 py-1 bg-danger text-white rounded text-xs font-medium hover:bg-[#f85149] transition-colors"
         >
           Deactivate
         </button>
       </div>
 
       {/* Conversation History */}
-      <div className="h-64 overflow-y-auto bg-[#0d1117] rounded p-3 space-y-3 border border-[#30363d]">
+      <div className="h-64 overflow-y-auto bg-background rounded p-3 space-y-3 border border-border">
         {conversation.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-[#8b949e] text-sm">
+          <div className="flex items-center justify-center h-full text-text-secondary text-sm">
             Start a conversation with your Study Agent
           </div>
         ) : (
@@ -86,8 +86,8 @@ export default function StudySuggestionBox() {
               <div
                 className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
                   msg.sender === "user"
-                    ? "bg-[#238636] text-white"
-                    : "bg-[#30363d] text-[#c9d1d9]"
+                    ? "bg-primary text-white"
+                    : "bg-[#30363d] text-text-primary"
                 }`}
               >
                 {msg.message}
@@ -102,7 +102,7 @@ export default function StudySuggestionBox() {
         type="text"
         placeholder="Ask your study question..."
         onKeyPress={handleSendMessage}
-        className="w-full px-3 py-2 bg-[#0d1117] border border-[#30363d] rounded text-[#c9d1d9] text-sm placeholder:text-[#8b949e] focus:outline-none focus:ring-2 focus:ring-[#238636]"
+        className="w-full px-3 py-2 bg-background border border-border rounded text-text-primary text-sm placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-primary"
       />
     </div>
   );

@@ -20,9 +20,9 @@ export default function FormActions({
 }) {
   const variantClasses = {
     primary:
-      "px-6 py-3 rounded-lg bg-[#238636] text-white font-semibold hover:bg-[#2ea043] transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+      "px-6 py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
     secondary:
-      "px-6 py-3 rounded-lg bg-[#21262d] text-[#c9d1d9] font-semibold border border-[#30363d] hover:bg-[#30363d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
+      "px-6 py-3 rounded-lg bg-surface-hover text-text-primary font-semibold border border-border hover:bg-[#30363d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
     danger:
       "px-6 py-3 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed",
   };

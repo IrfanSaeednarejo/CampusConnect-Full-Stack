@@ -65,14 +65,14 @@ export default function CreateSociety() {
   };
 
   return (
-    <div className="min-h-screen bg-[#111714] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Header */}
-      <header className="bg-[#1a241e] border-b border-[#29382f] sticky top-0 z-10">
+      <header className="bg-surface border-b border-border sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/society/dashboard")}
-              className="flex items-center gap-2 text-[#9eb7a9] hover:text-white transition-colors"
+              className="flex items-center gap-2 text-text-secondary hover:text-white transition-colors"
             >
               <span className="material-symbols-outlined text-xl">
                 arrow_back
@@ -87,7 +87,7 @@ export default function CreateSociety() {
                 <h1 className="text-2xl font-bold text-white">
                   Create New Society
                 </h1>
-                <p className="text-sm text-[#9eb7a9]">
+                <p className="text-sm text-text-secondary">
                   Start a new community on campus
                 </p>
               </div>
@@ -100,7 +100,7 @@ export default function CreateSociety() {
       <main className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form
           onSubmit={handleSubmit}
-          className="bg-[#1a241e] border border-[#29382f] rounded-lg p-8"
+          className="bg-surface border border-border rounded-lg p-8"
         >
           <div className="space-y-6">
             {/* Society Name */}
@@ -163,7 +163,7 @@ export default function CreateSociety() {
 
             {/* Logo Selection */}
             <div>
-              <label className="block text-sm font-medium text-[#9eb7a9] mb-2">
+              <label className="block text-sm font-medium text-text-secondary mb-2">
                 Choose Emoji Icon
               </label>
               <div className="grid grid-cols-5 gap-3">
@@ -174,8 +174,8 @@ export default function CreateSociety() {
                     onClick={() => setFormData({ ...formData, logo: emoji })}
                     className={`p-4 text-4xl rounded-lg border-2 transition-all hover:scale-110 ${
                       formData.logo === emoji
-                        ? "border-[#1dc964] bg-[#1dc964]/20"
-                        : "border-[#29382f] hover:border-[#1dc964]/50"
+                        ? "border-[#1dc964] bg-primary/20"
+                        : "border-border hover:border-[#1dc964]/50"
                     }`}
                   >
                     {emoji}
@@ -185,9 +185,9 @@ export default function CreateSociety() {
             </div>
 
             {/* Preview */}
-            <div className="pt-6 border-t border-[#29382f]">
+            <div className="pt-6 border-t border-border">
               <h3 className="text-lg font-semibold text-white mb-4">Preview</h3>
-              <div className="bg-[#111714] border border-[#29382f] rounded-lg p-6">
+              <div className="bg-background border border-border rounded-lg p-6">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="text-4xl">{formData.logo}</div>
                   <div className="flex-1">
@@ -195,16 +195,16 @@ export default function CreateSociety() {
                       {formData.name || "Society Name"}
                     </h4>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="px-2 py-0.5 bg-[#1dc964]/20 text-[#1dc964] text-xs font-bold rounded">
+                      <span className="px-2 py-0.5 bg-primary/20 text-[#1dc964] text-xs font-bold rounded">
                         {formData.tag?.toUpperCase() || "TAG"}
                       </span>
-                      <p className="text-[#9eb7a9] text-sm">
+                      <p className="text-text-secondary text-sm">
                         {formData.category}
                       </p>
                     </div>
                   </div>
                 </div>
-                <p className="text-[#9eb7a9] text-sm break-words line-clamp-2">
+                <p className="text-text-secondary text-sm break-words line-clamp-2">
                   {formData.description ||
                     "Society description will appear here..."}
                 </p>

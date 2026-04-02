@@ -27,11 +27,11 @@ export default function ServerError() {
         </>
       }
       footer={
-        <p className="text-sm text-[#8b949e]">
+        <p className="text-sm text-text-secondary">
           Error persisting?{" "}
           <span
             onClick={() => navigate("/contact-us")}
-            className="text-[#238636] hover:underline cursor-pointer"
+            className="text-primary hover:underline cursor-pointer"
           >
             Contact support
           </span>

@@ -9,14 +9,14 @@ export default function FormActions({
       <button
         type="button"
         onClick={onCancel}
-        className="flex-1 px-6 py-3 rounded-lg bg-[#21262d] text-[#c9d1d9] font-semibold border border-[#30363d] hover:bg-[#30363d] transition-colors"
+        className="flex-1 px-6 py-3 rounded-lg bg-surface-hover text-text-primary font-semibold border border-border hover:bg-[#30363d] transition-colors"
       >
         {cancelLabel}
       </button>
       <button
         type="submit"
         disabled={isLoading}
-        className="flex-1 px-6 py-3 rounded-lg bg-[#238636] text-white font-semibold hover:bg-[#2ea043] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="flex-1 px-6 py-3 rounded-lg bg-primary text-white font-semibold hover:bg-primary-hover transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {submitLabel === "Save Changes" ? (
           <>

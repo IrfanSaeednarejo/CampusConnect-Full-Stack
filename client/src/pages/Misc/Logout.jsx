@@ -22,7 +22,7 @@ export default function Logout() {
 	}, [dispatch, logout, navigate]);
 
 	return (
-		<div className="min-h-screen bg-[#0d1117] flex items-center justify-center text-[#c9d1d9]">
+		<div className="min-h-screen bg-background flex items-center justify-center text-text-primary">
 			<p className="text-sm">Signing you out...</p>
 		</div>
 	);

@@ -5,7 +5,7 @@ import EmptyState from "../../components/common/EmptyState";
 
 export default function FeatureTour() {
 	return (
-		<div className="w-full bg-[#0d1117] text-[#e6edf3] min-h-screen">
+		<div className="w-full bg-background text-[#e6edf3] min-h-screen">
 			<PageContent maxWidth="max-w-4xl" className="py-12">
 				<SectionHeader
 					title="Feature Tour"

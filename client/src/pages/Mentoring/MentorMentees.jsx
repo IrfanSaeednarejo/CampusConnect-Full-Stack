@@ -63,7 +63,7 @@ export default function MentorMentees() {
     : 0;
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
       <div className="layout-container flex h-full grow flex-col">
         {/* TopNavBar */}
         <MentorTopBar backPath="/mentor/dashboard" />
@@ -76,27 +76,27 @@ export default function MentorMentees() {
               <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                 My Mentees
               </h1>
-              <p className="text-[#9eb7a9] text-base font-normal leading-normal">
+              <p className="text-text-secondary text-base font-normal leading-normal">
                 View and manage all your active and past mentees
               </p>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <div className="p-5 bg-[#161b22] border border-[#30363d] rounded-xl">
-                <p className="text-[#9eb7a9] text-sm mb-1">Total Mentees</p>
+              <div className="p-5 bg-surface border border-border rounded-xl">
+                <p className="text-text-secondary text-sm mb-1">Total Mentees</p>
                 <p className="text-white text-3xl font-bold">
                   {mentees.length}
                 </p>
               </div>
-              <div className="p-5 bg-[#161b22] border border-[#30363d] rounded-xl">
-                <p className="text-[#9eb7a9] text-sm mb-1">Active Mentees</p>
+              <div className="p-5 bg-surface border border-border rounded-xl">
+                <p className="text-text-secondary text-sm mb-1">Active Mentees</p>
                 <p className="text-white text-3xl font-bold">
                   {loading ? "..." : activeCount}
                 </p>
               </div>
-              <div className="p-5 bg-[#161b22] border border-[#30363d] rounded-xl">
-                <p className="text-[#9eb7a9] text-sm mb-1">Avg Rating</p>
+              <div className="p-5 bg-surface border border-border rounded-xl">
+                <p className="text-text-secondary text-sm mb-1">Avg Rating</p>
                 <p className="text-white text-3xl font-bold">
                   {loading ? "..." : overallRating > 0 ? `${overallRating}⭐` : "—"}
                 </p>
@@ -107,16 +107,16 @@ export default function MentorMentees() {
             {loading ? (
               <div className="flex flex-col items-center justify-center gap-4 py-16">
                 <div className="w-10 h-10 border-4 border-[#1dc964] border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-[#9eb7a9]">Loading mentees...</p>
+                <p className="text-text-secondary">Loading mentees...</p>
               </div>
             ) : mentees.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-6 py-16 text-center">
-                <span className="material-symbols-outlined text-6xl text-[#9eb7a9]">
+                <span className="material-symbols-outlined text-6xl text-text-secondary">
                   school
                 </span>
                 <div>
                   <p className="text-white text-lg font-bold">No mentees yet</p>
-                  <p className="text-[#9eb7a9] text-sm">
+                  <p className="text-text-secondary text-sm">
                     Students will appear here once they book a session with you.
                   </p>
                 </div>
@@ -126,33 +126,33 @@ export default function MentorMentees() {
                 {mentees.map((mentee) => (
                   <div
                     key={mentee.id}
-                    className="flex items-center justify-between p-5 bg-[#161b22] border border-[#30363d] rounded-xl hover:border-[#1dc964] transition-colors"
+                    className="flex items-center justify-between p-5 bg-surface border border-border rounded-xl hover:border-[#1dc964] transition-colors"
                   >
                     <div className="flex items-center gap-4 flex-1">
                       <img
                         src={mentee.image}
                         alt={mentee.name}
-                        className="w-14 h-14 rounded-full border border-[#30363d]"
+                        className="w-14 h-14 rounded-full border border-border"
                       />
                       <div className="flex-1">
                         <h3 className="text-white font-semibold text-lg capitalize">
                           {mentee.name}
                         </h3>
-                        <p className="text-[#9eb7a9] text-sm">{mentee.email}</p>
-                        <p className="text-[#9eb7a9] text-sm capitalize">
+                        <p className="text-text-secondary text-sm">{mentee.email}</p>
+                        <p className="text-text-secondary text-sm capitalize">
                           {mentee.specialization}
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-8 mr-4">
                       <div className="text-center">
-                        <p className="text-[#9eb7a9] text-sm">Sessions</p>
+                        <p className="text-text-secondary text-sm">Sessions</p>
                         <p className="text-white font-bold">
                           {mentee.sessionsCompleted}
                         </p>
                       </div>
                       <div className="text-center">
-                        <p className="text-[#9eb7a9] text-sm">Rating</p>
+                        <p className="text-text-secondary text-sm">Rating</p>
                         <p className="text-yellow-400 font-bold">
                           {mentee.rating > 0 ? `${mentee.rating}⭐` : "—"}
                         </p>
@@ -161,8 +161,8 @@ export default function MentorMentees() {
                         <span
                           className={`px-3 py-1 rounded-full text-xs font-semibold ${
                             mentee.status === "Active"
-                              ? "bg-[#1dc964]/20 text-[#1dc964]"
-                              : "bg-[#9eb7a9]/20 text-[#9eb7a9]"
+                              ? "bg-primary/20 text-[#1dc964]"
+                              : "bg-[#9eb7a9]/20 text-text-secondary"
                           }`}
                         >
                           {mentee.status}

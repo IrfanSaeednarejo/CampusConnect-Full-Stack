@@ -66,7 +66,7 @@ export default function EditStudyGroup() {
   }, [group, setFormValues]);
 
   return (
-    <div className="flex h-screen bg-[#0d1117]">
+    <div className="flex h-screen bg-background">
       {/* Unified Sidebar */}
       <Sidebar />
 

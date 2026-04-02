@@ -2,8 +2,8 @@ import { Link } from "react-router-dom";
 
 export default function SharedFooter() {
   return (
-    <footer className="flex items-center justify-center px-5 py-5 text-center border-t border-solid border-[#161b22] bg-[#0d1117] lg:pb-5 pb-20 w-full mt-auto">
-      <p className="text-[#8b949e] text-xs font-normal leading-normal">
+    <footer className="flex items-center justify-center px-5 py-5 text-center border-t border-solid border-[#161b22] bg-background lg:pb-5 pb-20 w-full mt-auto">
+      <p className="text-text-secondary text-xs font-normal leading-normal">
         © {new Date().getFullYear()} CampusConnect. All rights reserved. |
         <Link className="hover:text-[#e6edf3] ml-1" to="/privacy">
           Privacy Policy

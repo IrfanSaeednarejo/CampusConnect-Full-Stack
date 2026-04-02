@@ -84,14 +84,14 @@ export default function StudyGroupChat() {
 
   if (!group) {
     return (
-      <div className="h-screen bg-[#0d1117] text-[#c9d1d9] flex items-center justify-center">
-        <p className="text-[#8b949e]">Study group not found.</p>
+      <div className="h-screen bg-background text-text-primary flex items-center justify-center">
+        <p className="text-text-secondary">Study group not found.</p>
       </div>
     );
   }
 
   return (
-    <div className="h-screen bg-[#0d1117] text-[#c9d1d9] flex flex-col">
+    <div className="h-screen bg-background text-text-primary flex flex-col">
       {/* Header */}
       <PageHeader
         title={group.name}

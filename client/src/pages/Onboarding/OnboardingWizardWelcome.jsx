@@ -20,16 +20,16 @@ export default function OnboardingWizardWelcome() {
             currentStep={1}
             totalSteps={4}
             showBar={false}
-            textClassName="text-[#8b949e] text-sm font-normal leading-normal"
+            textClassName="text-text-secondary text-sm font-normal leading-normal"
           />
         </div>
 
         {/* Heading */}
         <div className="mb-8">
-          <h1 className="text-[#c9d1d9] text-4xl sm:text-5xl font-black leading-tight tracking-[-0.033em]">
+          <h1 className="text-text-primary text-4xl sm:text-5xl font-black leading-tight tracking-[-0.033em]">
             Nice to meet you!
           </h1>
-          <p className="mt-3 text-[#8b949e] text-base font-normal leading-normal">
+          <p className="mt-3 text-text-secondary text-base font-normal leading-normal">
             Let’s personalize your experience on CampusConnect.
           </p>
         </div>

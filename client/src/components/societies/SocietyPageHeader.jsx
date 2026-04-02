@@ -42,7 +42,7 @@ export default function SocietyPageHeader({
 
   return (
     <header
-      className={`bg-[#1a241e] border-b border-[#29382f] ${
+      className={`bg-surface border-b border-border ${
         sticky ? "sticky top-0 z-10" : ""
       } ${className}`}
     >
@@ -52,7 +52,7 @@ export default function SocietyPageHeader({
             {showBack && (
               <button
                 onClick={handleBack}
-                className="flex items-center gap-2 text-[#9eb7a9] hover:text-white transition-colors"
+                className="flex items-center gap-2 text-text-secondary hover:text-white transition-colors"
               >
                 <span className="material-symbols-outlined text-xl">
                   arrow_back
@@ -66,7 +66,7 @@ export default function SocietyPageHeader({
                 <div>
                   <h1 className="text-2xl font-bold text-white">{title}</h1>
                   {subtitle && (
-                    <p className="text-sm text-[#9eb7a9]">{subtitle}</p>
+                    <p className="text-sm text-text-secondary">{subtitle}</p>
                   )}
                 </div>
               </div>
@@ -75,7 +75,7 @@ export default function SocietyPageHeader({
               <div>
                 <h1 className="text-2xl font-bold text-white">{title}</h1>
                 {subtitle && (
-                  <p className="text-sm text-[#9eb7a9]">{subtitle}</p>
+                  <p className="text-sm text-text-secondary">{subtitle}</p>
                 )}
               </div>
             )}

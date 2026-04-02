@@ -116,7 +116,7 @@ export default function SocietyEvents() {
   );
 
   return (
-    <div className="min-h-screen bg-[#111714] text-white">
+    <div className="min-h-screen bg-background text-white">
       <SocietyPageHeader
         title="Society Events"
         subtitle="Manage and organize your events"
@@ -125,7 +125,7 @@ export default function SocietyEvents() {
         action={
           <button
             onClick={() => navigate("/events/create")}
-            className="px-4 py-2 rounded-lg bg-[#1dc964] text-[#111714] text-sm font-bold hover:bg-[#1dc964]/90 transition-colors flex items-center gap-2"
+            className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors flex items-center gap-2"
           >
             <span className="material-symbols-outlined">add</span>
             Create Event
@@ -141,8 +141,8 @@ export default function SocietyEvents() {
               onClick={() => setFilter("all")}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === "all"
-                  ? "bg-[#1dc964] text-[#111714]"
-                  : "bg-[#1a241e] text-[#9eb7a9] hover:bg-[#1a241e]/80 hover:text-white"
+                  ? "bg-primary text-white"
+                  : "bg-surface text-text-secondary hover:bg-surface/80 hover:text-white"
               }`}
             >
               All Events ({events.length})
@@ -151,8 +151,8 @@ export default function SocietyEvents() {
               onClick={() => setFilter("upcoming")}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === "upcoming"
-                  ? "bg-[#1dc964] text-[#111714]"
-                  : "bg-[#1a241e] text-[#9eb7a9] hover:bg-[#1a241e]/80 hover:text-white"
+                  ? "bg-primary text-white"
+                  : "bg-surface text-text-secondary hover:bg-surface/80 hover:text-white"
               }`}
             >
               Upcoming ({events.filter((e) => isUpcoming(e.status)).length})
@@ -161,8 +161,8 @@ export default function SocietyEvents() {
               onClick={() => setFilter("completed")}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                 filter === "completed"
-                  ? "bg-[#1dc964] text-[#111714]"
-                  : "bg-[#1a241e] text-[#9eb7a9] hover:bg-[#1a241e]/80 hover:text-white"
+                  ? "bg-primary text-white"
+                  : "bg-surface text-text-secondary hover:bg-surface/80 hover:text-white"
               }`}
             >
               Completed ({events.filter((e) => isCompleted(e.status)).length})
@@ -176,14 +176,14 @@ export default function SocietyEvents() {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1dc964]"></div>
           </div>
         ) : filteredEvents.length === 0 ? (
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-12 text-center">
+          <div className="bg-surface border border-border rounded-lg p-12 text-center">
             <span className="material-symbols-outlined text-6xl text-[#29382f] block mb-4">
               event
             </span>
             <h3 className="text-xl font-semibold text-white mb-2">
               No events found
             </h3>
-            <p className="text-[#9eb7a9]">
+            <p className="text-text-secondary">
               Create your first event to get started.
             </p>
           </div>
@@ -203,10 +203,10 @@ export default function SocietyEvents() {
               return (
                 <div
                   key={event._id}
-                  className="bg-[#1a241e] border border-[#29382f] rounded-lg overflow-hidden hover:border-[#1dc964]/50 transition-colors"
+                  className="bg-surface border border-border rounded-lg overflow-hidden hover:border-[#1dc964]/50 transition-colors"
                 >
                   <div
-                    className="h-48 bg-cover bg-center bg-[#29382f]"
+                    className="h-48 bg-cover bg-center bg-surface-hover"
                     style={
                       event.coverImage
                         ? { backgroundImage: `url("${event.coverImage}")` }
@@ -215,7 +215,7 @@ export default function SocietyEvents() {
                   >
                     {!event.coverImage && (
                       <div className="h-full flex items-center justify-center">
-                        <span className="material-symbols-outlined text-6xl text-[#9eb7a9]/30">
+                        <span className="material-symbols-outlined text-6xl text-text-secondary/30">
                           event
                         </span>
                       </div>
@@ -226,13 +226,13 @@ export default function SocietyEvents() {
                       <span
                         className={`px-2 py-1 rounded-full text-xs font-medium ${
                           isUpcomingStatus
-                            ? "bg-[#1dc964]/20 text-[#1dc964]"
-                            : "bg-[#9eb7a9]/20 text-[#9eb7a9]"
+                            ? "bg-primary/20 text-[#1dc964]"
+                            : "bg-[#9eb7a9]/20 text-text-secondary"
                         }`}
                       >
                         {statusLabel}
                       </span>
-                      <span className="text-[#9eb7a9] text-xs truncate ml-2">
+                      <span className="text-text-secondary text-xs truncate ml-2">
                         {typeof event.societyId === "object"
                           ? event.societyId?.name
                           : ""}
@@ -241,18 +241,18 @@ export default function SocietyEvents() {
                     <h3 className="text-white font-bold text-lg mb-2 truncate">
                       {event.title}
                     </h3>
-                    <p className="text-[#9eb7a9] text-sm mb-4 line-clamp-2">
+                    <p className="text-text-secondary text-sm mb-4 line-clamp-2">
                       {event.description}
                     </p>
                     <div className="space-y-2 mb-4">
-                      <div className="flex items-center gap-2 text-sm text-[#9eb7a9]">
+                      <div className="flex items-center gap-2 text-sm text-text-secondary">
                         <span className="material-symbols-outlined text-sm">
                           calendar_today
                         </span>
                         <span>{dateStr}</span>
                       </div>
                       {timeStr && (
-                        <div className="flex items-center gap-2 text-sm text-[#9eb7a9]">
+                        <div className="flex items-center gap-2 text-sm text-text-secondary">
                           <span className="material-symbols-outlined text-sm">
                             schedule
                           </span>
@@ -260,14 +260,14 @@ export default function SocietyEvents() {
                         </div>
                       )}
                       {event.venue && (
-                        <div className="flex items-center gap-2 text-sm text-[#9eb7a9]">
+                        <div className="flex items-center gap-2 text-sm text-text-secondary">
                           <span className="material-symbols-outlined text-sm">
                             location_on
                           </span>
                           <span>{typeof event.venue === 'string' ? event.venue : event.venue.address || 'Online'}</span>
                         </div>
                       )}
-                      <div className="flex items-center gap-2 text-sm text-[#9eb7a9]">
+                      <div className="flex items-center gap-2 text-sm text-text-secondary">
                         <span className="material-symbols-outlined text-sm">
                           group
                         </span>
@@ -280,7 +280,7 @@ export default function SocietyEvents() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => navigate(`/event/dashboard?id=${event._id || event.id}`)}
-                        className="flex-1 px-4 py-2 rounded-lg bg-[#1dc964] text-[#111714] text-sm font-medium hover:bg-[#1dc964]/90 transition-colors"
+                        className="flex-1 px-4 py-2 rounded-lg bg-primary text-white text-sm font-medium hover:bg-primary/90 transition-colors"
                       >
                         Manage
                       </button>
@@ -301,23 +301,23 @@ export default function SocietyEvents() {
 
         {/* Stats Summary */}
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-4 text-center">
+          <div className="bg-surface border border-border rounded-lg p-4 text-center">
             <div className="text-3xl font-bold text-[#1dc964]">
               {events.length}
             </div>
-            <div className="text-sm text-[#9eb7a9] mt-1">Total Events</div>
+            <div className="text-sm text-text-secondary mt-1">Total Events</div>
           </div>
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-4 text-center">
+          <div className="bg-surface border border-border rounded-lg p-4 text-center">
             <div className="text-3xl font-bold text-[#1dc964]">
               {events.filter((e) => isUpcoming(e.status)).length}
             </div>
-            <div className="text-sm text-[#9eb7a9] mt-1">Upcoming</div>
+            <div className="text-sm text-text-secondary mt-1">Upcoming</div>
           </div>
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-4 text-center">
+          <div className="bg-surface border border-border rounded-lg p-4 text-center">
             <div className="text-3xl font-bold text-[#1dc964]">
               {totalRegistrations}
             </div>
-            <div className="text-sm text-[#9eb7a9] mt-1">Total Registrations</div>
+            <div className="text-sm text-text-secondary mt-1">Total Registrations</div>
           </div>
         </div>
       </main>

@@ -8,7 +8,7 @@ export default function ContentUnavailable() {
 	return (
 		<ErrorPageShell
 			icon="cloud_off"
-			iconClassName="text-[#8b949e]"
+			iconClassName="text-text-secondary"
 			code="404"
 			title="Content Unavailable"
 			message="This content is not available right now. It may have been moved or removed."

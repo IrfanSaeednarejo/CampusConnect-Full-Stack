@@ -72,7 +72,7 @@ const DashboardIndex = () => {
             </div>
           </div>
           <div className="flex flex-1 items-center justify-end gap-4">
-            <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 border border-border-dark bg-surface-dark text-text-primary-dark hover:bg-border-dark text-sm font-bold px-2.5">
+            <button className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 border border-border-dark bg-surface-dark text-text-primary-dark hover:bg-border-dark text-sm font-bold px-2.5">
               <span className="material-symbols-outlined text-xl">
                 notifications
               </span>
@@ -115,7 +115,7 @@ const DashboardIndex = () => {
                     />
                   </div>
                 </label>
-                <button className="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 border border-border-dark bg-surface-dark text-text-primary-dark hover:bg-border-dark text-sm font-bold px-2.5">
+                <button className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 border border-border-dark bg-surface-dark text-text-primary-dark hover:bg-border-dark text-sm font-bold px-2.5">
                   <span className="material-symbols-outlined text-xl">
                     notifications
                   </span>

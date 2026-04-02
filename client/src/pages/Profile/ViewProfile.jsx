@@ -11,7 +11,7 @@ export default function ViewProfile() {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen">
+    <div className="w-full bg-background text-text-primary min-h-screen">
       {/* Header */}
       <ProfilePageHeader
         title="My Profile"
@@ -19,7 +19,7 @@ export default function ViewProfile() {
         action={
           <Link
             to="/profile/edit"
-            className="px-4 py-2 bg-[#238636] text-white rounded-lg hover:bg-[#2ea043] transition-colors text-sm font-medium"
+            className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors text-sm font-medium"
           >
             Edit Profile
           </Link>
@@ -43,7 +43,7 @@ export default function ViewProfile() {
               <h2 className="text-2xl font-bold text-white mb-1">
                 {user?.name || userProfile?.name || "User"}
               </h2>
-              <p className="text-[#8b949e] mb-4">
+              <p className="text-text-secondary mb-4">
                 {user?.email || userProfile?.email || "email@example.com"}
               </p>
               <div className="flex items-center gap-4">
@@ -51,7 +51,7 @@ export default function ViewProfile() {
                   {role || "Student"}
                 </span>
                 {userProfile?.department && (
-                  <span className="px-3 py-1 bg-[#238636]/20 text-[#3fb950] rounded-full text-sm font-medium">
+                  <span className="px-3 py-1 bg-primary/20 text-[#3fb950] rounded-full text-sm font-medium">
                     {userProfile.department}
                   </span>
                 )}
@@ -60,9 +60,9 @@ export default function ViewProfile() {
           </div>
           {/* Bio */}
           {userProfile?.bio && (
-            <div className="mt-6 pt-6 border-t border-[#30363d]">
-              <h3 className="text-sm font-semibold text-[#8b949e] mb-2">Bio</h3>
-              <p className="text-[#c9d1d9]">{userProfile.bio}</p>
+            <div className="mt-6 pt-6 border-t border-border">
+              <h3 className="text-sm font-semibold text-text-secondary mb-2">Bio</h3>
+              <p className="text-text-primary">{userProfile.bio}</p>
             </div>
           )}
         </Card>
@@ -71,15 +71,15 @@ export default function ViewProfile() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link
             to="/profile/account-settings"
-            className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#8b949e] transition-colors"
+            className="bg-surface border border-border rounded-lg p-4 hover:border-[#8b949e] transition-colors"
           >
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-[#8b949e]">
+              <span className="material-symbols-outlined text-text-secondary">
                 manage_accounts
               </span>
               <div>
                 <h3 className="font-semibold text-white">Account Settings</h3>
-                <p className="text-sm text-[#8b949e]">
+                <p className="text-sm text-text-secondary">
                   Manage your account preferences
                 </p>
               </div>
@@ -88,15 +88,15 @@ export default function ViewProfile() {
 
           <Link
             to="/profile/privacy-settings"
-            className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#8b949e] transition-colors"
+            className="bg-surface border border-border rounded-lg p-4 hover:border-[#8b949e] transition-colors"
           >
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-[#8b949e]">
+              <span className="material-symbols-outlined text-text-secondary">
                 shield
               </span>
               <div>
                 <h3 className="font-semibold text-white">Privacy Settings</h3>
-                <p className="text-sm text-[#8b949e]">
+                <p className="text-sm text-text-secondary">
                   Control who can see your information
                 </p>
               </div>
@@ -105,17 +105,17 @@ export default function ViewProfile() {
 
           <Link
             to="/profile/notification-preferences"
-            className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#8b949e] transition-colors"
+            className="bg-surface border border-border rounded-lg p-4 hover:border-[#8b949e] transition-colors"
           >
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-[#8b949e]">
+              <span className="material-symbols-outlined text-text-secondary">
                 notifications
               </span>
               <div>
                 <h3 className="font-semibold text-white">
                   Notification Preferences
                 </h3>
-                <p className="text-sm text-[#8b949e]">
+                <p className="text-sm text-text-secondary">
                   Customize your notifications
                 </p>
               </div>
@@ -124,15 +124,15 @@ export default function ViewProfile() {
 
           <Link
             to="/profile/delete-account"
-            className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#da3633] transition-colors"
+            className="bg-surface border border-border rounded-lg p-4 hover:border-[#da3633] transition-colors"
           >
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-[#da3633]">
+              <span className="material-symbols-outlined text-danger">
                 delete_forever
               </span>
               <div>
-                <h3 className="font-semibold text-[#da3633]">Delete Account</h3>
-                <p className="text-sm text-[#8b949e]">
+                <h3 className="font-semibold text-danger">Delete Account</h3>
+                <p className="text-sm text-text-secondary">
                   Permanently remove your account
                 </p>
               </div>

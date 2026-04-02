@@ -111,7 +111,7 @@ export default function MemberRequests() {
   const getMemberId = (req) => req.memberId?._id || req.memberId || req._id;
 
   return (
-    <div className="min-h-screen bg-[#111714] text-white">
+    <div className="min-h-screen bg-background text-white">
       <SocietyPageHeader
         title="Member Requests"
         subtitle="Review and approve new members"
@@ -119,7 +119,7 @@ export default function MemberRequests() {
         backPath="/society/dashboard"
         action={
           pendingRequests.length > 0 ? (
-            <span className="px-4 py-2 rounded-full bg-[#1dc964]/20 text-[#1dc964] font-bold">
+            <span className="px-4 py-2 rounded-full bg-primary/20 text-[#1dc964] font-bold">
               {pendingRequests.length} Pending
             </span>
           ) : null
@@ -132,14 +132,14 @@ export default function MemberRequests() {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1dc964]"></div>
           </div>
         ) : pendingRequests.length === 0 ? (
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-12 text-center">
+          <div className="bg-surface border border-border rounded-lg p-12 text-center">
             <span className="material-symbols-outlined text-6xl text-[#29382f] block mb-4">
               inbox
             </span>
             <h3 className="text-xl font-semibold text-white mb-2">
               No pending requests
             </h3>
-            <p className="text-[#9eb7a9]">
+            <p className="text-text-secondary">
               All member requests have been reviewed.
             </p>
           </div>
@@ -153,7 +153,7 @@ export default function MemberRequests() {
               return (
                 <div
                   key={mid}
-                  className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6 hover:border-[#1dc964]/50 transition-colors"
+                  className="bg-surface border border-border rounded-lg p-6 hover:border-[#1dc964]/50 transition-colors"
                 >
                   <div className="flex items-start gap-6">
                     {/* Avatar */}
@@ -175,11 +175,11 @@ export default function MemberRequests() {
                             {getMemberName(request)}
                           </h3>
                           {getMemberEmail(request) && (
-                            <p className="text-[#9eb7a9] text-sm mb-1">
+                            <p className="text-text-secondary text-sm mb-1">
                               {getMemberEmail(request)}
                             </p>
                           )}
-                          <div className="flex items-center gap-2 text-xs text-[#9eb7a9]">
+                          <div className="flex items-center gap-2 text-xs text-text-secondary">
                             <span className="material-symbols-outlined text-sm">
                               badge
                             </span>
@@ -193,7 +193,7 @@ export default function MemberRequests() {
 
                       {/* Metadata */}
                       {getMemberDate(request) && (
-                        <div className="flex items-center gap-4 text-xs text-[#9eb7a9] mb-4">
+                        <div className="flex items-center gap-4 text-xs text-text-secondary mb-4">
                           <span className="flex items-center gap-1">
                             <span className="material-symbols-outlined text-sm">
                               calendar_today
@@ -208,7 +208,7 @@ export default function MemberRequests() {
                         <button
                           onClick={() => handleApprove(request)}
                           disabled={actionLoading === mid}
-                          className="flex-1 px-6 py-2 rounded-lg bg-[#1dc964] text-[#111714] font-bold hover:bg-[#1dc964]/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                          className="flex-1 px-6 py-2 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                           {actionLoading === mid ? (
                             <div className="w-4 h-4 border-2 border-[#111714] border-t-transparent rounded-full animate-spin" />
@@ -241,19 +241,19 @@ export default function MemberRequests() {
         {/* Stats */}
         {pendingRequests.length > 0 && (
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-4 text-center">
+            <div className="bg-surface border border-border rounded-lg p-4 text-center">
               <div className="text-3xl font-bold text-[#1dc964]">
                 {pendingRequests.length}
               </div>
-              <div className="text-sm text-[#9eb7a9] mt-1">
+              <div className="text-sm text-text-secondary mt-1">
                 Pending Requests
               </div>
             </div>
-            <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-4 text-center">
+            <div className="bg-surface border border-border rounded-lg p-4 text-center">
               <div className="text-3xl font-bold text-[#1dc964]">
                 {new Set(pendingRequests.map(r => r.societyName)).size}
               </div>
-              <div className="text-sm text-[#9eb7a9] mt-1">Societies</div>
+              <div className="text-sm text-text-secondary mt-1">Societies</div>
             </div>
           </div>
         )}

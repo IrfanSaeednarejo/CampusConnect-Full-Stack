@@ -2,7 +2,7 @@ export default function SectionHeader({
   title,
   subtitle,
   align = "left",
-  maxWidth = "max-w-[720px]",
+  maxWidth = "max-w-2xl",
 }) {
   const alignClass = align === "center" ? "text-center items-center" : "text-left";
 
@@ -13,7 +13,7 @@ export default function SectionHeader({
       </h1>
       {subtitle && (
         <p
-          className={`text-[#8b949e] text-sm md:text-base font-normal leading-normal ${maxWidth}`}
+          className={`text-text-secondary text-sm md:text-base font-normal leading-normal ${maxWidth}`}
         >
           {subtitle}
         </p>

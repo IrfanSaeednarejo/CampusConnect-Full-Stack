@@ -23,12 +23,12 @@ export default function ProfilePageHeader({
 
   return (
     <header
-      className={`flex items-center justify-between border-b border-[#30363d] px-6 py-4 bg-[#161b22] ${className}`}
+      className={`flex items-center justify-between border-b border-border px-6 py-4 bg-surface ${className}`}
     >
       <div className="flex items-center gap-4">
         <button
           onClick={handleBack}
-          className="text-white hover:text-[#238636] transition-colors"
+          className="text-white hover:text-primary transition-colors"
         >
           <span className="material-symbols-outlined">arrow_back</span>
         </button>

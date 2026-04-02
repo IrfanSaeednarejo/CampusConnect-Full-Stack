@@ -13,14 +13,14 @@ export default function OnboardingProgress({
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       <div className="flex justify-between">
-        <p className={`text-sm font-medium text-[#c9d1d9]/80 ${textClassName}`}>
+        <p className={`text-sm font-medium text-text-primary/80 ${textClassName}`}>
           {label || `Step ${currentStep} of ${totalSteps}`}
         </p>
       </div>
       {showBar && (
         <div className="h-2 w-full rounded-full bg-[#30363d]">
           <div
-            className="h-2 rounded-full bg-[#238636]"
+            className="h-2 rounded-full bg-primary"
             style={{ width: `${percentage}%` }}
           ></div>
         </div>

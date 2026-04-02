@@ -44,18 +44,18 @@ export default function OnboardingWizardComplete() {
           </div>
 
           {/* Large Icon */}
-          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-[#238636]/20">
-            <span className="material-symbols-outlined text-6xl text-[#238636]">
+          <div className="flex h-24 w-24 items-center justify-center rounded-full bg-primary/20">
+            <span className="material-symbols-outlined text-6xl text-primary">
               check
             </span>
           </div>
 
           {/* Headline + Body */}
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-3xl font-bold tracking-tight text-[#c9d1d9]">
+            <h1 className="text-3xl font-bold tracking-tight text-text-primary">
               You're all set!
             </h1>
-            <p className="max-w-xs text-base text-[#c9d1d9]/80">
+            <p className="max-w-xs text-base text-text-primary/80">
               Your profile is ready. Explore your dashboard to get started.
             </p>
           </div>

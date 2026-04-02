@@ -27,8 +27,8 @@ export default function ServiceUnavailable() {
         </>
       }
       footer={
-        <div className="p-4 bg-[#161b22] rounded-lg border border-[#30363d]">
-          <p className="text-sm text-[#8b949e]">
+        <div className="p-4 bg-surface rounded-lg border border-border">
+          <p className="text-sm text-text-secondary">
             📅 Scheduled maintenance usually takes 15-30 minutes
           </p>
         </div>

@@ -89,7 +89,7 @@ export default function EditSociety() {
 
   if (!society) {
     return (
-      <div className="flex flex-col min-h-screen overflow-y-auto bg-[#0d1117]">
+      <div className="flex flex-col min-h-screen overflow-y-auto bg-background">
         <div className="flex items-center justify-center h-screen">
           <Card padding="p-12">
             <EmptyState
@@ -109,7 +109,7 @@ export default function EditSociety() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen overflow-y-auto bg-[#111714] text-white">
+    <div className="flex flex-col min-h-screen overflow-y-auto bg-background text-white">
       {/* Header */}
       <SocietyPageHeader
         title="Edit Society"
@@ -182,8 +182,8 @@ export default function EditSociety() {
                     onClick={() => setFormData({ ...formData, logo: emoji })}
                     className={`aspect-square p-3 text-3xl rounded-lg border-2 transition-all hover:scale-110 ${
                       formData.logo === emoji
-                        ? "border-[#238636] bg-[#238636]/20 scale-105"
-                        : "border-[#30363d] hover:border-[#238636]/50"
+                        ? "border-primary bg-primary/20 scale-105"
+                        : "border-border hover:border-primary/50"
                     }`}
                   >
                     {emoji}
@@ -193,25 +193,25 @@ export default function EditSociety() {
             </div>
 
             {/* Preview */}
-            <div className="pt-6 border-t border-[#30363d]">
+            <div className="pt-6 border-t border-border">
               <label className="block text-sm font-medium text-[#e6edf3] mb-3">
                 Preview
               </label>
-              <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
+              <div className="bg-surface border border-border rounded-lg p-6">
                 <div className="flex items-center gap-4 mb-4">
-                  <div className="w-16 h-16 rounded-lg bg-[#238636]/20 flex items-center justify-center text-3xl">
+                  <div className="w-16 h-16 rounded-lg bg-primary/20 flex items-center justify-center text-3xl">
                     {formData.logo}
                   </div>
                   <div>
                     <h3 className="text-lg font-bold text-white">
                       {formData.name || "Society Name"}
                     </h3>
-                    <span className="px-2 py-1 bg-[#238636]/20 text-[#238636] text-xs rounded-full font-medium">
+                    <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full font-medium">
                       {formData.category}
                     </span>
                   </div>
                 </div>
-                <p className="text-[#8b949e] text-sm">
+                <p className="text-text-secondary text-sm">
                   {formData.description || "Society description will appear here..."}
                 </p>
               </div>

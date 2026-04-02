@@ -5,7 +5,7 @@ export default function NetworkErrorNotification({
 }) {
 	return (
 		<div
-			className={`flex items-center justify-between gap-4 rounded-lg border border-[#f85149] bg-[#161b22] px-4 py-3 ${className}`}
+			className={`flex items-center justify-between gap-4 rounded-lg border border-[#f85149] bg-surface px-4 py-3 ${className}`}
 			role="alert"
 		>
 			<div className="flex items-center gap-3">

@@ -69,7 +69,7 @@ export default function BookSession() {
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
       <div className="layout-container flex h-full grow flex-col">
         {/* TopNavBar */}
         <MentorTopBar backPath="/mentor-sessions" />
@@ -82,7 +82,7 @@ export default function BookSession() {
               <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                 Book a Mentoring Session
               </h1>
-              <p className="text-[#9eb7a9] text-base font-normal leading-normal">
+              <p className="text-text-secondary text-base font-normal leading-normal">
                 Select a mentor and schedule your next mentoring session
               </p>
             </div>
@@ -99,22 +99,22 @@ export default function BookSession() {
                     onClick={() => setSelectedMentor(mentor)}
                     className={`p-4 rounded-xl cursor-pointer transition-all border ${
                       selectedMentor?.id === mentor.id
-                        ? "bg-[#161b22] border-[#1dc964]"
-                        : "bg-[#161b22] border-[#30363d] hover:border-[#1dc964]"
+                        ? "bg-surface border-[#1dc964]"
+                        : "bg-surface border-border hover:border-[#1dc964]"
                     }`}
                   >
                     <img
                       src={mentor.image}
                       alt={mentor.name}
-                      className="w-12 h-12 rounded-full mb-3 border border-[#30363d]"
+                      className="w-12 h-12 rounded-full mb-3 border border-border"
                     />
                     <h3 className="text-white font-semibold">{mentor.name}</h3>
-                    <p className="text-[#9eb7a9] text-sm">{mentor.specialty}</p>
+                    <p className="text-text-secondary text-sm">{mentor.specialty}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-yellow-400">
                         ⭐ {mentor.rating}
                       </span>
-                      <span className="text-[#9eb7a9] text-xs">
+                      <span className="text-text-secondary text-xs">
                         ({mentor.reviews})
                       </span>
                     </div>
@@ -128,18 +128,18 @@ export default function BookSession() {
               {/* Booking Form */}
               <div className="lg:col-span-2">
                 {selectedMentor ? (
-                  <div className="p-6 bg-[#161b22] border border-[#30363d] rounded-xl">
-                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-[#30363d]">
+                  <div className="p-6 bg-surface border border-border rounded-xl">
+                    <div className="flex items-center gap-4 mb-6 pb-6 border-b border-border">
                       <img
                         src={selectedMentor.image}
                         alt={selectedMentor.name}
-                        className="w-14 h-14 rounded-full border border-[#30363d]"
+                        className="w-14 h-14 rounded-full border border-border"
                       />
                       <div>
                         <h3 className="text-white font-bold text-lg">
                           {selectedMentor.name}
                         </h3>
-                        <p className="text-[#9eb7a9]">
+                        <p className="text-text-secondary">
                           {selectedMentor.specialty}
                         </p>
                       </div>
@@ -154,7 +154,7 @@ export default function BookSession() {
                         type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
-                        className="w-full p-3 bg-[#0d1117] text-white rounded-lg border border-[#30363d] focus:border-[#1dc964] focus:outline-none"
+                        className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none"
                       />
                     </div>
 
@@ -170,8 +170,8 @@ export default function BookSession() {
                             onClick={() => setSelectedTime(slot)}
                             className={`p-3 rounded-lg font-semibold transition-colors border ${
                               selectedTime === slot
-                                ? "bg-[#1dc964] text-[#112118] border-[#1dc964]"
-                                : "bg-[#0d1117] text-white border-[#30363d] hover:border-[#1dc964]"
+                                ? "bg-primary text-white border-[#1dc964]"
+                                : "bg-background text-white border-border hover:border-[#1dc964]"
                             }`}
                           >
                             {slot}
@@ -188,7 +188,7 @@ export default function BookSession() {
                       <select
                         value={duration}
                         onChange={(e) => setDuration(e.target.value)}
-                        className="w-full p-3 bg-[#0d1117] text-white rounded-lg border border-[#30363d] focus:border-[#1dc964] focus:outline-none"
+                        className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none"
                       >
                         <option value="0.5">30 minutes</option>
                         <option value="1">1 hour</option>
@@ -207,14 +207,14 @@ export default function BookSession() {
                         value={topic}
                         onChange={(e) => setTopic(e.target.value)}
                         placeholder="e.g., React hooks, API design..."
-                        className="w-full p-3 bg-[#0d1117] text-white rounded-lg border border-[#30363d] focus:border-[#1dc964] focus:outline-none placeholder:text-[#9eb7a9]"
+                        className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none placeholder:text-text-secondary"
                       />
                     </div>
 
                     {/* Cost Summary */}
-                    <div className="p-4 bg-[#0d1117] rounded-lg mb-6">
+                    <div className="p-4 bg-background rounded-lg mb-6">
                       <div className="flex justify-between items-center">
-                        <span className="text-[#9eb7a9]">
+                        <span className="text-text-secondary">
                           ${selectedMentor.hourlyRate}/hr × {duration} hour(s)
                         </span>
                         <span className="text-white font-bold text-lg">
@@ -227,7 +227,7 @@ export default function BookSession() {
                     <div className="flex gap-4">
                       <button
                         onClick={handleBookSession}
-                        className="flex items-center gap-2 px-6 py-3 bg-[#1dc964] text-[#112118] font-bold rounded-lg hover:opacity-90 transition-opacity flex-1"
+                        className="flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-lg hover:opacity-90 transition-opacity flex-1"
                       >
                         <span className="material-symbols-outlined">
                           calendar_add_on
@@ -243,11 +243,11 @@ export default function BookSession() {
                     </div>
                   </div>
                 ) : (
-                  <div className="p-6 bg-[#161b22] border border-[#30363d] rounded-xl text-center">
-                    <span className="material-symbols-outlined text-6xl text-[#9eb7a9] mb-4 inline-block">
+                  <div className="p-6 bg-surface border border-border rounded-xl text-center">
+                    <span className="material-symbols-outlined text-6xl text-text-secondary mb-4 inline-block">
                       person_add
                     </span>
-                    <p className="text-[#9eb7a9]">
+                    <p className="text-text-secondary">
                       Select a mentor to start booking
                     </p>
                   </div>

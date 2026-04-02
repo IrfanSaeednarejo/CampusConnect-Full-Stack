@@ -30,7 +30,7 @@ function SocietyActionBlock({ society, tab }) {
           <button
             onClick={() => navigate(`/student/societies/${society._id}`)}
             disabled={isLoading}
-            className="flex-1 bg-[#238636] hover:bg-[#2ea043] text-white py-2 rounded-lg font-bold text-sm transition-colors flex items-center justify-center gap-2"
+            className="flex-1 bg-primary hover:bg-primary-hover text-white py-2 rounded-lg font-bold text-sm transition-colors flex items-center justify-center gap-2"
           >
             <span className="material-symbols-outlined text-[18px]">visibility</span>
             View Details
@@ -68,7 +68,7 @@ function SocietyActionBlock({ society, tab }) {
             onConfirm: () => dispatch(joinSociety(society._id))
           })}
           disabled={isLoading}
-          className="w-full bg-[#238636] hover:bg-[#2ea043] text-white py-2 rounded-lg font-bold text-sm transition-colors flex items-center justify-center gap-2"
+          className="w-full bg-primary hover:bg-primary-hover text-white py-2 rounded-lg font-bold text-sm transition-colors flex items-center justify-center gap-2"
         >
           {isLoading ? (
             <span className="material-symbols-outlined text-[18px] animate-spin">sync</span>
@@ -111,34 +111,34 @@ export default function StudentSocieties() {
   else if (activeTab === "discover") displaySocieties = discoverSocieties;
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen pb-12">
+    <div className="w-full bg-background text-text-primary min-h-screen pb-12">
 
       {/* Main Content */}
       <main className="px-4 sm:px-10 lg:px-20 py-5 md:py-10 max-w-6xl mx-auto">
         <div className="mb-8 flex flex-col gap-2">
           <h1 className="text-4xl font-bold text-white">Societies & Clubs</h1>
-          <p className="text-[#8b949e]">Join communities and make meaningful connections in your campus.</p>
+          <p className="text-text-secondary">Join communities and make meaningful connections in your campus.</p>
         </div>
 
         {/* Filter Tabs */}
-        <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-2 mb-8 inline-flex flex-wrap gap-2">
+        <div className="bg-surface border border-border rounded-lg p-2 mb-8 inline-flex flex-wrap gap-2">
           <button
             onClick={() => setActiveTab("all")}
-            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "all" ? "bg-[#238636] text-white" : "text-[#c9d1d9] hover:bg-[#30363d]"
+            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "all" ? "bg-primary text-white" : "text-text-primary hover:bg-[#30363d]"
               }`}
           >
             All Societies ({allSocieties.length})
           </button>
           <button
             onClick={() => setActiveTab("my")}
-            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "my" ? "bg-[#238636] text-white" : "text-[#c9d1d9] hover:bg-[#30363d]"
+            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "my" ? "bg-primary text-white" : "text-text-primary hover:bg-[#30363d]"
               }`}
           >
             My Societies ({mySocieties.length})
           </button>
           <button
             onClick={() => setActiveTab("discover")}
-            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "discover" ? "bg-[#238636] text-white" : "text-[#c9d1d9] hover:bg-[#30363d]"
+            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "discover" ? "bg-primary text-white" : "text-text-primary hover:bg-[#30363d]"
               }`}
           >
             Discover ({discoverSocieties.length})
@@ -149,17 +149,17 @@ export default function StudentSocieties() {
         {status === 'loading' && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map(i => (
-              <div key={i} className="animate-pulse bg-[#161b22] h-64 rounded-lg border border-[#30363d]"></div>
+              <div key={i} className="animate-pulse bg-surface h-64 rounded-lg border border-border"></div>
             ))}
           </div>
         )}
 
         {/* Societies Grid */}
         {status === 'succeeded' && displaySocieties.length === 0 ? (
-          <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-16 flex flex-col items-center justify-center text-center">
-            <span className="material-symbols-outlined text-6xl text-[#8b949e] mb-4">search_off</span>
+          <div className="bg-surface border border-border rounded-lg p-16 flex flex-col items-center justify-center text-center">
+            <span className="material-symbols-outlined text-6xl text-text-secondary mb-4">search_off</span>
             <h3 className="text-xl font-bold text-white mb-2">No societies found</h3>
-            <p className="text-[#8b949e]">There are no societies in this category for your campus.</p>
+            <p className="text-text-secondary">There are no societies in this category for your campus.</p>
           </div>
         ) : status === 'succeeded' ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -168,47 +168,47 @@ export default function StudentSocieties() {
               return (
                 <div
                   key={society._id}
-                  className="bg-[#161b22] border border-[#30363d] rounded-xl p-5 flex flex-col hover:border-[#238636]/50 transition-colors relative"
+                  className="bg-surface border border-border rounded-xl p-5 flex flex-col hover:border-primary/50 transition-colors relative"
                 >
                   {/* Category Badge */}
-                  <span className="absolute top-5 right-5 bg-[#30363d] text-[#c9d1d9] text-xs px-2 py-1 rounded font-medium">
+                  <span className="absolute top-5 right-5 bg-[#30363d] text-text-primary text-xs px-2 py-1 rounded font-medium">
                     {society.category}
                   </span>
 
                   {/* Society Header */}
                   <div className="flex items-center gap-4 mb-4">
                     {imgUrl?.length < 5 ? (
-                      <div className="w-14 h-14 rounded-full bg-[#0d1117] flex flex-shrink-0 items-center justify-center text-3xl border border-[#30363d]">
+                      <div className="w-14 h-14 rounded-full bg-background flex flex-shrink-0 items-center justify-center text-3xl border border-border">
                         {imgUrl}
                       </div>
                     ) : (
                       <div
-                        className="w-14 h-14 rounded-full bg-cover bg-center flex flex-shrink-0 border border-[#30363d]"
+                        className="w-14 h-14 rounded-full bg-cover bg-center flex flex-shrink-0 border border-border"
                         style={{ backgroundImage: `url("${imgUrl || '/placeholder-society.png'}")` }}
                       />
                     )}
                     <div className="flex flex-col pr-12">
                       <h3 className="text-white font-bold text-lg leading-tight">{society.name}</h3>
                       {society.userRole && (
-                        <span className="text-[#238636] text-xs font-bold mt-1 uppercase tracking-wider">
+                        <span className="text-primary text-xs font-bold mt-1 uppercase tracking-wider">
                           Role: {society.userRole}
                         </span>
                       )}
                     </div>
                   </div>
 
-                  <p className="text-[#8b949e] text-sm mb-6 flex-1">
+                  <p className="text-text-secondary text-sm mb-6 flex-1">
                     {society.description}
                   </p>
 
                   {/* Stats */}
                   <div className="flex items-center gap-6 mt-auto">
-                    <div className="flex items-center gap-1.5 text-[#c9d1d9] text-sm font-medium">
-                      <span className="material-symbols-outlined text-[18px] text-[#8b949e]">groups</span>
+                    <div className="flex items-center gap-1.5 text-text-primary text-sm font-medium">
+                      <span className="material-symbols-outlined text-[18px] text-text-secondary">groups</span>
                       {society.memberCount}
                     </div>
-                    <div className="flex items-center gap-1.5 text-[#c9d1d9] text-sm font-medium">
-                      <span className="material-symbols-outlined text-[18px] text-[#8b949e]">event</span>
+                    <div className="flex items-center gap-1.5 text-text-primary text-sm font-medium">
+                      <span className="material-symbols-outlined text-[18px] text-text-secondary">event</span>
                       {society.eventCount}
                     </div>
                   </div>

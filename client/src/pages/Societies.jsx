@@ -118,8 +118,8 @@ export default function Societies() {
   };
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
-      <div className="max-w-[960px] mx-auto">
+    <div className="w-full bg-background text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-10">
           <SectionHeader

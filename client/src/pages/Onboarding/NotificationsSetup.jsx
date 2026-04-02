@@ -27,12 +27,12 @@ export default function NotificationsSetup() {
 
   return (
     <OnboardingShell>
-      <OnboardingCard className="w-full max-w-[560px] flex flex-col gap-8" padding="p-6 sm:p-8">
+      <OnboardingCard className="w-full max-w-xl flex flex-col gap-8" padding="p-6 sm:p-8">
         {/* Progress Bar */}
         <OnboardingProgress
           currentStep={3}
           totalSteps={4}
-          textClassName="text-[#8b949e] text-sm font-medium"
+          textClassName="text-text-secondary text-sm font-medium"
         />
 
         {/* Page Heading */}
@@ -40,7 +40,7 @@ export default function NotificationsSetup() {
           <p className="text-[#e6edf3] text-3xl font-black tracking-[-0.03em]">
             Enable Notifications
           </p>
-          <p className="text-[#8b949e] text-base">
+          <p className="text-text-secondary text-base">
             Get handy alerts for deadlines, events, and updates.
           </p>
         </div>

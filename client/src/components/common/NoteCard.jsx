@@ -17,7 +17,7 @@ export default function NoteCard({
             {title}
           </h3>
           {course && (
-            <span className="text-[#17cf60] text-xs font-medium bg-[#17cf60]/10 px-2 py-1 rounded ml-2 whitespace-nowrap">
+            <span className="text-[#17cf60] text-xs font-medium bg-primary/10 px-2 py-1 rounded ml-2 whitespace-nowrap">
               {course}
             </span>
           )}

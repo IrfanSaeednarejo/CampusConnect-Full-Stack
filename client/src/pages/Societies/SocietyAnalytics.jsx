@@ -50,7 +50,7 @@ export default function SocietyAnalytics() {
   }, [selectedSocietyId]);
 
   return (
-    <div className="flex flex-col min-h-screen overflow-y-auto bg-[#0d1117]">
+    <div className="flex flex-col min-h-screen overflow-y-auto bg-background">
       {/* Header */}
       <PageHeader
         title="Society Analytics"
@@ -63,8 +63,8 @@ export default function SocietyAnalytics() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
         {/* Select Society & Time Range Selector */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
-          <div className="flex bg-[#161b22] border border-[#30363d] rounded-lg items-center px-4 py-2 w-full sm:w-auto">
-             <span className="material-symbols-outlined text-[#8b949e] mr-3">admin_panel_settings</span>
+          <div className="flex bg-surface border border-border rounded-lg items-center px-4 py-2 w-full sm:w-auto">
+             <span className="material-symbols-outlined text-text-secondary mr-3">admin_panel_settings</span>
              <select
                className="bg-transparent text-white font-medium outline-none cursor-pointer"
                value={selectedSocietyId}
@@ -72,22 +72,22 @@ export default function SocietyAnalytics() {
              >
                {societies.length === 0 && <option value="">No societies found</option>}
                {societies.map(soc => (
-                 <option key={soc._id || soc.id} value={soc._id || soc.id} className="bg-[#161b22]">
+                 <option key={soc._id || soc.id} value={soc._id || soc.id} className="bg-surface">
                    {soc.name}
                  </option>
                ))}
              </select>
           </div>
           
-          <div className="flex gap-2 bg-[#161b22] border border-[#30363d] rounded-lg p-1 w-full sm:w-auto overflow-x-auto">
+          <div className="flex gap-2 bg-surface border border-border rounded-lg p-1 w-full sm:w-auto overflow-x-auto">
             {["weekly", "monthly", "yearly"].map((range) => (
               <button
                 key={range}
                 onClick={() => setTimeRange(range)}
                 className={`px-4 py-2 rounded-md text-sm font-medium capitalize transition-colors flex-1 sm:flex-none ${
                   timeRange === range
-                    ? "bg-[#238636] text-white"
-                    : "text-[#8b949e] hover:text-white"
+                    ? "bg-primary text-white"
+                    : "text-text-secondary hover:text-white"
                 }`}
               >
                 {range}
@@ -101,7 +101,7 @@ export default function SocietyAnalytics() {
              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1dc964]"></div>
           </div>
         ) : !stats ? (
-          <div className="text-center py-20 text-[#8b949e]">
+          <div className="text-center py-20 text-text-secondary">
              Please select a society to view analytics.
           </div>
         ) : (
@@ -144,14 +144,14 @@ export default function SocietyAnalytics() {
                     return (
                       <div key={index}>
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-[#8b949e] capitalize">
+                          <span className="text-sm font-medium text-text-secondary capitalize">
                             {statusKey}
                           </span>
                           <span className="text-sm font-bold text-white">
                             {count}
                           </span>
                         </div>
-                        <div className="h-3 bg-[#161b22] rounded-full overflow-hidden">
+                        <div className="h-3 bg-surface rounded-full overflow-hidden">
                           <div
                             className="h-full bg-gradient-to-r from-[#238636] to-[#2ea043] rounded-full transition-all duration-500"
                             style={{
@@ -161,7 +161,7 @@ export default function SocietyAnalytics() {
                         </div>
                       </div>
                     );
-                  }) : <p className="text-[#8b949e] text-sm">No status data available</p>}
+                  }) : <p className="text-text-secondary text-sm">No status data available</p>}
                 </div>
               </Card>
 
@@ -177,14 +177,14 @@ export default function SocietyAnalytics() {
                     return (
                       <div key={index}>
                         <div className="flex items-center justify-between mb-2">
-                          <span className="text-sm font-medium text-[#8b949e] capitalize">
+                          <span className="text-sm font-medium text-text-secondary capitalize">
                             {roleKey.replace('-', ' ')}
                           </span>
                           <span className="text-sm font-bold text-white">
                             {count} ({percentage}%)
                           </span>
                         </div>
-                        <div className="h-3 bg-[#161b22] rounded-full overflow-hidden">
+                        <div className="h-3 bg-surface rounded-full overflow-hidden">
                           <div
                             className="h-full bg-gradient-to-r from-[#238636] to-[#2ea043] rounded-full transition-all duration-500"
                             style={{ width: `${percentage}%` }}
@@ -192,7 +192,7 @@ export default function SocietyAnalytics() {
                         </div>
                       </div>
                     );
-                  }) : <p className="text-[#8b949e] text-sm">No role data available</p>}
+                  }) : <p className="text-text-secondary text-sm">No role data available</p>}
                 </div>
               </Card>
             </div>

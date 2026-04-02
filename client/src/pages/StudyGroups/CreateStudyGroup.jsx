@@ -66,7 +66,7 @@ export default function CreateStudyGroup() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
+    <div className="min-h-screen bg-background text-text-primary">
       {/* Header */}
       <PageHeader
         title="Create Study Group"

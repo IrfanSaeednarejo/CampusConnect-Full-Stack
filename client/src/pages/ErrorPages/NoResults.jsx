@@ -106,7 +106,7 @@ export default function NoResults() {
 
         {/* Main Content: No Results Message */}
         <main className="flex flex-1 justify-center items-center py-10 px-4 sm:px-6 lg:px-8">
-          <div className="layout-content-container flex flex-col max-w-[960px] flex-1">
+          <div className="layout-content-container flex flex-col max-w-4xl flex-1">
             <div className="flex flex-col px-4 py-6 text-center">
               <div className="flex flex-col items-center gap-6">
                 {/* Icon: Search Off */}
@@ -115,11 +115,11 @@ export default function NoResults() {
                 </div>
 
                 {/* Text */}
-                <div className="flex max-w-[480px] flex-col items-center gap-2">
+                <div className="flex max-w-lg flex-col items-center gap-2">
                   <h1 className="text-text-primary-dark text-2xl sm:text-3xl font-bold leading-tight tracking-tight">
                     No Results Found
                   </h1>
-                  <p className="text-text-secondary-dark text-base font-normal leading-normal max-w-[480px] text-center">
+                  <p className="text-text-secondary-dark text-base font-normal leading-normal max-w-lg text-center">
                     We couldn’t find anything matching your search. Try
                     adjusting your filters or using different keywords.
                   </p>
@@ -129,14 +129,14 @@ export default function NoResults() {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-4">
                   <button
                     // Removed onClick handler
-                    className="flex w-full sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 px-5 bg-border-dark hover:bg-text-secondary-dark/80 text-text-primary-dark text-sm font-bold leading-normal tracking-[0.015em] transition-colors"
+                    className="flex w-full sm:w-auto min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 px-5 bg-border-dark hover:bg-text-secondary-dark/80 text-text-primary-dark text-sm font-bold leading-normal tracking-[0.015em] transition-colors"
                   >
                     <span className="truncate">Clear Filters</span>
                   </button>
 
                   <button
                     // Removed onClick handler
-                    className="flex w-full sm:w-auto min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 px-5 bg-green-500 hover:bg-primary/90 text-white text-sm font-bold leading-normal tracking-[0.015em] transition-colors"
+                    className="flex w-full sm:w-auto min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 px-5 bg-green-500 hover:bg-primary/90 text-white text-sm font-bold leading-normal tracking-[0.015em] transition-colors"
                   >
                     <span className="truncate">Try a New Search</span>
                   </button>

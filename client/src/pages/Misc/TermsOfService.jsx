@@ -7,7 +7,7 @@ import LegalSection from "../../components/misc/LegalSection";
 
 export default function TermsOfService() {
   return (
-    <div className="font-display bg-[#0d1117] min-h-screen flex flex-col relative overflow-x-hidden">
+    <div className="font-display bg-background min-h-screen flex flex-col relative overflow-x-hidden">
 
       {/* Main Content */}
       <PageContent maxWidth="max-w-4xl" className="py-8">
@@ -18,8 +18,8 @@ export default function TermsOfService() {
           meta="Last updated: March 23, 2026"
           className="p-4"
           titleClassName="text-white"
-          subtitleClassName="text-[#8b949e]"
-          metaClassName="text-[#8b949e] pt-1 border-b border-white/10 pb-3"
+          subtitleClassName="text-text-secondary"
+          metaClassName="text-text-secondary pt-1 border-b border-white/10 pb-3"
         />
 
         {/* Sections */}
@@ -27,8 +27,8 @@ export default function TermsOfService() {
           <LegalSection
             title="1. Introduction"
             content="Welcome to CampusConnect. These Terms of Service govern your use of our website and services. By accessing or using the service, you agree to be bound by these Terms. If you disagree with any part of the terms, you do not have permission to access the service."
-            titleClassName="text-[#c9d1d9] text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
-            contentClassName="text-[#c9d1d9] text-base px-4 pt-1 pb-3"
+            titleClassName="text-text-primary text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
+            contentClassName="text-text-primary text-base px-4 pt-1 pb-3"
           />
           <LegalSection
             title="2. User Responsibilities"
@@ -39,9 +39,9 @@ export default function TermsOfService() {
               "Use the services in a professional and respectful manner.",
               "Not engage in any activity that is illegal, harmful, or fraudulent.",
             ]}
-            titleClassName="text-[#c9d1d9] text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
-            contentClassName="text-[#c9d1d9] text-base px-4 pt-1 pb-3"
-            listClassName="list-disc pl-10 space-y-2 text-[#c9d1d9]"
+            titleClassName="text-text-primary text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
+            contentClassName="text-text-primary text-base px-4 pt-1 pb-3"
+            listClassName="list-disc pl-10 space-y-2 text-text-primary"
           />
           <LegalSection
             title="3. Community Guidelines"
@@ -52,27 +52,27 @@ export default function TermsOfService() {
               "Sharing content that infringes on intellectual property rights.",
               "Impersonating another person or entity.",
             ]}
-            titleClassName="text-[#c9d1d9] text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
-            contentClassName="text-[#c9d1d9] text-base px-4 pt-1 pb-3"
-            listClassName="list-disc pl-10 space-y-2 text-[#c9d1d9]"
+            titleClassName="text-text-primary text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
+            contentClassName="text-text-primary text-base px-4 pt-1 pb-3"
+            listClassName="list-disc pl-10 space-y-2 text-text-primary"
           />
           <LegalSection
             title="4. Intellectual Property"
             content="By submitting content, you grant CampusConnect a worldwide, non-exclusive, royalty-free license to use, copy, and distribute such content."
-            titleClassName="text-[#c9d1d9] text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
-            contentClassName="text-[#c9d1d9] text-base px-4 pt-1 pb-3"
+            titleClassName="text-text-primary text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
+            contentClassName="text-text-primary text-base px-4 pt-1 pb-3"
           />
           <LegalSection
             title="5. Account Termination"
             content="We may suspend or terminate your account at any time for violations or risks, with reasonable notification."
-            titleClassName="text-[#c9d1d9] text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
-            contentClassName="text-[#c9d1d9] text-base px-4 pt-1 pb-3"
+            titleClassName="text-text-primary text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
+            contentClassName="text-text-primary text-base px-4 pt-1 pb-3"
           />
           <LegalSection
             title="6. Disclaimers and Limitation of Liability"
             content="Services are provided 'AS IS' without warranties. CampusConnect is not liable for any indirect or consequential damages."
-            titleClassName="text-[#c9d1d9] text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
-            contentClassName="text-[#c9d1d9] text-base px-4 pt-1 pb-3"
+            titleClassName="text-text-primary text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
+            contentClassName="text-text-primary text-base px-4 pt-1 pb-3"
           />
           <LegalSection
             title="7. Contact Information"
@@ -88,8 +88,8 @@ export default function TermsOfService() {
                 .
               </span>
             }
-            titleClassName="text-[#c9d1d9] text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
-            contentClassName="text-[#c9d1d9] text-base px-4 pt-1 pb-3"
+            titleClassName="text-text-primary text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
+            contentClassName="text-text-primary text-base px-4 pt-1 pb-3"
           />
         </div>
       </PageContent>

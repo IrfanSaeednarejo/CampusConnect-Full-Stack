@@ -149,16 +149,16 @@ export default function ChatList() {
   };
 
   return (
-    <div className="flex h-screen bg-[#0d1117] overflow-hidden">
+    <div className="flex h-screen bg-background overflow-hidden">
       <main className="flex-1 flex w-full relative p-2 sm:p-4 lg:p-6 gap-4">
         
         {/* LEFT PANEL: Conversation List */}
-        <div className={`w-full lg:w-80 flex flex-col border border-[#30363d] rounded-2xl glass backdrop-blur-xl overflow-hidden transition-all duration-300 shrink-0 ${activeConversationId ? 'hidden lg:flex' : 'flex'}`}>
-          <div className="p-5 border-b border-[#30363d] flex items-center justify-between bg-[#161b22]/30">
+        <div className={`w-full lg:w-80 flex flex-col border border-border rounded-2xl glass backdrop-blur-xl overflow-hidden transition-all duration-300 shrink-0 ${activeConversationId ? 'hidden lg:flex' : 'flex'}`}>
+          <div className="p-5 border-b border-border flex items-center justify-between bg-surface/30">
             <h1 className="text-xl font-extrabold text-white tracking-tight">Messages</h1>
             <button 
               onClick={() => setIsModalOpen(true)}
-              className="w-8 h-8 rounded-full bg-[#21262d] flex items-center justify-center text-[#c9d1d9] hover:text-white hover:bg-[#30363d] transition-colors shadow-sm border border-[#30363d]"
+              className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-text-primary hover:text-white hover:bg-[#30363d] transition-colors shadow-sm border border-border"
             >
               <span className="material-symbols-outlined text-[20px]">edit_square</span>
             </button>
@@ -166,13 +166,13 @@ export default function ChatList() {
 
           <div className="p-3">
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e] text-[20px]">search</span>
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary text-[20px]">search</span>
               <input
                 type="text"
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#161b22] border border-[#30363d] text-white pl-10 pr-4 py-2 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-surface border border-border text-white pl-10 pr-4 py-2 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors"
               />
             </div>
           </div>
@@ -180,17 +180,17 @@ export default function ChatList() {
           <div className="flex-1 overflow-y-auto custom-scrollbar">
             {status === 'loading' && conversations.length === 0 ? (
               <div className="flex justify-center py-10">
-                <span className="material-symbols-outlined animate-spin text-[#8b949e]">refresh</span>
+                <span className="material-symbols-outlined animate-spin text-text-secondary">refresh</span>
               </div>
             ) : filteredConversations.length > 0 ? (
               filteredConversations.map(conv => (
                 <div 
                   key={conv.id}
                   onClick={() => handleSelectConversation(conv)}
-                  className={`flex items-start gap-4 p-4 cursor-pointer border-b border-[#30363d]/30 transition-all duration-200 ${
+                  className={`flex items-start gap-4 p-4 cursor-pointer border-b border-border/30 transition-all duration-200 ${
                     activeConversationId === conv.id 
                       ? 'bg-blue-600/15 border-l-4 border-l-blue-500 shadow-[inset_0_0_20px_rgba(59,130,246,0.05)]' 
-                      : 'hover:bg-[#161b22]/50 hover:translate-x-1'
+                      : 'hover:bg-surface/50 hover:translate-x-1'
                   }`}
                 >
                   <div className="relative flex-shrink-0">
@@ -204,15 +204,15 @@ export default function ChatList() {
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center mb-1">
-                      <h4 className={`text-sm truncate pr-2 ${conv.unreadCount > 0 ? 'text-white font-bold' : 'text-[#c9d1d9] font-semibold'}`}>
+                      <h4 className={`text-sm truncate pr-2 ${conv.unreadCount > 0 ? 'text-white font-bold' : 'text-text-primary font-semibold'}`}>
                         {conv.participantName}
                       </h4>
-                      <span className={`text-[11px] whitespace-nowrap ${conv.unreadCount > 0 ? 'text-blue-400 font-bold' : 'text-[#8b949e]'}`}>
+                      <span className={`text-[11px] whitespace-nowrap ${conv.unreadCount > 0 ? 'text-blue-400 font-bold' : 'text-text-secondary'}`}>
                         {timeAgo(conv.lastMessageAt)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between gap-2">
-                       <p className={`text-xs truncate ${conv.unreadCount > 0 ? 'text-[#c9d1d9] font-medium' : 'text-[#8b949e]'}`}>
+                       <p className={`text-xs truncate ${conv.unreadCount > 0 ? 'text-text-primary font-medium' : 'text-text-secondary'}`}>
                          {conv.lastMessage || 'New conversation'}
                        </p>
                        {conv.unreadCount > 0 && (
@@ -225,7 +225,7 @@ export default function ChatList() {
                 </div>
               ))
             ) : (
-              <div className="text-center py-10 text-[#8b949e] px-4">
+              <div className="text-center py-10 text-text-secondary px-4">
                 <p className="text-sm">No conversations found.</p>
               </div>
             )}
@@ -233,11 +233,11 @@ export default function ChatList() {
         </div>
 
         {/* RIGHT PANEL: Chat Window */}
-        <div className={`flex-1 flex flex-col border border-[#30363d] rounded-2xl glass backdrop-blur-xl overflow-hidden relative ${!activeConversationId ? 'hidden lg:flex' : 'flex'}`}>
+        <div className={`flex-1 flex flex-col border border-border rounded-2xl glass backdrop-blur-xl overflow-hidden relative ${!activeConversationId ? 'hidden lg:flex' : 'flex'}`}>
           {!activeConversationId ? (
-            <div className="flex-1 flex flex-col items-center justify-center text-[#8b949e] p-8 text-center bg-[#161b22]/10">
-              <div className="w-24 h-24 mb-6 rounded-3xl bg-[#238636]/10 border border-[#238636]/20 flex items-center justify-center shadow-2xl shadow-[#238636]/5 animate-pulse">
-                <span className="material-symbols-outlined text-5xl text-[#238636]">forum</span>
+            <div className="flex-1 flex flex-col items-center justify-center text-text-secondary p-8 text-center bg-surface/10">
+              <div className="w-24 h-24 mb-6 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-2xl shadow-[#238636]/5 animate-pulse">
+                <span className="material-symbols-outlined text-5xl text-primary">forum</span>
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Your Inbox</h3>
               <p className="max-w-xs text-sm leading-relaxed">
@@ -245,7 +245,7 @@ export default function ChatList() {
               </p>
               <button 
                 onClick={() => setIsModalOpen(true)}
-                className="mt-8 px-6 py-2.5 bg-[#238636] text-white rounded-xl font-bold hover:bg-[#2ea043] transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[#238636]/20"
+                className="mt-8 px-6 py-2.5 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[#238636]/20"
               >
                 Start a New Chat
               </button>
@@ -253,11 +253,11 @@ export default function ChatList() {
           ) : (
             <>
               {/* Chat Header */}
-              <div className="h-20 border-b border-[#30363d] bg-[#161b22]/40 flex items-center px-6 justify-between shrink-0">
+              <div className="h-20 border-b border-border bg-surface/40 flex items-center px-6 justify-between shrink-0">
                 <div className="flex items-center gap-4">
                   <button 
                     onClick={() => dispatch(setActiveConversation(null))}
-                    className="lg:hidden w-10 h-10 rounded-xl hover:bg-[#30363d] flex items-center justify-center text-[#c9d1d9] transition-colors"
+                    className="lg:hidden w-10 h-10 rounded-xl hover:bg-[#30363d] flex items-center justify-center text-text-primary transition-colors"
                   >
                     <span className="material-symbols-outlined text-[24px]">arrow_back</span>
                   </button>
@@ -274,8 +274,8 @@ export default function ChatList() {
                       {activeConversation?.participantName}
                     </h2>
                     <div className="flex items-center gap-2">
-                       <span className="text-[#8b949e] text-[11px] font-medium">{activeConversation?.participantRole}</span>
-                       <span className={`text-[10px] ${activeConversation?.isOnline ? 'text-green-500' : 'text-[#8b949e]'}`}>
+                       <span className="text-text-secondary text-[11px] font-medium">{activeConversation?.participantRole}</span>
+                       <span className={`text-[10px] ${activeConversation?.isOnline ? 'text-green-500' : 'text-text-secondary'}`}>
                          {activeConversation?.isOnline ? 'Online' : 'Offline'}
                        </span>
                     </div>
@@ -285,7 +285,7 @@ export default function ChatList() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => addNotification({ type: 'info', title: 'Video Calls Coming Soon', message: 'Video calling will be available in a future update.' })}
-                    className="w-8 h-8 rounded-full hover:bg-[#30363d] flex items-center justify-center text-[#c9d1d9] transition-colors"
+                    className="w-8 h-8 rounded-full hover:bg-[#30363d] flex items-center justify-center text-text-primary transition-colors"
                     title="Video Call"
                   >
                     <span className="material-symbols-outlined text-[20px]">videocam</span>
@@ -293,30 +293,30 @@ export default function ChatList() {
                   <div className="relative" ref={menuRef}>
                     <button
                       onClick={() => setMenuOpen(prev => !prev)}
-                      className="w-8 h-8 rounded-full hover:bg-[#30363d] flex items-center justify-center text-[#c9d1d9] transition-colors"
+                      className="w-8 h-8 rounded-full hover:bg-[#30363d] flex items-center justify-center text-text-primary transition-colors"
                       title="More options"
                     >
                       <span className="material-symbols-outlined text-[20px]">more_vert</span>
                     </button>
                     {menuOpen && (
-                      <div className="absolute right-0 top-10 bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl z-10 w-48 py-2">
+                      <div className="absolute right-0 top-10 bg-surface border border-border rounded-xl shadow-2xl z-10 w-48 py-2">
                         <button
                           onClick={() => { setMenuOpen(false); navigate(`/student/academic-network/${activeConversation?.participantId}`); }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-[#c9d1d9] hover:bg-[#21262d] transition-colors flex items-center gap-2"
+                          className="w-full text-left px-4 py-2.5 text-sm text-text-primary hover:bg-surface-hover transition-colors flex items-center gap-2"
                         >
                           <span className="material-symbols-outlined text-[16px]">person</span>
                           View Profile
                         </button>
                         <button
                           onClick={() => { setMenuOpen(false); if (window.confirm('Clear all messages in this chat?')) { dispatch(clearConversationMessages(activeConversationId)); addNotification({ type: 'info', title: 'Chat Cleared', message: 'Messages have been cleared from this conversation.' }); } }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-[#c9d1d9] hover:bg-[#21262d] transition-colors flex items-center gap-2"
+                          className="w-full text-left px-4 py-2.5 text-sm text-text-primary hover:bg-surface-hover transition-colors flex items-center gap-2"
                         >
                           <span className="material-symbols-outlined text-[16px]">delete_sweep</span>
                           Clear Chat
                         </button>
                         <button
                           onClick={() => { setMenuOpen(false); addNotification({ type: 'info', title: 'User Blocked', message: `${activeConversation?.participantName} has been blocked.` }); }}
-                          className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-[#21262d] transition-colors flex items-center gap-2"
+                          className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-surface-hover transition-colors flex items-center gap-2"
                         >
                           <span className="material-symbols-outlined text-[16px]">block</span>
                           Block User
@@ -334,7 +334,7 @@ export default function ChatList() {
                 style={{ backgroundImage: 'linear-gradient(rgba(13, 17, 23, 0.95), rgba(13, 17, 23, 0.95)), url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%2330363d\' fill-opacity=\'0.2\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}
               >
                 {activeMessages.length === 0 ? (
-                  <div className="text-center py-10 mt-20 text-[#8b949e] text-sm bg-[#161b22] max-w-xs mx-auto rounded-lg border border-[#30363d] px-4">
+                  <div className="text-center py-10 mt-20 text-text-secondary text-sm bg-surface max-w-xs mx-auto rounded-lg border border-border px-4">
                     Send a message to start the conversation with {activeConversation?.participantName.split(' ')[0]}.
                   </div>
                 ) : (
@@ -363,14 +363,14 @@ export default function ChatList() {
                               className={`
                                 relative px-3 py-2 text-[15px] shadow-sm
                                 ${isMine 
-                                  ? 'bg-[#238636] text-white rounded-2xl rounded-tr-sm' 
-                                  : 'bg-[#21262d] text-[#c9d1d9] rounded-2xl border border-[#30363d] rounded-tl-sm'
+                                  ? 'bg-primary text-white rounded-2xl rounded-tr-sm' 
+                                  : 'bg-surface-hover text-text-primary rounded-2xl border border-border rounded-tl-sm'
                                 }
                               `}
                             >
                               <p className="whitespace-pre-wrap leading-snug tracking-wide">{msg.content}</p>
                               
-                              <div className={`flex items-center justify-end gap-1 mt-1 font-mono text-[10px] ${isMine ? 'text-green-100' : 'text-[#8b949e]'}`}>
+                              <div className={`flex items-center justify-end gap-1 mt-1 font-mono text-[10px] ${isMine ? 'text-green-100' : 'text-text-secondary'}`}>
                                 {formatDate(msg.timestamp, 'time')}
                                 {isMine && <MessageStatusIcon status={msg.status} />}
                               </div>
@@ -384,12 +384,12 @@ export default function ChatList() {
               </div>
 
               {/* Chat Input Area */}
-              <div className="bg-[#161b22]/40 border-t border-[#30363d] p-4 shrink-0">
+              <div className="bg-surface/40 border-t border-border p-4 shrink-0">
                 <form 
                   onSubmit={handleSendMessage}
-                  className="max-w-4xl mx-auto flex items-end gap-3 bg-[#0d1117]/60 glass border border-[#30363d] rounded-2xl p-2 focus-within:border-blue-500/50 focus-within:ring-2 focus-within:ring-blue-500/10 transition-all"
+                  className="max-w-4xl mx-auto flex items-end gap-3 bg-background/60 glass border border-border rounded-2xl p-2 focus-within:border-blue-500/50 focus-within:ring-2 focus-within:ring-blue-500/10 transition-all"
                 >
-                  <button type="button" className="p-2 text-[#8b949e] hover:text-[#c9d1d9] transition-colors shrink-0">
+                  <button type="button" className="p-2 text-text-secondary hover:text-text-primary transition-colors shrink-0">
                     <span className="material-symbols-outlined text-[22px]">add_circle</span>
                   </button>
                   <textarea
@@ -397,14 +397,14 @@ export default function ChatList() {
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Type a message..."
-                    className="flex-1 bg-transparent text-[#c9d1d9] placeholder-[#8b949e] resize-none outline-none py-2 px-2 text-sm min-h-[40px] max-h-[120px] custom-scrollbar"
+                    className="flex-1 bg-transparent text-text-primary placeholder-[#8b949e] resize-none outline-none py-2 px-2 text-sm min-h-[40px] max-h-[120px] custom-scrollbar"
                     style={{ height: draft ? `${Math.min(120, draft.split('\n').length * 24 + 16)}px` : '40px' }}
                   />
                   <button 
                     type="submit"
                     disabled={!draft.trim() || sendingStatus === 'sending'}
                     className={`p-2 rounded-lg flex items-center justify-center transition-colors shrink-0 ${
-                      draft.trim() ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-[#8b949e] bg-transparent'
+                      draft.trim() ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-text-secondary bg-transparent'
                     }`}
                   >
                     {sendingStatus === 'sending' ? (
@@ -424,25 +424,25 @@ export default function ChatList() {
     {isModalOpen && (
       <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300">
         <div className="w-full max-w-md rounded-2xl border border-[#ffffff]/10 glass backdrop-blur-2xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden animate-fadeIn">
-            <div className="flex items-center justify-between p-4 border-b border-[#30363d]">
+            <div className="flex items-center justify-between p-4 border-b border-border">
               <h3 className="text-lg font-bold text-white">New Message</h3>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="text-[#8b949e] hover:text-white transition-colors"
+                className="text-text-secondary hover:text-white transition-colors"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
-            <div className="p-3 border-b border-[#30363d]">
+            <div className="p-3 border-b border-border">
                <div className="relative">
-                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e] text-[18px]">search</span>
+                 <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary text-[18px]">search</span>
                  <input
                    autoFocus
                    type="text"
                    placeholder="Search connected profiles..."
                    value={newChatSearch}
                    onChange={(e) => setNewChatSearch(e.target.value)}
-                   className="w-full bg-[#0d1117] border border-[#30363d] text-white pl-9 pr-3 py-2 rounded-lg text-sm focus:outline-none focus:border-[#238636] transition-colors"
+                   className="w-full bg-background border border-border text-white pl-9 pr-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary transition-colors"
                  />
                </div>
             </div>
@@ -452,19 +452,19 @@ export default function ChatList() {
                    <div 
                      key={profile.id}
                      onClick={() => handleStartNewChat(profile)}
-                     className="flex items-center gap-3 p-3 hover:bg-[#21262d] rounded-lg cursor-pointer transition-colors"
+                     className="flex items-center gap-3 p-3 hover:bg-surface-hover rounded-lg cursor-pointer transition-colors"
                    >
                      <div className="w-10 h-10 bg-[#30363d] rounded-full flex items-center justify-center text-white font-bold text-sm">
                        {getInitials(profile.name)}
                      </div>
                      <div>
                        <div className="text-white font-medium text-sm">{profile.name}</div>
-                       <div className="text-[#8b949e] text-xs">{profile.role} · {profile.department}</div>
+                       <div className="text-text-secondary text-xs">{profile.role} · {profile.department}</div>
                      </div>
                    </div>
                  ))
                ) : (
-                 <div className="py-8 text-center text-[#8b949e] text-sm">
+                 <div className="py-8 text-center text-text-secondary text-sm">
                    {newChatSearch ? 'No connected profiles found matching your search.' : 'You have no connections yet.'}
                  </div>
                )}

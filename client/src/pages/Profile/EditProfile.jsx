@@ -96,7 +96,7 @@ export default function EditProfile() {
   };
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen">
+    <div className="w-full bg-background text-text-primary min-h-screen">
       {/* Header */}
       <ProfilePageHeader
         title="Edit Profile"
@@ -117,7 +117,7 @@ export default function EditProfile() {
               </div>
               <button
                 type="button"
-                className="px-4 py-2 bg-[#238636] text-white rounded-lg hover:bg-[#2ea043] transition-colors text-sm font-medium"
+                className="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-hover transition-colors text-sm font-medium"
               >
                 Change Photo
               </button>

@@ -7,7 +7,7 @@ export default function AgentInputBar({
   placeholder,
   disabled,
   helperText,
-  containerClassName = "p-4 border-t border-[#30363d]",
+  containerClassName = "p-4 border-t border-border",
   inputClassName = "",
 }) {
   const isSendDisabled = disabled || !value.trim();
@@ -21,19 +21,19 @@ export default function AgentInputBar({
           onChange={(event) => onChange(event.target.value)}
           onKeyPress={(event) => event.key === "Enter" && onSend()}
           placeholder={placeholder}
-          className={`flex-1 bg-[#161b22] border border-[#30363d] rounded-lg px-4 py-2 text-[#c9d1d9] placeholder-[#8b949e] focus:outline-none focus:border-[#238636] ${inputClassName}`}
+          className={`flex-1 bg-surface border border-border rounded-lg px-4 py-2 text-text-primary placeholder-[#8b949e] focus:outline-none focus:border-primary ${inputClassName}`}
           disabled={disabled}
         />
         <button
           onClick={onSend}
           disabled={isSendDisabled}
-          className="bg-[#238636] hover:bg-[#2ea043] disabled:opacity-50 disabled:cursor-not-allowed p-2 rounded-lg transition"
+          className="bg-primary hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed p-2 rounded-lg transition"
           title="Send message"
         >
           <Send size={20} />
         </button>
       </div>
-      {helperText && <p className="text-xs text-[#8b949e] mt-2">{helperText}</p>}
+      {helperText && <p className="text-xs text-text-secondary mt-2">{helperText}</p>}
     </div>
   );
 }

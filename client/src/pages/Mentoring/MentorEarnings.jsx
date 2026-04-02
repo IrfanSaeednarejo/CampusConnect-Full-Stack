@@ -61,11 +61,11 @@ export default function MentorEarnings() {
     if (s === "completed" || s === "paid") return "text-[#1dc964]";
     if (s === "pending" || s === "confirmed") return "text-yellow-400";
     if (s === "cancelled") return "text-red-400";
-    return "text-[#9eb7a9]";
+    return "text-text-secondary";
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
       <div className="layout-container flex h-full grow flex-col">
         <MentorTopBar backPath="/mentor/dashboard" />
 
@@ -76,7 +76,7 @@ export default function MentorEarnings() {
               <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                 Earnings & Sessions
               </h1>
-              <p className="text-[#9eb7a9] text-base font-normal leading-normal">
+              <p className="text-text-secondary text-base font-normal leading-normal">
                 Track your earnings from mentoring sessions
               </p>
             </div>
@@ -89,26 +89,26 @@ export default function MentorEarnings() {
 
             {/* Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <div className="flex flex-col gap-3 p-5 bg-[#161b22] border border-[#30363d] rounded-xl">
-                <p className="text-[#9eb7a9] text-sm font-normal">Total Earned</p>
+              <div className="flex flex-col gap-3 p-5 bg-surface border border-border rounded-xl">
+                <p className="text-text-secondary text-sm font-normal">Total Earned</p>
                 <p className="text-white text-3xl font-bold">
                   {loading ? "..." : `$${totalEarnings.toFixed(2)}`}
                 </p>
               </div>
-              <div className="flex flex-col gap-3 p-5 bg-[#161b22] border border-[#30363d] rounded-xl">
-                <p className="text-[#9eb7a9] text-sm font-normal">Sessions Completed</p>
+              <div className="flex flex-col gap-3 p-5 bg-surface border border-border rounded-xl">
+                <p className="text-text-secondary text-sm font-normal">Sessions Completed</p>
                 <p className="text-white text-3xl font-bold">
                   {loading ? "..." : completedSessions.length}
                 </p>
               </div>
-              <div className="flex flex-col gap-3 p-5 bg-[#161b22] border border-[#30363d] rounded-xl">
-                <p className="text-[#9eb7a9] text-sm font-normal">Avg. Rating</p>
+              <div className="flex flex-col gap-3 p-5 bg-surface border border-border rounded-xl">
+                <p className="text-text-secondary text-sm font-normal">Avg. Rating</p>
                 <p className="text-white text-3xl font-bold">
                   {loading ? "..." : avgRating > 0 ? `${avgRating.toFixed(1)}⭐` : "—"}
                 </p>
               </div>
-              <div className="flex flex-col gap-3 p-5 bg-[#161b22] border border-[#30363d] rounded-xl">
-                <p className="text-[#9eb7a9] text-sm font-normal">Pending Amount</p>
+              <div className="flex flex-col gap-3 p-5 bg-surface border border-border rounded-xl">
+                <p className="text-text-secondary text-sm font-normal">Pending Amount</p>
                 <p className="text-white text-3xl font-bold">
                   {loading ? "..." : `$${pendingAmount.toFixed(2)}`}
                 </p>
@@ -116,13 +116,13 @@ export default function MentorEarnings() {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-4 mb-6 border-b border-[#30363d]">
+            <div className="flex gap-4 mb-6 border-b border-border">
               <button
                 onClick={() => setActiveTab("overview")}
                 className={`px-4 py-3 font-medium transition-colors ${
                   activeTab === "overview"
                     ? "text-[#1dc964] border-b-2 border-[#1dc964]"
-                    : "text-[#9eb7a9] hover:text-white"
+                    : "text-text-secondary hover:text-white"
                 }`}
               >
                 All Sessions
@@ -132,7 +132,7 @@ export default function MentorEarnings() {
                 className={`px-4 py-3 font-medium transition-colors ${
                   activeTab === "completed"
                     ? "text-[#1dc964] border-b-2 border-[#1dc964]"
-                    : "text-[#9eb7a9] hover:text-white"
+                    : "text-text-secondary hover:text-white"
                 }`}
               >
                 Completed ({completedSessions.length})
@@ -143,7 +143,7 @@ export default function MentorEarnings() {
             {loading ? (
               <div className="flex flex-col items-center justify-center gap-4 py-16">
                 <div className="w-10 h-10 border-4 border-[#1dc964] border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-[#9eb7a9]">Loading session data...</p>
+                <p className="text-text-secondary">Loading session data...</p>
               </div>
             ) : (
               <>
@@ -155,12 +155,12 @@ export default function MentorEarnings() {
                   if (displaySessions.length === 0) {
                     return (
                       <div className="flex flex-col items-center justify-center gap-6 py-16 text-center">
-                        <span className="material-symbols-outlined text-6xl text-[#9eb7a9]">
+                        <span className="material-symbols-outlined text-6xl text-text-secondary">
                           account_balance_wallet
                         </span>
                         <div>
                           <p className="text-white text-lg font-bold">No sessions yet</p>
-                          <p className="text-[#9eb7a9] text-sm">
+                          <p className="text-text-secondary text-sm">
                             Your mentoring sessions will appear here once students book with you.
                           </p>
                         </div>
@@ -188,13 +188,13 @@ export default function MentorEarnings() {
                         return (
                           <div
                             key={sId}
-                            className="flex items-center justify-between p-4 bg-[#161b22] border border-[#30363d] rounded-xl hover:border-[#1dc964] transition-colors"
+                            className="flex items-center justify-between p-4 bg-surface border border-border rounded-xl hover:border-[#1dc964] transition-colors"
                           >
                             <div className="flex flex-col gap-1">
                               <p className="text-white font-semibold capitalize">
                                 {menteeName}
                               </p>
-                              <p className="text-[#9eb7a9] text-sm">
+                              <p className="text-text-secondary text-sm">
                                 {formatDate(sessionDate)} • {duration}
                               </p>
                             </div>

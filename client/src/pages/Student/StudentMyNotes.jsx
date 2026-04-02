@@ -5,7 +5,7 @@ import PageTitle from "../../components/common/PageTitle";
 
 export default function StudentMyNotes() {
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-[#0d1117]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-background">
       <div className="layout-container flex h-full grow flex-col">
         <AppHeader searchPlaceholder="Search my notes..." />
         <div className="flex flex-1">

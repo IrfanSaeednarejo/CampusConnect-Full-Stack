@@ -11,7 +11,7 @@ export const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const navigate = useNavigate();
   const { addNotification } = useNotification();
-  
+
   const [auth, setAuth] = useState(() => {
     // Initialize from localStorage if available
     try {
@@ -51,7 +51,7 @@ export function AuthProvider({ children }) {
     }
   }, [auth.isAuthenticated, auth.token, auth.role, auth.onboardingCompleted]);
 
-  const login = useCallback((user, token, role) => {
+  const login = useCallback((user, token, role, onboardingDone = false) => {
     // Security: Validate inputs before setting state
     if (!user || typeof user !== 'object') {
       console.error('Invalid user object provided to login');
@@ -78,9 +78,9 @@ export function AuthProvider({ children }) {
       // Password MUST NOT be stored in frontend state
     };
 
-    // Always reset onboarding to false on a fresh explicit login
-    // This ensures the user is sent to the onboarding flow every time they log in.
-    const previousOnboardingCompleted = false;
+    // Use the onboarding status from the database (passed by the caller)
+    // Only show onboarding on the user's very first login after signup
+    const previousOnboardingCompleted = onboardingDone;
 
     const newState = {
       isAuthenticated: true,
@@ -131,10 +131,10 @@ export function AuthProvider({ children }) {
       onboardingCompleted: false,
       loading: false,
     });
-    
+
     // Clear from localStorage
     localStorage.removeItem('authState');
-    
+
     // Optional: Clear from sessionStorage if used
     sessionStorage.clear();
   }, []);

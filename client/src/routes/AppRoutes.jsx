@@ -32,6 +32,10 @@ const TermsOfService = lazy(() => import("../pages/Misc/TermsOfService"));
 // Dashboard Pages
 const StudentDashboard = lazy(() => import("../pages/Dashboard/StudentDashboard"));
 const AdminDashboard = lazy(() => import("../pages/Dashboard/AdminDashboard"));
+const UserManagement = lazy(() => import("../pages/Admin/UserManagement"));
+const MentorVerification = lazy(() => import("../pages/Admin/MentorVerification"));
+const SocietyApproval = lazy(() => import("../pages/Admin/SocietyApproval"));
+const AdminSocieties = lazy(() => import("../pages/Admin/AdminSocieties"));
 const SocietyDashboard = lazy(() => import("../pages/Dashboard/SocietyDashboard"));
 const MentorDashboard = lazy(() => import("../pages/Dashboard/MentorDashboard"));
 const EventDashboard = lazy(() => import("../pages/Dashboard/EventDashboard"));
@@ -130,9 +134,9 @@ const FeedbackAgentPage = lazy(() => import("../pages/Student/agents/FeedbackAge
 
 // Global Loader Fallback for lazy-loaded routes
 const GlobalLoader = () => (
-  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#0d1117]">
+  <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-background">
     <div className="flex flex-col items-center gap-4">
-      <div className="w-10 h-10 border-4 border-[#238636] border-t-transparent rounded-full animate-spin"></div>
+      <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
     </div>
   </div>
 );
@@ -215,9 +219,13 @@ export default function AppRoutes() {
           {/* ========== PUBLIC SOCIETY DETAIL ROUTES ========== */}
           <Route path="/societies/:id" element={<SocietyDetail />} />
 
-          {/* ========== ADMIN ROUTES - Require 'admin' role + onboarding completion ========== */}
-          <Route element={<ProtectedRoute requiredRole="admin" />}>
+          {/* ========== ADMIN ROUTES - Require 'admin' role, skip onboarding ========== */}
+          <Route element={<ProtectedRoute requiredRole="admin" requiresOnboarding={false} />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<UserManagement />} />
+            <Route path="/admin/mentor-approvals" element={<MentorVerification />} />
+            <Route path="/admin/society-head-approvals" element={<SocietyApproval />} />
+            <Route path="/admin/societies" element={<AdminSocieties />} />
           </Route>
 
           {/* ========== STUDY GROUPS ROUTES - Require authentication + onboarding completion ========== */}

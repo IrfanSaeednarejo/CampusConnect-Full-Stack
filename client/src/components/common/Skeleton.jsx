@@ -36,7 +36,7 @@ export default function Skeleton({ variant = 'text', className = '', count = 1 }
  */
 export function SkeletonCard({ lines = 3 }) {
   return (
-    <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-4 flex flex-col gap-3">
+    <div className="bg-surface border border-border rounded-xl p-4 flex flex-col gap-3">
       <div className="flex items-center gap-3">
         <Skeleton variant="circle" />
         <div className="flex-1 flex flex-col gap-2">

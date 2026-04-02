@@ -120,16 +120,16 @@ export default function EditProfileModal({ closeModal }) {
       />
       
       {/* Side-Drawer */}
-      <div className="relative w-full max-w-xl bg-[#161b22] h-full shadow-2xl border-l border-[#30363d] flex flex-col animate-in slide-in-from-right duration-500 ease-out">
+      <div className="relative w-full max-w-xl bg-surface h-full shadow-2xl border-l border-border flex flex-col animate-in slide-in-from-right duration-500 ease-out">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#30363d] flex items-center justify-between bg-[#0d1117]/50">
+        <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-background/50">
           <div>
             <h2 className="text-xl font-bold text-white">Edit Profile</h2>
-            <p className="text-[#8b949e] text-sm">Update your public information</p>
+            <p className="text-text-secondary text-sm">Update your public information</p>
           </div>
           <button 
             onClick={closeModal}
-            className="p-2 text-[#8b949e] hover:text-white rounded-full hover:bg-[#30363d] transition-colors"
+            className="p-2 text-text-secondary hover:text-white rounded-full hover:bg-[#30363d] transition-colors"
           >
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -147,7 +147,7 @@ export default function EditProfileModal({ closeModal }) {
                 value={form.firstName}
                 onChange={handleChange}
                 required
-                className="bg-[#0d1117] border-[#30363d]"
+                className="bg-background border-border"
               />
               <FormField
                 label="Last Name"
@@ -156,7 +156,7 @@ export default function EditProfileModal({ closeModal }) {
                 value={form.lastName}
                 onChange={handleChange}
                 required
-                className="bg-[#0d1117] border-[#30363d]"
+                className="bg-background border-border"
               />
             </div>
             <div className="space-y-5">
@@ -168,7 +168,7 @@ export default function EditProfileModal({ closeModal }) {
                 onChange={handleChange}
                 required
                 placeholder="How you'll appear to students"
-                className="bg-[#0d1117] border-[#30363d]"
+                className="bg-background border-border"
               />
               <FormField
                 label="Email Address"
@@ -178,7 +178,7 @@ export default function EditProfileModal({ closeModal }) {
                 onChange={handleChange}
                 required
                 disabled
-                className="bg-[#0d1117] border-[#30363d] opacity-60 cursor-not-allowed"
+                className="bg-background border-border opacity-60 cursor-not-allowed"
                 title="Email cannot be changed here"
               />
             </div>
@@ -195,7 +195,7 @@ export default function EditProfileModal({ closeModal }) {
                   value={form.degree}
                   onChange={handleChange}
                   placeholder="e.g. BS"
-                  className="bg-[#0d1117] border-[#30363d]"
+                  className="bg-background border-border"
                 />
                 <FormField
                   label="Department"
@@ -204,12 +204,12 @@ export default function EditProfileModal({ closeModal }) {
                   value={form.department}
                   onChange={handleChange}
                   placeholder="e.g. Computer Science"
-                  className="bg-[#0d1117] border-[#30363d]"
+                  className="bg-background border-border"
                 />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="flex flex-col gap-2">
-                  <label className="text-sm font-medium text-[#c9d1d9]">Semester</label>
+                  <label className="text-sm font-medium text-text-primary">Semester</label>
                   <input
                     type="number"
                     name="semester"
@@ -218,7 +218,7 @@ export default function EditProfileModal({ closeModal }) {
                     min="1"
                     max="10"
                     placeholder="1-10"
-                    className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-2.5 text-white outline-none focus:border-[#1dc964] transition-colors"
+                    className="w-full bg-background border border-border rounded-lg p-2.5 text-white outline-none focus:border-[#1dc964] transition-colors"
                   />
                 </div>
                 <FormField
@@ -231,7 +231,7 @@ export default function EditProfileModal({ closeModal }) {
                   value={form.cgpa}
                   onChange={handleChange}
                   placeholder="0.00 - 4.00"
-                  className="bg-[#0d1117] border-[#30363d]"
+                  className="bg-background border-border"
                 />
               </div>
             </div>
@@ -244,7 +244,7 @@ export default function EditProfileModal({ closeModal }) {
                 {form.expertise.map((skill, index) => (
                   <span 
                     key={index}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1dc964]/10 border border-[#1dc964]/30 text-[#1dc964] text-xs font-medium rounded-full animate-in zoom-in-95 duration-200"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 border border-[#1dc964]/30 text-[#1dc964] text-xs font-medium rounded-full animate-in zoom-in-95 duration-200"
                   >
                     {skill}
                     <button 
@@ -258,7 +258,7 @@ export default function EditProfileModal({ closeModal }) {
                 ))}
               </div>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#8b949e] text-lg">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-text-secondary text-lg">
                   psychology
                 </span>
                 <input
@@ -267,43 +267,43 @@ export default function EditProfileModal({ closeModal }) {
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyDown={handleAddSkill}
                   placeholder="Add expertise (e.g. React, UX Design)..."
-                  className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg py-2.5 pl-10 pr-4 text-white outline-none focus:border-[#1dc964] transition-colors"
+                  className="w-full bg-background border border-border rounded-lg py-2.5 pl-10 pr-4 text-white outline-none focus:border-[#1dc964] transition-colors"
                 />
               </div>
-              <p className="text-[11px] text-[#8b949e] italic">Press Enter or use commas to add multiple skills.</p>
+              <p className="text-[11px] text-text-secondary italic">Press Enter or use commas to add multiple skills.</p>
             </div>
           </section>
 
           <section>
             <h3 className="text-[#1dc964] text-xs font-bold uppercase tracking-wider mb-4">About Me</h3>
             <div className="flex flex-col gap-2">
-              <label className="text-sm font-medium text-[#c9d1d9]">Short Bio</label>
+              <label className="text-sm font-medium text-text-primary">Short Bio</label>
               <textarea
                 name="bio"
                 value={form.bio}
                 onChange={handleChange}
                 rows={5}
                 placeholder="Tell students about your experience..."
-                className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white outline-none focus:border-[#1dc964] transition-colors resize-none"
+                className="w-full bg-background border border-border rounded-lg p-3 text-white outline-none focus:border-[#1dc964] transition-colors resize-none"
               />
-              <p className="text-[11px] text-[#8b949e] italic">This will be displayed on your mentor profile.</p>
+              <p className="text-[11px] text-text-secondary italic">This will be displayed on your mentor profile.</p>
             </div>
           </section>
         </form>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 border-t border-[#30363d] bg-[#0d1117]/50 flex gap-4">
+        <div className="px-6 py-4 border-t border-border bg-background/50 flex gap-4">
           <button
             type="button"
             onClick={closeModal}
-            className="flex-1 px-4 py-2 border border-[#30363d] text-white rounded-lg hover:bg-[#30363d] transition-colors font-medium"
+            className="flex-1 px-4 py-2 border border-border text-white rounded-lg hover:bg-[#30363d] transition-colors font-medium"
           >
             Cancel
           </button>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="flex-[2] px-4 py-2 bg-[#1dc964] text-[#112118] rounded-lg hover:opacity-90 transition-opacity font-bold flex items-center justify-center gap-2"
+            className="flex-[2] px-4 py-2 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity font-bold flex items-center justify-center gap-2"
           >
             {loading ? (
               <div className="w-5 h-5 border-2 border-[#112118] border-t-transparent rounded-full animate-spin"></div>

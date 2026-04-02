@@ -88,8 +88,8 @@ export default function Members() {
   };
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
-      <div className="max-w-[960px] mx-auto">
+    <div className="w-full bg-background text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-10">
           <SectionHeader
@@ -102,7 +102,7 @@ export default function Members() {
         {/* Search Bar — live filtering */}
         <div className="mb-8">
           <div className="relative max-w-lg">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e] text-[20px]">
+            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary text-[20px]">
               search
             </span>
             <input
@@ -110,19 +110,19 @@ export default function Members() {
               placeholder="Search by name, role, or interest..."
               value={searchTerm}
               onChange={handleSearchChange}
-              className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-[#0d1117] border border-[#30363d] text-[#e6edf3] text-sm placeholder-[#484f58] focus:outline-none focus:border-[#3fb950] transition-colors"
+              className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-background border border-border text-[#e6edf3] text-sm placeholder-[#484f58] focus:outline-none focus:border-[#3fb950] transition-colors"
             />
             {searchTerm && (
               <button
                 onClick={handleClear}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8b949e] hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-white"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
             )}
           </div>
           {searchTerm && (
-            <p className="text-[#8b949e] text-xs mt-2">
+            <p className="text-text-secondary text-xs mt-2">
               Showing {members.length} result{members.length !== 1 ? 's' : ''} for "{searchTerm}"
             </p>
           )}
@@ -153,7 +153,7 @@ export default function Members() {
 
         {!loading && members.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-[#8b949e] text-lg mb-4">
+            <p className="text-text-secondary text-lg mb-4">
               {searchTerm ? `No members found matching "${searchTerm}"` : "No community members found"}
             </p>
             {searchTerm && (

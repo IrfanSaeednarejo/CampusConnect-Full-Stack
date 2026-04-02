@@ -70,13 +70,13 @@ export default function MentorProfileView() {
 
   if (loading) {
     return (
-      <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] bg-[#112118]">
+      <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary bg-[#112118]">
         <div className="layout-container flex h-full grow flex-col">
           <MentorTopBar backPath="/mentor/dashboard" />
           <main className="px-4 sm:px-6 lg:px-8 xl:px-10 flex flex-1 justify-center py-8">
             <div className="flex flex-col items-center justify-center gap-4 py-16">
               <div className="w-10 h-10 border-4 border-[#1dc964] border-t-transparent rounded-full animate-spin"></div>
-              <p className="text-[#9eb7a9]">Loading your profile...</p>
+              <p className="text-text-secondary">Loading your profile...</p>
             </div>
           </main>
           <SharedFooter />
@@ -86,7 +86,7 @@ export default function MentorProfileView() {
   }
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
       <div className="layout-container flex h-full grow flex-col">
         <MentorTopBar backPath="/mentor/dashboard" />
 
@@ -102,7 +102,7 @@ export default function MentorProfileView() {
             <div className="flex flex-col lg:flex-row gap-8 mb-8">
               <div className="flex flex-col items-center lg:items-start gap-4 flex-1">
                 <div 
-                  className="w-32 h-32 rounded-full border-4 border-[#1dc964] bg-center bg-cover bg-no-repeat bg-[#161b22]"
+                  className="w-32 h-32 rounded-full border-4 border-[#1dc964] bg-center bg-cover bg-no-repeat bg-surface"
                   style={{ backgroundImage: `url("${avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(fullName)}`}")` }}
                   title={fullName}
                 />
@@ -113,7 +113,7 @@ export default function MentorProfileView() {
                   <p className="text-[#1dc964] text-lg font-semibold capitalize">
                     {department} • Mentor
                   </p>
-                  <p className="text-[#9eb7a9] text-sm mt-1">{email}</p>
+                  <p className="text-text-secondary text-sm mt-1">{email}</p>
                   {avgRating > 0 && (
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-yellow-400">⭐ {avgRating.toFixed(1)}</span>
@@ -124,36 +124,36 @@ export default function MentorProfileView() {
 
               {/* Stats */}
               <div className="grid grid-cols-2 gap-4 flex-1">
-                <div className="p-4 bg-[#161b22] border border-[#30363d] rounded-xl text-center">
-                  <p className="text-[#9eb7a9] text-sm mb-2">Total Sessions</p>
+                <div className="p-4 bg-surface border border-border rounded-xl text-center">
+                  <p className="text-text-secondary text-sm mb-2">Total Sessions</p>
                   <p className="text-white text-3xl font-bold">{totalSessions}</p>
                 </div>
-                <div className="p-4 bg-[#161b22] border border-[#30363d] rounded-xl text-center">
-                  <p className="text-[#9eb7a9] text-sm mb-2">Mentees</p>
+                <div className="p-4 bg-surface border border-border rounded-xl text-center">
+                  <p className="text-text-secondary text-sm mb-2">Mentees</p>
                   <p className="text-white text-3xl font-bold">{totalMentees}</p>
                 </div>
-                <div className="p-4 bg-[#161b22] border border-[#30363d] rounded-xl text-center">
-                  <p className="text-[#9eb7a9] text-sm mb-2">Avg Rating</p>
+                <div className="p-4 bg-surface border border-border rounded-xl text-center">
+                  <p className="text-text-secondary text-sm mb-2">Avg Rating</p>
                   <p className="text-white text-3xl font-bold">{avgRating > 0 ? avgRating.toFixed(1) : "—"}</p>
                 </div>
-                <div className="p-4 bg-[#161b22] border border-[#30363d] rounded-xl text-center">
-                  <p className="text-[#9eb7a9] text-sm mb-2">Hourly Rate</p>
+                <div className="p-4 bg-surface border border-border rounded-xl text-center">
+                  <p className="text-text-secondary text-sm mb-2">Hourly Rate</p>
                   <p className="text-white text-3xl font-bold">{hourlyRate > 0 ? `$${hourlyRate}` : "Free"}</p>
                 </div>
               </div>
             </div>
 
             {/* Bio */}
-            <div className="p-6 bg-[#161b22] border border-[#30363d] rounded-xl mb-8">
+            <div className="p-6 bg-surface border border-border rounded-xl mb-8">
               <h2 className="text-white text-2xl font-bold mb-4">About Me</h2>
-              <p className="text-[#c9d1d9] leading-relaxed">
+              <p className="text-text-primary leading-relaxed">
                 {bio}
               </p>
             </div>
 
             {/* Expertise */}
             {expertise.length > 0 && (
-              <div className="p-6 bg-[#161b22] border border-[#30363d] rounded-xl mb-8">
+              <div className="p-6 bg-surface border border-border rounded-xl mb-8">
                 <h2 className="text-white text-2xl font-bold mb-4">
                   Expertise & Skills
                 </h2>
@@ -161,9 +161,9 @@ export default function MentorProfileView() {
                   {expertise.map((skill, idx) => (
                     <div
                       key={idx}
-                      className="px-4 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-center"
+                      className="px-4 py-2 bg-background border border-border rounded-lg text-center"
                     >
-                      <span className="text-[#c9d1d9] font-semibold capitalize">
+                      <span className="text-text-primary font-semibold capitalize">
                         {skill}
                       </span>
                     </div>
@@ -173,19 +173,19 @@ export default function MentorProfileView() {
             )}
 
             {/* Academic Info */}
-            <div className="p-6 bg-[#161b22] border border-[#30363d] rounded-xl mb-8">
+            <div className="p-6 bg-surface border border-border rounded-xl mb-8">
               <h2 className="text-white text-2xl font-bold mb-4">
                 Academic Information
               </h2>
               <div className="space-y-4">
                 {user?.academic?.degree && (
-                  <div className="flex gap-4 pb-4 border-b border-[#30363d]">
+                  <div className="flex gap-4 pb-4 border-b border-border">
                     <span className="material-symbols-outlined text-[#1dc964] flex-shrink-0">
                       school
                     </span>
                     <div>
                       <p className="text-white font-semibold capitalize">{user.academic.degree}</p>
-                      <p className="text-[#9eb7a9] text-sm capitalize">{department}</p>
+                      <p className="text-text-secondary text-sm capitalize">{department}</p>
                     </div>
                   </div>
                 )}
@@ -197,13 +197,13 @@ export default function MentorProfileView() {
                     <div>
                       <p className="text-white font-semibold">Semester {user.academic.semester}</p>
                       {user.academic.cgpa > 0 && (
-                        <p className="text-[#9eb7a9] text-sm">CGPA: {user.academic.cgpa}</p>
+                        <p className="text-text-secondary text-sm">CGPA: {user.academic.cgpa}</p>
                       )}
                     </div>
                   </div>
                 )}
                 {!user?.academic?.degree && !user?.academic?.semester && (
-                  <p className="text-[#9eb7a9]">No academic info added yet. Update your profile to add it.</p>
+                  <p className="text-text-secondary">No academic info added yet. Update your profile to add it.</p>
                 )}
               </div>
             </div>
@@ -212,7 +212,7 @@ export default function MentorProfileView() {
             <div className="flex gap-4">
               <button
                 onClick={() => openModal(MODAL_TYPES.EDIT_PROFILE)}
-                className="flex items-center gap-2 px-6 py-3 bg-[#1dc964] text-[#112118] font-bold rounded-lg hover:opacity-90 transition-opacity flex-1"
+                className="flex items-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-lg hover:opacity-90 transition-opacity flex-1"
               >
                 <span className="material-symbols-outlined">edit</span>
                 Edit Profile

@@ -40,15 +40,15 @@ export default function WellbeingCheckin() {
 
   if (!isActive) {
     return (
-      <div className="p-4 border border-[#30363d] rounded-lg bg-[#161b22]">
+      <div className="p-4 border border-border rounded-lg bg-surface">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-[#c9d1d9] font-semibold mb-1">Wellbeing Check-in</h3>
-            <p className="text-[#8b949e] text-sm">Take a moment to check your mental health.</p>
+            <h3 className="text-text-primary font-semibold mb-1">Wellbeing Check-in</h3>
+            <p className="text-text-secondary text-sm">Take a moment to check your mental health.</p>
           </div>
           <button
             onClick={handleStartCheckin}
-            className="px-4 py-2 bg-[#238636] text-white rounded-md text-sm font-medium hover:bg-[#2ea043] transition-colors"
+            className="px-4 py-2 bg-primary text-white rounded-md text-sm font-medium hover:bg-primary-hover transition-colors"
           >
             Check In
           </button>
@@ -58,9 +58,9 @@ export default function WellbeingCheckin() {
   }
 
   return (
-    <div className="p-4 border border-[#30363d] rounded-lg bg-[#161b22]">
+    <div className="p-4 border border-border rounded-lg bg-surface">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-[#c9d1d9] font-semibold">Wellbeing Check-in</h3>
+        <h3 className="text-text-primary font-semibold">Wellbeing Check-in</h3>
         <button
           onClick={() => {
             stopAgent();
@@ -68,7 +68,7 @@ export default function WellbeingCheckin() {
             setMood(null);
             showInfo("Check-in closed.");
           }}
-          className="px-3 py-1 bg-[#da3633] text-white rounded text-xs font-medium hover:bg-[#f85149] transition-colors"
+          className="px-3 py-1 bg-danger text-white rounded text-xs font-medium hover:bg-[#f85149] transition-colors"
         >
           Close
         </button>
@@ -84,8 +84,8 @@ export default function WellbeingCheckin() {
             <div
               className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
                 msg.sender === "user"
-                  ? "bg-[#238636] text-white"
-                  : "bg-[#30363d] text-[#c9d1d9]"
+                  ? "bg-primary text-white"
+                  : "bg-[#30363d] text-text-primary"
               }`}
             >
               {msg.message}
@@ -101,10 +101,10 @@ export default function WellbeingCheckin() {
             <button
               key={m.value}
               onClick={() => handleSelectMood(m.value)}
-              className="flex flex-col items-center gap-1 p-3 bg-[#0d1117] border border-[#30363d] rounded hover:border-[#238636] transition-colors"
+              className="flex flex-col items-center gap-1 p-3 bg-background border border-border rounded hover:border-primary transition-colors"
             >
               <span className="text-2xl">{m.emoji}</span>
-              <span className="text-xs text-[#8b949e]">{m.label}</span>
+              <span className="text-xs text-text-secondary">{m.label}</span>
             </button>
           ))}
         </div>
@@ -112,9 +112,9 @@ export default function WellbeingCheckin() {
 
       {/* Wellbeing Tips */}
       {mood && (
-        <div className="mt-4 p-3 bg-[#0d1117] rounded border border-[#30363d]">
-          <p className="text-[#c9d1d9] text-sm font-medium mb-2">Quick Tips:</p>
-          <ul className="text-[#8b949e] text-xs space-y-1">
+        <div className="mt-4 p-3 bg-background rounded border border-border">
+          <p className="text-text-primary text-sm font-medium mb-2">Quick Tips:</p>
+          <ul className="text-text-secondary text-xs space-y-1">
             <li>• Take regular breaks during study sessions</li>
             <li>• Practice 5-minute mindfulness or breathing exercises</li>
             <li>• Connect with friends and peers</li>

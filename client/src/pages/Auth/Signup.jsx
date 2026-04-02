@@ -93,10 +93,11 @@ export default function Signup() {
 
       // Backend returns: { statusCode, data: { ...userObject }, message, success }
       const user = response.data;
-      
 
-      // Determine the user's primary role
-      const userRole = user?.roles?.[0] || form.role;
+
+      // Determine the user's primary role using priority
+      const rolePriority = ["admin", "society_head", "mentor", "student"];
+      const userRole = rolePriority.find((r) => user?.roles?.includes(r)) || form.role;
 
       // Store only the role choice in Redux so it pre-fills the login form if needed,
       // but DO NOT auto-login, forcing the user to use the /login page.
@@ -116,14 +117,14 @@ export default function Signup() {
   };
 
   return (
-    <AuthShell className="items-center justify-center bg-[#0d1117] p-4">
+    <AuthShell className="items-center justify-center bg-background p-4">
       <AuthCard className="max-w-md rounded-2xl border-white/5 p-8 flex flex-col items-center gap-8 glass shadow-2xl">
         {/* Page Heading */}
         <div className="flex w-full flex-col gap-3 text-center">
           <p className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
             Create Your Account
           </p>
-          <p className="text-[#9eb7a9] text-base font-normal leading-normal">
+          <p className="text-text-secondary text-base font-normal leading-normal">
             Join CampusConnect and unlock powerful tools for campus success.
           </p>
         </div>
@@ -209,7 +210,7 @@ export default function Signup() {
               className="flex-col-reverse"
               onCancel={null}
             />
-            <p className="text-center text-base font-normal leading-normal text-[#9eb7a9]">
+            <p className="text-center text-base font-normal leading-normal text-text-secondary">
               Already have an account?{" "}
               <button
                 type="button"
@@ -229,13 +230,12 @@ function RoleRadio({ name, value, label, checked, onChange, disabled = false, di
   return (
     <div className="flex flex-col gap-1">
       <label
-        className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-3 transition-colors whitespace-nowrap text-center ${
-          disabled
-            ? "border-[#30363d] bg-[#0d1117] opacity-60 cursor-not-allowed"
+        className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-3 transition-colors whitespace-nowrap text-center ${disabled
+            ? "border-border bg-background opacity-60 cursor-not-allowed"
             : checked
               ? "border-[#1dc964] bg-[#1c2620] ring-2 ring-[#1dc964]/50"
               : "border-[#3d5246] bg-[#1c2620] hover:border-[#1dc964]/40"
-        }`}
+          }`}
       >
         <input
           type="radio"
@@ -251,7 +251,7 @@ function RoleRadio({ name, value, label, checked, onChange, disabled = false, di
         </span>
       </label>
       {disabled && disabledReason && (
-        <p className="text-[#8b949e] text-xs leading-normal px-4">
+        <p className="text-text-secondary text-xs leading-normal px-4">
           {disabledReason}
         </p>
       )}

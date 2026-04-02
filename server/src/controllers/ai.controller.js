@@ -1,5 +1,13 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { User } from "../models/user.model.js";
-import { Society } from "../models/society.model.js";
+import { AIService } from "../services/ai.service.js";
+
+export const handleChat = asyncHandler(async (req, res) => {
+    const { provider, systemPrompt, userMessage, history } = req.body;
+
+    // Call the unified AI service 
+    const responseText = await AIService.getChatResponse(provider, systemPrompt, userMessage, history);
+
+    // Send response back
+    res.status(200).json(new ApiResponse(200, { response: responseText }, "AI responded successfully"));
+});

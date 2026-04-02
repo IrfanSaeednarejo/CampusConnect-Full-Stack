@@ -1,6 +1,5 @@
 import React from 'react';
 import AgentChatUI from '../../../components/agents/AgentChatUI';
-import ApiKeyTester from '../../../components/agents/ApiKeyTester';
 
 export default function StudyAgentPage() {
   const agentConfig = {
@@ -22,7 +21,6 @@ export default function StudyAgentPage() {
   return (
     <>
       <AgentChatUI agentConfig={agentConfig} />
-      {import.meta.env.DEV && <ApiKeyTester />}
     </>
   );
 }

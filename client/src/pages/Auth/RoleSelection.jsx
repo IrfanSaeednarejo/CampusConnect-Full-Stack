@@ -51,12 +51,12 @@ export default function RoleSelection() {
   };
 
   return (
-    <AuthShell className="h-auto items-center justify-center overflow-x-hidden p-4 bg-[#0d1117] group/design-root">
+    <AuthShell className="h-auto items-center justify-center overflow-x-hidden p-4 bg-background group/design-root">
       <div className="flex flex-col items-center justify-center py-10">
           {/* Header */}
           <div className="flex flex-col items-center gap-4 text-center mb-8">
             <svg
-              className="h-12 w-12 text-[#238636]"
+              className="h-12 w-12 text-primary"
               fill="currentColor"
               viewBox="0 0 24 24"
               xmlns="http://www.w3.org/2000/svg"
@@ -64,10 +64,10 @@ export default function RoleSelection() {
               <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
             </svg>
             <div className="flex flex-col gap-2">
-              <p className="text-[#c9d1d9] text-3xl font-bold leading-tight tracking-[-0.033em]">
+              <p className="text-text-primary text-3xl font-bold leading-tight tracking-[-0.033em]">
                 Choose Your Role
               </p>
-              <p className="text-[#8b949e] text-base font-normal leading-normal max-w-[500px]">
+              <p className="text-text-secondary text-base font-normal leading-normal max-w-lg">
                 Select the role that best describes you. You can always change
                 this later in your profile settings.
               </p>
@@ -82,18 +82,18 @@ export default function RoleSelection() {
                 onClick={() => handleRoleSelect(role.id)}
                 className={`flex flex-col gap-4 p-6 rounded-lg border-2 transition-all cursor-pointer ${
                   selectedRole === role.id
-                    ? "border-[#238636] bg-[#1c2620]"
-                    : "border-[#30363d] bg-[#161b22] hover:border-[#30363d]/80"
+                    ? "border-primary bg-[#1c2620]"
+                    : "border-border bg-surface hover:border-border/80"
                 }`}
               >
                 <div className="flex items-start justify-between">
                   <div className="flex gap-4 items-start flex-1">
                     <div className="text-4xl">{role.icon}</div>
                     <div className="flex flex-col gap-1 text-left">
-                      <p className="text-[#c9d1d9] text-lg font-bold leading-tight">
+                      <p className="text-text-primary text-lg font-bold leading-tight">
                         {role.title}
                       </p>
-                      <p className="text-[#8b949e] text-sm font-normal leading-normal">
+                      <p className="text-text-secondary text-sm font-normal leading-normal">
                         {role.description}
                       </p>
                     </div>
@@ -101,8 +101,8 @@ export default function RoleSelection() {
                   <div
                     className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1 ${
                       selectedRole === role.id
-                        ? "border-[#238636] bg-[#238636]"
-                        : "border-[#30363d]"
+                        ? "border-primary bg-primary"
+                        : "border-border"
                     }`}
                   >
                     {selectedRole === role.id && (
@@ -147,11 +147,11 @@ export default function RoleSelection() {
 
           {/* Already have an account */}
           <div className="mt-8 text-center">
-            <p className="text-[#8b949e] text-base">
+            <p className="text-text-secondary text-base">
               Already have an account?{" "}
               <button
                 onClick={() => navigate("/login")}
-                className="text-[#238636] hover:underline cursor-pointer font-medium"
+                className="text-primary hover:underline cursor-pointer font-medium"
               >
                 Sign in
               </button>

@@ -56,7 +56,7 @@ export default function MentorshipHub() {
   return (
     <div className="flex min-h-screen w-full bg-[#111814] font-display">
       {/* SideNavBar */}
-      <aside className="flex flex-col w-64 bg-[#0d1117] border-r border-[#29382f]/50">
+      <aside className="flex flex-col w-64 bg-background border-r border-border/50">
         <div className="flex h-full flex-col justify-between p-4">
           <div className="flex flex-col gap-4">
             {/* User Profile */}
@@ -79,7 +79,7 @@ export default function MentorshipHub() {
             <nav className="flex flex-col gap-2 mt-4">
               <a
                 href="/"
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-[#29382f] transition-colors"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-surface-hover transition-colors"
               >
                 <span className="material-symbols-outlined text-white text-2xl">
                   home
@@ -90,7 +90,7 @@ export default function MentorshipHub() {
               </a>
               <a
                 href="#"
-                className="flex items-center gap-3 px-3 py-2 rounded-lg bg-[#29382f]"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg bg-surface-hover"
               >
                 <span
                   className="material-symbols-outlined text-white text-2xl"
@@ -104,7 +104,7 @@ export default function MentorshipHub() {
               </a>
               <a
                 href="/events"
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-[#29382f] transition-colors"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-surface-hover transition-colors"
               >
                 <span className="material-symbols-outlined text-white text-2xl">
                   event
@@ -120,14 +120,14 @@ export default function MentorshipHub() {
           <div className="flex flex-col gap-4">
             <button
               onClick={() => navigate("/mentor-registration")}
-              className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#17cf63] text-[#0d1117] text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#17cf63]/90 transition-colors"
+              className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-[#0d1117] text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/90 transition-colors"
             >
               <span className="truncate">Become a Mentor</span>
             </button>
-            <div className="flex flex-col gap-1 border-t border-[#29382f]/50 pt-4">
+            <div className="flex flex-col gap-1 border-t border-border/50 pt-4">
               <a
                 href="#"
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-[#29382f] transition-colors"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-surface-hover transition-colors"
               >
                 <span className="material-symbols-outlined text-white text-2xl">
                   settings
@@ -138,7 +138,7 @@ export default function MentorshipHub() {
               </a>
               <a
                 href="#"
-                className="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-[#29382f] transition-colors"
+                className="flex items-center gap-3 px-3 py-2 rounded-lg text-white/70 hover:bg-surface-hover transition-colors"
               >
                 <span className="material-symbols-outlined text-white text-2xl">
                   logout
@@ -174,11 +174,11 @@ export default function MentorshipHub() {
             <div className="flex-1">
               <label className="flex flex-col min-w-40 h-12 w-full">
                 <div className="flex w-full flex-1 items-stretch rounded-lg h-full">
-                  <div className="text-[#9db8a9] flex border-none bg-[#29382f] items-center justify-center pl-4 rounded-l-lg border-r-0">
+                  <div className="text-[#9db8a9] flex border-none bg-surface-hover items-center justify-center pl-4 rounded-l-lg border-r-0">
                     <span className="material-symbols-outlined">search</span>
                   </div>
                   <input
-                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#17cf63]/50 border-none bg-[#29382f] h-full placeholder:text-[#9db8a9] px-4 text-base font-normal leading-normal"
+                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#17cf63]/50 border-none bg-surface-hover h-full placeholder:text-[#9db8a9] px-4 text-base font-normal leading-normal"
                     placeholder="Search by name, skill, or department..."
                     value={searchValue}
                     onChange={(e) => setSearchValue(e.target.value)}
@@ -189,7 +189,7 @@ export default function MentorshipHub() {
 
             {/* Filter Chips */}
             <div className="flex gap-3">
-              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#29382f] pl-4 pr-2 hover:bg-[#29382f]/80 transition-colors">
+              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-hover pl-4 pr-2 hover:bg-surface-hover/80 transition-colors">
                 <p className="text-white text-sm font-medium leading-normal">
                   Academic Field
                 </p>
@@ -197,7 +197,7 @@ export default function MentorshipHub() {
                   arrow_drop_down
                 </span>
               </button>
-              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#29382f] pl-4 pr-2 hover:bg-[#29382f]/80 transition-colors">
+              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-hover pl-4 pr-2 hover:bg-surface-hover/80 transition-colors">
                 <p className="text-white text-sm font-medium leading-normal">
                   Skills
                 </p>
@@ -205,7 +205,7 @@ export default function MentorshipHub() {
                   arrow_drop_down
                 </span>
               </button>
-              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#29382f] pl-4 pr-2 hover:bg-[#29382f]/80 transition-colors">
+              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-hover pl-4 pr-2 hover:bg-surface-hover/80 transition-colors">
                 <p className="text-white text-sm font-medium leading-normal">
                   Availability
                 </p>
@@ -213,7 +213,7 @@ export default function MentorshipHub() {
                   arrow_drop_down
                 </span>
               </button>
-              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-[#29382f] pl-4 pr-2 hover:bg-[#29382f]/80 transition-colors">
+              <button className="flex h-10 shrink-0 items-center justify-center gap-x-2 rounded-lg bg-surface-hover pl-4 pr-2 hover:bg-surface-hover/80 transition-colors">
                 <p className="text-white text-sm font-medium leading-normal">
                   Language
                 </p>
@@ -234,7 +234,7 @@ export default function MentorshipHub() {
             {mentors.map((mentor) => (
               <div
                 key={mentor.id}
-                className="bg-[#1c241f] rounded-xl border border-[#29382f]/50 p-6 flex flex-col gap-4 hover:border-[#17cf63]/40 transition-colors"
+                className="bg-[#1c241f] rounded-xl border border-border/50 p-6 flex flex-col gap-4 hover:border-[#17cf63]/40 transition-colors"
               >
                 {/* Header */}
                 <div className="flex items-center gap-4">
@@ -256,7 +256,7 @@ export default function MentorshipHub() {
                   {mentor.skills.map((skill) => (
                     <span
                       key={skill}
-                      className="bg-[#29382f] text-[#17cf63] text-xs font-semibold px-2.5 py-1 rounded-full"
+                      className="bg-surface-hover text-[#17cf63] text-xs font-semibold px-2.5 py-1 rounded-full"
                     >
                       {skill}
                     </span>
@@ -294,7 +294,7 @@ export default function MentorshipHub() {
                 {/* Button */}
                 <button
                   onClick={() => navigate(`/mentor-profile/${mentor.id}`)}
-                  className="mt-4 w-full text-center bg-[#17cf63]/20 text-[#17cf63] font-bold py-2 px-4 rounded-lg hover:bg-[#17cf63]/30 transition-colors"
+                  className="mt-4 w-full text-center bg-primary/20 text-[#17cf63] font-bold py-2 px-4 rounded-lg hover:bg-primary/30 transition-colors"
                 >
                   View Profile
                 </button>

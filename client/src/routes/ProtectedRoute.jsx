@@ -26,10 +26,10 @@ export default function ProtectedRoute({ requiredRole = null, requiresOnboarding
   // Show loading state while auth is initializing
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#0d1117]">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-4 border-[#238636] border-t-transparent rounded-full animate-spin" />
-          <p className="text-[#8b949e]">Loading...</p>
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-text-secondary">Loading...</p>
         </div>
       </div>
     );

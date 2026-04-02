@@ -117,7 +117,7 @@ export default function MentorMatchAgent() {
   };
 
   return (
-    <div className="h-screen bg-[#0d1117] text-[#c9d1d9] flex flex-col">
+    <div className="h-screen bg-background text-text-primary flex flex-col">
       {/* Header */}
       <AgentHeader
         title="Mentor Match"
@@ -135,23 +135,23 @@ export default function MentorMatchAgent() {
       >
         {stage === "result" && (
           <div className="mt-6 space-y-3">
-            <p className="text-[#8b949e] text-sm font-semibold">Recommended Mentors:</p>
+            <p className="text-text-secondary text-sm font-semibold">Recommended Mentors:</p>
             {mentors.map((mentor, idx) => (
               <div
                 key={idx}
-                className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 hover:border-[#238636] transition"
+                className="bg-surface border border-border rounded-lg p-4 hover:border-primary transition"
               >
                 <div className="flex justify-between items-start">
                   <div>
-                    <h3 className="font-bold text-[#c9d1d9]">{mentor.name}</h3>
-                    <p className="text-sm text-[#8b949e]">{mentor.specialization}</p>
-                    <p className="text-xs text-[#8b949e] mt-1">{mentor.bio}</p>
+                    <h3 className="font-bold text-text-primary">{mentor.name}</h3>
+                    <p className="text-sm text-text-secondary">{mentor.specialization}</p>
+                    <p className="text-xs text-text-secondary mt-1">{mentor.bio}</p>
                   </div>
-                  <span className="text-xs bg-[#238636] text-white px-2 py-1 rounded">
+                  <span className="text-xs bg-primary text-white px-2 py-1 rounded">
                     {mentor.availability}
                   </span>
                 </div>
-                <button className="mt-3 w-full bg-[#238636] hover:bg-[#2ea043] text-white py-2 rounded transition text-sm">
+                <button className="mt-3 w-full bg-primary hover:bg-primary-hover text-white py-2 rounded transition text-sm">
                   Request Mentorship
                 </button>
               </div>
@@ -172,8 +172,8 @@ export default function MentorMatchAgent() {
       )}
 
       {stage === "result" && (
-        <div className="p-4 border-t border-[#30363d]">
-          <p className="text-xs text-[#8b949e]">
+        <div className="p-4 border-t border-border">
+          <p className="text-xs text-text-secondary">
             💡 Select a mentor above and click "Request Mentorship" to get started
           </p>
         </div>

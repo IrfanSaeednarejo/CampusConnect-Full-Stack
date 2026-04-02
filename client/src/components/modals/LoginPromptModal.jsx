@@ -27,21 +27,21 @@ export default function LoginPromptModal({
 
       {/* Modal content */}
       <div
-        className="relative z-10 w-full max-w-md mx-4 bg-[#161b22] border border-[#30363d] rounded-xl p-8 shadow-2xl"
+        className="relative z-10 w-full max-w-md mx-4 bg-surface border border-border rounded-xl p-8 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-[#8b949e] hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-text-secondary hover:text-white transition-colors"
         >
           <span className="material-symbols-outlined">close</span>
         </button>
 
         {/* Icon */}
         <div className="flex justify-center mb-6">
-          <div className="w-16 h-16 rounded-full bg-[#238636]/20 flex items-center justify-center">
-            <span className="material-symbols-outlined text-[#238636] text-3xl">
+          <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center">
+            <span className="material-symbols-outlined text-primary text-3xl">
               lock
             </span>
           </div>
@@ -51,19 +51,19 @@ export default function LoginPromptModal({
         <h3 className="text-white text-xl font-bold text-center mb-2">
           Login Required
         </h3>
-        <p className="text-[#8b949e] text-sm text-center mb-8">{message}</p>
+        <p className="text-text-secondary text-sm text-center mb-8">{message}</p>
 
         {/* Actions */}
         <div className="flex flex-col gap-3">
           <button
             onClick={() => navigate("/login")}
-            className="w-full h-11 rounded-lg bg-[#238636] text-white font-bold text-sm hover:bg-[#2ea043] transition-colors"
+            className="w-full h-11 rounded-lg bg-primary text-white font-bold text-sm hover:bg-primary-hover transition-colors"
           >
             Log In
           </button>
           <button
             onClick={() => navigate("/signup")}
-            className="w-full h-11 rounded-lg border border-[#30363d] bg-transparent text-white font-bold text-sm hover:bg-[#21262d] transition-colors"
+            className="w-full h-11 rounded-lg border border-border bg-transparent text-white font-bold text-sm hover:bg-surface-hover transition-colors"
           >
             Create Account
           </button>

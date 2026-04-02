@@ -94,16 +94,16 @@ export default function StudyGroupDetail() {
 
   if (!group) {
     return (
-      <div className="flex flex-col min-h-screen overflow-y-auto bg-[#0d1117]">
+      <div className="flex flex-col min-h-screen overflow-y-auto bg-background">
         <div className="flex items-center justify-center h-screen">
-          <p className="text-[#8b949e]">Study group not found.</p>
+          <p className="text-text-secondary">Study group not found.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-screen overflow-y-auto bg-[#0d1117]">
+    <div className="flex flex-col min-h-screen overflow-y-auto bg-background">
       {/* Header */}
       <PageHeader
         title={group.name}

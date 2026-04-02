@@ -18,7 +18,7 @@ export default function SocietySettings() {
   const [activeTab, setActiveTab] = useState("general");
 
   return (
-    <div className="min-h-screen bg-[#111714] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Header */}
       <SocietyPageHeader
         title="Settings"
@@ -39,7 +39,7 @@ export default function SocietySettings() {
         {/* General Tab */}
         {activeTab === "general" && (
           <div className="space-y-6">
-            <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+            <div className="bg-surface border border-border rounded-lg p-6">
               <h2 className="text-xl font-bold mb-4">General Settings</h2>
               <div className="space-y-4">
                 <FormField
@@ -66,7 +66,7 @@ export default function SocietySettings() {
                 <FormActions
                   submitText="Save Changes"
                   onSubmit={() => {}}
-                  submitClassName="bg-[#1dc964] text-[#111714] hover:bg-[#1dc964]/90"
+                  submitClassName="bg-primary text-white hover:bg-primary/90"
                 />
               </div>
             </div>
@@ -76,7 +76,7 @@ export default function SocietySettings() {
         {/* Notifications Tab */}
         {activeTab === "notifications" && (
           <div className="space-y-6">
-            <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+            <div className="bg-surface border border-border rounded-lg p-6">
               <h2 className="text-xl font-bold mb-4">
                 Notification Preferences
               </h2>
@@ -84,7 +84,7 @@ export default function SocietySettings() {
                 {NOTIFICATION_ITEMS.map((item) => (
                   <div
                     key={item.key}
-                    className="flex items-center justify-between py-3 border-b border-[#29382f] last:border-0"
+                    className="flex items-center justify-between py-3 border-b border-border last:border-0"
                   >
                     <span className="text-white">{item.label}</span>
                     <label className="relative inline-flex items-center cursor-pointer">
@@ -93,7 +93,7 @@ export default function SocietySettings() {
                         defaultChecked
                         className="sr-only peer"
                       />
-                      <div className="w-11 h-6 bg-[#29382f] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1dc964]"></div>
+                      <div className="w-11 h-6 bg-surface-hover peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                     </label>
                   </div>
                 ))}
@@ -105,7 +105,7 @@ export default function SocietySettings() {
         {/* Privacy Tab */}
         {activeTab === "privacy" && (
           <div className="space-y-6">
-            <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+            <div className="bg-surface border border-border rounded-lg p-6">
               <h2 className="text-xl font-bold mb-4">Privacy Settings</h2>
               <div className="space-y-4">
                 <FormField
@@ -129,7 +129,7 @@ export default function SocietySettings() {
                 <FormActions
                   submitText="Save Changes"
                   onSubmit={() => {}}
-                  submitClassName="bg-[#1dc964] text-[#111714] hover:bg-[#1dc964]/90"
+                  submitClassName="bg-primary text-white hover:bg-primary/90"
                 />
               </div>
             </div>
@@ -139,7 +139,7 @@ export default function SocietySettings() {
         {/* Account Tab */}
         {activeTab === "account" && (
           <div className="space-y-6">
-            <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
+            <div className="bg-surface border border-border rounded-lg p-6">
               <h2 className="text-xl font-bold mb-4">Account Settings</h2>
               <div className="space-y-4">
                 <FormField
@@ -148,14 +148,14 @@ export default function SocietySettings() {
                   defaultValue="admin@techinnovators.com"
                 />
                 <div>
-                  <label className="block text-sm font-medium text-[#9eb7a9] mb-2">
+                  <label className="block text-sm font-medium text-text-secondary mb-2">
                     Change Password
                   </label>
-                  <button className="px-6 py-2 rounded-lg bg-[#29382f] text-white font-medium hover:bg-[#29382f]/80 transition-colors">
+                  <button className="px-6 py-2 rounded-lg bg-surface-hover text-white font-medium hover:bg-surface-hover/80 transition-colors">
                     Update Password
                   </button>
                 </div>
-                <div className="pt-4 border-t border-[#29382f]">
+                <div className="pt-4 border-t border-border">
                   <h3 className="text-lg font-semibold text-white mb-2">
                     Danger Zone
                   </h3>

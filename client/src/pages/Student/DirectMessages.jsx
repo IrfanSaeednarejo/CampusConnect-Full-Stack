@@ -82,25 +82,25 @@ export default function DirectMessages() {
   );
 
   return (
-    <div className="flex h-screen w-full bg-[#0d1117]">
+    <div className="flex h-screen w-full bg-background">
       {/* Unified Sidebar */}
       <Sidebar />
 
       {/* Conversations List */}
-      <div className="flex w-full max-w-sm flex-col border-r border-[#30363d] bg-[#0d1117]">
-        <div className="p-4 border-b border-[#30363d]">
-          <h2 className="text-xl font-bold text-[#c9d1d9]">Messages</h2>
+      <div className="flex w-full max-w-sm flex-col border-r border-border bg-background">
+        <div className="p-4 border-b border-border">
+          <h2 className="text-xl font-bold text-text-primary">Messages</h2>
         </div>
         <div className="p-4">
           <label className="flex flex-col w-full">
             <div className="flex w-full flex-1 items-stretch rounded-lg h-10">
-              <div className="text-[#8b949e] flex bg-[#161b22] items-center justify-center pl-3 rounded-l-lg border-r-0">
+              <div className="text-text-secondary flex bg-surface items-center justify-center pl-3 rounded-l-lg border-r-0">
                 <span className="material-symbols-outlined text-lg">
                   search
                 </span>
               </div>
               <input
-                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-[#c9d1d9] focus:outline-0 focus:ring-0 border-none bg-[#161b22] h-full placeholder:text-[#8b949e] pl-2 text-sm font-normal"
+                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-r-lg text-text-primary focus:outline-0 focus:ring-0 border-none bg-surface h-full placeholder:text-text-secondary pl-2 text-sm font-normal"
                 placeholder="Search messages or users"
               />
             </div>
@@ -113,8 +113,8 @@ export default function DirectMessages() {
               onClick={() => setActiveConversation(conv.id)}
               className={`flex items-center gap-4 px-4 py-3 justify-between cursor-pointer transition-colors ${
                 activeConversation === conv.id
-                  ? "bg-[#161b22] border-l-4 border-[#238636]"
-                  : "hover:bg-[#161b22]"
+                  ? "bg-surface border-l-4 border-primary"
+                  : "hover:bg-surface"
               }`}
             >
               <div className="flex items-center gap-3">
@@ -128,14 +128,14 @@ export default function DirectMessages() {
                   )}
                 </div>
                 <div className="flex flex-col justify-center min-w-0">
-                  <p className="text-[#c9d1d9] text-base font-medium leading-normal truncate">
+                  <p className="text-text-primary text-base font-medium leading-normal truncate">
                     {conv.name}
                   </p>
                   <p
                     className={`text-sm font-normal leading-normal truncate ${
                       conv.unread
-                        ? "text-[#238636] font-medium"
-                        : "text-[#8b949e]"
+                        ? "text-primary font-medium"
+                        : "text-text-secondary"
                     }`}
                   >
                     {conv.lastMessage}
@@ -145,10 +145,10 @@ export default function DirectMessages() {
               <div className="shrink-0">
                 {conv.unread ? (
                   <div className="flex size-6 items-center justify-center">
-                    <div className="size-2 rounded-full bg-[#238636]"></div>
+                    <div className="size-2 rounded-full bg-primary"></div>
                   </div>
                 ) : (
-                  <p className="text-[#8b949e] text-xs font-normal">
+                  <p className="text-text-secondary text-xs font-normal">
                     {conv.lastMessageTime}
                   </p>
                 )}
@@ -159,9 +159,9 @@ export default function DirectMessages() {
       </div>
 
       {/* Chat View */}
-      <main className="flex flex-1 flex-col bg-[#161b22]">
+      <main className="flex flex-1 flex-col bg-surface">
         {/* Chat Header */}
-        <header className="flex items-center justify-between p-4 border-b border-[#30363d]">
+        <header className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center gap-3">
             <div className="relative">
               <Avatar
@@ -174,24 +174,24 @@ export default function DirectMessages() {
             </div>
             <div className="flex flex-col">
               <a
-                className="text-[#c9d1d9] text-base font-bold leading-normal hover:underline"
+                className="text-text-primary text-base font-bold leading-normal hover:underline"
                 href="#"
               >
                 {currentConversation.name}
               </a>
-              <p className="text-[#8b949e] text-sm font-normal">
+              <p className="text-text-secondary text-sm font-normal">
                 {currentConversation.isOnline ? "Online" : "Offline"}
               </p>
             </div>
           </div>
-          <button className="text-[#8b949e] p-2 rounded-lg hover:bg-[#0d1117] transition-colors">
+          <button className="text-text-secondary p-2 rounded-lg hover:bg-background transition-colors">
             <span className="material-symbols-outlined">more_horiz</span>
           </button>
         </header>
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          <p className="text-center text-xs text-[#8b949e]">
+          <p className="text-center text-xs text-text-secondary">
             You started this conversation. Today at 9:15 AM
           </p>
           {MESSAGES.map((msg) => (
@@ -211,35 +211,35 @@ export default function DirectMessages() {
                 <div
                   className={`p-3 rounded-xl ${
                     msg.isOwn
-                      ? "bg-[#238636] text-white rounded-tr-sm"
-                      : "bg-[#0d1117] text-[#c9d1d9] rounded-tl-sm"
+                      ? "bg-primary text-white rounded-tr-sm"
+                      : "bg-background text-text-primary rounded-tl-sm"
                   }`}
                 >
                   <p className="text-sm">{msg.content}</p>
                 </div>
-                <span className="text-xs text-[#8b949e]">{msg.timestamp}</span>
+                <span className="text-xs text-text-secondary">{msg.timestamp}</span>
               </div>
             </div>
           ))}
         </div>
 
         {/* Message Input */}
-        <footer className="p-4 border-t border-[#30363d]">
-          <div className="flex items-center gap-2 bg-[#0d1117] rounded-lg p-2 border border-[#30363d] focus-within:border-[#238636] transition-colors">
-            <button className="text-[#8b949e] p-2 rounded-lg hover:bg-[#161b22] transition-colors">
+        <footer className="p-4 border-t border-border">
+          <div className="flex items-center gap-2 bg-background rounded-lg p-2 border border-border focus-within:border-primary transition-colors">
+            <button className="text-text-secondary p-2 rounded-lg hover:bg-surface transition-colors">
               <span className="material-symbols-outlined">add_reaction</span>
             </button>
-            <button className="text-[#8b949e] p-2 rounded-lg hover:bg-[#161b22] transition-colors">
+            <button className="text-text-secondary p-2 rounded-lg hover:bg-surface transition-colors">
               <span className="material-symbols-outlined">attach_file</span>
             </button>
             <input
               type="text"
               value={messageInput}
               onChange={(e) => setMessageInput(e.target.value)}
-              className="flex-1 bg-transparent text-[#c9d1d9] placeholder:text-[#8b949e] border-none focus:ring-0 text-sm"
+              className="flex-1 bg-transparent text-text-primary placeholder:text-text-secondary border-none focus:ring-0 text-sm"
               placeholder="Type a message..."
             />
-            <button className="flex items-center justify-center size-8 bg-[#238636] text-white rounded-lg hover:opacity-90 transition-opacity">
+            <button className="flex items-center justify-center size-8 bg-primary text-white rounded-lg hover:opacity-90 transition-opacity">
               <span className="material-symbols-outlined">arrow_upward</span>
             </button>
           </div>

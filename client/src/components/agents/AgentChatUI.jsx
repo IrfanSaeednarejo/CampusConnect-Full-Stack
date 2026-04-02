@@ -7,7 +7,7 @@ const COLOR_MAP = {
   purple: { bg: 'bg-purple-600', text: 'text-purple-600', hover: 'hover:bg-purple-700', border: 'border-purple-200', lightBg: 'bg-purple-50' },
   green: { bg: 'bg-green-600', text: 'text-green-600', hover: 'hover:bg-green-700', border: 'border-green-200', lightBg: 'bg-green-50' },
   orange: { bg: 'bg-orange-600', text: 'text-orange-600', hover: 'hover:bg-orange-700', border: 'border-orange-200', lightBg: 'bg-orange-50' },
-  default: { bg: 'bg-[#238636]', text: 'text-[#238636]', hover: 'hover:bg-[#2ea043]', border: 'border-[#238636]', lightBg: 'bg-[#238636]/10' },
+  default: { bg: 'bg-primary', text: 'text-primary', hover: 'hover:bg-primary-hover', border: 'border-primary', lightBg: 'bg-primary/10' },
 };
 
 // ── AI Status Detection (dev-only indicator) ──────────────
@@ -162,7 +162,7 @@ export default function AgentChatUI({ agentConfig }) {
   const activeFollowUps = lastMessage?.role === 'agent' ? lastMessage.followUps : [];
 
   return (
-    <div className="flex flex-col h-screen w-full bg-[#0d1117] font-sans">
+    <div className="flex flex-col h-screen w-full bg-background font-sans">
       <style>{`
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(10px); }
@@ -180,10 +180,10 @@ export default function AgentChatUI({ agentConfig }) {
       `}</style>
 
       {/* FIXED TOP BAR */}
-      <header className="h-[60px] flex-shrink-0 bg-[#161b22] border-b border-[#30363d] px-4 flex items-center justify-between sticky top-0 z-50">
+      <header className="h-[60px] flex-shrink-0 bg-surface border-b border-border px-4 flex items-center justify-between sticky top-0 z-50">
         <button 
           onClick={() => navigate(-1)}
-          className="flex items-center text-[#8b949e] hover:text-[#c9d1d9] transition-colors py-2 pr-4 font-medium"
+          className="flex items-center text-text-secondary hover:text-text-primary transition-colors py-2 pr-4 font-medium"
         >
           <span className="material-symbols-outlined text-xl mr-1">arrow_back</span>
           Back
@@ -195,7 +195,7 @@ export default function AgentChatUI({ agentConfig }) {
             <h1 className="font-bold text-[#e6edf3] leading-tight">{name}</h1>
           </div>
           <div className="flex items-center gap-2">
-            <p className="text-xs text-[#8b949e]">{subtitle}</p>
+            <p className="text-xs text-text-secondary">{subtitle}</p>
             {/* AI Status Indicator — dev only */}
             {import.meta.env.DEV && (
               <span className={`
@@ -216,7 +216,7 @@ export default function AgentChatUI({ agentConfig }) {
 
         <button 
           onClick={handleClear}
-          className="text-[#8b949e] hover:text-red-400 transition-colors p-2 rounded-full hover:bg-red-500/10"
+          className="text-text-secondary hover:text-red-400 transition-colors p-2 rounded-full hover:bg-red-500/10"
           title="Clear Chat"
         >
           <span className="material-symbols-outlined text-xl">delete_sweep</span>
@@ -234,14 +234,14 @@ export default function AgentChatUI({ agentConfig }) {
                 {icon}
               </div>
               <h2 className="text-2xl font-bold text-[#e6edf3] mb-2">{name}</h2>
-              <p className="text-[#8b949e] mb-8 text-center">{subtitle}</p>
+              <p className="text-text-secondary mb-8 text-center">{subtitle}</p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
                 {suggestedStarters.map((starter, idx) => (
                   <button
                     key={idx}
                     onClick={() => handleSend(starter)}
-                    className={`text-left px-4 py-3 rounded-xl border border-[#30363d] bg-[#161b22] hover:border-[#8b949e] hover:shadow-sm transition-all text-sm text-[#c9d1d9]`}
+                    className={`text-left px-4 py-3 rounded-xl border border-border bg-surface hover:border-[#8b949e] hover:shadow-sm transition-all text-sm text-text-primary`}
                   >
                     {starter}
                   </button>
@@ -269,8 +269,8 @@ export default function AgentChatUI({ agentConfig }) {
                     ${isUser 
                       ? `${colorTheme.bg} text-white rounded-2xl rounded-br-sm` 
                       : isError
-                        ? 'bg-red-900/20 text-[#c9d1d9] border border-red-800/50 rounded-2xl rounded-bl-sm'
-                        : 'bg-[#161b22] text-[#c9d1d9] border border-[#30363d] rounded-2xl rounded-bl-sm'
+                        ? 'bg-red-900/20 text-text-primary border border-red-800/50 rounded-2xl rounded-bl-sm'
+                        : 'bg-surface text-text-primary border border-border rounded-2xl rounded-bl-sm'
                     }
                   `}>
                     {/* Error icon prefix */}
@@ -280,7 +280,7 @@ export default function AgentChatUI({ agentConfig }) {
                     {msg.content}
                   </div>
                   <div className="flex items-center gap-2 mt-1 mx-1">
-                    <span className="text-xs text-[#8b949e]">{formatTime(msg.timestamp)}</span>
+                    <span className="text-xs text-text-secondary">{formatTime(msg.timestamp)}</span>
                     {/* Retry button for error messages */}
                     {isError && !isUser && (
                       <button
@@ -302,7 +302,7 @@ export default function AgentChatUI({ agentConfig }) {
               <div className={`w-8 h-8 rounded-full ${colorTheme.bg} text-white flex items-center justify-center text-sm flex-shrink-0 mr-3 mt-1 shadow-sm`}>
                 {icon}
               </div>
-              <div className="bg-[#161b22] border border-[#30363d] rounded-2xl rounded-bl-sm px-4 py-4 shadow-sm flex gap-1 items-center h-[46px]">
+              <div className="bg-surface border border-border rounded-2xl rounded-bl-sm px-4 py-4 shadow-sm flex gap-1 items-center h-[46px]">
                 <div className={`w-2 h-2 rounded-full ${colorTheme.bg} opacity-60 dot-1`}></div>
                 <div className={`w-2 h-2 rounded-full ${colorTheme.bg} opacity-60 dot-2`}></div>
                 <div className={`w-2 h-2 rounded-full ${colorTheme.bg} opacity-60 dot-3`}></div>
@@ -315,7 +315,7 @@ export default function AgentChatUI({ agentConfig }) {
       </main>
 
       {/* FIXED BOTTOM INPUT BAR */}
-      <div className="bg-[#161b22] border-t border-[#30363d] w-full flex-shrink-0">
+      <div className="bg-surface border-t border-border w-full flex-shrink-0">
         <div className="max-w-3xl mx-auto px-4 py-3 flex flex-col gap-3">
           
           {/* FOLLOW UPS */}
@@ -333,14 +333,14 @@ export default function AgentChatUI({ agentConfig }) {
             </div>
           )}
 
-          <div className="flex items-end gap-2 bg-[#0d1117] border border-[#30363d] rounded-2xl p-2 focus-within:ring-2 focus-within:ring-[#238636]/30 focus-within:border-[#238636] transition-all">
+          <div className="flex items-end gap-2 bg-background border border-border rounded-2xl p-2 focus-within:ring-2 focus-within:ring-primary/30 focus-within:border-primary transition-all">
             <textarea
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
               disabled={isTyping}
               placeholder="Ask me anything..."
-              className="flex-1 max-h-32 min-h-[40px] bg-transparent border-none focus:ring-0 resize-none py-2 px-3 text-[#c9d1d9] placeholder-[#8b949e]"
+              className="flex-1 max-h-32 min-h-[40px] bg-transparent border-none focus:ring-0 resize-none py-2 px-3 text-text-primary placeholder-[#8b949e]"
               rows={1}
               style={{
                 height: inputText.length === 0 ? '40px' : 'auto'
@@ -352,7 +352,7 @@ export default function AgentChatUI({ agentConfig }) {
               className={`
                 w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all
                 ${!inputText.trim() || isTyping 
-                  ? 'bg-[#30363d] text-[#8b949e] cursor-not-allowed' 
+                  ? 'bg-[#30363d] text-text-secondary cursor-not-allowed' 
                   : `${colorTheme.bg} text-white shadow-md transform hover:scale-105 active:scale-95`
                 }
               `}
@@ -361,7 +361,7 @@ export default function AgentChatUI({ agentConfig }) {
             </button>
           </div>
           <div className="text-center">
-            <span className="text-[10px] text-[#484f58]">CampusConnect AI Assistant can make mistakes. Verify important information.</span>
+            <span className="text-[10px] text-text-tertiary">CampusConnect AI Assistant can make mistakes. Verify important information.</span>
           </div>
         </div>
       </div>

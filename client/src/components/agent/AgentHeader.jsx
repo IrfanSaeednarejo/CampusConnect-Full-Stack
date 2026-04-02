@@ -10,19 +10,19 @@ export default function AgentHeader({
 }) {
   return (
     <div
-      className={`flex items-center justify-between p-4 border-b border-[#30363d] ${className}`}
+      className={`flex items-center justify-between p-4 border-b border-border ${className}`}
     >
       <div className="flex items-center gap-3">
         <button
           onClick={onBack}
-          className="p-2 hover:bg-[#161b22] rounded-lg transition"
+          className="p-2 hover:bg-surface rounded-lg transition"
           title="Back to Dashboard"
         >
           <ArrowLeft size={20} />
         </button>
         <div>
           <h1 className="text-xl font-bold">{title}</h1>
-          {subtitle && <p className="text-sm text-[#8b949e]">{subtitle}</p>}
+          {subtitle && <p className="text-sm text-text-secondary">{subtitle}</p>}
         </div>
       </div>
       {badge && <div className={badgeClassName}>{badge}</div>}

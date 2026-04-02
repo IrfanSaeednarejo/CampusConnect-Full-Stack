@@ -52,15 +52,15 @@ export default function SocietyProfile() {
   });
 
   return (
-    <div className="min-h-screen bg-[#111714] text-white">
+    <div className="min-h-screen bg-background text-white">
       {/* Header */}
-      <header className="bg-[#1a241e] border-b border-[#29382f] sticky top-0 z-10">
+      <header className="bg-surface border-b border-border sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={() => navigate("/society/dashboard")}
-                className="flex items-center gap-2 text-[#9eb7a9] hover:text-white transition-colors"
+                className="flex items-center gap-2 text-text-secondary hover:text-white transition-colors"
               >
                 <span className="material-symbols-outlined text-xl">
                   arrow_back
@@ -70,7 +70,7 @@ export default function SocietyProfile() {
             </div>
             <button
               onClick={() => setIsEditing(!isEditing)}
-              className="px-4 py-2 rounded-lg bg-[#1dc964] text-[#111714] text-sm font-bold hover:bg-[#1dc964]/90 transition-colors flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-bold hover:bg-primary/90 transition-colors flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-sm">
                 {isEditing ? "save" : "edit"}
@@ -87,7 +87,7 @@ export default function SocietyProfile() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20">
         {/* Profile Card */}
-        <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-8 mb-6">
+        <div className="bg-surface border border-border rounded-lg p-8 mb-6">
           <div className="flex flex-col md:flex-row items-start gap-6">
             {/* Profile Image */}
             <div className="relative">
@@ -95,7 +95,7 @@ export default function SocietyProfile() {
                 AC
               </div>
               {isEditing && (
-                <button className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-[#1dc964] text-[#111714] flex items-center justify-center hover:bg-[#1dc964]/90">
+                <button className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90">
                   <span className="material-symbols-outlined text-lg">
                     photo_camera
                   </span>
@@ -113,7 +113,7 @@ export default function SocietyProfile() {
                     onChange={(e) =>
                       setProfileData({ ...profileData, name: e.target.value })
                     }
-                    className="w-full px-4 py-2 rounded-lg bg-[#111714] border border-[#29382f] text-white text-2xl font-bold focus:outline-none focus:border-[#1dc964]"
+                    className="w-full px-4 py-2 rounded-lg bg-background border border-border text-white text-2xl font-bold focus:outline-none focus:border-[#1dc964]"
                   />
                   <input
                     type="text"
@@ -121,7 +121,7 @@ export default function SocietyProfile() {
                     onChange={(e) =>
                       setProfileData({ ...profileData, role: e.target.value })
                     }
-                    className="w-full px-4 py-2 rounded-lg bg-[#111714] border border-[#29382f] text-[#9eb7a9] focus:outline-none focus:border-[#1dc964]"
+                    className="w-full px-4 py-2 rounded-lg bg-background border border-border text-text-secondary focus:outline-none focus:border-[#1dc964]"
                   />
                 </div>
               ) : (
@@ -129,14 +129,14 @@ export default function SocietyProfile() {
                   <h1 className="text-3xl font-bold text-white mb-2">
                     {profileData.name}
                   </h1>
-                  <p className="text-[#9eb7a9] text-lg mb-4">
+                  <p className="text-text-secondary text-lg mb-4">
                     {profileData.role}
                   </p>
                 </>
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                <div className="flex items-center gap-2 text-[#9eb7a9]">
+                <div className="flex items-center gap-2 text-text-secondary">
                   <span className="material-symbols-outlined text-[#1dc964]">
                     email
                   </span>
@@ -150,13 +150,13 @@ export default function SocietyProfile() {
                           email: e.target.value,
                         })
                       }
-                      className="flex-1 px-3 py-1 rounded bg-[#111714] border border-[#29382f] text-white focus:outline-none focus:border-[#1dc964]"
+                      className="flex-1 px-3 py-1 rounded bg-background border border-border text-white focus:outline-none focus:border-[#1dc964]"
                     />
                   ) : (
                     <span>{profileData.email}</span>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-[#9eb7a9]">
+                <div className="flex items-center gap-2 text-text-secondary">
                   <span className="material-symbols-outlined text-[#1dc964]">
                     phone
                   </span>
@@ -170,13 +170,13 @@ export default function SocietyProfile() {
                           phone: e.target.value,
                         })
                       }
-                      className="flex-1 px-3 py-1 rounded bg-[#111714] border border-[#29382f] text-white focus:outline-none focus:border-[#1dc964]"
+                      className="flex-1 px-3 py-1 rounded bg-background border border-border text-white focus:outline-none focus:border-[#1dc964]"
                     />
                   ) : (
                     <span>{profileData.phone}</span>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-[#9eb7a9]">
+                <div className="flex items-center gap-2 text-text-secondary">
                   <span className="material-symbols-outlined text-[#1dc964]">
                     school
                   </span>
@@ -190,13 +190,13 @@ export default function SocietyProfile() {
                           department: e.target.value,
                         })
                       }
-                      className="flex-1 px-3 py-1 rounded bg-[#111714] border border-[#29382f] text-white focus:outline-none focus:border-[#1dc964]"
+                      className="flex-1 px-3 py-1 rounded bg-background border border-border text-white focus:outline-none focus:border-[#1dc964]"
                     />
                   ) : (
                     <span>{profileData.department}</span>
                   )}
                 </div>
-                <div className="flex items-center gap-2 text-[#9eb7a9]">
+                <div className="flex items-center gap-2 text-text-secondary">
                   <span className="material-symbols-outlined text-[#1dc964]">
                     calendar_today
                   </span>
@@ -209,44 +209,44 @@ export default function SocietyProfile() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6 text-center">
+          <div className="bg-surface border border-border rounded-lg p-6 text-center">
             <span className="material-symbols-outlined text-4xl text-[#1dc964] mb-2">
               group
             </span>
             <div className="text-3xl font-bold text-white">
               {profileData.stats.totalMembers}
             </div>
-            <div className="text-sm text-[#9eb7a9] mt-1">Total Members</div>
+            <div className="text-sm text-text-secondary mt-1">Total Members</div>
           </div>
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6 text-center">
+          <div className="bg-surface border border-border rounded-lg p-6 text-center">
             <span className="material-symbols-outlined text-4xl text-[#1dc964] mb-2">
               event
             </span>
             <div className="text-3xl font-bold text-white">
               {profileData.stats.eventsOrganized}
             </div>
-            <div className="text-sm text-[#9eb7a9] mt-1">Events Organized</div>
+            <div className="text-sm text-text-secondary mt-1">Events Organized</div>
           </div>
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6 text-center">
+          <div className="bg-surface border border-border rounded-lg p-6 text-center">
             <span className="material-symbols-outlined text-4xl text-[#1dc964] mb-2">
               groups
             </span>
             <div className="text-3xl font-bold text-white">
               {profileData.stats.societies}
             </div>
-            <div className="text-sm text-[#9eb7a9] mt-1">Societies Led</div>
+            <div className="text-sm text-text-secondary mt-1">Societies Led</div>
           </div>
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6 text-center">
+          <div className="bg-surface border border-border rounded-lg p-6 text-center">
             <span className="material-symbols-outlined text-4xl text-[#1dc964] mb-2">
               trending_up
             </span>
             <div className="text-3xl font-bold text-white">+112</div>
-            <div className="text-sm text-[#9eb7a9] mt-1">Growth This Month</div>
+            <div className="text-sm text-text-secondary mt-1">Growth This Month</div>
           </div>
         </div>
 
         {/* Tabs */}
-        <div className="bg-[#1a241e] border-b border-[#29382f] rounded-t-lg">
+        <div className="bg-surface border-b border-border rounded-t-lg">
           <div className="flex gap-6 px-6">
             {["overview", "societies", "achievements", "activity"].map(
               (tab) => (
@@ -256,7 +256,7 @@ export default function SocietyProfile() {
                   className={`px-4 py-3 text-sm font-medium capitalize border-b-2 transition-colors ${
                     activeTab === tab
                       ? "border-[#1dc964] text-white"
-                      : "border-transparent text-[#9eb7a9] hover:text-white"
+                      : "border-transparent text-text-secondary hover:text-white"
                   }`}
                 >
                   {tab}
@@ -267,7 +267,7 @@ export default function SocietyProfile() {
         </div>
 
         {/* Tab Content */}
-        <div className="bg-[#1a241e] border border-[#29382f] border-t-0 rounded-b-lg p-6 mb-8">
+        <div className="bg-surface border border-border border-t-0 rounded-b-lg p-6 mb-8">
           {/* Overview Tab */}
           {activeTab === "overview" && (
             <div className="space-y-6">
@@ -280,10 +280,10 @@ export default function SocietyProfile() {
                       setProfileData({ ...profileData, bio: e.target.value })
                     }
                     rows={4}
-                    className="w-full px-4 py-3 rounded-lg bg-[#111714] border border-[#29382f] text-white focus:outline-none focus:border-[#1dc964]"
+                    className="w-full px-4 py-3 rounded-lg bg-background border border-border text-white focus:outline-none focus:border-[#1dc964]"
                   />
                 ) : (
-                  <p className="text-[#9eb7a9]">{profileData.bio}</p>
+                  <p className="text-text-secondary">{profileData.bio}</p>
                 )}
               </div>
             </div>
@@ -298,7 +298,7 @@ export default function SocietyProfile() {
               {profileData.societies.map((society) => (
                 <div
                   key={society.id}
-                  className="flex items-center justify-between p-4 bg-[#111714] rounded-lg border border-[#29382f] hover:border-[#1dc964]/50 transition-colors"
+                  className="flex items-center justify-between p-4 bg-background rounded-lg border border-border hover:border-[#1dc964]/50 transition-colors"
                 >
                   <div className="flex items-center gap-4">
                     <span className="text-4xl">{society.emoji}</span>
@@ -306,12 +306,12 @@ export default function SocietyProfile() {
                       <h4 className="text-white font-semibold">
                         {society.name}
                       </h4>
-                      <p className="text-[#9eb7a9] text-sm">{society.role}</p>
+                      <p className="text-text-secondary text-sm">{society.role}</p>
                     </div>
                   </div>
                   <button
                     onClick={() => navigate("/society/manage")}
-                    className="px-4 py-2 rounded-lg bg-[#29382f] text-white text-sm font-medium hover:bg-[#29382f]/80 transition-colors"
+                    className="px-4 py-2 rounded-lg bg-surface-hover text-white text-sm font-medium hover:bg-surface-hover/80 transition-colors"
                   >
                     Manage
                   </button>
@@ -329,9 +329,9 @@ export default function SocietyProfile() {
               {profileData.achievements.map((achievement) => (
                 <div
                   key={achievement.id}
-                  className="flex items-center gap-4 p-4 bg-[#111714] rounded-lg border border-[#29382f]"
+                  className="flex items-center gap-4 p-4 bg-background rounded-lg border border-border"
                 >
-                  <div className="w-12 h-12 rounded-full bg-[#1dc964]/20 flex items-center justify-center">
+                  <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center">
                     <span className="material-symbols-outlined text-[#1dc964] text-2xl">
                       {achievement.icon}
                     </span>
@@ -340,7 +340,7 @@ export default function SocietyProfile() {
                     <h4 className="text-white font-semibold">
                       {achievement.title}
                     </h4>
-                    <p className="text-[#9eb7a9] text-sm">{achievement.date}</p>
+                    <p className="text-text-secondary text-sm">{achievement.date}</p>
                   </div>
                 </div>
               ))}
@@ -353,7 +353,7 @@ export default function SocietyProfile() {
               <h3 className="text-xl font-bold text-white mb-4">
                 Recent Activity
               </h3>
-              <div className="text-center py-12 text-[#9eb7a9]">
+              <div className="text-center py-12 text-text-secondary">
                 <span className="material-symbols-outlined text-6xl text-[#29382f] block mb-4">
                   history
                 </span>

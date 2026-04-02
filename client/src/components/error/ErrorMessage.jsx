@@ -12,14 +12,14 @@ export default function ErrorMessage({
 
 	return (
 		<div
-			className={`rounded-lg border bg-[#0d1117] px-4 py-3 ${variantStyles[variant] || variantStyles.error} ${className}`}
+			className={`rounded-lg border bg-background px-4 py-3 ${variantStyles[variant] || variantStyles.error} ${className}`}
 			role="alert"
 		>
 			<div className="flex items-start gap-3">
 				<span className="material-symbols-outlined">error</span>
 				<div className="flex flex-col gap-1">
 					<p className="font-semibold text-[#e6edf3]">{title}</p>
-					{message && <p className="text-sm text-[#8b949e]">{message}</p>}
+					{message && <p className="text-sm text-text-secondary">{message}</p>}
 				</div>
 			</div>
 		</div>

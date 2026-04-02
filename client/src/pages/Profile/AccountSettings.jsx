@@ -53,7 +53,7 @@ export default function AccountSettings() {
   };
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen">
+    <div className="w-full bg-background text-text-primary min-h-screen">
       {/* Header */}
       <ProfilePageHeader
         title="Account Settings"

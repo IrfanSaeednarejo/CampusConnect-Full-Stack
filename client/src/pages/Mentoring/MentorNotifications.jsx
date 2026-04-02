@@ -127,7 +127,7 @@ export default function MentorNotifications() {
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
       <div className="layout-container flex h-full grow flex-col">
         <MentorTopBar backPath="/mentor/dashboard" />
 
@@ -149,7 +149,7 @@ export default function MentorNotifications() {
                   </button>
                 )}
               </div>
-              <p className="text-[#9eb7a9] text-base font-normal leading-normal">
+              <p className="text-text-secondary text-base font-normal leading-normal">
                 {loading
                   ? "Loading notifications..."
                   : unreadCount > 0
@@ -159,13 +159,13 @@ export default function MentorNotifications() {
             </div>
 
             {/* Tabs */}
-            <div className="flex gap-4 mb-6 border-b border-[#30363d]">
+            <div className="flex gap-4 mb-6 border-b border-border">
               <button
                 onClick={() => setActiveTab("all")}
                 className={`px-4 py-3 font-medium transition-colors flex items-center gap-2 ${
                   activeTab === "all"
                     ? "text-[#1dc964] border-b-2 border-[#1dc964]"
-                    : "text-[#9eb7a9] hover:text-white"
+                    : "text-text-secondary hover:text-white"
                 }`}
               >
                 <span className="material-symbols-outlined">list</span>
@@ -176,7 +176,7 @@ export default function MentorNotifications() {
                 className={`px-4 py-3 font-medium transition-colors flex items-center gap-2 ${
                   activeTab === "unread"
                     ? "text-[#1dc964] border-b-2 border-[#1dc964]"
-                    : "text-[#9eb7a9] hover:text-white"
+                    : "text-text-secondary hover:text-white"
                 }`}
               >
                 <span className="material-symbols-outlined">mark_email_unread</span>
@@ -194,7 +194,7 @@ export default function MentorNotifications() {
             {loading ? (
               <div className="flex flex-col items-center justify-center gap-4 py-16">
                 <div className="w-10 h-10 border-4 border-[#1dc964] border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-[#9eb7a9]">Loading notifications...</p>
+                <p className="text-text-secondary">Loading notifications...</p>
               </div>
             ) : filteredNotifications.length > 0 ? (
               <div className="space-y-4">
@@ -209,8 +209,8 @@ export default function MentorNotifications() {
                       key={nId}
                       className={`flex items-start gap-4 p-5 rounded-xl border transition-all ${
                         notification.read
-                          ? "bg-[#161b22] border-[#30363d]"
-                          : "bg-[#1dc964]/10 border-[#1dc964]/50 hover:border-[#1dc964]"
+                          ? "bg-surface border-border"
+                          : "bg-primary/10 border-[#1dc964]/50 hover:border-[#1dc964]"
                       }`}
                     >
                       <div
@@ -229,22 +229,22 @@ export default function MentorNotifications() {
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
                             <h3
-                              className={`font-semibold ${notification.read ? "text-[#9eb7a9]" : "text-white"}`}
+                              className={`font-semibold ${notification.read ? "text-text-secondary" : "text-white"}`}
                             >
                               {notification.title || nType.replace(/_/g, " ")}
                             </h3>
                             <p
-                              className={`text-sm mt-1 ${notification.read ? "text-[#9eb7a9]" : "text-[#c9d1d9]"}`}
+                              className={`text-sm mt-1 ${notification.read ? "text-text-secondary" : "text-text-primary"}`}
                             >
                               {notification.message || notification.body || ""}
                             </p>
-                            <p className="text-[#9eb7a9] text-xs mt-2">
+                            <p className="text-text-secondary text-xs mt-2">
                               {formatTimestamp(notification.createdAt || notification.timestamp)}
                             </p>
                           </div>
 
                           {!notification.read && (
-                            <div className="flex-shrink-0 w-2 h-2 rounded-full bg-[#1dc964] mt-1"></div>
+                            <div className="flex-shrink-0 w-2 h-2 rounded-full bg-primary mt-1"></div>
                           )}
                         </div>
 
@@ -262,7 +262,7 @@ export default function MentorNotifications() {
                           <button
                             onClick={() => handleDelete(nId)}
                             disabled={actionLoading === nId}
-                            className="text-xs text-[#9eb7a9] hover:text-red-400 transition-colors flex items-center gap-1 ml-auto disabled:opacity-50"
+                            className="text-xs text-text-secondary hover:text-red-400 transition-colors flex items-center gap-1 ml-auto disabled:opacity-50"
                           >
                             <span className="material-symbols-outlined text-sm">delete</span>
                             Delete
@@ -275,14 +275,14 @@ export default function MentorNotifications() {
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center gap-6 py-16 text-center">
-                <span className="material-symbols-outlined text-6xl text-[#9eb7a9]">
+                <span className="material-symbols-outlined text-6xl text-text-secondary">
                   notifications_off
                 </span>
                 <div>
                   <p className="text-white text-lg font-bold">
                     No {activeTab === "unread" ? "unread " : ""}notifications
                   </p>
-                  <p className="text-[#9eb7a9] text-sm">
+                  <p className="text-text-secondary text-sm">
                     You're all caught up!
                   </p>
                 </div>

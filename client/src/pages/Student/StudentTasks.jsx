@@ -12,16 +12,16 @@ import {
 
 function TaskColumn({ title, statusId, tasks, onStatusChange, onDelete }) {
   return (
-    <div className="flex flex-col flex-1 bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden min-h-[400px]">
-      <div className="bg-[#1f2428] px-4 py-3 border-b border-[#30363d] flex justify-between items-center">
+    <div className="flex flex-col flex-1 bg-surface border border-border rounded-xl overflow-hidden min-h-[400px]">
+      <div className="bg-[#1f2428] px-4 py-3 border-b border-border flex justify-between items-center">
         <h3 className="font-bold text-white tracking-wide uppercase text-sm">{title}</h3>
-        <span className="bg-[#30363d] text-[#c9d1d9] text-xs px-2 py-0.5 rounded-full font-bold">
+        <span className="bg-[#30363d] text-text-primary text-xs px-2 py-0.5 rounded-full font-bold">
           {tasks.length}
         </span>
       </div>
       <div className="p-3 flex flex-col gap-3 flex-1 overflow-y-auto">
         {tasks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-[#8b949e] opacity-60 my-auto py-10">
+          <div className="flex flex-col items-center justify-center h-full text-text-secondary opacity-60 my-auto py-10">
             <span className="material-symbols-outlined text-4xl mb-2">check_box_outline_blank</span>
             <p className="text-sm">Empty</p>
           </div>
@@ -48,7 +48,7 @@ function TaskCard({ task, onStatusChange, onDelete }) {
   const statusColors = {
     'pending': 'border-[#d29922]',
     'in_progress': 'border-[#2f81f7]',
-    'done': 'border-[#238636]',
+    'done': 'border-primary',
     'past': 'border-[#8b949e]'
   };
 
@@ -60,15 +60,15 @@ function TaskCard({ task, onStatusChange, onDelete }) {
   };
 
   return (
-    <div className={`bg-[#0d1117] border-l-4 ${statusColors[task.status] || 'border-[#8b949e]'} border-[#30363d] p-3 rounded shadow hover:border-[#8b949e] transition-colors relative group opacity-${isLoading ? '50' : '100'}`}>
+    <div className={`bg-background border-l-4 ${statusColors[task.status] || 'border-[#8b949e]'} border-border p-3 rounded shadow hover:border-[#8b949e] transition-colors relative group opacity-${isLoading ? '50' : '100'}`}>
       <div className="flex justify-between items-start gap-2 mb-2">
-        <h4 className={`text-sm font-semibold leading-tight pr-6 ${task.status === 'past' ? 'text-[#8b949e] line-through' : 'text-white'}`}>
+        <h4 className={`text-sm font-semibold leading-tight pr-6 ${task.status === 'past' ? 'text-text-secondary line-through' : 'text-white'}`}>
           {task.title}
         </h4>
         <button 
           onClick={() => onDelete(task._id)}
           disabled={isLoading}
-          className="text-[#8b949e] hover:text-[#f85149] transition-colors absolute top-3 right-3 opacity-0 group-hover:opacity-100"
+          className="text-text-secondary hover:text-[#f85149] transition-colors absolute top-3 right-3 opacity-0 group-hover:opacity-100"
           title="Delete task"
         >
           <span className="material-symbols-outlined text-[18px]">delete</span>
@@ -76,7 +76,7 @@ function TaskCard({ task, onStatusChange, onDelete }) {
       </div>
       
       <div className="flex justify-between items-end mt-4 text-xs font-medium">
-        <div className="text-[#8b949e] flex items-center gap-1">
+        <div className="text-text-secondary flex items-center gap-1">
           <span className="material-symbols-outlined text-[14px]">flag</span>
           <span className="capitalize">{task.priority}</span>
         </div>
@@ -84,7 +84,7 @@ function TaskCard({ task, onStatusChange, onDelete }) {
         <button 
           onClick={() => onStatusChange(task._id, nextStatusMap[task.status])}
           disabled={isLoading}
-          className="bg-[#21262d] hover:bg-[#30363d] text-[#c9d1d9] px-2 py-1 flex items-center gap-1.5 rounded border border-[#30363d] transition-colors"
+          className="bg-surface-hover hover:bg-[#30363d] text-text-primary px-2 py-1 flex items-center gap-1.5 rounded border border-border transition-colors"
         >
           <span>{nextStatusLabel[nextStatusMap[task.status]]}</span>
           <span className="material-symbols-outlined text-[14px]">
@@ -123,14 +123,14 @@ export default function StudentTasks() {
   const pastTasks = tasks.filter(t => t.status === 'past');
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen">
+    <div className="w-full bg-background text-text-primary min-h-screen">
 
       {/* Main Content */}
-      <main className="px-4 sm:px-10 lg:px-20 py-5 md:py-10 max-w-[1400px] mx-auto">
+      <main className="px-4 sm:px-10 lg:px-20 py-5 md:py-10 max-w-7xl mx-auto">
         <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">My Tasks</h1>
-            <p className="text-[#8b949e]">Keep track of assignments and events.</p>
+            <p className="text-text-secondary">Keep track of assignments and events.</p>
           </div>
 
           <form onSubmit={handleCreate} className="flex gap-2 w-full md:w-auto">
@@ -139,12 +139,12 @@ export default function StudentTasks() {
               placeholder="What needs to be done?" 
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
-              className="bg-[#161b22] border border-[#30363d] text-white text-sm rounded-lg focus:ring-[#238636] focus:border-[#238636] block w-full md:w-64 p-2.5 outline-none transition-colors"
+              className="bg-surface border border-border text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full md:w-64 p-2.5 outline-none transition-colors"
             />
             <button 
               type="submit"
               disabled={!newTaskTitle.trim() || status === 'loading'}
-              className="bg-[#238636] hover:bg-[#2ea043] text-white font-bold rounded-lg text-sm px-5 py-2.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className="bg-primary hover:bg-primary-hover text-white font-bold rounded-lg text-sm px-5 py-2.5 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               <span className="material-symbols-outlined text-[18px]">add</span>
               Add
@@ -154,9 +154,9 @@ export default function StudentTasks() {
 
         {status === 'loading' ? (
           <div className="animate-pulse flex gap-6 h-[500px]">
-            <div className="flex-1 bg-[#161b22] rounded-xl border border-[#30363d]"></div>
-            <div className="flex-1 bg-[#161b22] rounded-xl border border-[#30363d]"></div>
-            <div className="flex-1 bg-[#161b22] rounded-xl border border-[#30363d]"></div>
+            <div className="flex-1 bg-surface rounded-xl border border-border"></div>
+            <div className="flex-1 bg-surface rounded-xl border border-border"></div>
+            <div className="flex-1 bg-surface rounded-xl border border-border"></div>
           </div>
         ) : (
           <div className="flex flex-col gap-8">
@@ -187,10 +187,10 @@ export default function StudentTasks() {
 
             {/* Past Tasks Archive */}
             {pastTasks.length > 0 && (
-              <div className="mt-4 pt-6 border-t border-[#30363d]/50">
+              <div className="mt-4 pt-6 border-t border-border/50">
                 <button 
                   onClick={() => setShowPastTasks(!showPastTasks)}
-                  className="flex items-center gap-2 text-[#8b949e] hover:text-white transition-colors font-semibold text-sm bg-[#161b22] border border-[#30363d] px-4 py-2 rounded-lg"
+                  className="flex items-center gap-2 text-text-secondary hover:text-white transition-colors font-semibold text-sm bg-surface border border-border px-4 py-2 rounded-lg"
                 >
                   <span className="material-symbols-outlined text-[18px] transition-transform duration-200" style={{ transform: showPastTasks ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                     expand_more

@@ -10,7 +10,7 @@ export default function ErrorPageShell({
 }) {
   return (
     <div
-      className={`min-h-screen bg-[#0d1117] flex items-center justify-center px-4 ${className}`}
+      className={`min-h-screen bg-background flex items-center justify-center px-4 ${className}`}
     >
       <div className="text-center max-w-md">
         {icon && (
@@ -31,7 +31,7 @@ export default function ErrorPageShell({
           </h2>
         )}
         {message && (
-          <p className="text-xl text-[#8b949e] mb-8">{message}</p>
+          <p className="text-xl text-text-secondary mb-8">{message}</p>
         )}
         {actions && (
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

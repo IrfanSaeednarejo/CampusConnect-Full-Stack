@@ -74,7 +74,7 @@ export default function ResetPassword() {
   };
 
   return (
-    <AuthShell className="bg-[#0d1117] text-[#e6edf3] group/design-root">
+    <AuthShell className="bg-background text-[#e6edf3] group/design-root">
       <div className="flex flex-1 items-center justify-center py-5 px-4 sm:px-6 lg:px-8">
         <div className="flex w-full max-w-md flex-col items-center space-y-8">
           {/* Header */}
@@ -105,7 +105,7 @@ export default function ResetPassword() {
               <p className="text-[#e6edf3] text-2xl font-bold leading-tight">
                 Reset Your Password
               </p>
-              <p className="text-[#8b949e] text-sm font-normal leading-normal">
+              <p className="text-text-secondary text-sm font-normal leading-normal">
                 Create a new, strong password for your account.
               </p>
             </div>
@@ -128,7 +128,7 @@ export default function ResetPassword() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-9 text-[#8b949e] hover:text-[#e6edf3]"
+                    className="absolute right-3 top-9 text-text-secondary hover:text-[#e6edf3]"
                     style={{ marginTop: "2.5rem" }}
                   >
                     <span className="material-symbols-outlined text-lg">
@@ -169,7 +169,7 @@ export default function ResetPassword() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-9 text-[#8b949e] hover:text-[#e6edf3]"
+                    className="absolute right-3 top-9 text-text-secondary hover:text-[#e6edf3]"
                     style={{ marginTop: "2.5rem" }}
                   >
                     <span className="material-symbols-outlined text-lg">
@@ -191,7 +191,7 @@ export default function ResetPassword() {
           </AuthCard>
 
           {/* Sign In Link */}
-          <p className="text-center text-sm text-[#8b949e]">
+          <p className="text-center text-sm text-text-secondary">
             Remember your password?{" "}
             <button
               type="button"

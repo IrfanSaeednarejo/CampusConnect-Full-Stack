@@ -6,7 +6,7 @@ export default function AcademicsShell({
   mainClassName = "",
 }) {
   return (
-    <div className="flex min-h-screen bg-[#f6f7f8] dark:bg-[#0d1117]">
+    <div className="flex min-h-screen bg-[#f6f7f8] dark:bg-background">
       <AcademicsSidebar activePath={activePath} />
       <main className={`flex-1 p-6 lg:p-8 ${mainClassName}`}>{children}</main>
     </div>

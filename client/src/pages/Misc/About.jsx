@@ -62,8 +62,8 @@ export default function AboutUs() {
   }, []);
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
-      <div className="max-w-[960px] mx-auto">
+    <div className="w-full bg-background text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
+      <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-12">
           <SectionHeader
@@ -77,7 +77,7 @@ export default function AboutUs() {
         <div className="flex flex-col gap-6 mb-12">
           <Card padding="p-6">
             <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
-            <p className="text-[#8b949e] leading-relaxed">
+            <p className="text-text-secondary leading-relaxed">
               CampusConnect is dedicated to breaking down barriers and fostering
               meaningful connections across campus. We believe that every
               student deserves access to mentorship, opportunities, and a
@@ -89,7 +89,7 @@ export default function AboutUs() {
 
           <Card padding="p-6">
             <h2 className="text-2xl font-bold mb-4">Our Vision</h2>
-            <p className="text-[#8b949e] leading-relaxed">
+            <p className="text-text-secondary leading-relaxed">
               We envision a campus where every student feels connected,
               supported, and inspired to pursue their passions. A place where
               knowledge is shared freely, opportunities are accessible to all,
@@ -136,7 +136,7 @@ export default function AboutUs() {
         {/* Team Section */}
         <Card className="text-center">
           <h2 className="text-2xl font-bold mb-4">Join Our Team</h2>
-          <p className="text-[#8b949e] mb-6">
+          <p className="text-text-secondary mb-6">
             Interested in joining the CampusConnect team? We're always looking
             for passionate individuals to help us build the future of campus
             connectivity.

@@ -6,7 +6,7 @@ export default function SocietyTabs({
   containerClassName = "",
 }) {
   return (
-    <div className={`bg-[#1a241e] border-b border-[#29382f] ${containerClassName}`}>
+    <div className={`bg-surface border-b border-border ${containerClassName}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className={`flex gap-6 ${className}`}>
           {tabs.map((tab) => {
@@ -21,12 +21,12 @@ export default function SocietyTabs({
                 className={`px-4 py-3 text-sm font-medium capitalize border-b-2 transition-colors ${
                   activeTab === value
                     ? "border-[#1dc964] text-white"
-                    : "border-transparent text-[#9eb7a9] hover:text-white"
+                    : "border-transparent text-text-secondary hover:text-white"
                 }`}
               >
                 {label}
                 {badge ? (
-                  <span className="ml-2 px-2 py-0.5 rounded-full bg-[#1dc964] text-[#111714] text-xs font-bold">
+                  <span className="ml-2 px-2 py-0.5 rounded-full bg-primary text-white text-xs font-bold">
                     {badge}
                   </span>
                 ) : null}

@@ -53,19 +53,19 @@ export default function MentorDisplayProfile() {
   };
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen">
+    <div className="w-full bg-background text-text-primary min-h-screen">
       {/* Header */}
       <header className="flex items-center justify-between border-b border-[#21262d] px-6 lg:px-10 py-3">
         <div className="flex items-center gap-8">
           <button
             onClick={() => navigate(-1)}
-            className="text-[#c9d1d9] hover:text-[#238636] transition-colors"
+            className="text-text-primary hover:text-primary transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <div className="flex items-center gap-4 text-[#c9d1d9]">
+          <div className="flex items-center gap-4 text-text-primary">
             <svg
-              className="size-6 text-[#238636]"
+              className="size-6 text-primary"
               fill="none"
               viewBox="0 0 48 48"
               xmlns="http://www.w3.org/2000/svg"
@@ -75,44 +75,44 @@ export default function MentorDisplayProfile() {
                 fill="currentColor"
               ></path>
             </svg>
-            <h2 className="text-[#c9d1d9] text-lg font-bold">CampusConnect</h2>
+            <h2 className="text-text-primary text-lg font-bold">CampusConnect</h2>
           </div>
         </div>
         <div className="hidden md:flex flex-1 justify-end gap-6 mr-4">
           <a
-            className="text-[#8b949e] hover:text-[#c9d1d9] text-sm font-medium transition-colors"
+            className="text-text-secondary hover:text-text-primary text-sm font-medium transition-colors"
             href="#dashboard"
           >
             Dashboard
           </a>
           <a
-            className="text-[#8b949e] hover:text-[#c9d1d9] text-sm font-medium transition-colors"
+            className="text-text-secondary hover:text-text-primary text-sm font-medium transition-colors"
             href="#events"
           >
             Events
           </a>
           <a
-            className="text-[#8b949e] hover:text-[#c9d1d9] text-sm font-medium transition-colors"
+            className="text-text-secondary hover:text-text-primary text-sm font-medium transition-colors"
             href="#mentors"
           >
             Mentors
           </a>
           <a
-            className="text-[#8b949e] hover:text-[#c9d1d9] text-sm font-medium transition-colors"
+            className="text-text-secondary hover:text-text-primary text-sm font-medium transition-colors"
             href="#societies"
           >
             Societies
           </a>
           <a
-            className="text-[#8b949e] hover:text-[#c9d1d9] text-sm font-medium transition-colors"
+            className="text-text-secondary hover:text-text-primary text-sm font-medium transition-colors"
             href="#messages"
           >
             Messages
           </a>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center justify-center size-10 hover:bg-[#161b22] transition-colors rounded-lg">
-            <span className="material-symbols-outlined text-[#8b949e]">
+          <button className="flex items-center justify-center size-10 hover:bg-surface transition-colors rounded-lg">
+            <span className="material-symbols-outlined text-text-secondary">
               notifications
             </span>
           </button>
@@ -125,19 +125,19 @@ export default function MentorDisplayProfile() {
 
       {/* Main Content */}
       <main className="px-4 py-8 md:px-10 lg:px-20 xl:px-40">
-        <div className="mx-auto w-full max-w-[1280px] flex flex-col gap-8">
+        <div className="mx-auto w-full max-w-7xl flex flex-col gap-8">
           {/* Page Heading */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-col gap-1">
-              <h1 className="text-[#c9d1d9] text-3xl font-bold md:text-4xl">
+              <h1 className="text-text-primary text-3xl font-bold md:text-4xl">
                 Olivia Chen's Profile
               </h1>
             </div>
             <div className="group relative flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#8b949e]">
+              <span className="material-symbols-outlined text-text-secondary">
                 lock
               </span>
-              <p className="text-[#8b949e] text-sm font-normal">
+              <p className="text-text-secondary text-sm font-normal">
                 Some fields are hidden due to privacy settings.
               </p>
             </div>
@@ -155,14 +155,14 @@ export default function MentorDisplayProfile() {
                 />
                 <div className="flex flex-col gap-4">
                   <div className="flex flex-col gap-1">
-                    <h2 className="text-[#c9d1d9] text-2xl font-bold">
+                    <h2 className="text-text-primary text-2xl font-bold">
                       {mentorData.name}
                     </h2>
-                    <p className="text-[#8b949e] text-base font-normal">
+                    <p className="text-text-secondary text-base font-normal">
                       {mentorData.description}
                     </p>
                   </div>
-                  <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#238636] hover:bg-green-600 transition-colors text-white text-sm font-bold">
+                  <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary hover:bg-green-600 transition-colors text-white text-sm font-bold">
                     <span>Send Message</span>
                   </button>
                 </div>
@@ -174,24 +174,24 @@ export default function MentorDisplayProfile() {
               <div className="flex flex-col gap-8">
                 {/* Societies Section */}
                 <section>
-                  <h3 className="text-[#c9d1d9] text-xl font-bold border-b border-[#21262d] pb-3 mb-4">
+                  <h3 className="text-text-primary text-xl font-bold border-b border-[#21262d] pb-3 mb-4">
                     Societies & Affiliations
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {mentorData.societies.map((society) => (
                       <div key={society.id} className="flex flex-col gap-3">
                         <div
-                          className="w-full bg-[#161b22] bg-center bg-no-repeat aspect-video bg-contain rounded-lg p-4"
+                          className="w-full bg-surface bg-center bg-no-repeat aspect-video bg-contain rounded-lg p-4"
                           style={{
                             backgroundImage: `url("${society.image}")`,
                             backgroundSize: "80%",
                           }}
                         />
                         <div>
-                          <p className="text-[#c9d1d9] text-base font-medium">
+                          <p className="text-text-primary text-base font-medium">
                             {society.name}
                           </p>
-                          <p className="text-[#8b949e] text-sm font-normal">
+                          <p className="text-text-secondary text-sm font-normal">
                             {society.role}
                           </p>
                         </div>
@@ -202,30 +202,30 @@ export default function MentorDisplayProfile() {
 
                 {/* Events Section */}
                 <section>
-                  <h3 className="text-[#c9d1d9] text-xl font-bold border-b border-[#21262d] pb-3 mb-4">
+                  <h3 className="text-text-primary text-xl font-bold border-b border-[#21262d] pb-3 mb-4">
                     Events
                   </h3>
                   <div className="flex flex-col gap-4">
                     {mentorData.events.map((event) => (
                       <div
                         key={event.id}
-                        className="flex items-center gap-4 rounded-lg border border-[#21262d] p-4 bg-[#161b22] hover:border-[#238636]/50 transition-colors"
+                        className="flex items-center gap-4 rounded-lg border border-[#21262d] p-4 bg-surface hover:border-primary/50 transition-colors"
                       >
-                        <div className="flex h-12 w-12 flex-col items-center justify-center rounded-lg bg-[#0d1117]">
-                          <span className="text-xs font-bold uppercase text-[#238636]">
+                        <div className="flex h-12 w-12 flex-col items-center justify-center rounded-lg bg-background">
+                          <span className="text-xs font-bold uppercase text-primary">
                             {event.month}
                           </span>
-                          <span className="text-xl font-bold text-[#c9d1d9]">
+                          <span className="text-xl font-bold text-text-primary">
                             {event.day}
                           </span>
                         </div>
                         <div className="flex-grow">
-                          <p className="font-semibold text-[#c9d1d9]">
+                          <p className="font-semibold text-text-primary">
                             {event.title}
                           </p>
-                          <p className="text-sm text-[#8b949e]">{event.role}</p>
+                          <p className="text-sm text-text-secondary">{event.role}</p>
                         </div>
-                        <span className="material-symbols-outlined text-[#8b949e]">
+                        <span className="material-symbols-outlined text-text-secondary">
                           chevron_right
                         </span>
                       </div>
@@ -234,13 +234,13 @@ export default function MentorDisplayProfile() {
 
                   {/* Empty State */}
                   <div className="mt-8 text-center rounded-lg border-2 border-dashed border-[#21262d] p-8">
-                    <span className="material-symbols-outlined text-4xl text-[#8b949e]">
+                    <span className="material-symbols-outlined text-4xl text-text-secondary">
                       visibility_off
                     </span>
-                    <p className="mt-2 font-semibold text-[#c9d1d9]">
+                    <p className="mt-2 font-semibold text-text-primary">
                       Projects are Private
                     </p>
-                    <p className="text-sm text-[#8b949e]">
+                    <p className="text-sm text-text-secondary">
                       This user has not made their projects public.
                     </p>
                   </div>
