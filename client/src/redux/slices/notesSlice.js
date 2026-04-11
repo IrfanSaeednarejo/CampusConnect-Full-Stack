@@ -5,7 +5,14 @@ export const fetchNotes = createAsyncThunk(
   'notes/fetchNotes',
   async () => {
     const response = await notesApi.getAll();
-    return response;
+    // Normalize backend response to match the UI expectations
+    const raw = Array.isArray(response) ? response : (response?.data || response?.docs || []);
+    return raw.map(note => ({
+      ...note,
+      id: note._id || note.id,
+      uploadedAt: note.uploadedAt || note.createdAt,
+      uploadedBy: note.author?.profile?.displayName || note.author?.email || 'You',
+    }));
   }
 );
 

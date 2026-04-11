@@ -1,9 +1,15 @@
 import { Note } from '../models/Note.js';
 
-// Get all notes
+// Get notes: user's own + shared notes from others
 export const getNotes = async (req, res) => {
     try {
-        const notes = await Note.find().populate('author', 'email profile.firstName profile.lastName').sort({ createdAt: -1 });
+        const userId = req.user._id || req.user.id;
+        const notes = await Note.find({
+            $or: [
+                { author: userId },
+                { isShared: true }
+            ]
+        }).populate('author', 'email profile.firstName profile.lastName profile.displayName').sort({ createdAt: -1 });
         res.json(notes);
     } catch (error) {
         res.status(500).json({ message: 'Server error fetching notes', error: error.message });
