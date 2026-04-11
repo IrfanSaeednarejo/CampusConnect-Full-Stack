@@ -74,13 +74,13 @@ export default function ResetPassword() {
   };
 
   return (
-    <AuthShell className="bg-background text-[#e6edf3] group/design-root">
+    <AuthShell className="bg-background text-text-primary group/design-root">
       <div className="flex flex-1 items-center justify-center py-5 px-4 sm:px-6 lg:px-8">
         <div className="flex w-full max-w-md flex-col items-center space-y-8">
           {/* Header */}
           <div className="text-center">
             <svg
-              className="mx-auto h-12 w-auto text-[#1dc964]"
+              className="mx-auto h-12 w-auto text-primary"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"
@@ -93,7 +93,7 @@ export default function ResetPassword() {
                 strokeLinejoin="round"
               ></path>
             </svg>
-            <h1 className="mt-6 text-3xl font-black tracking-tighter text-[#e6edf3]">
+            <h1 className="mt-6 text-3xl font-black tracking-tighter text-text-primary">
               CampusConnect
             </h1>
           </div>
@@ -102,7 +102,7 @@ export default function ResetPassword() {
           <AuthCard className="p-8">
             {/* Headings */}
             <div className="flex flex-col gap-2 mb-6">
-              <p className="text-[#e6edf3] text-2xl font-bold leading-tight">
+              <p className="text-text-primary text-2xl font-bold leading-tight">
                 Reset Your Password
               </p>
               <p className="text-text-secondary text-sm font-normal leading-normal">
@@ -128,7 +128,7 @@ export default function ResetPassword() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-9 text-text-secondary hover:text-[#e6edf3]"
+                    className="absolute right-3 top-9 text-text-secondary hover:text-text-primary"
                     style={{ marginTop: "2.5rem" }}
                   >
                     <span className="material-symbols-outlined text-lg">
@@ -138,7 +138,7 @@ export default function ResetPassword() {
                   {/* Password Strength Indicator */}
                   {form.password && (
                     <div className="mt-2 flex items-center space-x-2">
-                      <div className="h-1 flex-1 rounded-full bg-[#30363d] overflow-hidden">
+                      <div className="h-1 flex-1 rounded-full bg-[#C7D2FE] overflow-hidden">
                         <div
                           className={`h-1 ${passwordStrength.color} transition-all`}
                           style={{
@@ -169,7 +169,7 @@ export default function ResetPassword() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-9 text-text-secondary hover:text-[#e6edf3]"
+                    className="absolute right-3 top-9 text-text-secondary hover:text-text-primary"
                     style={{ marginTop: "2.5rem" }}
                   >
                     <span className="material-symbols-outlined text-lg">
@@ -196,7 +196,7 @@ export default function ResetPassword() {
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="font-medium text-[#1dc964] hover:underline cursor-pointer"
+              className="font-medium text-primary hover:underline cursor-pointer"
             >
               Sign in
             </button>

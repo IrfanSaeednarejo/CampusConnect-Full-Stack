@@ -42,7 +42,7 @@ function SocietyActionBlock({ society, tab }) {
               onConfirm: () => dispatch(leaveSociety(society._id))
             })}
             disabled={isLoading}
-            className="flex-1 border border-[#f85149] text-[#f85149] hover:bg-[#f85149]/10 py-2 rounded-lg font-bold text-sm transition-colors flex items-center justify-center gap-2"
+            className="flex-1 border border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626]/10 py-2 rounded-lg font-bold text-sm transition-colors flex items-center justify-center gap-2"
           >
             {isLoading ? (
               <span className="material-symbols-outlined text-[18px] animate-spin">sync</span>
@@ -116,7 +116,7 @@ export default function StudentSocieties() {
       {/* Main Content */}
       <main className="px-4 sm:px-10 lg:px-20 py-5 md:py-10 max-w-6xl mx-auto">
         <div className="mb-8 flex flex-col gap-2">
-          <h1 className="text-4xl font-bold text-white">Societies & Clubs</h1>
+          <h1 className="text-4xl font-bold text-text-primary">Societies & Clubs</h1>
           <p className="text-text-secondary">Join communities and make meaningful connections in your campus.</p>
         </div>
 
@@ -124,21 +124,21 @@ export default function StudentSocieties() {
         <div className="bg-surface border border-border rounded-lg p-2 mb-8 inline-flex flex-wrap gap-2">
           <button
             onClick={() => setActiveTab("all")}
-            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "all" ? "bg-primary text-white" : "text-text-primary hover:bg-[#30363d]"
+            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "all" ? "bg-primary text-white" : "text-text-primary hover:bg-[#C7D2FE]"
               }`}
           >
             All Societies ({allSocieties.length})
           </button>
           <button
             onClick={() => setActiveTab("my")}
-            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "my" ? "bg-primary text-white" : "text-text-primary hover:bg-[#30363d]"
+            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "my" ? "bg-primary text-white" : "text-text-primary hover:bg-[#C7D2FE]"
               }`}
           >
             My Societies ({mySocieties.length})
           </button>
           <button
             onClick={() => setActiveTab("discover")}
-            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "discover" ? "bg-primary text-white" : "text-text-primary hover:bg-[#30363d]"
+            className={`px-5 py-2 rounded-lg font-medium transition-colors ${activeTab === "discover" ? "bg-primary text-white" : "text-text-primary hover:bg-[#C7D2FE]"
               }`}
           >
             Discover ({discoverSocieties.length})
@@ -158,7 +158,7 @@ export default function StudentSocieties() {
         {status === 'succeeded' && displaySocieties.length === 0 ? (
           <div className="bg-surface border border-border rounded-lg p-16 flex flex-col items-center justify-center text-center">
             <span className="material-symbols-outlined text-6xl text-text-secondary mb-4">search_off</span>
-            <h3 className="text-xl font-bold text-white mb-2">No societies found</h3>
+            <h3 className="text-xl font-bold text-text-primary mb-2">No societies found</h3>
             <p className="text-text-secondary">There are no societies in this category for your campus.</p>
           </div>
         ) : status === 'succeeded' ? (
@@ -171,7 +171,7 @@ export default function StudentSocieties() {
                   className="bg-surface border border-border rounded-xl p-5 flex flex-col hover:border-primary/50 transition-colors relative"
                 >
                   {/* Category Badge */}
-                  <span className="absolute top-5 right-5 bg-[#30363d] text-text-primary text-xs px-2 py-1 rounded font-medium">
+                  <span className="absolute top-5 right-5 bg-[#C7D2FE] text-text-primary text-xs px-2 py-1 rounded font-medium">
                     {society.category}
                   </span>
 
@@ -188,7 +188,7 @@ export default function StudentSocieties() {
                       />
                     )}
                     <div className="flex flex-col pr-12">
-                      <h3 className="text-white font-bold text-lg leading-tight">{society.name}</h3>
+                      <h3 className="text-text-primary font-bold text-lg leading-tight">{society.name}</h3>
                       {society.userRole && (
                         <span className="text-primary text-xs font-bold mt-1 uppercase tracking-wider">
                           Role: {society.userRole}

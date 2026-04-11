@@ -99,13 +99,13 @@ export default function MentorNotifications() {
 
   const getNotificationColor = (type) => {
     const colors = {
-      session_booked: "#1dc964",
+      session_booked: "#4F46E5",
       rating_received: "#fbbf24",
       message: "#3b82f6",
       payment: "#10b981",
       feedback_pending: "#f87171",
-      mentor_verified: "#1dc964",
-      booking_confirmed: "#1dc964",
+      mentor_verified: "#4F46E5",
+      booking_confirmed: "#4F46E5",
       booking_cancelled: "#f87171",
     };
     return colors[type] || "#9eb7a9";
@@ -127,7 +127,7 @@ export default function MentorNotifications() {
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-background">
       <div className="layout-container flex h-full grow flex-col">
         <MentorTopBar backPath="/mentor/dashboard" />
 
@@ -136,14 +136,14 @@ export default function MentorNotifications() {
             {/* Page Heading */}
             <div className="mb-8">
               <div className="flex items-center justify-between mb-2">
-                <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+                <h1 className="text-text-primary text-4xl font-black leading-tight tracking-[-0.033em]">
                   Notifications
                 </h1>
                 {unreadCount > 0 && (
                   <button
                     onClick={handleMarkAllAsRead}
                     disabled={actionLoading === "all"}
-                    className="text-[#1dc964] text-sm font-semibold hover:text-white transition-colors disabled:opacity-50"
+                    className="text-primary text-sm font-semibold hover:text-text-primary transition-colors disabled:opacity-50"
                   >
                     {actionLoading === "all" ? "Marking..." : "Mark all as read"}
                   </button>
@@ -153,8 +153,8 @@ export default function MentorNotifications() {
                 {loading
                   ? "Loading notifications..."
                   : unreadCount > 0
-                  ? `You have ${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}`
-                  : "All notifications read"}
+                    ? `You have ${unreadCount} unread notification${unreadCount > 1 ? "s" : ""}`
+                    : "All notifications read"}
               </p>
             </div>
 
@@ -162,22 +162,20 @@ export default function MentorNotifications() {
             <div className="flex gap-4 mb-6 border-b border-border">
               <button
                 onClick={() => setActiveTab("all")}
-                className={`px-4 py-3 font-medium transition-colors flex items-center gap-2 ${
-                  activeTab === "all"
-                    ? "text-[#1dc964] border-b-2 border-[#1dc964]"
-                    : "text-text-secondary hover:text-white"
-                }`}
+                className={`px-4 py-3 font-medium transition-colors flex items-center gap-2 ${activeTab === "all"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-text-secondary hover:text-text-primary"
+                  }`}
               >
                 <span className="material-symbols-outlined">list</span>
                 All ({notifications.length})
               </button>
               <button
                 onClick={() => setActiveTab("unread")}
-                className={`px-4 py-3 font-medium transition-colors flex items-center gap-2 ${
-                  activeTab === "unread"
-                    ? "text-[#1dc964] border-b-2 border-[#1dc964]"
-                    : "text-text-secondary hover:text-white"
-                }`}
+                className={`px-4 py-3 font-medium transition-colors flex items-center gap-2 ${activeTab === "unread"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-text-secondary hover:text-text-primary"
+                  }`}
               >
                 <span className="material-symbols-outlined">mark_email_unread</span>
                 Unread ({unreadCount})
@@ -193,7 +191,7 @@ export default function MentorNotifications() {
             {/* Loading State */}
             {loading ? (
               <div className="flex flex-col items-center justify-center gap-4 py-16">
-                <div className="w-10 h-10 border-4 border-[#1dc964] border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                 <p className="text-text-secondary">Loading notifications...</p>
               </div>
             ) : filteredNotifications.length > 0 ? (
@@ -207,11 +205,10 @@ export default function MentorNotifications() {
                   return (
                     <div
                       key={nId}
-                      className={`flex items-start gap-4 p-5 rounded-xl border transition-all ${
-                        notification.read
+                      className={`flex items-start gap-4 p-5 rounded-xl border transition-all ${notification.read
                           ? "bg-surface border-border"
-                          : "bg-primary/10 border-[#1dc964]/50 hover:border-[#1dc964]"
-                      }`}
+                          : "bg-primary/10 border-primary/50 hover:border-primary"
+                        }`}
                     >
                       <div
                         className="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center"
@@ -229,7 +226,7 @@ export default function MentorNotifications() {
                         <div className="flex items-start justify-between gap-4">
                           <div className="flex-1">
                             <h3
-                              className={`font-semibold ${notification.read ? "text-text-secondary" : "text-white"}`}
+                              className={`font-semibold ${notification.read ? "text-text-secondary" : "text-text-primary"}`}
                             >
                               {notification.title || nType.replace(/_/g, " ")}
                             </h3>
@@ -253,7 +250,7 @@ export default function MentorNotifications() {
                             <button
                               onClick={() => handleMarkAsRead(nId)}
                               disabled={actionLoading === nId}
-                              className="text-xs text-[#1dc964] hover:text-white transition-colors flex items-center gap-1 disabled:opacity-50"
+                              className="text-xs text-primary hover:text-text-primary transition-colors flex items-center gap-1 disabled:opacity-50"
                             >
                               <span className="material-symbols-outlined text-sm">done</span>
                               {actionLoading === nId ? "..." : "Mark as read"}
@@ -279,7 +276,7 @@ export default function MentorNotifications() {
                   notifications_off
                 </span>
                 <div>
-                  <p className="text-white text-lg font-bold">
+                  <p className="text-text-primary text-lg font-bold">
                     No {activeTab === "unread" ? "unread " : ""}notifications
                   </p>
                   <p className="text-text-secondary text-sm">

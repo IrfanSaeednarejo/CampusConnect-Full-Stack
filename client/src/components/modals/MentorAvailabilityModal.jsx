@@ -111,12 +111,12 @@ export default function MentorAvailabilityModal({ closeModal }) {
       <div className="flex flex-col max-h-[85vh]">
         <div className="flex justify-between items-center mb-4 pb-4 border-b border-border shrink-0">
           <div>
-            <h2 className="text-2xl font-black text-white tracking-tight">Set Availability</h2>
+            <h2 className="text-2xl font-black text-text-primary tracking-tight">Set Availability</h2>
             <p className="text-text-secondary text-sm mt-1">Define your mentoring time slots</p>
           </div>
           <button 
             onClick={closeModal}
-            className="p-2 text-text-secondary hover:text-white rounded-full hover:bg-[#30363d] transition-colors"
+            className="p-2 text-text-secondary hover:text-white rounded-full hover:bg-[#C7D2FE] transition-colors"
           >
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -130,13 +130,13 @@ export default function MentorAvailabilityModal({ closeModal }) {
 
         {needsRegistration ? (
           <div className="flex flex-col items-center justify-center gap-6 py-12 text-center">
-            <div className="text-[#e3b341]">
+            <div className="text-[#F59E0B]">
               <span className="material-symbols-outlined" style={{ fontSize: "64px" }}>
                 person_add
               </span>
             </div>
             <div className="flex flex-col items-center gap-2 max-w-md">
-              <p className="text-white text-lg font-bold">Complete Your Mentor Profile</p>
+              <p className="text-text-primary text-lg font-bold">Complete Your Mentor Profile</p>
               <p className="text-text-secondary text-sm">
                 You have the mentor role, but you haven't created your mentor profile yet.
                 Register as a mentor to set your expertise, hourly rate, and availability.
@@ -155,20 +155,20 @@ export default function MentorAvailabilityModal({ closeModal }) {
             <div className="flex-1 overflow-y-auto pr-2 space-y-4 custom-scrollbar">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12">
-                  <div className="w-8 h-8 border-4 border-[#1dc964] border-t-transparent rounded-full animate-spin mb-3"></div>
+                  <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-3"></div>
                   <p className="text-text-secondary text-sm">Loading schedule...</p>
                 </div>
               ) : (
                 WEEKDAYS.map((day) => (
                   <div key={day} className="p-4 bg-background border border-border rounded-xl">
                     <div className="flex items-center justify-between mb-3">
-                      <h3 className="text-white font-semibold flex items-center gap-2">
-                        <span className="material-symbols-outlined text-[#1dc964] text-lg">calendar_month</span>
+                      <h3 className="text-text-primary font-semibold flex items-center gap-2">
+                        <span className="material-symbols-outlined text-primary text-lg">calendar_month</span>
                         {day}
                       </h3>
                       <button
                         onClick={() => handleAddSlot(day)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-hover text-white text-xs font-medium rounded hover:bg-[#30363d] transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-surface-hover text-text-primary text-xs font-medium rounded hover:bg-[#C7D2FE] transition-colors"
                       >
                         <span className="material-symbols-outlined text-sm">add</span>
                         Add Slot
@@ -178,19 +178,19 @@ export default function MentorAvailabilityModal({ closeModal }) {
                     {(availability[day.toLowerCase()] || []).length > 0 ? (
                       <div className="space-y-2">
                         {availability[day.toLowerCase()].map((slot, idx) => (
-                          <div key={idx} className="flex flex-wrap items-center gap-3 p-2.5 bg-surface border border-[#21262d] rounded-lg group">
+                          <div key={idx} className="flex flex-wrap items-center gap-3 p-2.5 bg-surface border border-[#E0E7FF] rounded-lg group">
                             <input
                               type="time"
                               value={slot.start}
                               onChange={(e) => handleTimeChange(day, idx, 'start', e.target.value)}
-                              className="px-2 py-1.5 bg-surface-hover text-sm text-white rounded outline-none focus:ring-1 focus:ring-[#1dc964]"
+                              className="px-2 py-1.5 bg-surface-hover text-sm text-text-primary rounded outline-none focus:ring-1 focus:ring-primary"
                             />
                             <span className="text-text-secondary text-sm font-medium">to</span>
                             <input
                               type="time"
                               value={slot.end}
                               onChange={(e) => handleTimeChange(day, idx, 'end', e.target.value)}
-                              className="px-2 py-1.5 bg-surface-hover text-sm text-white rounded outline-none focus:ring-1 focus:ring-[#1dc964]"
+                              className="px-2 py-1.5 bg-surface-hover text-sm text-text-primary rounded outline-none focus:ring-1 focus:ring-primary"
                             />
                             <button
                               onClick={() => handleRemoveSlot(day, idx)}
@@ -213,7 +213,7 @@ export default function MentorAvailabilityModal({ closeModal }) {
             <div className="flex justify-end gap-3 pt-5 mt-4 border-t border-border shrink-0">
               <button
                 onClick={closeModal}
-                className="px-5 py-2.5 font-medium text-text-primary hover:text-white rounded-lg hover:bg-[#30363d] transition-colors"
+                className="px-5 py-2.5 font-medium text-text-primary hover:text-white rounded-lg hover:bg-[#C7D2FE] transition-colors"
               >
                 Cancel
               </button>

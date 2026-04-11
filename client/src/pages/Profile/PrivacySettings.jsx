@@ -60,7 +60,7 @@ export default function PrivacySettings() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Profile Visibility */}
           <Card padding="p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+            <h2 className="text-lg font-semibold text-text-primary mb-4">
               Profile Visibility
             </h2>
             <div className="space-y-4">
@@ -77,7 +77,7 @@ export default function PrivacySettings() {
                 <option value="private">Private</option>
               </FormField>
 
-              <div className="divide-y divide-[#30363d]">
+              <div className="divide-y divide-[#C7D2FE]">
                 <ToggleRow
                   label="Show Email Address"
                   description="Display your email on your public profile"
@@ -102,7 +102,7 @@ export default function PrivacySettings() {
 
           {/* Communication Settings */}
           <Card padding="p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+            <h2 className="text-lg font-semibold text-text-primary mb-4">
               Communication
             </h2>
             <div className="space-y-4">
@@ -119,7 +119,7 @@ export default function PrivacySettings() {
                 <option value="none">No One</option>
               </FormField>
 
-              <div className="divide-y divide-[#30363d]">
+              <div className="divide-y divide-[#C7D2FE]">
                 <ToggleRow
                   label="Show Online Status"
                   description="Let others see when you're online"
@@ -132,7 +132,7 @@ export default function PrivacySettings() {
 
           {/* Data & Privacy */}
           <Card padding="p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+            <h2 className="text-lg font-semibold text-text-primary mb-4">
               Data & Privacy
             </h2>
             <div className="space-y-3">
@@ -140,7 +140,7 @@ export default function PrivacySettings() {
                 type="button"
                 className="w-full text-left px-4 py-3 bg-background border border-border rounded-lg hover:bg-surface-hover transition-colors"
               >
-                <p className="font-medium text-white">Download Your Data</p>
+                <p className="font-medium text-text-primary">Download Your Data</p>
                 <p className="text-sm text-text-secondary">
                   Request a copy of your data
                 </p>
@@ -150,7 +150,7 @@ export default function PrivacySettings() {
                 type="button"
                 className="w-full text-left px-4 py-3 bg-background border border-border rounded-lg hover:bg-surface-hover transition-colors"
               >
-                <p className="font-medium text-white">Manage Data Sharing</p>
+                <p className="font-medium text-text-primary">Manage Data Sharing</p>
                 <p className="text-sm text-text-secondary">
                   Control what data is shared with third parties
                 </p>

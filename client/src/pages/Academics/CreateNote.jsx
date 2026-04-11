@@ -55,8 +55,8 @@ export default function CreateNote() {
           <div className="bg-white dark:bg-surface border border-[#d0d7de] dark:border-border rounded-lg overflow-hidden">
             <div className="p-2 border-b border-[#d0d7de] dark:border-border">
               <NoteEditorToolbar
-                buttonClassName="p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-                dividerClassName="w-px h-5 bg-[#d0d7de] dark:bg-[#30363d] mx-1"
+                buttonClassName="p-2 rounded hover:bg-gray-100 dark:hover:bg-surface hover:bg-surface-hover border border-border"
+                dividerClassName="w-px h-5 bg-[#d0d7de] dark:bg-[#C7D2FE] mx-1"
               />
             </div>
             <textarea

@@ -27,7 +27,7 @@ export default function Breadcrumbs({ items = [] }) {
             ) : (
               <Link
                 to={item.to}
-                className="hover:text-[#e6edf3] transition-colors"
+                className="hover:text-text-primary transition-colors"
               >
                 {item.label}
               </Link>

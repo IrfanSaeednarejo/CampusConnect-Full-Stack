@@ -24,7 +24,7 @@ export default function CTACard({
 }) {
   return (
     <Card className={`mt-12 text-center ${className}`}>
-      <h2 className="text-[#e6edf3] text-2xl font-bold mb-3">
+      <h2 className="text-text-primary text-2xl font-bold mb-3">
         {title}
       </h2>
       <p className="text-text-secondary text-sm mb-6">

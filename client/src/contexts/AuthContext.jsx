@@ -37,11 +37,35 @@ export function AuthProvider({ children }) {
   });
 
   useEffect(() => {
-    // Mark auth initialization as complete on first render.
-    setAuth((prev) => ({
-      ...prev,
-      loading: false,
-    }));
+    // Verify token on first load to prevent "ghost sessions"
+    const verifyToken = async () => {
+      // If not authenticated in localStorage, just finish loading
+      if (!auth.isAuthenticated || !auth.token) {
+        setAuth((prev) => ({ ...prev, loading: false }));
+        return;
+      }
+
+      // If authenticated, ping the backend to verify the token is still valid
+      try {
+        const { getCurrentUser } = await import('../api/authApi');
+        await getCurrentUser();
+        setAuth((prev) => ({ ...prev, loading: false }));
+      } catch (error) {
+        console.warn("Session verification failed. Clearing local session.", error);
+        localStorage.removeItem('authState');
+        setAuth({
+          isAuthenticated: false,
+          user: null,
+          token: null,
+          role: null,
+          onboardingCompleted: false,
+          loading: false,
+        });
+      }
+    };
+
+    verifyToken();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

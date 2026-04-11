@@ -26,7 +26,7 @@ export default function FormInput({
           required={required}
           placeholder={placeholder}
           rows={rows || 3}
-          className="w-full px-4 py-2 rounded-lg bg-background border border-border text-text-primary placeholder-[#8b949e] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+          className="w-full px-4 py-2 rounded-lg bg-background border border-border text-text-primary placeholder-[#475569] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
           {...props}
         />
       </div>
@@ -49,7 +49,7 @@ export default function FormInput({
         placeholder={placeholder}
         min={min}
         max={max}
-        className="w-full px-4 py-2 rounded-lg bg-background border border-border text-text-primary placeholder-[#8b949e] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+        className="w-full px-4 py-2 rounded-lg bg-background border border-border text-text-primary placeholder-[#475569] focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
         {...props}
       />
     </div>

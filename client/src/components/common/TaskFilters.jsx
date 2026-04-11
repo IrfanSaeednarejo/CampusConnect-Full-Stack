@@ -9,7 +9,7 @@ export default function TaskFilters({
     <div
       className={`bg-surface border border-border rounded-lg p-6 ${className}`}
     >
-      <h3 className="text-white font-bold mb-4">Filters</h3>
+      <h3 className="text-text-primary font-bold mb-4">Filters</h3>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-text-secondary text-sm mb-2">Category</label>

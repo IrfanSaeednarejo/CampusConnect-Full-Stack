@@ -5,9 +5,9 @@ export default function ErrorMessage({
 	className = "",
 }) {
 	const variantStyles = {
-		error: "border-[#f85149] text-[#f85149]",
+		error: "border-[#DC2626] text-[#DC2626]",
 		warning: "border-[#d29922] text-[#d29922]",
-		info: "border-[#58a6ff] text-[#58a6ff]",
+		info: "border-[#58a6ff] text-primary",
 	};
 
 	return (
@@ -18,7 +18,7 @@ export default function ErrorMessage({
 			<div className="flex items-start gap-3">
 				<span className="material-symbols-outlined">error</span>
 				<div className="flex flex-col gap-1">
-					<p className="font-semibold text-[#e6edf3]">{title}</p>
+					<p className="font-semibold text-text-primary">{title}</p>
 					{message && <p className="text-sm text-text-secondary">{message}</p>}
 				</div>
 			</div>

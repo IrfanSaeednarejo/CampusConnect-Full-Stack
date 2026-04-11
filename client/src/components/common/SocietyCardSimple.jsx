@@ -19,7 +19,7 @@ export default function SocietyCardSimple({
       className={`flex flex-col gap-4 p-4 rounded-lg border border-border bg-surface hover:bg-surface-hover transition-colors ${className}`}
     >
       <div>
-        <h2 className="text-[#e6edf3] text-lg font-bold leading-tight">
+        <h2 className="text-text-primary text-lg font-bold leading-tight">
           {name}
         </h2>
         <p className="text-primary text-sm font-semibold mt-1">

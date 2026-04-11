@@ -33,7 +33,7 @@ export default function StudentSessions() {
       <main className="px-4 sm:px-10 lg:px-20 py-5 md:py-10 max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">My Sessions</h1>
+            <h1 className="text-4xl font-bold text-text-primary mb-2">My Sessions</h1>
             <p className="text-text-secondary">Track your mentoring sessions and feedback.</p>
           </div>
           <button 
@@ -49,7 +49,7 @@ export default function StudentSessions() {
           <button
             onClick={() => setActiveTab("upcoming")}
             className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === "upcoming" ? "bg-primary text-white" : "text-text-primary hover:bg-[#30363d]"
+              activeTab === "upcoming" ? "bg-primary text-white" : "text-text-primary hover:bg-[#C7D2FE]"
             }`}
           >
             Upcoming Sessions ({upcomingSessions.length})
@@ -57,7 +57,7 @@ export default function StudentSessions() {
           <button
             onClick={() => setActiveTab("past")}
             className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-              activeTab === "past" ? "bg-primary text-white" : "text-text-primary hover:bg-[#30363d]"
+              activeTab === "past" ? "bg-primary text-white" : "text-text-primary hover:bg-[#C7D2FE]"
             }`}
           >
             Past Sessions ({pastSessions.length})
@@ -74,11 +74,11 @@ export default function StudentSessions() {
         {status === "succeeded" && displaySessions.length === 0 ? (
           <div className="bg-surface border border-border rounded-xl p-16 flex flex-col items-center justify-center text-center">
             <span className="material-symbols-outlined text-6xl text-text-secondary mb-4">forum</span>
-            <h3 className="text-xl font-bold text-white mb-2">No {activeTab} sessions</h3>
+            <h3 className="text-xl font-bold text-text-primary mb-2">No {activeTab} sessions</h3>
             <p className="text-text-secondary mb-6">Book a session to get personalized guidance.</p>
             <button 
               onClick={() => navigate("/student/book-mentor")}
-              className="border border-border text-text-primary hover:bg-[#30363d] px-6 py-2 rounded-lg font-bold text-sm transition-colors"
+              className="border border-border text-text-primary hover:bg-[#C7D2FE] px-6 py-2 rounded-lg font-bold text-sm transition-colors"
             >
               Find a Mentor
             </button>
@@ -105,13 +105,13 @@ function SessionCard({ session, activeTab, openModal }) {
   const isLoading = useSelector((state) => selectSessionActionLoading(state, session._id));
 
   return (
-    <div className={`bg-surface border border-border p-6 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-[#8b949e] transition-colors ${isLoading ? 'opacity-50' : ''}`}>
+    <div className={`bg-surface border border-border p-6 rounded-xl flex flex-col md:flex-row md:items-center justify-between gap-6 hover:border-[#475569] transition-colors ${isLoading ? 'opacity-50' : ''}`}>
       <div className="flex items-start gap-4">
-        <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#238636]/40 to-[#1f6feb]/40 flex items-center justify-center flex-shrink-0 border border-border text-white font-bold text-xl">
+        <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-[#4F46E5]/40 to-[#1f6feb]/40 flex items-center justify-center flex-shrink-0 border border-border text-white font-bold text-xl">
           {session.mentorName?.charAt(0) || "M"}
         </div>
         <div>
-          <h3 className="text-white text-lg font-bold leading-tight flex items-center gap-2 mb-1">
+          <h3 className="text-text-primary text-lg font-bold leading-tight flex items-center gap-2 mb-1">
             {session.mentorName}
             {activeTab === 'past' && session.feedbackGiven && (
               <span className="bg-primary/20 text-primary border border-primary text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
@@ -139,7 +139,7 @@ function SessionCard({ session, activeTab, openModal }) {
                 onConfirm: () => dispatch(cancelSession(session._id))
               })}
               disabled={isLoading}
-              className="flex-1 lg:flex-none justify-center px-4 py-2 rounded-lg border border-[#f85149] text-[#f85149] hover:bg-[#f85149]/10 font-bold text-sm transition-colors flex items-center gap-1.5"
+              className="flex-1 lg:flex-none justify-center px-4 py-2 rounded-lg border border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626]/10 font-bold text-sm transition-colors flex items-center gap-1.5"
             >
               {isLoading ? <span className="material-symbols-outlined text-[16px] animate-spin">sync</span> : <span className="material-symbols-outlined text-[16px]">cancel</span>}
               Cancel
@@ -160,7 +160,7 @@ function SessionCard({ session, activeTab, openModal }) {
               <button
                 onClick={() => openModal(MODAL_TYPES.SESSION_FEEDBACK, { sessionId: session._id, mentorName: session.mentorName })}
                 disabled={isLoading}
-                className="w-full justify-center px-4 py-2 rounded-lg border border-primary text-[#2ea043] hover:bg-primary/10 font-bold text-sm transition-colors flex items-center gap-1.5"
+                className="w-full justify-center px-4 py-2 rounded-lg border border-primary text-[#4338CA] hover:bg-primary/10 font-bold text-sm transition-colors flex items-center gap-1.5"
               >
                 {isLoading ? <span className="material-symbols-outlined text-[16px] animate-spin">sync</span> : <span className="material-symbols-outlined text-[16px]">rate_review</span>}
                 Leave Feedback

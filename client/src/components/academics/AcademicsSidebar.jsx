@@ -67,7 +67,7 @@ export default function AcademicsSidebar({ activePath = "/academics/notes" }) {
                 className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
                   isActive
                     ? "bg-primary/20 text-primary"
-                    : "text-[#24292f] dark:text-text-primary hover:bg-gray-100 dark:hover:bg-gray-800"
+                    : "text-[#24292f] dark:text-text-primary hover:bg-gray-100 dark:hover:bg-surface border border-border"
                 }`}
                 to={item.to}
               >
@@ -90,7 +90,7 @@ export default function AcademicsSidebar({ activePath = "/academics/notes" }) {
         {footerItems.map((item) => (
           <Link
             key={item.to}
-            className="flex items-center gap-3 px-3 py-2 text-[#24292f] dark:text-text-primary hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
+            className="flex items-center gap-3 px-3 py-2 text-[#24292f] dark:text-text-primary hover:bg-gray-100 dark:hover:bg-surface border border-border rounded-lg"
             to={item.to}
           >
             <span className="material-symbols-outlined">{item.icon}</span>

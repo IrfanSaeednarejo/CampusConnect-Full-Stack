@@ -23,7 +23,7 @@ export default function GroupCard({ group }) {
       <div className="flex gap-2">
         <button
           onClick={() => navigate(`/study-groups/${group.id}`)}
-          className="flex-1 px-4 py-2 rounded-lg bg-surface-hover text-text-primary text-sm font-semibold border border-border hover:bg-[#30363d] transition-colors"
+          className="flex-1 px-4 py-2 rounded-lg bg-surface-hover text-text-primary text-sm font-semibold border border-border hover:bg-[#C7D2FE] transition-colors"
         >
           View Group
         </button>

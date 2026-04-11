@@ -11,7 +11,7 @@ export default function DiscussionPost({ post }) {
             <span className="text-sm text-text-secondary">{post.timestamp}</span>
           </div>
           <p className="text-text-secondary mb-2">{post.message}</p>
-          <button className="text-sm text-primary hover:text-[#2ea043] font-medium">
+          <button className="text-sm text-primary hover:text-[#4338CA] font-medium">
             {post.replies} replies
           </button>
         </div>

@@ -101,7 +101,7 @@ const emailContainerStyle = {
 };
 
 const headerStyle = {
-  backgroundColor: '#238636',
+  backgroundColor: '#4F46E5',
   color: 'white',
   padding: '20px',
   textAlign: 'center',
@@ -158,7 +158,7 @@ const communityCardStyle = {
 
 const communityTitleStyle = {
   margin: '0 0 16px 0',
-  color: '#238636',
+  color: '#4F46E5',
   fontSize: '18px',
 };
 
@@ -197,7 +197,7 @@ const ctaContainerStyle = {
 
 const ctaButtonStyle = {
   display: 'inline-block',
-  backgroundColor: '#238636',
+  backgroundColor: '#4F46E5',
   color: 'white',
   padding: '12px 32px',
   borderRadius: '6px',

@@ -57,7 +57,7 @@ export default function DeleteAccount() {
         {!showConfirmation ? (
           <div className="space-y-6">
             {/* Warning Card */}
-            <Card padding="p-6" className="bg-danger/10 border-[#da3633]">
+            <Card padding="p-6" className="bg-danger/10 border-[#EF4444]">
               <div className="flex gap-4">
                 <span className="material-symbols-outlined text-danger text-3xl">
                   warning
@@ -76,7 +76,7 @@ export default function DeleteAccount() {
 
             {/* What will be deleted */}
             <Card padding="p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">
+              <h3 className="text-lg font-semibold text-text-primary mb-4">
                 What will be deleted?
               </h3>
               <ul className="space-y-3">
@@ -102,12 +102,12 @@ export default function DeleteAccount() {
 
             {/* Alternatives */}
             <Card padding="p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">
+              <h3 className="text-lg font-semibold text-text-primary mb-4">
                 Consider These Alternatives
               </h3>
               <div className="space-y-3">
                 <div className="p-4 bg-background rounded-lg">
-                  <h4 className="font-medium text-white mb-1">
+                  <h4 className="font-medium text-text-primary mb-1">
                     Deactivate temporarily
                   </h4>
                   <p className="text-sm text-text-secondary">
@@ -115,7 +115,7 @@ export default function DeleteAccount() {
                   </p>
                 </div>
                 <div className="p-4 bg-background rounded-lg">
-                  <h4 className="font-medium text-white mb-1">
+                  <h4 className="font-medium text-text-primary mb-1">
                     Adjust privacy settings
                   </h4>
                   <p className="text-sm text-text-secondary">
@@ -123,7 +123,7 @@ export default function DeleteAccount() {
                   </p>
                 </div>
                 <div className="p-4 bg-background rounded-lg">
-                  <h4 className="font-medium text-white mb-1">
+                  <h4 className="font-medium text-text-primary mb-1">
                     Manage notifications
                   </h4>
                   <p className="text-sm text-text-secondary">
@@ -152,13 +152,13 @@ export default function DeleteAccount() {
         ) : (
           <div className="space-y-6">
             {/* Confirmation Card */}
-            <Card padding="p-6" className="border-[#da3633]">
-              <h2 className="text-lg font-semibold text-white mb-4">
+            <Card padding="p-6" className="border-[#EF4444]">
+              <h2 className="text-lg font-semibold text-text-primary mb-4">
                 Confirm Account Deletion
               </h2>
               <p className="text-text-primary mb-4">
                 Are you absolutely sure you want to delete your account for{" "}
-                <span className="font-semibold text-white">
+                <span className="font-semibold text-text-primary">
                   {user?.email || "your account"}
                 </span>
                 ?
@@ -171,7 +171,7 @@ export default function DeleteAccount() {
                 value={confirmText}
                 onChange={(e) => setConfirmText(e.target.value)}
                 placeholder="Type DELETE here"
-                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-white focus:outline-none focus:border-[#da3633]"
+                className="w-full px-4 py-2 bg-background border border-border rounded-lg text-text-primary focus:outline-none focus:border-[#EF4444]"
               />
             </Card>
 
@@ -182,7 +182,7 @@ export default function DeleteAccount() {
                   setShowConfirmation(false);
                   setConfirmText("");
                 }}
-                className="flex-1 px-6 py-3 bg-surface-hover text-white rounded-lg hover:bg-[#30363d] transition-colors font-medium"
+                className="flex-1 px-6 py-3 bg-surface-hover text-text-primary rounded-lg hover:bg-[#C7D2FE] transition-colors font-medium"
               >
                 Cancel
               </button>

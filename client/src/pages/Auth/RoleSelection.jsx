@@ -82,7 +82,7 @@ export default function RoleSelection() {
                 onClick={() => handleRoleSelect(role.id)}
                 className={`flex flex-col gap-4 p-6 rounded-lg border-2 transition-all cursor-pointer ${
                   selectedRole === role.id
-                    ? "border-primary bg-[#1c2620]"
+                    ? "border-primary bg-surface"
                     : "border-border bg-surface hover:border-border/80"
                 }`}
               >
@@ -107,7 +107,7 @@ export default function RoleSelection() {
                   >
                     {selectedRole === role.id && (
                       <svg
-                        className="w-4 h-4 text-white"
+                        className="w-4 h-4 text-text-primary"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"

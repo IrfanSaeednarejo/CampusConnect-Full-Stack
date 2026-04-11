@@ -9,7 +9,7 @@ import { getSocietyAnalytics, getUserSocieties } from "@/api/societyApi";
 export default function SocietyAnalytics() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   const [timeRange, setTimeRange] = useState("monthly");
   const [societies, setSocieties] = useState([]);
   const [selectedSocietyId, setSelectedSocietyId] = useState("");
@@ -17,35 +17,43 @@ export default function SocietyAnalytics() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user?._id) {
-      getUserSocieties(user._id).then(res => {
-         const data = res.data || res;
-         // Sort out societies where user is creator/executive maybe?
-         // For now, let's just use all societies returned, or if needed:
-         // const managed = data.filter(s => s.createdBy?._id === user._id || s.createdBy === user._id);
-         setSocieties(data);
-         if (data.length > 0) {
-            setSelectedSocietyId(data[0]._id || data[0].id);
-         } else {
+    const userId = user?._id || user?.id;
+    if (userId) {
+      getUserSocieties(userId).then(res => {
+        const data = res.data || res || [];
+        const societyList = Array.isArray(data.docs) ? data.docs : (Array.isArray(data) ? data : []);
+        setSocieties(societyList);
+
+        if (societyList.length > 0) {
+          const firstId = societyList[0]._id || societyList[0].id;
+          if (firstId) {
+            setSelectedSocietyId(firstId);
+          } else {
             setLoading(false);
-         }
+          }
+        } else {
+          setLoading(false);
+        }
       }).catch(err => {
-         console.error(err);
-         setLoading(false);
+        console.error(err);
+        setLoading(false);
       });
+    } else if (user) {
+      // If user is loaded but has no ID somehow, stop loading
+      setLoading(false);
     }
   }, [user]);
 
   useEffect(() => {
     if (selectedSocietyId) {
-       setLoading(true);
-       getSocietyAnalytics(selectedSocietyId).then(res => {
-          setStats(res.data || res);
-          setLoading(false);
-       }).catch(err => {
-          console.error(err);
-          setLoading(false);
-       });
+      setLoading(true);
+      getSocietyAnalytics(selectedSocietyId).then(res => {
+        setStats(res.data || res);
+        setLoading(false);
+      }).catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
     }
   }, [selectedSocietyId]);
 
@@ -64,31 +72,30 @@ export default function SocietyAnalytics() {
         {/* Select Society & Time Range Selector */}
         <div className="flex flex-col sm:flex-row justify-between items-center mb-8 gap-4">
           <div className="flex bg-surface border border-border rounded-lg items-center px-4 py-2 w-full sm:w-auto">
-             <span className="material-symbols-outlined text-text-secondary mr-3">admin_panel_settings</span>
-             <select
-               className="bg-transparent text-white font-medium outline-none cursor-pointer"
-               value={selectedSocietyId}
-               onChange={(e) => setSelectedSocietyId(e.target.value)}
-             >
-               {societies.length === 0 && <option value="">No societies found</option>}
-               {societies.map(soc => (
-                 <option key={soc._id || soc.id} value={soc._id || soc.id} className="bg-surface">
-                   {soc.name}
-                 </option>
-               ))}
-             </select>
+            <span className="material-symbols-outlined text-text-secondary mr-3">admin_panel_settings</span>
+            <select
+              className="bg-transparent text-text-primary font-medium outline-none cursor-pointer"
+              value={selectedSocietyId}
+              onChange={(e) => setSelectedSocietyId(e.target.value)}
+            >
+              {societies.length === 0 && <option value="">No societies found</option>}
+              {societies.map(soc => (
+                <option key={soc._id || soc.id} value={soc._id || soc.id} className="bg-surface">
+                  {soc.name}
+                </option>
+              ))}
+            </select>
           </div>
-          
+
           <div className="flex gap-2 bg-surface border border-border rounded-lg p-1 w-full sm:w-auto overflow-x-auto">
             {["weekly", "monthly", "yearly"].map((range) => (
               <button
                 key={range}
                 onClick={() => setTimeRange(range)}
-                className={`px-4 py-2 rounded-md text-sm font-medium capitalize transition-colors flex-1 sm:flex-none ${
-                  timeRange === range
+                className={`px-4 py-2 rounded-md text-sm font-medium capitalize transition-colors flex-1 sm:flex-none ${timeRange === range
                     ? "bg-primary text-white"
-                    : "text-text-secondary hover:text-white"
-                }`}
+                    : "text-text-secondary hover:text-text-primary"
+                  }`}
               >
                 {range}
               </button>
@@ -98,11 +105,11 @@ export default function SocietyAnalytics() {
 
         {loading ? (
           <div className="flex justify-center items-center py-20">
-             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1dc964]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
           </div>
         ) : !stats ? (
           <div className="text-center py-20 text-text-secondary">
-             Please select a society to view analytics.
+            Please select a society to view analytics.
           </div>
         ) : (
           <>
@@ -137,7 +144,7 @@ export default function SocietyAnalytics() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
               {/* Member Distribution by Status */}
               <Card padding="p-6">
-                <h3 className="text-lg font-bold text-white mb-6">Member Distribution (Status)</h3>
+                <h3 className="text-lg font-bold text-text-primary mb-6">Member Distribution (Status)</h3>
                 <div className="space-y-4">
                   {stats?.members?.byStatus ? Object.entries(stats.members.byStatus).map(([statusKey, count], index) => {
                     const maxCount = Math.max(...Object.values(stats.members.byStatus), 1);
@@ -147,13 +154,13 @@ export default function SocietyAnalytics() {
                           <span className="text-sm font-medium text-text-secondary capitalize">
                             {statusKey}
                           </span>
-                          <span className="text-sm font-bold text-white">
+                          <span className="text-sm font-bold text-text-primary">
                             {count}
                           </span>
                         </div>
                         <div className="h-3 bg-surface rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-[#238636] to-[#2ea043] rounded-full transition-all duration-500"
+                            className="h-full bg-gradient-to-r from-[#4F46E5] to-[#4338CA] rounded-full transition-all duration-500"
                             style={{
                               width: `${(count / maxCount) * 100}%`,
                             }}
@@ -167,7 +174,7 @@ export default function SocietyAnalytics() {
 
               {/* Member Role Breakdown */}
               <Card padding="p-6">
-                <h3 className="text-lg font-bold text-white mb-6">
+                <h3 className="text-lg font-bold text-text-primary mb-6">
                   Member Roles
                 </h3>
                 <div className="space-y-4">
@@ -180,13 +187,13 @@ export default function SocietyAnalytics() {
                           <span className="text-sm font-medium text-text-secondary capitalize">
                             {roleKey.replace('-', ' ')}
                           </span>
-                          <span className="text-sm font-bold text-white">
+                          <span className="text-sm font-bold text-text-primary">
                             {count} ({percentage}%)
                           </span>
                         </div>
                         <div className="h-3 bg-surface rounded-full overflow-hidden">
                           <div
-                            className="h-full bg-gradient-to-r from-[#238636] to-[#2ea043] rounded-full transition-all duration-500"
+                            className="h-full bg-gradient-to-r from-[#4F46E5] to-[#4338CA] rounded-full transition-all duration-500"
                             style={{ width: `${percentage}%` }}
                           />
                         </div>

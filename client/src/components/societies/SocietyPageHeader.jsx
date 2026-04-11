@@ -32,7 +32,7 @@ export default function SocietyPageHeader({
     }
     if (typeof icon === "string") {
       return (
-        <span className="material-symbols-outlined text-4xl text-[#1dc964]">
+        <span className="material-symbols-outlined text-4xl text-primary">
           {icon}
         </span>
       );
@@ -52,7 +52,7 @@ export default function SocietyPageHeader({
             {showBack && (
               <button
                 onClick={handleBack}
-                className="flex items-center gap-2 text-text-secondary hover:text-white transition-colors"
+                className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors"
               >
                 <span className="material-symbols-outlined text-xl">
                   arrow_back
@@ -64,7 +64,7 @@ export default function SocietyPageHeader({
               <div className="flex items-center gap-3">
                 {renderIcon()}
                 <div>
-                  <h1 className="text-2xl font-bold text-white">{title}</h1>
+                  <h1 className="text-2xl font-bold text-text-primary">{title}</h1>
                   {subtitle && (
                     <p className="text-sm text-text-secondary">{subtitle}</p>
                   )}
@@ -73,7 +73,7 @@ export default function SocietyPageHeader({
             )}
             {!icon && title && (
               <div>
-                <h1 className="text-2xl font-bold text-white">{title}</h1>
+                <h1 className="text-2xl font-bold text-text-primary">{title}</h1>
                 {subtitle && (
                   <p className="text-sm text-text-secondary">{subtitle}</p>
                 )}

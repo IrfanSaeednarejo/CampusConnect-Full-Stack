@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { completeOnboarding } from "../../redux/slices/authSlice";
+import { completeOnboarding as completeOnboardingRedux } from "../../redux/slices/authSlice";
 import { useAuth } from "../../contexts/AuthContext.jsx";
+import { completeOnboarding as completeOnboardingApi } from "../../api/userApi";
 import Button from "../../components/common/Button";
 import OnboardingShell from "../../components/onboarding/OnboardingShell";
 import OnboardingCard from "../../components/onboarding/OnboardingCard";
@@ -10,23 +12,53 @@ import OnboardingProgress from "../../components/onboarding/OnboardingProgress";
 export default function OnboardingWizardComplete() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { role, completeOnboarding: completeOnboardingContext } = useAuth();
+  const { role, user, completeOnboarding: completeOnboardingContext } = useAuth();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleGoToDashboard = () => {
-    // Mark onboarding as complete in both Redux and Context
-    dispatch(completeOnboarding());
-    completeOnboardingContext();
+  const handleGoToDashboard = async () => {
+    setLoading(true);
+    setError("");
 
-    // Route user to appropriate dashboard based on role
-    const dashboards = {
-      student: "/student/dashboard",
-      mentor: "/mentor/dashboard",
-      society_head: "/society/dashboard",
-      admin: "/admin/dashboard",
-    };
+    try {
+      // ✅ Persist onboarding completion to the DATABASE via API
+      await completeOnboardingApi(user?.id, {
+        roleSelected: role || "student",
+        completedSteps: ["welcome", "profile-setup", "notifications-setup", "complete"],
+      });
 
-    const dashboardUrl = dashboards[role] || "/";
-    navigate(dashboardUrl, { replace: true });
+      // Update Redux and Context (in-memory) state
+      dispatch(completeOnboardingRedux());
+      completeOnboardingContext();
+
+      // Route user to appropriate dashboard based on role
+      const dashboards = {
+        student: "/student/dashboard",
+        mentor: "/mentor/dashboard",
+        society_head: "/society/dashboard",
+        admin: "/admin/dashboard",
+      };
+
+      const dashboardUrl = dashboards[role] || "/";
+      navigate(dashboardUrl, { replace: true });
+    } catch (err) {
+      console.error("Failed to complete onboarding:", err);
+      // Even if the API call fails, still let the user proceed
+      // and mark locally so they don't get stuck
+      dispatch(completeOnboardingRedux());
+      completeOnboardingContext();
+      setError("Profile saved locally. Redirecting...");
+
+      const dashboards = {
+        student: "/student/dashboard",
+        mentor: "/mentor/dashboard",
+        society_head: "/society/dashboard",
+        admin: "/admin/dashboard",
+      };
+      setTimeout(() => navigate(dashboards[role] || "/", { replace: true }), 1000);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -60,14 +92,19 @@ export default function OnboardingWizardComplete() {
             </p>
           </div>
 
+          {error && (
+            <p className="text-sm text-yellow-600">{error}</p>
+          )}
+
           {/* Go to Dashboard Button */}
           <div className="w-full pt-4">
             <Button
               onClick={handleGoToDashboard}
               variant="primary"
               className="w-full h-12 text-base"
+              disabled={loading}
             >
-              Go to Dashboard
+              {loading ? "Setting up..." : "Go to Dashboard"}
             </Button>
           </div>
         </OnboardingCard>

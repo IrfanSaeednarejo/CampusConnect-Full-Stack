@@ -8,7 +8,7 @@ export default function BookSession() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const mentors = useSelector(selectAllMentors);
-  
+
   const [selectedMentor, setSelectedMentor] = useState(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
@@ -69,7 +69,7 @@ export default function BookSession() {
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-background">
       <div className="layout-container flex h-full grow flex-col">
         {/* TopNavBar */}
         <MentorTopBar backPath="/mentor-sessions" />
@@ -79,7 +79,7 @@ export default function BookSession() {
           <div className="layout-content-container flex flex-col w-full max-w-5xl flex-1">
             {/* Page Heading */}
             <div className="mb-8">
-              <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
+              <h1 className="text-text-primary text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                 Book a Mentoring Session
               </h1>
               <p className="text-text-secondary text-base font-normal leading-normal">
@@ -90,25 +90,24 @@ export default function BookSession() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Mentor Selection */}
               <div className="flex flex-col gap-4">
-                <h2 className="text-white font-semibold text-lg">
+                <h2 className="text-text-primary font-semibold text-lg">
                   Select Mentor
                 </h2>
                 {mentors.map((mentor) => (
                   <div
                     key={mentor.id}
                     onClick={() => setSelectedMentor(mentor)}
-                    className={`p-4 rounded-xl cursor-pointer transition-all border ${
-                      selectedMentor?.id === mentor.id
-                        ? "bg-surface border-[#1dc964]"
-                        : "bg-surface border-border hover:border-[#1dc964]"
-                    }`}
+                    className={`p-4 rounded-xl cursor-pointer transition-all border ${selectedMentor?.id === mentor.id
+                        ? "bg-surface border-primary"
+                        : "bg-surface border-border hover:border-primary"
+                      }`}
                   >
                     <img
                       src={mentor.image}
                       alt={mentor.name}
                       className="w-12 h-12 rounded-full mb-3 border border-border"
                     />
-                    <h3 className="text-white font-semibold">{mentor.name}</h3>
+                    <h3 className="text-text-primary font-semibold">{mentor.name}</h3>
                     <p className="text-text-secondary text-sm">{mentor.specialty}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <span className="text-yellow-400">
@@ -118,7 +117,7 @@ export default function BookSession() {
                         ({mentor.reviews})
                       </span>
                     </div>
-                    <p className="text-[#1dc964] font-bold mt-2">
+                    <p className="text-primary font-bold mt-2">
                       ${mentor.hourlyRate}/hr
                     </p>
                   </div>
@@ -136,7 +135,7 @@ export default function BookSession() {
                         className="w-14 h-14 rounded-full border border-border"
                       />
                       <div>
-                        <h3 className="text-white font-bold text-lg">
+                        <h3 className="text-text-primary font-bold text-lg">
                           {selectedMentor.name}
                         </h3>
                         <p className="text-text-secondary">
@@ -147,20 +146,20 @@ export default function BookSession() {
 
                     {/* Date Selection */}
                     <div className="mb-6">
-                      <label className="block text-white font-semibold mb-3">
+                      <label className="block text-text-primary font-semibold mb-3">
                         Select Date *
                       </label>
                       <input
                         type="date"
                         value={selectedDate}
                         onChange={(e) => setSelectedDate(e.target.value)}
-                        className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none"
+                        className="w-full p-3 bg-background text-text-primary rounded-lg border border-border focus:border-primary focus:outline-none"
                       />
                     </div>
 
                     {/* Time Selection */}
                     <div className="mb-6">
-                      <label className="block text-white font-semibold mb-3">
+                      <label className="block text-text-primary font-semibold mb-3">
                         Select Time *
                       </label>
                       <div className="grid grid-cols-2 gap-2">
@@ -168,11 +167,10 @@ export default function BookSession() {
                           <button
                             key={slot}
                             onClick={() => setSelectedTime(slot)}
-                            className={`p-3 rounded-lg font-semibold transition-colors border ${
-                              selectedTime === slot
-                                ? "bg-primary text-white border-[#1dc964]"
-                                : "bg-background text-white border-border hover:border-[#1dc964]"
-                            }`}
+                            className={`p-3 rounded-lg font-semibold transition-colors border ${selectedTime === slot
+                                ? "bg-primary text-white border-primary"
+                                : "bg-background text-text-primary border-border hover:border-primary"
+                              }`}
                           >
                             {slot}
                           </button>
@@ -182,13 +180,13 @@ export default function BookSession() {
 
                     {/* Duration */}
                     <div className="mb-6">
-                      <label className="block text-white font-semibold mb-3">
+                      <label className="block text-text-primary font-semibold mb-3">
                         Duration *
                       </label>
                       <select
                         value={duration}
                         onChange={(e) => setDuration(e.target.value)}
-                        className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none"
+                        className="w-full p-3 bg-background text-text-primary rounded-lg border border-border focus:border-primary focus:outline-none"
                       >
                         <option value="0.5">30 minutes</option>
                         <option value="1">1 hour</option>
@@ -199,7 +197,7 @@ export default function BookSession() {
 
                     {/* Topic */}
                     <div className="mb-6">
-                      <label className="block text-white font-semibold mb-3">
+                      <label className="block text-text-primary font-semibold mb-3">
                         What do you want to discuss? *
                       </label>
                       <input
@@ -207,7 +205,7 @@ export default function BookSession() {
                         value={topic}
                         onChange={(e) => setTopic(e.target.value)}
                         placeholder="e.g., React hooks, API design..."
-                        className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none placeholder:text-text-secondary"
+                        className="w-full p-3 bg-background text-text-primary rounded-lg border border-border focus:border-primary focus:outline-none placeholder:text-text-secondary"
                       />
                     </div>
 
@@ -217,7 +215,7 @@ export default function BookSession() {
                         <span className="text-text-secondary">
                           ${selectedMentor.hourlyRate}/hr × {duration} hour(s)
                         </span>
-                        <span className="text-white font-bold text-lg">
+                        <span className="text-text-primary font-bold text-lg">
                           ${calculateCost()}
                         </span>
                       </div>
@@ -236,7 +234,7 @@ export default function BookSession() {
                       </button>
                       <button
                         onClick={() => setSelectedMentor(null)}
-                        className="flex items-center gap-2 px-6 py-3 bg-[#30363d] text-white font-bold rounded-lg hover:bg-[#404851] transition-colors"
+                        className="flex items-center gap-2 px-6 py-3 bg-surface border border-border text-text-primary font-bold rounded-lg hover:bg-surface-hover transition-colors"
                       >
                         Back
                       </button>

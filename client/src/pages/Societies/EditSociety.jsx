@@ -109,7 +109,7 @@ export default function EditSociety() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen overflow-y-auto bg-background text-white">
+    <div className="flex flex-col min-h-screen overflow-y-auto bg-background text-text-primary">
       {/* Header */}
       <SocietyPageHeader
         title="Edit Society"
@@ -171,7 +171,7 @@ export default function EditSociety() {
 
             {/* Logo Selection */}
             <div>
-              <label className="block text-sm font-medium text-[#e6edf3] mb-3">
+              <label className="block text-sm font-medium text-text-primary mb-3">
                 Choose Logo
               </label>
               <div className="grid grid-cols-5 sm:grid-cols-8 gap-3">
@@ -194,7 +194,7 @@ export default function EditSociety() {
 
             {/* Preview */}
             <div className="pt-6 border-t border-border">
-              <label className="block text-sm font-medium text-[#e6edf3] mb-3">
+              <label className="block text-sm font-medium text-text-primary mb-3">
                 Preview
               </label>
               <div className="bg-surface border border-border rounded-lg p-6">
@@ -203,7 +203,7 @@ export default function EditSociety() {
                     {formData.logo}
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-white">
+                    <h3 className="text-lg font-bold text-text-primary">
                       {formData.name || "Society Name"}
                     </h3>
                     <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full font-medium">

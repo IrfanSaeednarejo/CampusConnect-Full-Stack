@@ -18,7 +18,7 @@ export default function SocietySettings() {
   const [activeTab, setActiveTab] = useState("general");
 
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="min-h-screen bg-background text-text-primary">
       {/* Header */}
       <SocietyPageHeader
         title="Settings"
@@ -86,7 +86,7 @@ export default function SocietySettings() {
                     key={item.key}
                     className="flex items-center justify-between py-3 border-b border-border last:border-0"
                   >
-                    <span className="text-white">{item.label}</span>
+                    <span className="text-text-primary">{item.label}</span>
                     <label className="relative inline-flex items-center cursor-pointer">
                       <input
                         type="checkbox"
@@ -151,12 +151,12 @@ export default function SocietySettings() {
                   <label className="block text-sm font-medium text-text-secondary mb-2">
                     Change Password
                   </label>
-                  <button className="px-6 py-2 rounded-lg bg-surface-hover text-white font-medium hover:bg-surface-hover/80 transition-colors">
+                  <button className="px-6 py-2 rounded-lg bg-surface-hover text-text-primary font-medium hover:bg-surface-hover/80 transition-colors">
                     Update Password
                   </button>
                 </div>
                 <div className="pt-4 border-t border-border">
-                  <h3 className="text-lg font-semibold text-white mb-2">
+                  <h3 className="text-lg font-semibold text-text-primary mb-2">
                     Danger Zone
                   </h3>
                   <button className="px-6 py-2 rounded-lg bg-red-600 text-white font-medium hover:bg-red-700 transition-colors">

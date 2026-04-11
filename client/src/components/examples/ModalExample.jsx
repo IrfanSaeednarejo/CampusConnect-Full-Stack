@@ -24,7 +24,7 @@ const ModalExample = () => {
         </button>
         <button
           onClick={toggleModal}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-primary"
         >
           Toggle Modal
         </button>
@@ -37,7 +37,7 @@ const ModalExample = () => {
       {/* Modal Overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-background bg-opacity-50 flex items-center justify-center z-50"
           onClick={closeModal}
         >
           {/* Modal Content */}
@@ -49,7 +49,7 @@ const ModalExample = () => {
               <h3 className="text-xl font-bold">Modal Title</h3>
               <button
                 onClick={closeModal}
-                className="text-gray-500 hover:text-gray-700 text-2xl"
+                className="text-text-secondary hover:text-gray-700 text-2xl"
                 aria-label="Close modal"
               >
                 &times;

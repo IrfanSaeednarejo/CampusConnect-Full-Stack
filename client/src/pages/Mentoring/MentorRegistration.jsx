@@ -83,73 +83,7 @@ export default function MentorRegistration() {
 
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary bg-background overflow-x-hidden">
-      {/* TopNavBar */}
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-border px-10 py-3">
-        <div className="flex items-center gap-4">
-          <div className="size-6 text-primary">
-            <svg
-              fill="none"
-              viewBox="0 0 48 48"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M6 6H42L36 24L42 42H6L12 24L6 6Z"
-                fill="currentColor"
-              ></path>
-            </svg>
-          </div>
-          <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-            CampusConnect
-          </h2>
-        </div>
 
-        <div className="flex flex-1 justify-end gap-8">
-          <div className="flex items-center gap-9">
-            <a
-              href="/events"
-              className="text-white text-sm font-medium leading-normal"
-            >
-              Events
-            </a>
-            <a
-              href="#"
-              className="text-white text-sm font-medium leading-normal"
-            >
-              Mentors
-            </a>
-            <a
-              href="#"
-              className="text-white text-sm font-medium leading-normal"
-            >
-              Networking
-            </a>
-            <a
-              href="#"
-              className="text-white text-sm font-medium leading-normal"
-            >
-              Societies
-            </a>
-          </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => navigate("/signup")}
-              className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em]"
-            >
-              <span className="truncate">Sign Up</span>
-            </button>
-            <button
-              onClick={() => navigate("/login")}
-              className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-surface text-white text-sm font-bold leading-normal tracking-[0.015em]"
-            >
-              <span className="truncate">Log In</span>
-            </button>
-          </div>
-          <Avatar
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZ7TIKlVGpDEXB29COR5tJCLcIMOmhyaboLy69WfRQwPw_watuTV5XeUvDYTxhHbp8fzqLJxZDUS4cwwWWWYSgrhFIO_UAlqCtSEs766mr_SRn6u4NLQR7dnhRBYsq3_LFlq8xMTDMwlPs9jLeNLd_6p8ARGh3Evf7EVGqdsa3FzsSWeXUGa77evqMsOGzSKnpdpgx3fN8FrYs0s6ocMZocM1ZmH-GRCOGjEgAcYdxzkEiPwSpDBV6VP2inmcWIxgNjs299f1nRCU"
-            size="10"
-          />
-        </div>
-      </header>
 
       <div className="layout-container flex h-full grow flex-col">
         <main className="px-4 lg:px-10 flex flex-1 justify-center py-10">
@@ -157,7 +91,7 @@ export default function MentorRegistration() {
             {/* Page Heading */}
             <div className="flex flex-wrap justify-between gap-3">
               <div className="flex min-w-72 flex-col gap-2">
-                <p className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+                <p className="text-text-primary text-4xl font-black leading-tight tracking-[-0.033em]">
                   Mentor Registration
                 </p>
                 <p className="text-text-primary text-base font-normal leading-normal">
@@ -170,22 +104,22 @@ export default function MentorRegistration() {
             <div className="flex flex-col gap-3">
               <div className="flex w-full justify-between px-2 text-sm font-medium text-text-primary">
                 <span
-                  className={currentStep >= 1 ? "text-white" : "text-text-secondary"}
+                  className={currentStep >= 1 ? "text-text-primary" : "text-text-secondary"}
                 >
                   1. Personal Info
                 </span>
                 <span
-                  className={currentStep >= 2 ? "text-white" : "text-text-secondary"}
+                  className={currentStep >= 2 ? "text-text-primary" : "text-text-secondary"}
                 >
                   2. Expertise
                 </span>
                 <span
-                  className={currentStep >= 3 ? "text-white" : "text-text-secondary"}
+                  className={currentStep >= 3 ? "text-text-primary" : "text-text-secondary"}
                 >
                   3. Profile Details
                 </span>
                 <span
-                  className={currentStep >= 4 ? "text-white" : "text-text-secondary"}
+                  className={currentStep >= 4 ? "text-text-primary" : "text-text-secondary"}
                 >
                   4. Review
                 </span>
@@ -202,7 +136,7 @@ export default function MentorRegistration() {
               {/* Form Container */}
               <div className="lg:col-span-2 flex flex-col gap-6">
                 <div className="flex flex-col gap-6 rounded-lg border border-border bg-surface p-6">
-                  <h3 className="text-xl font-bold text-white">
+                  <h3 className="text-xl font-bold text-text-primary">
                     {currentStep === 1 && "Step 1: Personal Information"}
                     {currentStep === 2 && "Step 2: Expertise"}
                     {currentStep === 3 && "Step 3: Profile Details"}
@@ -213,7 +147,7 @@ export default function MentorRegistration() {
                   {currentStep === 1 && (
                     <div className="flex flex-col gap-4">
                       <label className="flex flex-col gap-2">
-                        <p className="text-white text-sm font-medium">
+                        <p className="text-text-primary text-sm font-medium">
                           Full Name
                         </p>
                         <input
@@ -221,23 +155,23 @@ export default function MentorRegistration() {
                           name="fullName"
                           value={formData.fullName}
                           onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-12 placeholder:text-text-primary/50 px-3 text-base font-normal leading-normal"
+                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-12 placeholder:text-text-primary/50 px-3 text-base font-normal leading-normal"
                           placeholder="Enter your full name"
                         />
                       </label>
                       <label className="flex flex-col gap-2">
-                        <p className="text-white text-sm font-medium">Email</p>
+                        <p className="text-text-primary text-sm font-medium">Email</p>
                         <input
                           type="email"
                           name="email"
                           value={formData.email}
                           onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-12 placeholder:text-text-primary/50 px-3 text-base font-normal leading-normal"
+                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-12 placeholder:text-text-primary/50 px-3 text-base font-normal leading-normal"
                           placeholder="Enter your email"
                         />
                       </label>
                       <label className="flex flex-col gap-2">
-                        <p className="text-white text-sm font-medium">
+                        <p className="text-text-primary text-sm font-medium">
                           Phone Number
                         </p>
                         <input
@@ -245,7 +179,7 @@ export default function MentorRegistration() {
                           name="phone"
                           value={formData.phone}
                           onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-12 placeholder:text-text-primary/50 px-3 text-base font-normal leading-normal"
+                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-12 placeholder:text-text-primary/50 px-3 text-base font-normal leading-normal"
                           placeholder="Enter your phone number"
                         />
                       </label>
@@ -256,14 +190,14 @@ export default function MentorRegistration() {
                   {currentStep === 2 && (
                     <div className="flex flex-col gap-4">
                       <label className="flex flex-col gap-2">
-                        <p className="text-white text-sm font-medium">
+                        <p className="text-text-primary text-sm font-medium">
                           Areas of Expertise
                         </p>
                         <textarea
                           name="expertise"
                           value={formData.expertise}
                           onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-32 placeholder:text-text-primary/50 px-3 py-3 text-base font-normal leading-normal"
+                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-32 placeholder:text-text-primary/50 px-3 py-3 text-base font-normal leading-normal"
                           placeholder="List your areas of expertise (e.g., Python, Data Science, Web Development)"
                         />
                       </label>
@@ -277,24 +211,24 @@ export default function MentorRegistration() {
                   {currentStep === 3 && (
                     <div className="flex flex-col gap-4">
                       <label className="flex flex-col gap-2">
-                        <p className="text-white text-sm font-medium">Bio</p>
+                        <p className="text-text-primary text-sm font-medium">Bio</p>
                         <textarea
                           name="bio"
                           value={formData.bio}
                           onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-32 placeholder:text-text-primary/50 px-3 py-3 text-base font-normal leading-normal"
+                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-32 placeholder:text-text-primary/50 px-3 py-3 text-base font-normal leading-normal"
                           placeholder="Write a brief bio about yourself..."
                         />
                       </label>
                       <label className="flex flex-col gap-2">
-                        <p className="text-white text-sm font-medium">
+                        <p className="text-text-primary text-sm font-medium">
                           Availability
                         </p>
                         <select
                           name="availability"
                           value={formData.availability}
                           onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-12 placeholder:text-text-primary/50 px-3 text-base font-normal leading-normal"
+                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-2 focus:ring-primary/50 border border-border bg-background focus:border-primary h-12 placeholder:text-text-primary/50 px-3 text-base font-normal leading-normal"
                         >
                           <option value="">Select your availability</option>
                           <option value="weekdays">Weekdays</option>
@@ -309,31 +243,31 @@ export default function MentorRegistration() {
                   {currentStep === 4 && (
                     <div className="flex flex-col gap-6">
                       <div className="border border-border rounded-lg p-4">
-                        <h4 className="text-white font-bold mb-4">
+                        <h4 className="text-text-primary font-bold mb-4">
                           Review Your Information
                         </h4>
                         <div className="space-y-3 text-sm">
                           <p>
                             <span className="text-text-secondary">Full Name:</span>{" "}
-                            <span className="text-white">
+                            <span className="text-text-primary">
                               {formData.fullName || "Not provided"}
                             </span>
                           </p>
                           <p>
                             <span className="text-text-secondary">Email:</span>{" "}
-                            <span className="text-white">
+                            <span className="text-text-primary">
                               {formData.email || "Not provided"}
                             </span>
                           </p>
                           <p>
                             <span className="text-text-secondary">Phone:</span>{" "}
-                            <span className="text-white">
+                            <span className="text-text-primary">
                               {formData.phone || "Not provided"}
                             </span>
                           </p>
                           <p>
                             <span className="text-text-secondary">Expertise:</span>{" "}
-                            <span className="text-white">
+                            <span className="text-text-primary">
                               {formData.expertise || "Not provided"}
                             </span>
                           </p>
@@ -341,7 +275,7 @@ export default function MentorRegistration() {
                             <span className="text-text-secondary">
                               Availability:
                             </span>{" "}
-                            <span className="text-white capitalize">
+                            <span className="text-text-primary capitalize">
                               {formData.availability || "Not provided"}
                             </span>
                           </p>
@@ -359,7 +293,7 @@ export default function MentorRegistration() {
                 <div className="flex justify-between items-center mt-4">
                   <button
                     onClick={() => navigate("/")}
-                    className="text-sm font-bold leading-normal tracking-[0.015em] text-white hover:text-primary"
+                    className="text-sm font-bold leading-normal tracking-[0.015em] text-text-primary hover:text-primary"
                   >
                     Cancel
                   </button>
@@ -367,11 +301,10 @@ export default function MentorRegistration() {
                     <button
                       onClick={handleBack}
                       disabled={currentStep === 1 || submitting}
-                      className={`flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-surface border border-border text-white text-sm font-bold leading-normal tracking-[0.015em] ${
-                        currentStep === 1 || submitting
+                      className={`flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-surface border border-border text-text-primary text-sm font-bold leading-normal tracking-[0.015em] ${currentStep === 1 || submitting
                           ? "opacity-50 cursor-not-allowed"
                           : "hover:bg-surface-hover"
-                      }`}
+                        }`}
                     >
                       <span className="truncate">Back</span>
                     </button>
@@ -404,10 +337,10 @@ export default function MentorRegistration() {
               <aside className="lg:col-span-1">
                 <div className="flex flex-1 flex-col items-start justify-between gap-4 rounded-lg border border-border bg-surface p-5">
                   <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-white">
+                    <span className="material-symbols-outlined text-text-primary">
                       info
                     </span>
-                    <p className="text-white text-base font-bold leading-tight">
+                    <p className="text-text-primary text-base font-bold leading-tight">
                       Application Review
                     </p>
                   </div>

@@ -8,7 +8,7 @@ export default function FeedbackMentoring() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const pendingFeedback = useSelector(selectPendingFeedback);
-  
+
   const [selectedSession, setSelectedSession] = useState(null);
   const [rating, setRating] = useState(5);
   const [feedback, setFeedback] = useState("");
@@ -55,7 +55,7 @@ export default function FeedbackMentoring() {
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-background">
       <div className="layout-container flex h-full grow flex-col">
         {/* TopNavBar */}
         <MentorTopBar backPath="/mentor/dashboard" />
@@ -65,7 +65,7 @@ export default function FeedbackMentoring() {
           <div className="layout-content-container flex flex-col w-full max-w-5xl flex-1">
             {/* Page Heading */}
             <div className="mb-8">
-              <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
+              <h1 className="text-text-primary text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                 Session Feedback & Ratings
               </h1>
               <p className="text-text-secondary text-base font-normal leading-normal">
@@ -76,25 +76,24 @@ export default function FeedbackMentoring() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Pending Feedback List */}
               <div className="flex flex-col gap-4">
-                <h2 className="text-white font-semibold text-lg">
+                <h2 className="text-text-primary font-semibold text-lg">
                   Pending Feedback ({pendingFeedback.length})
                 </h2>
                 {pendingFeedback.map((session) => (
                   <div
                     key={session.id}
                     onClick={() => setSelectedSession(session)}
-                    className={`p-4 rounded-xl cursor-pointer transition-all border ${
-                      selectedSession?.id === session.id
-                        ? "bg-surface border-[#1dc964]"
-                        : "bg-surface border-border hover:border-[#1dc964]"
-                    }`}
+                    className={`p-4 rounded-xl cursor-pointer transition-all border ${selectedSession?.id === session.id
+                        ? "bg-surface border-primary"
+                        : "bg-surface border-border hover:border-primary"
+                      }`}
                   >
                     <img
                       src={session.menteeImage}
                       alt={session.mentee}
                       className="w-10 h-10 rounded-full mb-2 border border-border"
                     />
-                    <h3 className="text-white font-semibold">
+                    <h3 className="text-text-primary font-semibold">
                       {session.mentee}
                     </h3>
                     <p className="text-text-secondary text-sm">{session.topic}</p>
@@ -109,7 +108,7 @@ export default function FeedbackMentoring() {
               <div className="lg:col-span-2">
                 {selectedSession ? (
                   <div className="p-6 bg-surface border border-border rounded-xl">
-                    <h2 className="text-white font-bold text-xl mb-6">
+                    <h2 className="text-text-primary font-bold text-xl mb-6">
                       Provide Feedback for {selectedSession.mentee}
                     </h2>
 
@@ -122,7 +121,7 @@ export default function FeedbackMentoring() {
                           className="w-10 h-10 rounded-full"
                         />
                         <div>
-                          <p className="text-white font-semibold">
+                          <p className="text-text-primary font-semibold">
                             {selectedSession.mentee}
                           </p>
                           <p className="text-text-secondary text-sm">
@@ -148,7 +147,7 @@ export default function FeedbackMentoring() {
 
                     {/* Rating */}
                     <div className="mb-6">
-                      <label className="block text-white font-semibold mb-3">
+                      <label className="block text-text-primary font-semibold mb-3">
                         Rate this session
                       </label>
                       <div className="flex gap-2">
@@ -161,7 +160,7 @@ export default function FeedbackMentoring() {
                             {star <= rating ? (
                               <span className="text-yellow-400">★</span>
                             ) : (
-                              <span className="text-[#30363d]">★</span>
+                              <span className="text-border">★</span>
                             )}
                           </button>
                         ))}
@@ -170,14 +169,14 @@ export default function FeedbackMentoring() {
 
                     {/* Feedback Text */}
                     <div className="mb-6">
-                      <label className="block text-white font-semibold mb-3">
+                      <label className="block text-text-primary font-semibold mb-3">
                         Additional Feedback (Optional)
                       </label>
                       <textarea
                         value={feedback}
                         onChange={(e) => setFeedback(e.target.value)}
                         placeholder="Share your thoughts about this session..."
-                        className="w-full p-4 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none resize-none"
+                        className="w-full p-4 bg-background text-text-primary rounded-lg border border-border focus:border-primary focus:outline-none resize-none"
                         rows="5"
                       ></textarea>
                     </div>
@@ -193,7 +192,7 @@ export default function FeedbackMentoring() {
                       </button>
                       <button
                         onClick={() => setSelectedSession(null)}
-                        className="flex items-center gap-2 px-6 py-3 bg-[#30363d] text-white font-bold rounded-lg hover:bg-[#404851] transition-colors"
+                        className="flex items-center gap-2 px-6 py-3 bg-surface border border-border text-text-primary font-bold rounded-lg hover:bg-surface-hover transition-colors"
                       >
                         Cancel
                       </button>

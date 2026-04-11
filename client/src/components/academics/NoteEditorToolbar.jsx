@@ -13,7 +13,7 @@ const toolbarButtons = [
 export default function NoteEditorToolbar({
   containerClassName = "flex items-center gap-1",
   buttonClassName = "p-2 rounded",
-  dividerClassName = "w-px h-5 bg-[#30363d] mx-1",
+  dividerClassName = "w-px h-5 bg-[#C7D2FE] mx-1",
 }) {
   return (
     <div className={containerClassName}>

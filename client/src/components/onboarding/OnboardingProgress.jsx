@@ -18,7 +18,7 @@ export default function OnboardingProgress({
         </p>
       </div>
       {showBar && (
-        <div className="h-2 w-full rounded-full bg-[#30363d]">
+        <div className="h-2 w-full rounded-full bg-[#C7D2FE]">
           <div
             className="h-2 rounded-full bg-primary"
             style={{ width: `${percentage}%` }}

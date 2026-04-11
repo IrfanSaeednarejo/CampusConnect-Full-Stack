@@ -39,7 +39,7 @@ export default function BaseModal({ children, size = 'md' }) {
     >
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/50 transition-opacity" 
+        className="fixed inset-0 bg-background/50 transition-opacity" 
         style={{ backdropFilter: 'blur(4px)' }} 
       />
 

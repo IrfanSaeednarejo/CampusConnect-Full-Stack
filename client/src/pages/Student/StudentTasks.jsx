@@ -13,9 +13,9 @@ import {
 function TaskColumn({ title, statusId, tasks, onStatusChange, onDelete }) {
   return (
     <div className="flex flex-col flex-1 bg-surface border border-border rounded-xl overflow-hidden min-h-[400px]">
-      <div className="bg-[#1f2428] px-4 py-3 border-b border-border flex justify-between items-center">
-        <h3 className="font-bold text-white tracking-wide uppercase text-sm">{title}</h3>
-        <span className="bg-[#30363d] text-text-primary text-xs px-2 py-0.5 rounded-full font-bold">
+      <div className="bg-surface px-4 py-3 border-b border-border flex justify-between items-center">
+        <h3 className="font-bold text-text-primary tracking-wide uppercase text-sm">{title}</h3>
+        <span className="bg-[#C7D2FE] text-text-primary text-xs px-2 py-0.5 rounded-full font-bold">
           {tasks.length}
         </span>
       </div>
@@ -49,7 +49,7 @@ function TaskCard({ task, onStatusChange, onDelete }) {
     'pending': 'border-[#d29922]',
     'in_progress': 'border-[#2f81f7]',
     'done': 'border-primary',
-    'past': 'border-[#8b949e]'
+    'past': 'border-[#475569]'
   };
 
   const nextStatusLabel = {
@@ -60,15 +60,15 @@ function TaskCard({ task, onStatusChange, onDelete }) {
   };
 
   return (
-    <div className={`bg-background border-l-4 ${statusColors[task.status] || 'border-[#8b949e]'} border-border p-3 rounded shadow hover:border-[#8b949e] transition-colors relative group opacity-${isLoading ? '50' : '100'}`}>
+    <div className={`bg-background border-l-4 ${statusColors[task.status] || 'border-[#475569]'} border-border p-3 rounded shadow hover:border-[#475569] transition-colors relative group opacity-${isLoading ? '50' : '100'}`}>
       <div className="flex justify-between items-start gap-2 mb-2">
-        <h4 className={`text-sm font-semibold leading-tight pr-6 ${task.status === 'past' ? 'text-text-secondary line-through' : 'text-white'}`}>
+        <h4 className={`text-sm font-semibold leading-tight pr-6 ${task.status === 'past' ? 'text-text-secondary line-through' : 'text-text-primary'}`}>
           {task.title}
         </h4>
         <button 
           onClick={() => onDelete(task._id)}
           disabled={isLoading}
-          className="text-text-secondary hover:text-[#f85149] transition-colors absolute top-3 right-3 opacity-0 group-hover:opacity-100"
+          className="text-text-secondary hover:text-[#DC2626] transition-colors absolute top-3 right-3 opacity-0 group-hover:opacity-100"
           title="Delete task"
         >
           <span className="material-symbols-outlined text-[18px]">delete</span>
@@ -84,7 +84,7 @@ function TaskCard({ task, onStatusChange, onDelete }) {
         <button 
           onClick={() => onStatusChange(task._id, nextStatusMap[task.status])}
           disabled={isLoading}
-          className="bg-surface-hover hover:bg-[#30363d] text-text-primary px-2 py-1 flex items-center gap-1.5 rounded border border-border transition-colors"
+          className="bg-surface-hover hover:bg-[#C7D2FE] text-text-primary px-2 py-1 flex items-center gap-1.5 rounded border border-border transition-colors"
         >
           <span>{nextStatusLabel[nextStatusMap[task.status]]}</span>
           <span className="material-symbols-outlined text-[14px]">
@@ -129,7 +129,7 @@ export default function StudentTasks() {
       <main className="px-4 sm:px-10 lg:px-20 py-5 md:py-10 max-w-7xl mx-auto">
         <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">My Tasks</h1>
+            <h1 className="text-4xl font-bold text-text-primary mb-2">My Tasks</h1>
             <p className="text-text-secondary">Keep track of assignments and events.</p>
           </div>
 
@@ -139,7 +139,7 @@ export default function StudentTasks() {
               placeholder="What needs to be done?" 
               value={newTaskTitle}
               onChange={(e) => setNewTaskTitle(e.target.value)}
-              className="bg-surface border border-border text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full md:w-64 p-2.5 outline-none transition-colors"
+              className="bg-surface border border-border text-text-primary text-sm rounded-lg focus:ring-primary focus:border-primary block w-full md:w-64 p-2.5 outline-none transition-colors"
             />
             <button 
               type="submit"
@@ -190,13 +190,13 @@ export default function StudentTasks() {
               <div className="mt-4 pt-6 border-t border-border/50">
                 <button 
                   onClick={() => setShowPastTasks(!showPastTasks)}
-                  className="flex items-center gap-2 text-text-secondary hover:text-white transition-colors font-semibold text-sm bg-surface border border-border px-4 py-2 rounded-lg"
+                  className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors font-semibold text-sm bg-surface border border-border px-4 py-2 rounded-lg"
                 >
                   <span className="material-symbols-outlined text-[18px] transition-transform duration-200" style={{ transform: showPastTasks ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                     expand_more
                   </span>
                   {showPastTasks ? 'Hide Past Tasks' : 'Show Past Tasks'} 
-                  <span className="bg-[#30363d] text-white px-2 py-0.5 rounded-full text-xs ml-1 font-bold">
+                  <span className="bg-[#C7D2FE] text-text-primary px-2 py-0.5 rounded-full text-xs ml-1 font-bold">
                     {pastTasks.length}
                   </span>
                 </button>

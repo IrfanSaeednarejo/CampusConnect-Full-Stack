@@ -28,11 +28,11 @@ export default function ProfilePageHeader({
       <div className="flex items-center gap-4">
         <button
           onClick={handleBack}
-          className="text-white hover:text-primary transition-colors"
+          className="text-text-primary hover:text-primary transition-colors"
         >
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
-        <h1 className="text-xl font-bold text-white">{title}</h1>
+        <h1 className="text-xl font-bold text-text-primary">{title}</h1>
       </div>
       {action && <div>{action}</div>}
     </header>

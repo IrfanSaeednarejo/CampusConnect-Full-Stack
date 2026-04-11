@@ -65,14 +65,14 @@ export default function CreateSociety() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="min-h-screen bg-background text-text-primary">
       {/* Header */}
       <header className="bg-surface border-b border-border sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate("/society/dashboard")}
-              className="flex items-center gap-2 text-text-secondary hover:text-white transition-colors"
+              className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors"
             >
               <span className="material-symbols-outlined text-xl">
                 arrow_back
@@ -80,11 +80,11 @@ export default function CreateSociety() {
               <span className="text-sm font-medium">Back</span>
             </button>
             <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-4xl text-[#1dc964]">
+              <span className="material-symbols-outlined text-4xl text-primary">
                 add_circle
               </span>
               <div>
-                <h1 className="text-2xl font-bold text-white">
+                <h1 className="text-2xl font-bold text-text-primary">
                   Create New Society
                 </h1>
                 <p className="text-sm text-text-secondary">
@@ -174,8 +174,8 @@ export default function CreateSociety() {
                     onClick={() => setFormData({ ...formData, logo: emoji })}
                     className={`p-4 text-4xl rounded-lg border-2 transition-all hover:scale-110 ${
                       formData.logo === emoji
-                        ? "border-[#1dc964] bg-primary/20"
-                        : "border-border hover:border-[#1dc964]/50"
+                        ? "border-primary bg-primary/20"
+                        : "border-border hover:border-primary/50"
                     }`}
                   >
                     {emoji}
@@ -186,16 +186,16 @@ export default function CreateSociety() {
 
             {/* Preview */}
             <div className="pt-6 border-t border-border">
-              <h3 className="text-lg font-semibold text-white mb-4">Preview</h3>
+              <h3 className="text-lg font-semibold text-text-primary mb-4">Preview</h3>
               <div className="bg-background border border-border rounded-lg p-6">
                 <div className="flex items-center gap-4 mb-4">
                   <div className="text-4xl">{formData.logo}</div>
                   <div className="flex-1">
-                    <h4 className="text-white font-bold text-lg">
+                    <h4 className="text-text-primary font-bold text-lg">
                       {formData.name || "Society Name"}
                     </h4>
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="px-2 py-0.5 bg-primary/20 text-[#1dc964] text-xs font-bold rounded">
+                      <span className="px-2 py-0.5 bg-primary/20 text-primary text-xs font-bold rounded">
                         {formData.tag?.toUpperCase() || "TAG"}
                       </span>
                       <p className="text-text-secondary text-sm">

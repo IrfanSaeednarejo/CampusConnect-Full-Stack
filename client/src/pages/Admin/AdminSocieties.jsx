@@ -37,8 +37,8 @@ export default function AdminSocieties() {
         <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-background">
             <div className="max-w-7xl mx-auto">
                 <header className="mb-6">
-                    <h1 className="text-3xl font-bold text-white">Society Oversight</h1>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <h1 className="text-3xl font-bold text-text-primary">Society Oversight</h1>
+                    <p className="text-sm text-text-secondary mt-1">
                         {pagination.total} societies on the platform
                     </p>
                 </header>
@@ -50,7 +50,7 @@ export default function AdminSocieties() {
                         placeholder="Search societies by name..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full max-w-md bg-surface border border-border rounded-lg px-4 py-2 text-white text-sm placeholder:text-text-secondary focus:ring-1 focus:ring-primary focus:border-primary"
+                        className="w-full max-w-md bg-surface border border-border rounded-lg px-4 py-2 text-text-primary text-sm placeholder:text-text-secondary focus:ring-1 focus:ring-primary focus:border-primary"
                     />
                 </div>
 
@@ -82,7 +82,7 @@ export default function AdminSocieties() {
                                                 </div>
                                             )}
                                             <div className="flex-1 min-w-0">
-                                                <h3 className="text-white font-semibold truncate">{society.name}</h3>
+                                                <h3 className="text-text-primary font-semibold truncate">{society.name}</h3>
                                                 <p className="text-text-secondary text-xs">{society.tag || "No tag"}</p>
                                             </div>
                                         </div>
@@ -90,15 +90,15 @@ export default function AdminSocieties() {
                                         <div className="space-y-2 text-sm mb-4 flex-1">
                                             <div className="flex justify-between text-text-secondary">
                                                 <span>Head</span>
-                                                <span className="text-white capitalize">{headName}</span>
+                                                <span className="text-text-primary capitalize">{headName}</span>
                                             </div>
                                             <div className="flex justify-between text-text-secondary">
                                                 <span>Members</span>
-                                                <span className="text-white">{society.memberCount ?? society.members?.length ?? 0}</span>
+                                                <span className="text-text-primary">{society.memberCount ?? society.members?.length ?? 0}</span>
                                             </div>
                                             <div className="flex justify-between text-text-secondary">
                                                 <span>Created</span>
-                                                <span className="text-white">{new Date(society.createdAt).toLocaleDateString()}</span>
+                                                <span className="text-text-primary">{new Date(society.createdAt).toLocaleDateString()}</span>
                                             </div>
                                         </div>
 

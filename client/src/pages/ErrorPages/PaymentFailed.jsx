@@ -12,7 +12,7 @@ export default function PaymentFailed() {
 	return (
 		<ErrorPageShell
 			icon="credit_card_off"
-			iconClassName="text-[#f85149]"
+			iconClassName="text-[#DC2626]"
 			code="402"
 			title="Payment Failed"
 			message="We couldn't process your payment. Please check your details and try again."

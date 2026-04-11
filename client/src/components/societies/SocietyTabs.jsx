@@ -20,8 +20,8 @@ export default function SocietyTabs({
                 onClick={() => onChange(value)}
                 className={`px-4 py-3 text-sm font-medium capitalize border-b-2 transition-colors ${
                   activeTab === value
-                    ? "border-[#1dc964] text-white"
-                    : "border-transparent text-text-secondary hover:text-white"
+                    ? "border-primary text-text-primary"
+                    : "border-transparent text-text-secondary hover:text-text-primary"
                 }`}
               >
                 {label}

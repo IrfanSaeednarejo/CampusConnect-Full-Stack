@@ -13,7 +13,7 @@ export default function TaskProgressBar({
       className={`bg-surface border border-border rounded-lg p-6 ${className}`}
     >
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-white font-bold">Task Progress</h3>
+        <h3 className="text-text-primary font-bold">Task Progress</h3>
         <span className="text-primary font-bold">{progressPercent}%</span>
       </div>
       <div className="w-full bg-background rounded-full h-3 overflow-hidden">

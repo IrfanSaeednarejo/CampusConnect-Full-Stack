@@ -16,7 +16,7 @@ export default function TaskItem({
       />
       <div className="flex-1 min-w-0">
         <p
-          className={`text-base font-medium ${task.completed ? "text-text-secondary line-through" : "text-white"}`}
+          className={`text-base font-medium ${task.completed ? "text-text-secondary line-through" : "text-text-primary"}`}
         >
           {task.text}
         </p>
@@ -27,7 +27,7 @@ export default function TaskItem({
           <span
             className={`text-xs px-2 py-1 rounded border ${
               task.priority === "high"
-                ? "bg-danger/20 border-[#da3633]/50 text-[#f85149]"
+                ? "bg-danger/20 border-[#EF4444]/50 text-[#DC2626]"
                 : task.priority === "medium"
                   ? "bg-[#d29922]/20 border-[#d29922]/50 text-[#e0ad3e]"
                   : "bg-background border-border text-text-secondary"

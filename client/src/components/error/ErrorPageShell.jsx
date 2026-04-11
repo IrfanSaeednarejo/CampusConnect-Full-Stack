@@ -23,10 +23,10 @@ export default function ErrorPageShell({
           </div>
         )}
         {code && (
-          <h1 className="text-5xl font-bold text-[#e6edf3] mb-4">{code}</h1>
+          <h1 className="text-5xl font-bold text-text-primary mb-4">{code}</h1>
         )}
         {title && (
-          <h2 className="text-3xl font-bold text-[#e6edf3] mb-4">
+          <h2 className="text-3xl font-bold text-text-primary mb-4">
             {title}
           </h2>
         )}

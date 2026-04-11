@@ -206,7 +206,7 @@ export default function Events() {
       return (
         <button
           disabled
-          className="h-8 px-4 text-xs font-semibold rounded-lg bg-[#30363d] text-text-secondary cursor-not-allowed"
+          className="h-8 px-4 text-xs font-semibold rounded-lg bg-[#C7D2FE] text-text-secondary cursor-not-allowed"
         >
           Ended
         </button>
@@ -220,7 +220,7 @@ export default function Events() {
             onClick={() =>
               window.open(event.meetingLink || "#", "_blank")
             }
-            className="h-8 px-4 text-xs font-semibold rounded-lg bg-[#1f6feb] hover:bg-[#388bfd] text-white transition-colors"
+            className="h-8 px-4 text-xs font-semibold rounded-lg bg-primary hover:bg-primary-hover text-white transition-colors"
           >
             Join Now
           </button>
@@ -229,7 +229,7 @@ export default function Events() {
       return (
         <button
           disabled
-          className="h-8 px-4 text-xs font-semibold rounded-lg bg-[#30363d] text-text-secondary cursor-not-allowed"
+          className="h-8 px-4 text-xs font-semibold rounded-lg bg-[#C7D2FE] text-text-secondary cursor-not-allowed"
         >
           Registration Closed
         </button>
@@ -241,7 +241,7 @@ export default function Events() {
       return (
         <button
           onClick={() => handleCancel(event._id)}
-          className="h-8 px-4 text-xs font-semibold rounded-lg border border-primary text-[#3fb950] hover:bg-primary/10 transition-colors"
+          className="h-8 px-4 text-xs font-semibold rounded-lg border border-primary text-primary hover:bg-primary/10 transition-colors"
         >
           Registered ✓
         </button>
@@ -262,20 +262,20 @@ export default function Events() {
   const renderStatusBadge = (liveStatus) => {
     if (liveStatus === "upcoming") {
       return (
-        <span className="absolute top-3 right-3 px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-full bg-primary/20 text-[#3fb950] border border-primary/40">
+        <span className="absolute top-3 right-3 px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-full bg-primary/20 text-primary border border-primary/40">
           Upcoming
         </span>
       );
     }
     if (liveStatus === "ongoing") {
       return (
-        <span className="absolute top-3 right-3 px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-full bg-[#1f6feb]/20 text-[#58a6ff] border border-[#1f6feb]/40">
+        <span className="absolute top-3 right-3 px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-full bg-primary/20 text-primary border border-primary/20">
           Live Now 🔴
         </span>
       );
     }
     return (
-      <span className="absolute top-3 right-3 px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-full bg-[#30363d] text-text-secondary border border-[#484f58]">
+      <span className="absolute top-3 right-3 px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-full bg-[#C7D2FE] text-text-secondary border border-[#475569]">
         Ended
       </span>
     );
@@ -298,11 +298,11 @@ export default function Events() {
   ];
 
   return (
-    <div className="w-full bg-background text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
+    <div className="w-full bg-background text-text-primary min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+          <h1 className="text-text-primary text-4xl font-black leading-tight tracking-[-0.033em]">
             Campus Events
           </h1>
           <p className="text-text-secondary text-base mt-2">
@@ -317,19 +317,17 @@ export default function Events() {
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key)}
-              className={`px-4 py-3 text-sm font-medium transition-colors ${
-                activeTab === tab.key
-                  ? "text-[#3fb950] border-b-2 border-[#3fb950] font-semibold"
-                  : "text-text-secondary hover:text-white"
-              }`}
+              className={`px-4 py-3 text-sm font-medium transition-colors ${activeTab === tab.key
+                  ? "text-primary border-b-2 border-[#3fb950] font-semibold"
+                  : "text-text-secondary hover:text-text-primary"
+                }`}
             >
               {tab.label}{" "}
               <span
-                className={`ml-1 text-xs px-1.5 py-0.5 rounded-full ${
-                  activeTab === tab.key
-                    ? "bg-primary/20 text-[#3fb950]"
-                    : "bg-[#30363d] text-text-secondary"
-                }`}
+                className={`ml-1 text-xs px-1.5 py-0.5 rounded-full ${activeTab === tab.key
+                    ? "bg-primary/20 text-primary"
+                    : "bg-[#C7D2FE] text-text-secondary"
+                  }`}
               >
                 {tab.count}
               </span>
@@ -348,12 +346,12 @@ export default function Events() {
               placeholder="Search events by title, description, or location..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-background border border-border text-[#e6edf3] text-sm placeholder-[#484f58] focus:outline-none focus:border-[#3fb950] transition-colors"
+              className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-background border border-border text-text-primary text-sm placeholder-[#475569] focus:outline-none focus:border-[#3fb950] transition-colors"
             />
             {search && (
               <button
                 onClick={() => setSearch("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
               >
                 <span className="material-symbols-outlined text-[18px]">
                   close
@@ -369,11 +367,10 @@ export default function Events() {
             <button
               key={tag}
               onClick={() => setActiveTag(tag)}
-              className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
-                activeTag === tag
+              className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${activeTag === tag
                   ? "bg-primary text-white"
-                  : "bg-surface text-text-secondary border border-border hover:text-white hover:border-[#484f58]"
-              }`}
+                  : "bg-surface text-text-secondary border border-border hover:text-text-primary hover:border-[#475569]"
+                }`}
             >
               {tag}
             </button>
@@ -395,14 +392,14 @@ export default function Events() {
                 className="rounded-xl bg-surface border border-border h-64 animate-pulse"
               >
                 <div className="p-5 space-y-4">
-                  <div className="h-5 bg-[#30363d] rounded w-3/4" />
-                  <div className="h-3 bg-[#30363d] rounded w-1/2" />
-                  <div className="h-3 bg-[#30363d] rounded w-2/3" />
-                  <div className="h-3 bg-[#30363d] rounded w-full" />
-                  <div className="h-3 bg-[#30363d] rounded w-full" />
+                  <div className="h-5 bg-[#C7D2FE] rounded w-3/4" />
+                  <div className="h-3 bg-[#C7D2FE] rounded w-1/2" />
+                  <div className="h-3 bg-[#C7D2FE] rounded w-2/3" />
+                  <div className="h-3 bg-[#C7D2FE] rounded w-full" />
+                  <div className="h-3 bg-[#C7D2FE] rounded w-full" />
                   <div className="pt-6 flex justify-between items-center">
-                    <div className="h-3 bg-[#30363d] rounded w-20" />
-                    <div className="h-8 bg-[#30363d] rounded w-24" />
+                    <div className="h-3 bg-[#C7D2FE] rounded w-20" />
+                    <div className="h-8 bg-[#C7D2FE] rounded w-24" />
                   </div>
                 </div>
               </div>
@@ -413,12 +410,12 @@ export default function Events() {
         {/* FIX [Bug 7]: Error State */}
         {status === "failed" && (
           <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
-            <div className="w-20 h-20 bg-[#f85149]/10 rounded-full flex items-center justify-center border border-[#f85149]/30 mb-4">
-              <span className="material-symbols-outlined text-4xl text-[#f85149]">
+            <div className="w-20 h-20 bg-[#DC2626]/10 rounded-full flex items-center justify-center border border-[#DC2626]/30 mb-4">
+              <span className="material-symbols-outlined text-4xl text-[#DC2626]">
                 warning
               </span>
             </div>
-            <h3 className="text-xl font-bold text-white mb-2">
+            <h3 className="text-xl font-bold text-text-primary mb-2">
               Could not load events
             </h3>
             <p className="text-text-secondary mb-6">
@@ -451,7 +448,7 @@ export default function Events() {
 
                     {/* FIX [Bug 6]: Clickable Title */}
                     <h2
-                      className="text-[#e6edf3] text-lg font-bold leading-tight cursor-pointer hover:text-[#3fb950] transition-colors pr-24"
+                      className="text-text-primary text-lg font-bold leading-tight cursor-pointer hover:text-primary transition-colors pr-24"
                       onClick={() => handleViewDetails(event._id)}
                     >
                       {event.title}
@@ -470,7 +467,7 @@ export default function Events() {
                       )}
                     </div>
 
-                    <p className="text-text-secondary text-sm font-normal leading-normal line-clamp-2">
+                    <p className="text-text-primary text-sm font-normal leading-normal line-clamp-2">
                       {event.description}
                     </p>
 
@@ -480,7 +477,7 @@ export default function Events() {
                         {event.tags.map((tag) => (
                           <span
                             key={tag}
-                            className="px-2 py-0.5 text-[10px] rounded-full bg-[#30363d] text-text-secondary"
+                            className="px-2 py-0.5 text-[10px] rounded-full bg-primary/10 text-primary border border-primary/20"
                           >
                             {tag}
                           </span>
@@ -492,7 +489,7 @@ export default function Events() {
                       {/* FIX [Bug 6]: View Details link */}
                       <span
                         onClick={() => handleViewDetails(event._id)}
-                        className="text-sm text-text-secondary hover:text-[#3fb950] transition-colors cursor-pointer"
+                        className="text-sm text-text-secondary hover:text-primary transition-colors cursor-pointer"
                       >
                         View Details →
                       </span>
@@ -505,16 +502,16 @@ export default function Events() {
             ) : (
               /* FIX [Bug 4]: Empty state per tab */
               <div className="flex flex-col items-center justify-center py-20 text-center">
-                <span className="material-symbols-outlined text-5xl text-[#30363d] mb-4">
+                <span className="material-symbols-outlined text-5xl text-[#C7D2FE] mb-4">
                   event_busy
                 </span>
-                <h3 className="text-lg font-bold text-white mb-1">
+                <h3 className="text-lg font-bold text-text-primary mb-1">
                   No{" "}
                   {activeTab === "upcoming"
                     ? "upcoming"
                     : activeTab === "past"
-                    ? "past"
-                    : ""}{" "}
+                      ? "past"
+                      : ""}{" "}
                   events
                   {search ? ` matching "${search}"` : ""}
                 </h3>

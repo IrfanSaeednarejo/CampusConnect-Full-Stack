@@ -618,3 +618,26 @@ export const search = async (requestUser, queryParams) => {
         },
     };
 };
+
+export const completeOnboarding = async (userId, onboardingData) => {
+    const { roleSelected, completedSteps = [] } = onboardingData;
+
+    const user = await User.findByIdAndUpdate(
+        userId,
+        {
+            $set: {
+                "onboarding.isComplete": true,
+                "onboarding.roleSelected": roleSelected,
+                "onboarding.completedSteps": completedSteps,
+                "onboarding.completedAt": new Date(),
+            },
+        },
+        { new: true, runValidators: true }
+    ).select(SAFE_SELECT);
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    return user;
+};

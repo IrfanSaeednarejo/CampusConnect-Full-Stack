@@ -18,7 +18,7 @@ export default function MobileBottomNav() {
   const location = useLocation();
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t border-[#21262d] px-2 pb-[env(safe-area-inset-bottom)]">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-t border-border px-2 pb-[env(safe-area-inset-bottom)]">
       <div className="flex items-center justify-around h-14">
         {NAV_ITEMS.map((item) => {
           const isActive =
@@ -29,16 +29,14 @@ export default function MobileBottomNav() {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex flex-col items-center justify-center gap-0.5 w-14 py-1 rounded-lg transition-colors ${
-                isActive
+              className={`flex flex-col items-center justify-center gap-0.5 w-14 py-1 rounded-lg transition-colors ${isActive
                   ? 'text-primary'
                   : 'text-text-secondary active:text-text-primary'
-              }`}
+                }`}
             >
               <span
-                className={`material-symbols-outlined text-[22px] ${
-                  isActive ? 'text-primary' : ''
-                }`}
+                className={`material-symbols-outlined text-[22px] ${isActive ? 'text-primary' : ''
+                  }`}
               >
                 {item.icon}
               </span>

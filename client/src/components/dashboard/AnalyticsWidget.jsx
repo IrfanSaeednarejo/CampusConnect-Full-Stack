@@ -19,13 +19,13 @@ export default function AnalyticsWidget({
 	return (
 		<section className="bg-surface border border-border rounded-lg p-6">
 			<div className="flex justify-between items-center mb-4">
-				<h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">
+				<h2 className="text-text-primary text-[22px] font-bold leading-tight tracking-[-0.015em]">
 					{title}
 				</h2>
 				<select
 					value={value}
 					onChange={onChange}
-					className="bg-surface-hover text-text-secondary text-sm rounded-md border-none focus:ring-2 focus:ring-[#1dc964] h-9"
+					className="bg-surface-hover text-text-secondary text-sm rounded-md border-none focus:ring-2 focus:ring-primary h-9"
 				>
 					{resolvedOptions.map((option) => (
 						<option key={option.value} value={option.value}>
@@ -36,8 +36,8 @@ export default function AnalyticsWidget({
 			</div>
 			<div className="flex flex-col gap-4">
 				<p className="text-sm text-text-secondary">{statLabel}</p>
-				<p className="text-4xl font-black text-white">{statValue}</p>
-				<div className="flex items-center gap-2 text-[#1dc964]">
+				<p className="text-4xl font-black text-text-primary">{statValue}</p>
+				<div className="flex items-center gap-2 text-primary">
 					<span className="material-symbols-outlined">{trendIcon}</span>
 					<p className="text-sm font-medium">{trendLabel}</p>
 				</div>

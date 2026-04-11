@@ -75,15 +75,15 @@ export default function UserManagement() {
             society_head: "bg-orange-900/50 text-orange-400 border-orange-700/50",
             student: "bg-green-900/50 text-primary border-green-700/50",
         };
-        return colors[role] || "bg-gray-700 text-gray-300 border-gray-600";
+        return colors[role] || "bg-surface hover:bg-surface-hover border border-border text-text-secondary border-border";
     };
 
     return (
         <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-background">
             <div className="max-w-7xl mx-auto">
                 <header className="mb-6">
-                    <h1 className="text-3xl font-bold text-white">User Management</h1>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <h1 className="text-3xl font-bold text-text-primary">User Management</h1>
+                    <p className="text-sm text-text-secondary mt-1">
                         {pagination.total} users on the platform
                     </p>
                 </header>
@@ -95,12 +95,12 @@ export default function UserManagement() {
                         placeholder="Search by name or email..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="flex-1 bg-surface border border-border rounded-lg px-4 py-2 text-white text-sm placeholder:text-text-secondary focus:ring-1 focus:ring-primary focus:border-primary"
+                        className="flex-1 bg-surface border border-border rounded-lg px-4 py-2 text-text-primary text-sm placeholder:text-text-secondary focus:ring-1 focus:ring-primary focus:border-primary"
                     />
                     <select
                         value={roleFilter}
                         onChange={(e) => setRoleFilter(e.target.value)}
-                        className="bg-surface border border-border rounded-lg px-4 py-2 text-white text-sm focus:ring-1 focus:ring-primary"
+                        className="bg-surface border border-border rounded-lg px-4 py-2 text-text-primary text-sm focus:ring-1 focus:ring-primary"
                     >
                         <option value="">All Roles</option>
                         <option value="student">Students</option>
@@ -152,7 +152,7 @@ export default function UserManagement() {
                                                                     {name.charAt(0).toUpperCase()}
                                                                 </div>
                                                             )}
-                                                            <span className="text-white font-medium capitalize">{name}</span>
+                                                            <span className="text-text-primary font-medium capitalize">{name}</span>
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-3 text-text-secondary">{user.email}</td>

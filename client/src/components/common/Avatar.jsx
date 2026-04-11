@@ -7,7 +7,7 @@ export default function Avatar({
   src,
   size = "10", // in Tailwind units: 8, 9, 10, 12, 16
   border = false,
-  borderColor = "[#30363d]",
+  borderColor = "[#C7D2FE]",
   hover = false,
   className = "",
   alt = "Avatar",

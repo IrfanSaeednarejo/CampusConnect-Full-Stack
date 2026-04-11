@@ -12,7 +12,7 @@ export default function ServerError() {
   return (
     <ErrorPageShell
       icon="error"
-      iconClassName="text-[#f85149]"
+      iconClassName="text-[#DC2626]"
       code="500"
       title="Server Error"
       message="Oops! Something went wrong on our end. Our team has been notified and is working to fix the issue."

@@ -4,18 +4,18 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="flex items-center justify-center px-5 py-5 text-center border-t border-solid border-[#161b22] bg-background">
+    <footer className="flex items-center justify-center px-5 py-5 text-center border-t border-solid border-background bg-background">
       <p className="text-text-secondary text-xs font-normal leading-normal">
         © 2024 CampusConnect. All rights reserved. |
-        <Link className="hover:text-[#e6edf3] mx-1" to="/privacy">
+        <Link className="hover:text-text-primary mx-1" to="/privacy">
           Privacy Policy
         </Link>
         |
-        <Link className="hover:text-[#e6edf3] mx-1" to="/terms">
+        <Link className="hover:text-text-primary mx-1" to="/terms">
           Terms of Service
         </Link>
         |
-        <Link className="hover:text-[#e6edf3] mx-1" to="/contact-us">
+        <Link className="hover:text-text-primary mx-1" to="/contact-us">
           Contact Us
         </Link>
       </p>

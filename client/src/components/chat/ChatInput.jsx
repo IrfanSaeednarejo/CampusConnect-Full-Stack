@@ -130,11 +130,11 @@ const ChatInput = ({
       {attachments.length > 0 && (
         <div style={{
           padding: '8px 12px',
-          borderBottom: '1px solid #30363d',
+          borderBottom: '1px solid #C7D2FE',
           display: 'flex',
           gap: '8px',
           flexWrap: 'wrap',
-          backgroundColor: '#0d1117',
+          backgroundColor: '#EEF2FF',
         }}>
           {attachments.map(attachment => (
             <div
@@ -143,12 +143,12 @@ const ChatInput = ({
                 display: 'flex',
                 alignItems: 'center',
                 gap: '6px',
-                backgroundColor: '#161b22',
-                border: '1px solid #30363d',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #C7D2FE',
                 borderRadius: '6px',
                 padding: '4px 8px',
                 fontSize: '12px',
-                color: '#c9d1d9',
+                color: '#0F172A',
               }}
             >
               <span>{attachment.name}</span>
@@ -158,7 +158,7 @@ const ChatInput = ({
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#8b949e',
+                  color: '#475569',
                   cursor: 'pointer',
                   padding: '0 4px',
                   display: 'flex',

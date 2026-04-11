@@ -1,140 +1,277 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getAdminStats } from "../../api/adminApi";
+import { getAdminStats, getPendingMentorApplications, getPendingSocietyHeadApplications } from "../../api/adminApi";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState(null);
+  const [pendingMentors, setPendingMentors] = useState([]);
+  const [pendingSocietyHeads, setPendingSocietyHeads] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
+    const load = async () => {
       try {
-        const res = await getAdminStats();
-        setStats(res.data);
+        const [statsRes, mentorsRes, headsRes] = await Promise.allSettled([
+          getAdminStats(),
+          getPendingMentorApplications(),
+          getPendingSocietyHeadApplications(),
+        ]);
+        if (statsRes.status === "fulfilled") setStats(statsRes.value.data);
+        if (mentorsRes.status === "fulfilled") {
+          const items = mentorsRes.value.data?.docs || mentorsRes.value.data || [];
+          setPendingMentors(Array.isArray(items) ? items : []);
+        }
+        if (headsRes.status === "fulfilled") {
+          const items = headsRes.value.data?.docs || headsRes.value.data || [];
+          setPendingSocietyHeads(Array.isArray(items) ? items : []);
+        }
       } catch (err) {
-        console.error("Failed to fetch admin stats:", err);
+        console.error("[AdminDashboard] Load error:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchStats();
+    load();
   }, []);
 
+  // Build stat cards from real API data
   const statCards = stats
     ? [
-      { label: "Total Users", value: stats.totalUsers, icon: "👥", color: "from-blue-600 to-blue-800" },
-      { label: "Students", value: stats.totalStudents, icon: "🎓", color: "from-green-600 to-green-800" },
-      { label: "Mentors", value: stats.totalMentors, icon: "🧑‍🏫", color: "from-purple-600 to-purple-800" },
-      { label: "Society Heads", value: stats.totalSocietyHeads, icon: "🏛️", color: "from-orange-600 to-orange-800" },
-      { label: "Societies", value: stats.totalSocieties, icon: "🏢", color: "from-cyan-600 to-cyan-800" },
-      { label: "Total Events", value: stats.totalEvents, icon: "📅", color: "from-pink-600 to-pink-800" },
+      { label: "Total Users", value: stats.totalUsers ?? 0, icon: "group", gradient: "from-primary to-indigo-800" },
+      { label: "Active Mentors", value: stats.totalMentors ?? 0, icon: "school", gradient: "from-cyan-600 to-cyan-800" },
+      { label: "Societies", value: stats.totalSocieties ?? 0, icon: "groups", gradient: "from-emerald-600 to-emerald-800" },
+      { label: "Pending Approvals", value: (stats.pendingMentors ?? 0) + (stats.pendingSocietyHeads ?? 0), icon: "pending_actions", gradient: "from-amber-600 to-amber-800" },
+      { label: "Total Events", value: stats.totalEvents ?? 0, icon: "event", gradient: "from-pink-600 to-pink-800" },
+      { label: "New Users (30d)", value: stats.recentRegistrations ?? 0, icon: "person_add", gradient: "from-purple-600 to-purple-800" },
     ]
     : [];
 
-  const quickLinks = [
-    { label: "Manage Users", desc: "View, search, suspend, or delete user accounts", path: "/admin/users", icon: "👥" },
-    { label: "Mentor Approvals", desc: "Review pending mentor verification requests", path: "/admin/mentor-approvals", icon: "✅", badge: stats?.pendingMentors },
-    { label: "Society Head Approvals", desc: "Review pending society head applications", path: "/admin/society-head-approvals", icon: "🏛️", badge: stats?.pendingSocietyHeads },
-    { label: "Society Oversight", desc: "View and manage all societies on the platform", path: "/admin/societies", icon: "🏢" },
+  // Merge pending approvals into a single list
+  const allPending = [
+    ...pendingMentors.map((u) => ({
+      id: u._id || u.id,
+      name: u.profile?.displayName || u.name || "Unknown",
+      role: "Mentor",
+      dept: u.academic?.department || "Not specified",
+      time: u.createdAt ? formatTimeAgo(u.createdAt) : "",
+      avatar: u.profile?.avatar,
+    })),
+    ...pendingSocietyHeads.map((u) => ({
+      id: u._id || u.id,
+      name: u.profile?.displayName || u.name || "Unknown",
+      role: "Society Head",
+      dept: u.academic?.department || "Not specified",
+      time: u.createdAt ? formatTimeAgo(u.createdAt) : "",
+      avatar: u.profile?.avatar,
+    })),
   ];
 
+  // Quick actions
+  const quickActions = [
+    { label: "Manage Users", icon: "group", path: "/admin/users" },
+    { label: "Mentor Approvals", icon: "school", path: "/admin/mentor-approvals", badge: stats?.pendingMentors },
+    { label: "Society Approvals", icon: "groups", path: "/admin/society-head-approvals", badge: stats?.pendingSocietyHeads },
+    { label: "Society Oversight", icon: "domain", path: "/admin/societies" },
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-32">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-background">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold text-white">Admin Control Panel</h1>
-          <p className="text-sm text-gray-400 mt-1">
-            Platform overview and management tools
-          </p>
-        </header>
+    <div className="p-6 space-y-6">
+      {/* Welcome */}
+      <div>
+        <h1 className="text-text-primary text-2xl font-bold">Welcome back, Admin 👋</h1>
+        <p className="text-text-secondary text-sm mt-1">
+          Here&apos;s what&apos;s happening on your platform today.
+        </p>
+      </div>
 
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+      {/* Stat Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+        {statCards.map((card) => (
+          <div
+            key={card.label}
+            className="rounded-xl p-4 bg-surface border border-border hover:border-primary/30 transition-colors"
+          >
+            <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${card.gradient} flex items-center justify-center mb-3`}>
+              <span className="material-symbols-outlined text-white text-[20px]">{card.icon}</span>
+            </div>
+            <p className="text-text-primary text-2xl font-bold">{card.value}</p>
+            <p className="text-text-secondary text-xs mt-1">{card.label}</p>
           </div>
-        ) : (
-          <>
-            {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-              {statCards.map((card) => (
-                <div
-                  key={card.label}
-                  className={`bg-gradient-to-br ${card.color} rounded-lg p-4 border border-white/10`}
-                >
-                  <div className="text-2xl mb-2">{card.icon}</div>
-                  <p className="text-2xl font-bold text-white">{card.value ?? 0}</p>
-                  <p className="text-xs text-white/70 mt-1">{card.label}</p>
-                </div>
-              ))}
+        ))}
+      </div>
+
+      {/* Pending Alert Banner */}
+      {allPending.length > 0 && (
+        <div className="flex items-center gap-3 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+          <span className="material-symbols-outlined text-amber-500 text-2xl">warning</span>
+          <div className="flex-1">
+            <p className="text-text-primary font-semibold text-sm">Pending Approvals</p>
+            <p className="text-text-secondary text-xs">
+              {stats?.pendingMentors > 0 && `${stats.pendingMentors} mentor application(s)`}
+              {stats?.pendingMentors > 0 && stats?.pendingSocietyHeads > 0 && " and "}
+              {stats?.pendingSocietyHeads > 0 && `${stats.pendingSocietyHeads} society head application(s)`}
+              {" "}awaiting your review.
+            </p>
+          </div>
+          <button
+            onClick={() => navigate("/admin/society-head-approvals")}
+            className="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90 transition-opacity"
+          >
+            Review Now
+          </button>
+        </div>
+      )}
+
+      {/* Main Grid — Chart + Approval Queue */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Platform Overview — 2 cols */}
+        <div className="lg:col-span-2 bg-surface border border-border rounded-xl p-5">
+          <h3 className="text-text-primary font-semibold mb-4">Platform Overview</h3>
+          <div className="grid grid-cols-3 gap-4">
+            <div className="bg-background rounded-lg p-4 border border-border">
+              <p className="text-text-secondary text-sm">Students</p>
+              <p className="text-text-primary text-2xl font-bold mt-1">{stats?.totalStudents ?? 0}</p>
             </div>
+            <div className="bg-background rounded-lg p-4 border border-border">
+              <p className="text-text-secondary text-sm">Society Heads</p>
+              <p className="text-text-primary text-2xl font-bold mt-1">{stats?.totalSocietyHeads ?? 0}</p>
+            </div>
+            <div className="bg-background rounded-lg p-4 border border-border">
+              <p className="text-text-secondary text-sm">Total Events</p>
+              <p className="text-text-primary text-2xl font-bold mt-1">{stats?.totalEvents ?? 0}</p>
+            </div>
+          </div>
 
-            {/* Pending Approvals Alert */}
-            {(stats?.pendingMentors > 0 || stats?.pendingSocietyHeads > 0) && (
-              <div className="bg-yellow-900/20 border border-yellow-700/50 rounded-lg p-4 mb-8 flex items-center gap-3">
-                <span className="text-2xl">⚠️</span>
-                <div>
-                  <p className="text-yellow-400 font-semibold">Pending Approvals</p>
-                  <p className="text-yellow-400/70 text-sm">
-                    {stats.pendingMentors > 0 && `${stats.pendingMentors} mentor application(s)`}
-                    {stats.pendingMentors > 0 && stats.pendingSocietyHeads > 0 && " and "}
-                    {stats.pendingSocietyHeads > 0 && `${stats.pendingSocietyHeads} society head application(s)`}
-                    {" "}awaiting your review.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {/* Quick Links */}
-            <h2 className="text-xl font-bold text-white mb-4">Management Tools</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-              {quickLinks.map((link) => (
-                <button
-                  key={link.path}
-                  onClick={() => navigate(link.path)}
-                  className="bg-surface border border-border rounded-lg p-5 text-left hover:border-primary/50 transition-colors group flex items-start gap-4"
-                >
-                  <span className="text-3xl">{link.icon}</span>
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-white font-semibold group-hover:text-primary transition-colors">
-                        {link.label}
-                      </h3>
-                      {link.badge > 0 && (
-                        <span className="bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
-                          {link.badge}
-                        </span>
-                      )}
+          {/* Visual bar representation */}
+          <div className="mt-6">
+            <h4 className="text-text-secondary text-xs font-semibold uppercase tracking-wider mb-3">User Distribution</h4>
+            <div className="space-y-3">
+              {[
+                { label: "Students", value: stats?.totalStudents ?? 0, color: "bg-primary" },
+                { label: "Mentors", value: stats?.totalMentors ?? 0, color: "bg-cyan-500" },
+                { label: "Society Heads", value: stats?.totalSocietyHeads ?? 0, color: "bg-emerald-500" },
+              ].map((bar) => {
+                const total = stats?.totalUsers || 1;
+                const pct = Math.round((bar.value / total) * 100);
+                return (
+                  <div key={bar.label} className="flex items-center gap-3">
+                    <span className="text-text-secondary text-xs w-28 text-right">{bar.label}</span>
+                    <div className="flex-1 bg-background rounded-full h-3 border border-border overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${bar.color} transition-all duration-700`}
+                        style={{ width: `${pct}%` }}
+                      />
                     </div>
-                    <p className="text-text-secondary text-sm mt-1">{link.desc}</p>
+                    <span className="text-text-primary text-xs font-semibold w-12">{bar.value} ({pct}%)</span>
                   </div>
-                  <span className="text-text-secondary group-hover:text-white transition-colors mt-1">→</span>
-                </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Approval Queue — 1 col */}
+        <div className="bg-surface border border-border rounded-xl p-5 flex flex-col">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-text-primary font-semibold">Approval Queue</h3>
+            {allPending.length > 0 && (
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/15 text-red-500">
+                {allPending.length} pending
+              </span>
+            )}
+          </div>
+
+          {allPending.length > 0 ? (
+            <div className="space-y-3 flex-1">
+              {allPending.slice(0, 5).map((a) => (
+                <div key={a.id} className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center text-primary text-xs font-bold shrink-0">
+                    {a.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-text-primary text-sm font-medium truncate">{a.name}</p>
+                    <p className="text-text-secondary text-[10px]">{a.role} • {a.dept}</p>
+                  </div>
+                  {a.time && <span className="text-text-secondary text-[10px] whitespace-nowrap">{a.time}</span>}
+                </div>
               ))}
             </div>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center py-8 text-center">
+              <span className="material-symbols-outlined text-primary text-4xl mb-2">check_circle</span>
+              <p className="text-text-primary font-semibold text-sm">All caught up!</p>
+              <p className="text-text-secondary text-xs mt-1">No pending approvals.</p>
+            </div>
+          )}
 
-            {/* Recent Stats */}
-            <div className="bg-surface border border-border rounded-lg p-6">
-              <h3 className="text-lg font-semibold text-white mb-4">Platform Health</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="bg-background rounded-lg p-4 border border-border">
-                  <p className="text-text-secondary text-sm">New Users (30 days)</p>
-                  <p className="text-2xl font-bold text-primary mt-1">{stats?.recentRegistrations ?? 0}</p>
-                </div>
-                <div className="bg-background rounded-lg p-4 border border-border">
-                  <p className="text-text-secondary text-sm">Active Societies</p>
-                  <p className="text-2xl font-bold text-[#58a6ff] mt-1">{stats?.totalSocieties ?? 0}</p>
-                </div>
-                <div className="bg-background rounded-lg p-4 border border-border">
-                  <p className="text-text-secondary text-sm">Total Events</p>
-                  <p className="text-2xl font-bold text-purple-400 mt-1">{stats?.totalEvents ?? 0}</p>
+          {allPending.length > 0 && (
+            <button
+              onClick={() => navigate("/admin/society-head-approvals")}
+              className="mt-4 w-full py-2.5 bg-primary text-white text-sm font-bold rounded-lg hover:opacity-90 transition-opacity"
+            >
+              Review All Approvals
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Quick Actions */}
+      <div>
+        <h3 className="text-text-primary font-semibold mb-4">Quick Actions</h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {quickActions.map((action) => (
+            <button
+              key={action.path}
+              onClick={() => navigate(action.path)}
+              className="flex items-center gap-4 p-4 bg-surface border border-border rounded-xl text-left hover:border-primary/30 transition-colors group"
+            >
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                <span className="material-symbols-outlined text-primary text-[20px]">{action.icon}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <p className="text-text-primary font-semibold text-sm group-hover:text-primary transition-colors">
+                    {action.label}
+                  </p>
+                  {action.badge > 0 && (
+                    <span className="w-5 h-5 rounded-full bg-red-500 text-[10px] text-white flex items-center justify-center font-bold">
+                      {action.badge}
+                    </span>
+                  )}
                 </div>
               </div>
-            </div>
-          </>
-        )}
+              <span className="material-symbols-outlined text-text-secondary group-hover:text-primary text-[16px] transition-colors">
+                chevron_right
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
+}
+
+/* ─── Helper: Format "time ago" from ISO date ─── */
+function formatTimeAgo(isoStr) {
+  if (!isoStr) return "";
+  const now = Date.now();
+  const past = new Date(isoStr).getTime();
+  const diffMs = now - past;
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 1) return "Just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(isoStr).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }

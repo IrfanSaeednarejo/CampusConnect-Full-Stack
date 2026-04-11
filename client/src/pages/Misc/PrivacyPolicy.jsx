@@ -10,7 +10,7 @@ export default function PrivacyPolicy() {
   const navigate = useNavigate();
 
   return (
-    <div className="font-display bg-background text-[#e6edf3] min-h-screen flex flex-col">
+    <div className="font-display bg-background text-text-primary min-h-screen flex flex-col">
 
       {/* Main Content */}
       <PageContent maxWidth="max-w-4xl" className="py-12 md:py-16">
@@ -26,7 +26,7 @@ export default function PrivacyPolicy() {
           <LegalSection
             title="Introduction"
             content="Welcome to CampusConnect. We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about our policy, or our practices with regards to your personal information, please contact us. This privacy policy applies to all information collected through our website and/or any related services, sales, marketing or events."
-            titleClassName="text-2xl font-bold leading-tight tracking-[-0.015em] text-[#e6edf3] pb-3 border-b border-border"
+            titleClassName="text-2xl font-bold leading-tight tracking-[-0.015em] text-text-primary pb-3 border-b border-border"
             contentClassName="text-base leading-relaxed pt-4"
           />
 
@@ -38,7 +38,7 @@ export default function PrivacyPolicy() {
               "Usage Data: Information on how you use the site, such as pages visited, features used, and time spent.",
               "Cookies and Tracking Technologies: We use cookies to help us remember and process your preferences for future visits and compile aggregate data about site traffic and site interaction.",
             ]}
-            titleClassName="text-2xl font-bold leading-tight tracking-[-0.015em] text-[#e6edf3] pb-3 border-b border-border"
+            titleClassName="text-2xl font-bold leading-tight tracking-[-0.015em] text-text-primary pb-3 border-b border-border"
             contentClassName="text-base leading-relaxed pt-4"
             listClassName="list-disc space-y-2 pl-6 text-base leading-relaxed pt-2"
           />
@@ -46,21 +46,21 @@ export default function PrivacyPolicy() {
           <LegalSection
             title="2. How We Use Your Data"
             content="We use personal information collected via our Site for a variety of business purposes described below. We process your personal information for these purposes in reliance on our legitimate business interests, in order to enter into or perform a contract with you, with your consent, and/or for compliance with our legal obligations."
-            titleClassName="text-2xl font-bold leading-tight tracking-[-0.015em] text-[#e6edf3] pb-3 border-b border-border"
+            titleClassName="text-2xl font-bold leading-tight tracking-[-0.015em] text-text-primary pb-3 border-b border-border"
             contentClassName="text-base leading-relaxed pt-4"
           />
 
           <LegalSection
             title="3. Data Storage & Security"
             content="We have implemented appropriate technical and organizational security measures designed to protect the security of any personal information we process. However, please also remember that we cannot guarantee that the internet itself is 100% secure. We will only keep your personal information for as long as it is necessary for the purposes set out in this privacy policy, unless a longer retention period is required or permitted by law."
-            titleClassName="text-2xl font-bold leading-tight tracking-[-0.015em] text-[#e6edf3] pb-3 border-b border-border"
+            titleClassName="text-2xl font-bold leading-tight tracking-[-0.015em] text-text-primary pb-3 border-b border-border"
             contentClassName="text-base leading-relaxed pt-4"
           />
 
           <LegalSection
             title="4. Your Rights & Choices"
             content="You have certain rights under applicable data protection laws. These may include the right (i) to request access and obtain a copy of your personal information, (ii) to request rectification or erasure; (iii) to restrict the processing of your personal information; and (iv) if applicable, to data portability. In certain circumstances, you may also have the right to object to the processing of your personal information."
-            titleClassName="text-2xl font-bold leading-tight tracking-[-0.015em] text-[#e6edf3] pb-3 border-b border-border"
+            titleClassName="text-2xl font-bold leading-tight tracking-[-0.015em] text-text-primary pb-3 border-b border-border"
             contentClassName="text-base leading-relaxed pt-4"
           />
 

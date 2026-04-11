@@ -12,7 +12,7 @@ export default function Button({
   const variants = {
     primary: "bg-primary text-white hover:bg-primary-hover disabled:hover:bg-primary",
     secondary:
-      "bg-surface text-[#e6edf3] border border-border hover:bg-surface-hover disabled:hover:bg-surface",
+      "bg-surface text-text-primary border border-border hover:bg-surface-hover disabled:hover:bg-surface",
   };
 
   return (

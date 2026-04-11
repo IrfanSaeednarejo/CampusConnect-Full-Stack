@@ -1,18 +1,16 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import Avatar from "../../components/common/Avatar";
-import MentorWidget from "@/components/dashboard/MentorWidget";
-import SharedFooter from "../../components/common/SharedFooter";
-import MentorTopBar from "../../components/mentoring/MentorTopBar";
 import { useModal, MODAL_TYPES } from "../../contexts/ModalContext";
+import MentorSidebar from "../../components/mentoring/MentorSidebar";
+import DashboardTopBar from "../../components/common/DashboardTopBar";
 import {
   fetchSessionsThunk,
   confirmSessionThunk,
   cancelSessionThunk,
   selectScheduledSessions,
   selectCompletedSessions,
-  selectMentoringLoading
+  selectMentoringLoading,
 } from "../../redux/slices/mentoringSlice";
 import { getMyMentorProfile } from "../../api/mentoringApi";
 
@@ -20,335 +18,260 @@ export default function MentorDashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { openModal } = useModal();
-  const [searchValue, setSearchValue] = useState("");
   const [needsRegistration, setNeedsRegistration] = useState(false);
 
   const scheduledSessions = useSelector(selectScheduledSessions);
   const completedSessions = useSelector(selectCompletedSessions);
   const loading = useSelector(selectMentoringLoading);
-  const authUser = useSelector(state => state.auth?.user);
+  const authUser = useSelector((state) => state.auth?.user);
+
+  const displayName = authUser?.profile?.displayName || authUser?.name || "Mentor";
 
   useEffect(() => {
     dispatch(fetchSessionsThunk());
-    // Check if the mentor profile exists
     getMyMentorProfile()
       .then(() => setNeedsRegistration(false))
       .catch((err) => {
-        console.error("[MentorDashboard] Profile check error:", err);
         const status = err?.statusCode || err?.response?.status || err?.status;
-        const msg = (err?.message || err?.response?.data?.message || err?.data?.message || "").toLowerCase();
+        const msg = (err?.message || err?.response?.data?.message || "").toLowerCase();
         if (status === 404 || msg.includes("register as a mentor") || msg.includes("not found")) {
           setNeedsRegistration(true);
         }
       });
   }, [dispatch]);
 
-  const safeSearchValue = (searchValue || "").toLowerCase();
+  const upcomingSessions = scheduledSessions.slice(0, 4);
+  const recentRatings = completedSessions.filter((s) => s.reviewId?.rating).slice(0, 4);
+  const pendingFeedback = completedSessions.filter((s) => !s.reviewId);
 
-  const filteredScheduled = scheduledSessions.filter(s =>
-    !safeSearchValue || (s.menteeId?.profile?.displayName || "").toLowerCase().includes(safeSearchValue)
-  );
-  const filteredCompleted = completedSessions.filter(s =>
-    !safeSearchValue || (s.menteeId?.profile?.displayName || "").toLowerCase().includes(safeSearchValue)
-  );
+  // Greeting
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
 
-  const upcomingSessions = filteredScheduled.slice(0, 3);
-  const recentRatings = filteredCompleted
-    .filter(s => s.reviewId?.rating)
-    .slice(0, 2);
-  const pendingFeedback = filteredCompleted.filter(s => !s.reviewId);
-
-  const totalEarnings = completedSessions.reduce((sum, s) => sum + (s.mentorPayout || s.fee || 0), 0);
+  // Stats from real data
+  const statCards = [
+    { label: "Upcoming Sessions", value: scheduledSessions.length, icon: "event_available", gradient: "from-primary to-indigo-800" },
+    { label: "Completed", value: completedSessions.length, icon: "check_circle", gradient: "from-emerald-600 to-emerald-800" },
+    { label: "Pending Feedback", value: pendingFeedback.length, icon: "rate_review", gradient: "from-amber-600 to-amber-800" },
+    { label: "Avg Rating", value: recentRatings.length > 0 ? (recentRatings.reduce((s, r) => s + (r.reviewId?.rating || 0), 0) / recentRatings.length).toFixed(1) : "—", icon: "star", gradient: "from-yellow-600 to-yellow-800" },
+  ];
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
-      <div className="layout-container flex h-full grow flex-col">
-        <MentorTopBar
-          showBack={false}
-          searchValue={searchValue}
-          onSearchChange={setSearchValue}
-        >
-          <button
-            onClick={() => navigate("/mentor-mentees")}
-            className="text-white text-sm font-medium leading-normal hover:text-[#1dc964] transition-colors"
-          >
-            Mentees
-          </button>
-          <button
-            onClick={() => navigate("/mentor-events")}
-            className="text-white text-sm font-medium leading-normal hover:text-[#1dc964] transition-colors"
-          >
-            Events
-          </button>
-          <button
-            onClick={() => navigate("/mentor-profile-view")}
-            className="text-white text-sm font-medium leading-normal hover:text-[#1dc964] transition-colors"
-          >
-            Profile
-          </button>
-        </MentorTopBar>
+    <div className="flex h-screen overflow-hidden bg-background">
+      {/* Collapsible Sidebar */}
+      <MentorSidebar />
 
-        <main className="px-6 lg:px-10 flex flex-1 justify-center py-5">
-          <div className="layout-content-container flex flex-col w-full max-w-6xl flex-1">
-            {/* Page Heading */}
-            <div className="flex flex-wrap justify-between items-start gap-4 mb-8">
-              <div className="flex min-w-72 flex-col gap-2">
-                <p className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
-                  Mentor Portal
-                </p>
-                <p className="text-text-secondary text-base font-normal leading-normal">
-                  Manage your sessions, ratings, and mentee feedback.
-                </p>
+      {/* Main Content */}
+      <div className="flex-1 flex flex-col overflow-hidden">
+        <DashboardTopBar
+          title="Mentor Portal"
+          notificationsPath="/mentor-notifications"
+          profilePath="/mentor-profile-view"
+          roleBadge="Mentor"
+        />
+
+        {/* Scrollable Content */}
+        <main className="flex-1 overflow-y-auto p-6 space-y-6">
+          {/* Welcome */}
+          <div className="flex flex-wrap justify-between items-center gap-4">
+            <div>
+              <h1 className="text-text-primary text-2xl font-bold">
+                {greeting}, {displayName}! 👋
+              </h1>
+              <p className="text-text-secondary text-sm mt-1">
+                Manage your sessions, ratings, and mentee feedback.
+              </p>
+            </div>
+            <button
+              onClick={() => openModal(MODAL_TYPES.SET_AVAILABILITY)}
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white text-sm font-bold rounded-lg hover:opacity-90 transition-opacity"
+            >
+              <span className="material-symbols-outlined text-[18px]">calendar_add_on</span>
+              Set Availability
+            </button>
+          </div>
+
+          {/* Registration Banner */}
+          {needsRegistration && (
+            <div className="flex items-center gap-3 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
+              <span className="material-symbols-outlined text-amber-500 text-2xl">info</span>
+              <div className="flex-1">
+                <p className="text-text-primary font-semibold text-sm">Complete Your Mentor Profile</p>
+                <p className="text-text-secondary text-xs mt-0.5">Register as a mentor to accept sessions and earn.</p>
               </div>
               <button
-                onClick={() => openModal(MODAL_TYPES.SET_AVAILABILITY)}
-                className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-12 px-5 bg-primary text-white text-base font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity"
+                onClick={() => navigate("/mentor-registration")}
+                className="px-4 py-2 bg-primary text-white text-xs font-bold rounded-lg hover:opacity-90 transition-opacity"
               >
-                <span className="material-symbols-outlined mr-2">
-                  calendar_add_on
-                </span>
-                <span className="truncate">Set Your Availability</span>
+                Register Now
               </button>
             </div>
+          )}
 
-            {/* Registration Banner */}
-            {needsRegistration && (
-              <div className="mb-6 p-5 bg-[#e3b341]/10 border border-[#e3b341]/30 rounded-xl flex flex-wrap items-center gap-4">
-                <span className="material-symbols-outlined text-[#e3b341] text-3xl">info</span>
-                <div className="flex-1 min-w-[200px]">
-                  <p className="text-white font-bold text-sm">Complete Your Mentor Profile</p>
-                  <p className="text-text-secondary text-xs mt-0.5">
-                    You need to register as a mentor before you can set availability, accept sessions, or earn.
-                  </p>
+          {/* Stat Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {statCards.map((card) => (
+              <div
+                key={card.label}
+                className="rounded-xl p-4 bg-surface border border-border hover:border-primary/30 transition-colors"
+              >
+                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${card.gradient} flex items-center justify-center mb-3`}>
+                  <span className="material-symbols-outlined text-white text-[20px]">{card.icon}</span>
                 </div>
-                <button
-                  onClick={() => navigate("/mentor-registration")}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white rounded-lg font-bold text-sm hover:opacity-90 transition-opacity"
-                >
-                  <span className="material-symbols-outlined text-sm">how_to_reg</span>
-                  Register Now
-                </button>
+                <p className="text-text-primary text-2xl font-bold">{card.value}</p>
+                <p className="text-text-secondary text-xs mt-1">{card.label}</p>
               </div>
-            )}
+            ))}
+          </div>
 
-            {/* Widgets Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Upcoming Sessions (2 columns) */}
-              <MentorWidget
-                title="Upcoming Sessions"
-                actionLabel={scheduledSessions.length > 0 ? "View All" : null}
-                actionIcon="arrow_forward"
-                onAction={() => navigate("/my-sessions")}
-                actionClassName="text-[#1dc964] text-sm font-semibold hover:text-white transition-colors flex items-center gap-1"
-                className="lg:col-span-2"
-              >
-                {loading ? (
-                  <div className="flex flex-col items-center justify-center py-10">
-                    <div className="w-8 h-8 border-3 border-[#1dc964] border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                ) : upcomingSessions.length > 0 ? (
-                  <div className="flex flex-col gap-4">
-                    {upcomingSessions.map((session) => (
-                      <div key={session._id} className="p-4 bg-background rounded-xl border border-border hover:border-[#1dc964] transition-colors">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`}
-                              className="w-10 h-10 rounded-full"
-                              alt="Mentee"
-                            />
-                            <div>
-                              <p className="text-white font-semibold text-sm">{session.menteeId?.profile?.displayName || "Student"}</p>
-                              <p className="text-text-secondary text-xs">{new Date(session.startAt).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} • {session.duration || 60} min</p>
-                            </div>
-                          </div>
-                          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${session.status === 'confirmed' ? 'bg-[#1dc96422] text-[#1dc964]' : 'bg-[#e3b34122] text-[#e3b341]'}`}>
-                            {session.status}
-                          </span>
-                        </div>
-                        {session.topic && <p className="text-text-secondary text-xs mt-2 pl-[52px]">Topic: {session.topic}</p>}
-                        {session.status === 'pending' && (
-                          <div className="flex gap-2 mt-3 pl-[52px]">
-                            <button
-                              onClick={() => dispatch(confirmSessionThunk(session._id))}
-                              className="flex items-center gap-1 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-bold hover:opacity-90 transition-opacity"
-                            >
-                              <span className="material-symbols-outlined text-[14px]">check</span> Confirm
-                            </button>
-                            <button
-                              onClick={() => dispatch(cancelSessionThunk(session._id))}
-                              className="flex items-center gap-1 px-3 py-1.5 bg-transparent border border-[#f85149] text-[#f85149] rounded-lg text-xs font-bold hover:bg-[#f85149]/10 transition-colors"
-                            >
-                              <span className="material-symbols-outlined text-[14px]">close</span> Decline
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center gap-6 py-10 text-center">
-                    <div className="text-[#1dc964]">
-                      <span
-                        className="material-symbols-outlined inline-block"
-                        style={{ fontSize: "64px" }}
-                      >
-                        event_busy
-                      </span>
-                    </div>
-                    <div className="flex max-w-lg flex-col items-center gap-2">
-                      <p className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-                        No sessions yet
-                      </p>
-                      <p className="text-text-secondary text-sm font-normal leading-normal max-w-lg">
-                        Once a student books a session, it will appear here!
-                      </p>
-                    </div>
-                  </div>
+          {/* Main Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Upcoming Sessions — 2 cols */}
+            <div className="lg:col-span-2 bg-surface border border-border rounded-xl p-5">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-text-primary text-lg font-bold">Upcoming Sessions</h2>
+                {scheduledSessions.length > 0 && (
+                  <button onClick={() => navigate("/my-sessions")} className="text-primary text-sm font-medium hover:underline">
+                    View All
+                  </button>
                 )}
-              </MentorWidget>
-
-              {/* Earnings Overview */}
-              <MentorWidget
-                title="Earnings Overview"
-                actionIcon="arrow_forward"
-                onAction={() => navigate("/earnings")}
-                actionClassName="text-[#1dc964] text-sm font-semibold hover:text-white transition-colors"
-              >
-                <div className="flex flex-col gap-6 flex-1">
-                  <div className="flex flex-col gap-2">
-                    <p className="text-text-secondary text-sm">Total Earnings</p>
-                    <p className="text-white text-4xl font-bold tracking-tight">
-                      ${totalEarnings.toFixed(2)}
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <p className="text-text-secondary text-sm">Sessions Completed</p>
-                    <p className="text-white text-2xl font-bold">{completedSessions.length}</p>
-                  </div>
-                  <div className="mt-auto">
-                    <button
-                      onClick={() => navigate("/earnings")}
-                      className="flex w-full min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#30363d] text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#404851] transition-colors gap-2"
-                    >
-                      <span className="material-symbols-outlined">
-                        account_balance_wallet
-                      </span>
-                      <span className="truncate">Withdraw Earnings</span>
-                    </button>
-                  </div>
+              </div>
+              {loading ? (
+                <div className="flex justify-center py-10">
+                  <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
                 </div>
-              </MentorWidget>
+              ) : upcomingSessions.length > 0 ? (
+                <div className="space-y-3">
+                  {upcomingSessions.map((session) => (
+                    <div key={session._id} className="p-4 bg-background rounded-lg border border-border hover:border-primary/30 transition-colors">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`}
+                            className="w-10 h-10 rounded-full"
+                            alt="Mentee"
+                          />
+                          <div>
+                            <p className="text-text-primary font-semibold text-sm">{session.menteeId?.profile?.displayName || "Student"}</p>
+                            <p className="text-text-secondary text-xs">
+                              {new Date(session.startAt).toLocaleString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })} • {session.duration || 60} min
+                            </p>
+                          </div>
+                        </div>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${session.status === "confirmed" ? "bg-primary/15 text-primary" : "bg-amber-500/15 text-amber-500"
+                          }`}>
+                          {session.status}
+                        </span>
+                      </div>
+                      {session.topic && (
+                        <p className="text-text-secondary text-xs mt-2 pl-[52px]">Topic: {session.topic}</p>
+                      )}
+                      {session.status === "pending" && (
+                        <div className="flex gap-2 mt-3 pl-[52px]">
+                          <button
+                            onClick={() => dispatch(confirmSessionThunk(session._id))}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-bold hover:opacity-90 transition-opacity"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">check</span> Confirm
+                          </button>
+                          <button
+                            onClick={() => dispatch(cancelSessionThunk(session._id))}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-transparent border border-red-500 text-red-500 rounded-lg text-xs font-bold hover:bg-red-500/10 transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">close</span> Decline
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center py-10 text-center">
+                  <span className="material-symbols-outlined text-text-secondary text-5xl mb-2">event_busy</span>
+                  <p className="text-text-primary text-sm font-medium">No sessions yet</p>
+                  <p className="text-text-secondary text-xs mt-1">Once a student books a session, it will appear here.</p>
+                </div>
+              )}
+            </div>
 
-              {/* Pending Feedback */}
-              <MentorWidget
-                title="Pending Feedback"
-                actionIcon="arrow_forward"
-                onAction={() => navigate("/my-sessions")}
-                actionClassName="text-[#1dc964] text-sm font-semibold hover:text-white transition-colors"
-              >
-                {pendingFeedback.length > 0 ? (
-                  <div className="flex flex-col gap-3">
-                    {pendingFeedback.slice(0, 3).map((session) => (
-                      <div key={session._id} className="flex items-center gap-3 p-3 bg-background rounded-xl border border-border">
+            {/* Pending Feedback — 1 col */}
+            <div className="bg-surface border border-border rounded-xl p-5">
+              <h2 className="text-text-primary text-lg font-bold mb-4">Pending Feedback</h2>
+              {pendingFeedback.length > 0 ? (
+                <div className="space-y-3">
+                  {pendingFeedback.slice(0, 4).map((session) => (
+                    <button
+                      key={session._id}
+                      onClick={() => navigate("/my-sessions")}
+                      className="w-full flex items-center gap-3 p-3 bg-background rounded-lg border border-border hover:border-primary/30 transition-colors text-left"
+                    >
+                      <img
+                        src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`}
+                        className="w-8 h-8 rounded-full"
+                        alt="Mentee"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-text-primary text-sm font-medium truncate">{session.menteeId?.profile?.displayName || "Student"}</p>
+                        <p className="text-text-secondary text-[10px]">Awaiting review</p>
+                      </div>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-amber-500/15 text-amber-500">Pending</span>
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center py-8 text-center">
+                  <span className="material-symbols-outlined text-primary text-4xl mb-2">check_circle</span>
+                  <p className="text-text-primary text-sm font-medium">All Caught Up!</p>
+                  <p className="text-text-secondary text-xs mt-1">No pending feedback requests.</p>
+                </div>
+              )}
+            </div>
+
+            {/* Recent Ratings — Full Width */}
+            <div className="lg:col-span-3 bg-surface border border-border rounded-xl p-5">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-text-primary text-lg font-bold">Recent Mentee Ratings</h2>
+                {recentRatings.length > 0 && (
+                  <button onClick={() => navigate("/my-sessions")} className="text-primary text-sm font-medium hover:underline">
+                    View All
+                  </button>
+                )}
+              </div>
+              {recentRatings.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {recentRatings.map((session) => (
+                    <div key={session._id} className="p-4 bg-background rounded-lg border border-border">
+                      <div className="flex items-center gap-3 mb-2">
                         <img
                           src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`}
                           className="w-8 h-8 rounded-full"
                           alt="Mentee"
                         />
-                        <div className="flex-1">
-                          <p className="text-white text-sm font-medium">{session.menteeId?.profile?.displayName || "Student"}</p>
-                          <p className="text-text-secondary text-xs">Awaiting review</p>
+                        <p className="text-text-primary font-semibold text-sm flex-1">{session.menteeId?.profile?.displayName || "Student"}</p>
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <span key={i} className={i < (session.reviewId?.rating || 0) ? "text-yellow-400 text-xs" : "text-text-secondary/30 text-xs"}>
+                              ★
+                            </span>
+                          ))}
                         </div>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full font-bold uppercase bg-[#e3b34122] text-[#e3b341]">Pending</span>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div
-                    className="flex flex-col items-center justify-center gap-6 py-10 text-center cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() => navigate("/my-sessions")}
-                  >
-                    <div className="text-[#1dc964]">
-                      <span
-                        className="material-symbols-outlined inline-block"
-                        style={{ fontSize: "64px" }}
-                      >
-                        rate_review
-                      </span>
+                      {session.reviewId?.comment && (
+                        <p className="text-text-secondary text-xs italic line-clamp-2">"{session.reviewId.comment}"</p>
+                      )}
                     </div>
-                    <div className="flex max-w-lg flex-col items-center gap-2">
-                      <p className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-                        All Caught Up!
-                      </p>
-                      <p className="text-text-secondary text-sm font-normal leading-normal max-w-lg">
-                        You have no pending feedback requests.
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </MentorWidget>
-
-              {/* Recent Mentee Ratings (2 columns) */}
-              <MentorWidget
-                title="Recent Mentee Ratings"
-                actionLabel={recentRatings.length > 0 ? "View All" : null}
-                actionIcon="arrow_forward"
-                onAction={() => navigate("/my-sessions")}
-                actionClassName="text-[#1dc964] text-sm font-semibold hover:text-white transition-colors flex items-center gap-1"
-                className="lg:col-span-2"
-              >
-                {recentRatings.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {recentRatings.map((session) => (
-                      <div key={session._id} className="p-4 bg-background rounded-xl border border-border">
-                        <div className="flex items-center gap-3 mb-3">
-                          <img
-                            src={session.menteeId?.profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${session.menteeId?.profile?.displayName}`}
-                            className="w-8 h-8 rounded-full"
-                            alt="Mentee"
-                          />
-                          <p className="text-white font-semibold text-sm">{session.menteeId?.profile?.displayName || "Student"}</p>
-                          <div className="flex ml-auto">
-                            {[...Array(5)].map((_, i) => (
-                              <span key={i} className={i < (session.reviewId?.rating || 0) ? "text-yellow-400 text-xs" : "text-[#30363d] text-xs"}>
-                                ★
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                        {session.reviewId?.comment && (
-                          <p className="text-text-secondary text-xs italic line-clamp-2">"{session.reviewId.comment}"</p>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center gap-6 py-10 text-center">
-                    <div className="text-[#1dc964]">
-                      <span
-                        className="material-symbols-outlined inline-block"
-                        style={{ fontSize: "64px" }}
-                      >
-                        star_outline
-                      </span>
-                    </div>
-                    <div className="flex max-w-lg flex-col items-center gap-2">
-                      <p className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-                        No ratings yet
-                      </p>
-                      <p className="text-text-secondary text-sm font-normal leading-normal max-w-lg">
-                        Your mentee ratings will appear here after completed
-                        sessions.
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </MentorWidget>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex flex-col items-center py-10 text-center">
+                  <span className="material-symbols-outlined text-text-secondary text-5xl mb-2">star_outline</span>
+                  <p className="text-text-primary text-sm font-medium">No ratings yet</p>
+                  <p className="text-text-secondary text-xs mt-1">Your mentee ratings will appear here after completed sessions.</p>
+                </div>
+              )}
             </div>
           </div>
         </main>
-        <SharedFooter />
       </div>
     </div>
   );

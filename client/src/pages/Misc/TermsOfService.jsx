@@ -17,9 +17,9 @@ export default function TermsOfService() {
           subtitle="Please read our terms and conditions before using CampusConnect."
           meta="Last updated: March 23, 2026"
           className="p-4"
-          titleClassName="text-white"
+          titleClassName="text-text-primary"
           subtitleClassName="text-text-secondary"
-          metaClassName="text-text-secondary pt-1 border-b border-white/10 pb-3"
+          metaClassName="text-text-secondary pt-1 border-b border-border pb-3"
         />
 
         {/* Sections */}

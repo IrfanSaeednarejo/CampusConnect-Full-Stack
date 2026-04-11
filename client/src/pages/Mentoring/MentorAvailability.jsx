@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { 
-  getMyMentorProfile, 
-  getMentorAvailability, 
-  setMentorAvailability 
+import {
+  getMyMentorProfile,
+  getMentorAvailability,
+  setMentorAvailability
 } from "../../api/mentoringApi";
 import MentorTopBar from "../../components/mentoring/MentorTopBar";
 import SharedFooter from "../../components/common/SharedFooter";
@@ -45,13 +45,13 @@ export default function MentorAvailability() {
         if (mentorData?._id) {
           const availRes = await getMentorAvailability(mentorData._id);
           const backendAvail = availRes.data.availability || [];
-          
+
           // Transform backend format to local state
           const newAvail = {
-            sunday: [], monday: [], tuesday: [], wednesday: [], 
+            sunday: [], monday: [], tuesday: [], wednesday: [],
             thursday: [], friday: [], saturday: []
           };
-          
+
           backendAvail.forEach(slot => {
             const dayName = WEEKDAYS[slot.day].toLowerCase();
             newAvail[dayName].push({
@@ -59,7 +59,7 @@ export default function MentorAvailability() {
               end: slot.endTime,
             });
           });
-          
+
           setAvailability(newAvail);
         }
       } catch (err) {
@@ -112,7 +112,7 @@ export default function MentorAvailability() {
     try {
       setSaving(true);
       setError(null);
-      
+
       // Transform local state to backend format
       const slots = [];
       WEEKDAYS.forEach((day, index) => {
@@ -138,22 +138,22 @@ export default function MentorAvailability() {
 
   if (loading) {
     return (
-      <div className="relative flex h-screen w-full flex-col bg-[#112118] items-center justify-center">
-        <div className="w-10 h-10 border-4 border-[#1dc964] border-t-transparent rounded-full animate-spin mb-4"></div>
+      <div className="relative flex h-screen w-full flex-col bg-background items-center justify-center">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
         <p className="text-text-secondary">Loading availability...</p>
       </div>
     );
   }
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-background">
       <div className="layout-container flex h-full grow flex-col">
         <MentorTopBar backPath="/mentor/dashboard" />
 
         <main className="px-4 sm:px-6 lg:px-8 xl:px-10 flex flex-1 justify-center py-8">
           <div className="layout-content-container flex flex-col w-full max-w-4xl flex-1">
             <div className="mb-8">
-              <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
+              <h1 className="text-text-primary text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                 Set Your Availability
               </h1>
               <p className="text-text-secondary text-base font-normal leading-normal">
@@ -177,10 +177,10 @@ export default function MentorAvailability() {
               {WEEKDAYS.map((day) => (
                 <div key={day} className="p-5 bg-surface border border-border rounded-xl">
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-white font-semibold text-lg">{day}</h3>
+                    <h3 className="text-text-primary font-semibold text-lg">{day}</h3>
                     <button
                       onClick={() => handleAddSlot(day)}
-                      className="flex items-center gap-2 px-3 py-2 bg-[#30363d] text-white text-sm rounded hover:bg-[#404851] transition-colors"
+                      className="flex items-center gap-2 px-3 py-2 bg-surface text-text-primary text-sm rounded border border-border hover:bg-surface-hover transition-colors"
                     >
                       <span className="material-symbols-outlined text-base">add</span>
                       Add Slot
@@ -195,16 +195,16 @@ export default function MentorAvailability() {
                             type="time"
                             value={slot.start}
                             onChange={(e) => handleTimeChange(day, idx, 'start', e.target.value)}
-                            className="px-3 py-2 bg-[#30363d] text-white rounded border border-[#404851] focus:outline-none focus:border-[#1dc964]"
+                            className="px-3 py-2 bg-surface text-text-primary rounded border border-border focus:outline-none focus:border-primary"
                           />
                           <span className="text-text-secondary">to</span>
                           <input
                             type="time"
                             value={slot.end}
                             onChange={(e) => handleTimeChange(day, idx, 'end', e.target.value)}
-                            className="px-3 py-2 bg-[#30363d] text-white rounded border border-[#404851] focus:outline-none focus:border-[#1dc964]"
+                            className="px-3 py-2 bg-surface text-text-primary rounded border border-border focus:outline-none focus:border-primary"
                           />
-                          <button 
+                          <button
                             onClick={() => handleRemoveSlot(day, idx)}
                             className="ml-auto text-text-secondary hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
                           >
@@ -227,7 +227,7 @@ export default function MentorAvailability() {
                 className={`flex items-center justify-center gap-2 px-6 py-3 bg-primary text-white font-bold rounded-lg transition-opacity flex-1 ${saving ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}`}
               >
                 {saving ? (
-                  <div className="w-5 h-5 border-2 border-[#112118] border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 border-2 border-background border-t-transparent rounded-full animate-spin"></div>
                 ) : (
                   <span className="material-symbols-outlined">check</span>
                 )}
@@ -235,7 +235,7 @@ export default function MentorAvailability() {
               </button>
               <button
                 onClick={() => navigate("/mentor/dashboard")}
-                className="flex items-center gap-2 px-6 py-3 bg-[#30363d] text-white font-bold rounded-lg hover:bg-[#404851] transition-colors"
+                className="flex items-center gap-2 px-6 py-3 bg-surface text-text-primary font-bold border border-border rounded-lg hover:bg-surface-hover transition-colors"
               >
                 Cancel
               </button>

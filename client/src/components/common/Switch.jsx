@@ -9,11 +9,11 @@ export default function Switch({ checked, onChange, className = "" }) {
 			/>
 			<div
 				className={`w-9 h-5 rounded-full transition-colors ${
-					checked ? "bg-primary" : "bg-[#30363d]"
+					checked ? "bg-primary" : "bg-[#C7D2FE]"
 				}`}
 			></div>
 			<div
-				className={`absolute w-4 h-4 rounded-full bg-[#c9d1d9] transition-transform ${
+				className={`absolute w-4 h-4 rounded-full bg-[#0F172A] transition-transform ${
 					checked ? "translate-x-4" : "translate-x-0.5"
 				}`}
 			></div>

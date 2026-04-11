@@ -30,10 +30,10 @@ export default function NotificationWidget({
 				)}
 			</div>
 			<div className="bg-surface border border-border rounded-lg p-2">
-				<ul className="divide-y divide-[#30363d]">
+				<ul className="divide-y divide-[#C7D2FE]">
 					{notifications.length > 0 ? (
 						notifications.slice(0, 5).map((notif) => (
-							<li key={notif._id || notif.id} className="p-4 hover:bg-white/5 rounded-md transition-colors">
+							<li key={notif._id || notif.id} className="p-4 hover:bg-surface border border-border rounded-md transition-colors">
 								<div className="flex items-start gap-3">
 									<div className="bg-primary/20 rounded-full p-2 mt-1 text-primary text-lg leading-none">
 										{iconMap[notif.type] || "🔔"}

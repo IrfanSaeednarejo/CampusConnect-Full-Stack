@@ -61,7 +61,7 @@ export default function FeedbackPrompt() {
         <h3 className="text-text-primary font-semibold">Feedback</h3>
         <button
           onClick={() => stopAgent()}
-          className="px-3 py-1 bg-danger text-white rounded text-xs font-medium hover:bg-[#f85149] transition-colors"
+          className="px-3 py-1 bg-danger text-white rounded text-xs font-medium hover:bg-[#DC2626] transition-colors"
         >
           Close
         </button>

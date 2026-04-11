@@ -12,7 +12,7 @@ export default function NetworkError() {
   return (
     <ErrorPageShell
       icon="wifi_off"
-      iconClassName="text-[#f85149]"
+      iconClassName="text-[#DC2626]"
       title="Network Error"
       message="Unable to connect to the server. Please check your internet connection and try again."
       actions={

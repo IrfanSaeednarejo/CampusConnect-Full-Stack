@@ -2,7 +2,7 @@ export default function Badge({ children, variant = "primary", className = "" })
   const variants = {
     primary: "bg-primary text-white",
     secondary: "bg-surface text-text-secondary border border-border",
-    info: "bg-[#1f6feb] text-white",
+    info: "bg-primary text-white",
   };
 
   return (

@@ -68,7 +68,7 @@ const emailContainerStyle = {
 };
 
 const headerStyle = {
-  backgroundColor: '#238636',
+  backgroundColor: '#4F46E5',
   color: 'white',
   padding: '20px',
   textAlign: 'center',
@@ -100,7 +100,7 @@ const ctaContainerStyle = {
 
 const ctaButtonStyle = {
   display: 'inline-block',
-  backgroundColor: '#238636',
+  backgroundColor: '#4F46E5',
   color: 'white',
   padding: '12px 32px',
   borderRadius: '6px',

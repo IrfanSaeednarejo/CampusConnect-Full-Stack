@@ -80,7 +80,7 @@ export default function NoResults() {
               <button
                 aria-label="Notifications"
                 // Removed onClick handler
-                className="flex cursor-pointer items-center justify-center rounded-DEFAULT h-9 w-9 bg-transparent hover:bg-white/10 text-text-secondary-dark hover:text-text-primary-dark transition-colors"
+                className="flex cursor-pointer items-center justify-center rounded-DEFAULT h-9 w-9 bg-transparent hover:bg-surface border border-border text-text-secondary-dark hover:text-text-primary-dark transition-colors"
               >
                 <Bell className="w-5 h-5" />
               </button>
@@ -88,7 +88,7 @@ export default function NoResults() {
               <button
                 aria-label="Messages"
                 // Removed onClick handler
-                className="flex cursor-pointer items-center justify-center rounded-DEFAULT h-9 w-9 bg-transparent hover:bg-white/10 text-text-secondary-dark hover:text-text-primary-dark transition-colors"
+                className="flex cursor-pointer items-center justify-center rounded-DEFAULT h-9 w-9 bg-transparent hover:bg-surface border border-border text-text-secondary-dark hover:text-text-primary-dark transition-colors"
               >
                 <MessageSquare className="w-5 h-5" />
               </button>
@@ -96,7 +96,7 @@ export default function NoResults() {
 
             {/* User Avatar */}
             <Avatar
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfVup9g5rmWdpVyfuvPwTTI_JC7oeB-i8HjZarr6C823lMpht-RQHqPOtFWcjnOnyXzLsHlWD7UzjPhCOHuOFGadU6UcTStjZDjx5YP_tzV4D1y6CFrWRgKKqs3HuWCBGcd_ajcLYPCpULxpDDby0l75upRQvFh4kgArLMEepxNRiNOv8Uh1k1IEQZ40FsKAaxDVmHJfO73HQPXjQEEfW35z4JhZAUWGD-0dzG5vyTAEBo3GfkyUJQF3F-u7m0eWpB5jh5GS79ZgY"
+              src=""
               size="9"
               border={true}
               borderColor="border-dark"

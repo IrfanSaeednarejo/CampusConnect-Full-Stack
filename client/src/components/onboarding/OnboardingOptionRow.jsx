@@ -10,7 +10,7 @@ export default function OnboardingOptionRow({
         <div className="bg-surface-hover text-text-secondary flex items-center justify-center rounded-lg h-10 w-10">
           <span className="material-symbols-outlined">{icon}</span>
         </div>
-        <p className="text-[#e6edf3] font-medium flex-1">{label}</p>
+        <p className="text-text-primary font-medium flex-1">{label}</p>
       </div>
       <input
         type="checkbox"

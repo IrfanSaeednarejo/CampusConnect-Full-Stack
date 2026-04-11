@@ -63,10 +63,10 @@ export default function NotificationPreferences() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* General Notifications */}
           <Card padding="p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+            <h2 className="text-lg font-semibold text-text-primary mb-4">
               General Notifications
             </h2>
-            <div className="divide-y divide-[#30363d]">
+            <div className="divide-y divide-[#C7D2FE]">
               <ToggleRow
                 label="Email Notifications"
                 description="Receive notifications via email"
@@ -84,10 +84,10 @@ export default function NotificationPreferences() {
 
           {/* Activity Notifications */}
           <Card padding="p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+            <h2 className="text-lg font-semibold text-text-primary mb-4">
               Activity Notifications
             </h2>
-            <div className="divide-y divide-[#30363d]">
+            <div className="divide-y divide-[#C7D2FE]">
               <ToggleRow
                 label="Events"
                 description="Notifications about upcoming events"

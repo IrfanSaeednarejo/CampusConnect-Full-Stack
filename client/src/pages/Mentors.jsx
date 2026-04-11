@@ -64,7 +64,7 @@ export default function Mentors() {
   };
 
   return (
-    <div className="w-full bg-background text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
+    <div className="w-full bg-background text-text-primary min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-10">
@@ -110,7 +110,7 @@ export default function Mentors() {
               people
             </span>
             <div>
-              <p className="text-white text-lg font-bold">No mentors available yet</p>
+              <p className="text-text-primary text-lg font-bold">No mentors available yet</p>
               <p className="text-text-secondary text-sm">
                 Be the first to register as a mentor and help fellow students!
               </p>

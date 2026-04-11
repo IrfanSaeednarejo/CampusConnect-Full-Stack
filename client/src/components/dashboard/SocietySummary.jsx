@@ -39,7 +39,7 @@ export default function SocietySummary({
 		return (
 			<section className="lg:col-span-2 bg-surface border border-border rounded-lg p-6 flex flex-col">
 				<div className="flex justify-between items-center mb-4">
-					<h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">
+					<h2 className="text-text-primary text-[22px] font-bold leading-tight tracking-[-0.015em]">
 						{title}
 					</h2>
 					{renderAction()}
@@ -61,7 +61,7 @@ export default function SocietySummary({
 						return (
 							<div
 								key={society._id || society.id}
-								className="flex items-center gap-4 px-2 py-2.5 rounded-md hover:bg-white/5 transition-colors"
+								className="flex items-center gap-4 px-2 py-2.5 rounded-md hover:bg-surface border border-border transition-colors"
 							>
 								<div className="flex items-center gap-4 flex-1 min-w-0">
 									{imgUrl ? (
@@ -76,17 +76,17 @@ export default function SocietySummary({
 											/>
 										)
 									) : (
-										<div className={`w-10 h-10 flex-shrink-0 rounded-md flex items-center justify-center text-white text-lg font-bold shadow-sm ${colorClass}`}>
+										<div className={`w-10 h-10 flex-shrink-0 rounded-md flex items-center justify-center text-text-primary text-lg font-bold shadow-sm ${colorClass}`}>
 											{initial}
 										</div>
 									)}
-									<p className="text-white text-base font-medium leading-normal flex-1 truncate">
+									<p className="text-text-primary text-base font-medium leading-normal flex-1 truncate">
 										{society.name}
 									</p>
 								</div>
 								<button
 									onClick={() => onItemAction?.(society)}
-									className="flex cursor-pointer items-center justify-center overflow-hidden rounded-md h-8 px-4 bg-surface-hover text-white text-sm font-medium leading-normal w-fit hover:bg-surface-hover/80 transition-colors flex-shrink-0"
+									className="flex cursor-pointer items-center justify-center overflow-hidden rounded-md h-8 px-4 bg-surface-hover text-text-primary text-sm font-medium leading-normal w-fit hover:bg-surface-hover/80 transition-colors flex-shrink-0"
 								>
 									<span className="truncate">{itemActionLabel}</span>
 								</button>
@@ -111,7 +111,7 @@ export default function SocietySummary({
 					{societies.map((society) => {
 						const initial = (society.name || "S")[0].toUpperCase();
 						const colors = [
-							"bg-primary", "bg-[#1f6feb]", "bg-[#8957e5]",
+							"bg-primary", "bg-primary", "bg-[#8957e5]",
 							"bg-[#f78166]", "bg-[#d29922]", "bg-[#3fb950]"
 						];
 						const colorClass = colors[
@@ -137,7 +137,7 @@ export default function SocietySummary({
 										/>
 									)
 								) : (
-									<div className={`w-16 h-16 rounded-full flex items-center justify-center text-white text-xl font-bold ring-2 ring-transparent group-hover:ring-primary transition-all ${colorClass}`}>
+									<div className={`w-16 h-16 rounded-full flex items-center justify-center text-text-primary text-xl font-bold ring-2 ring-transparent group-hover:ring-primary transition-all ${colorClass}`}>
 										{initial}
 									</div>
 								)}

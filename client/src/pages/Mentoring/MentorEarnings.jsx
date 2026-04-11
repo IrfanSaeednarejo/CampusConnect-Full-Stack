@@ -58,14 +58,14 @@ export default function MentorEarnings() {
 
   const getStatusColor = (status) => {
     const s = status?.toLowerCase();
-    if (s === "completed" || s === "paid") return "text-[#1dc964]";
+    if (s === "completed" || s === "paid") return "text-primary";
     if (s === "pending" || s === "confirmed") return "text-yellow-400";
     if (s === "cancelled") return "text-red-400";
     return "text-text-secondary";
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-background">
       <div className="layout-container flex h-full grow flex-col">
         <MentorTopBar backPath="/mentor/dashboard" />
 
@@ -73,7 +73,7 @@ export default function MentorEarnings() {
           <div className="layout-content-container flex flex-col w-full max-w-6xl flex-1">
             {/* Page Heading */}
             <div className="mb-8">
-              <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
+              <h1 className="text-text-primary text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                 Earnings & Sessions
               </h1>
               <p className="text-text-secondary text-base font-normal leading-normal">
@@ -91,25 +91,25 @@ export default function MentorEarnings() {
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
               <div className="flex flex-col gap-3 p-5 bg-surface border border-border rounded-xl">
                 <p className="text-text-secondary text-sm font-normal">Total Earned</p>
-                <p className="text-white text-3xl font-bold">
+                <p className="text-text-primary text-3xl font-bold">
                   {loading ? "..." : `$${totalEarnings.toFixed(2)}`}
                 </p>
               </div>
               <div className="flex flex-col gap-3 p-5 bg-surface border border-border rounded-xl">
                 <p className="text-text-secondary text-sm font-normal">Sessions Completed</p>
-                <p className="text-white text-3xl font-bold">
+                <p className="text-text-primary text-3xl font-bold">
                   {loading ? "..." : completedSessions.length}
                 </p>
               </div>
               <div className="flex flex-col gap-3 p-5 bg-surface border border-border rounded-xl">
                 <p className="text-text-secondary text-sm font-normal">Avg. Rating</p>
-                <p className="text-white text-3xl font-bold">
+                <p className="text-text-primary text-3xl font-bold">
                   {loading ? "..." : avgRating > 0 ? `${avgRating.toFixed(1)}⭐` : "—"}
                 </p>
               </div>
               <div className="flex flex-col gap-3 p-5 bg-surface border border-border rounded-xl">
                 <p className="text-text-secondary text-sm font-normal">Pending Amount</p>
-                <p className="text-white text-3xl font-bold">
+                <p className="text-text-primary text-3xl font-bold">
                   {loading ? "..." : `$${pendingAmount.toFixed(2)}`}
                 </p>
               </div>
@@ -121,8 +121,8 @@ export default function MentorEarnings() {
                 onClick={() => setActiveTab("overview")}
                 className={`px-4 py-3 font-medium transition-colors ${
                   activeTab === "overview"
-                    ? "text-[#1dc964] border-b-2 border-[#1dc964]"
-                    : "text-text-secondary hover:text-white"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-text-secondary hover:text-text-primary"
                 }`}
               >
                 All Sessions
@@ -131,8 +131,8 @@ export default function MentorEarnings() {
                 onClick={() => setActiveTab("completed")}
                 className={`px-4 py-3 font-medium transition-colors ${
                   activeTab === "completed"
-                    ? "text-[#1dc964] border-b-2 border-[#1dc964]"
-                    : "text-text-secondary hover:text-white"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-text-secondary hover:text-text-primary"
                 }`}
               >
                 Completed ({completedSessions.length})
@@ -142,7 +142,7 @@ export default function MentorEarnings() {
             {/* Loading State */}
             {loading ? (
               <div className="flex flex-col items-center justify-center gap-4 py-16">
-                <div className="w-10 h-10 border-4 border-[#1dc964] border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                 <p className="text-text-secondary">Loading session data...</p>
               </div>
             ) : (
@@ -159,7 +159,7 @@ export default function MentorEarnings() {
                           account_balance_wallet
                         </span>
                         <div>
-                          <p className="text-white text-lg font-bold">No sessions yet</p>
+                          <p className="text-text-primary text-lg font-bold">No sessions yet</p>
                           <p className="text-text-secondary text-sm">
                             Your mentoring sessions will appear here once students book with you.
                           </p>
@@ -188,10 +188,10 @@ export default function MentorEarnings() {
                         return (
                           <div
                             key={sId}
-                            className="flex items-center justify-between p-4 bg-surface border border-border rounded-xl hover:border-[#1dc964] transition-colors"
+                            className="flex items-center justify-between p-4 bg-surface border border-border rounded-xl hover:border-primary transition-colors"
                           >
                             <div className="flex flex-col gap-1">
-                              <p className="text-white font-semibold capitalize">
+                              <p className="text-text-primary font-semibold capitalize">
                                 {menteeName}
                               </p>
                               <p className="text-text-secondary text-sm">
@@ -200,7 +200,7 @@ export default function MentorEarnings() {
                             </div>
                             <div className="flex items-center gap-4">
                               <div className="text-right">
-                                <p className="text-white font-bold">
+                                <p className="text-text-primary font-bold">
                                   {amount > 0 ? `$${amount.toFixed(2)}` : "Free"}
                                 </p>
                                 <p className={`text-sm capitalize ${getStatusColor(status)}`}>

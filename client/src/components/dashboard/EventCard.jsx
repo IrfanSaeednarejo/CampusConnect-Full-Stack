@@ -10,7 +10,7 @@ export default function EventCard({
 		return null;
 	}
 
-	const eventImage = event.image || event.coverImage || "https://lh3.googleusercontent.com/aida-public/AB6AXuD9RA_fMuSaLKstjcMP5ozR-vSaxtqQ_kzINRu0QEbitLaiaOGSvhHQ0t3zi1Py769dste1tAWujcMGzeKsHP3LIDU8GpBrAtxlzAEKMTgoN2PCuAMYnxMVStac_6sgv9hNluDqsTZg4B7sFD-1sE6Uqn7KpdMC_eKzapyTUfan20XYGE2tBdjBB1D9B7MnCMh1-NNhn67QqbuDD5OKhys_-_9nTeollnRzd23QBgopcA4rmFIaSDdXU_42pp-765L5mTwpjWlySM8";
+	const eventImage = event.image || event.coverImage || "";
 
 	const isUpcoming =
 		event.status === "Upcoming" ||
@@ -21,6 +21,11 @@ export default function EventCard({
 	const displayDate = event.date || (event.startAt ? new Date(event.startAt).toLocaleDateString() : event.startTime ? new Date(event.startTime).toLocaleDateString() : "TBA");
 	const displaySociety = event.society?.name || event.society || event.organizer?.name || "Institution Event";
 	const displayTitle = event.title || event.name || "Untitled Event";
+
+	let displayLocation = "Online";
+	if (typeof event.location === 'string') displayLocation = event.location;
+	else if (event.location?.address) displayLocation = event.location.address;
+	else if (event.location?.type) displayLocation = event.location.type === 'online' ? 'Online Event' : 'TBD';
 
 	if (variant === "compact") {
 		return (
@@ -55,18 +60,18 @@ export default function EventCard({
 	}
 
 	return (
-		<div className="flex items-center gap-4 p-4 rounded-lg bg-[#161B22] border border-[#30363D] hover:border-primary transition-colors duration-200">
+		<div className="flex items-center gap-4 p-4 rounded-lg bg-[#FFFFFF] border border-[#C7D2FE] hover:border-primary transition-colors duration-200">
 			<div
 				className="w-24 h-24 flex-shrink-0 rounded-md overflow-hidden bg-cover bg-center"
 				style={{ backgroundImage: `url("${eventImage}")` }}
 			/>
 			<div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
 				<div className="flex flex-col">
-					<h3 className="text-lg font-semibold text-[#E6EDF3]">
+					<h3 className="text-lg font-semibold text-text-primary">
 						{displayTitle}
 					</h3>
-					<p className="text-[#8B949E] text-sm">
-						{displayDate} • {event.location || "Online"}
+					<p className="text-text-secondary text-sm">
+						{displayDate} • {displayLocation}
 					</p>
 					<p className="text-primary text-xs font-medium uppercase tracking-wider">{displaySociety}</p>
 					<div className="flex gap-2 mt-2">
@@ -83,8 +88,8 @@ export default function EventCard({
 				<div className="flex flex-col gap-2 sm:items-end">
 					<span
 						className={`px-2 py-1 text-xs font-semibold rounded-sm uppercase tracking-wider whitespace-nowrap ${isUpcoming
-								? "bg-primary text-white"
-								: "bg-[#484F58] text-white"
+							? "bg-primary text-white"
+							: "bg-text-secondary text-white"
 							}`}
 					>
 						{isUpcoming ? (event.liveStatus === "ongoing" ? "Live Now" : "Upcoming") : "Past Event"}
@@ -93,15 +98,15 @@ export default function EventCard({
 						<button
 							onClick={isUpcoming ? onPrimaryAction : undefined}
 							className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${isUpcoming
-									? "bg-primary text-white hover:bg-[#3FB950]"
-									: "bg-[#30363D] text-[#8B949E] cursor-not-allowed opacity-70"
+								? "bg-primary text-white hover:bg-[#3FB950]"
+								: "bg-[#C7D2FE] text-text-secondary cursor-not-allowed opacity-70"
 								}`}
 						>
 							{isUpcoming ? (event.isRegistered ? "Registered" : "Register") : "Closed"}
 						</button>
 						<button
 							onClick={onSecondaryAction}
-							className="px-3 py-1 text-sm font-medium rounded-md border border-[#30363D] text-[#E6EDF3] hover:bg-[#30363D] transition-colors"
+							className="px-3 py-1 text-sm font-medium rounded-md border border-[#C7D2FE] text-text-primary hover:bg-[#C7D2FE] transition-colors"
 						>
 							Details
 						</button>

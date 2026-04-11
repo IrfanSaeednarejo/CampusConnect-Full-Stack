@@ -23,7 +23,7 @@ export default function LoginPromptModal({
       onClick={onClose}
     >
       {/* Blurred backdrop */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-background/60 backdrop-blur-sm" />
 
       {/* Modal content */}
       <div
@@ -33,7 +33,7 @@ export default function LoginPromptModal({
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-text-secondary hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-text-secondary hover:text-text-primary transition-colors"
         >
           <span className="material-symbols-outlined">close</span>
         </button>
@@ -48,7 +48,7 @@ export default function LoginPromptModal({
         </div>
 
         {/* Text */}
-        <h3 className="text-white text-xl font-bold text-center mb-2">
+        <h3 className="text-text-primary text-xl font-bold text-center mb-2">
           Login Required
         </h3>
         <p className="text-text-secondary text-sm text-center mb-8">{message}</p>
@@ -63,7 +63,7 @@ export default function LoginPromptModal({
           </button>
           <button
             onClick={() => navigate("/signup")}
-            className="w-full h-11 rounded-lg border border-border bg-transparent text-white font-bold text-sm hover:bg-surface-hover transition-colors"
+            className="w-full h-11 rounded-lg border border-border bg-transparent text-text-primary font-bold text-sm hover:bg-surface-hover transition-colors"
           >
             Create Account
           </button>

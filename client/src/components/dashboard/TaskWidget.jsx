@@ -47,7 +47,7 @@ export default function TaskWidget({
 									onChange={onTaskToggle ? () => onTaskToggle(task) : undefined}
 									className="w-4 h-4"
 								/>
-								<p className="text-text-primary text-sm">{task.text}</p>
+								<p className="text-text-primary text-sm">{task.title || task.text}</p>
 							</div>
 						))}
 					</div>
@@ -61,7 +61,7 @@ export default function TaskWidget({
 							event.key === "Enter" ? onAddTask?.() : undefined
 						}
 						placeholder="Add a new task..."
-						className="flex-1 px-3 py-2 rounded bg-background border border-border text-text-primary placeholder-[#8b949e] focus:outline-none focus:border-primary"
+						className="flex-1 px-3 py-2 rounded bg-background border border-border text-text-primary placeholder:text-text-secondary focus:outline-none focus:border-primary"
 					/>
 					<Button onClick={onAddTask} variant="primary" className="px-4 py-2">
 						Add

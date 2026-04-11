@@ -27,7 +27,7 @@ export default function SocietyEvents() {
         } catch (socErr) {
           console.error("Failed to fetch user societies:", socErr);
         }
-        
+
         if (societies.length === 0) {
           setEvents([]);
           setLoading(false);
@@ -47,11 +47,11 @@ export default function SocietyEvents() {
             }
           })
         );
-        
+
         // Flatten the results and remove duplicates if any
         const allMyEvents = results.flat();
         const uniqueEvents = Array.from(new Map(allMyEvents.map(e => [e._id || e.id, e])).values());
-        
+
         setEvents(uniqueEvents);
       } catch (err) {
         console.error("Failed to fetch events:", err);
@@ -116,7 +116,7 @@ export default function SocietyEvents() {
   );
 
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="min-h-screen bg-background text-text-primary">
       <SocietyPageHeader
         title="Society Events"
         subtitle="Manage and organize your events"
@@ -139,31 +139,28 @@ export default function SocietyEvents() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === "all"
-                  ? "bg-primary text-white"
-                  : "bg-surface text-text-secondary hover:bg-surface/80 hover:text-white"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === "all"
+                ? "bg-primary text-white"
+                : "bg-surface text-text-secondary hover:bg-surface/80 hover:text-text-primary"
+                }`}
             >
               All Events ({events.length})
             </button>
             <button
               onClick={() => setFilter("upcoming")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === "upcoming"
-                  ? "bg-primary text-white"
-                  : "bg-surface text-text-secondary hover:bg-surface/80 hover:text-white"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === "upcoming"
+                ? "bg-primary text-white"
+                : "bg-surface text-text-secondary hover:bg-surface/80 hover:text-text-primary"
+                }`}
             >
               Upcoming ({events.filter((e) => isUpcoming(e.status)).length})
             </button>
             <button
               onClick={() => setFilter("completed")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === "completed"
-                  ? "bg-primary text-white"
-                  : "bg-surface text-text-secondary hover:bg-surface/80 hover:text-white"
-              }`}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === "completed"
+                ? "bg-primary text-white"
+                : "bg-surface text-text-secondary hover:bg-surface/80 hover:text-text-primary"
+                }`}
             >
               Completed ({events.filter((e) => isCompleted(e.status)).length})
             </button>
@@ -173,14 +170,14 @@ export default function SocietyEvents() {
         {/* Loading State */}
         {loading ? (
           <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1dc964]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
           </div>
         ) : filteredEvents.length === 0 ? (
           <div className="bg-surface border border-border rounded-lg p-12 text-center">
-            <span className="material-symbols-outlined text-6xl text-[#29382f] block mb-4">
+            <span className="material-symbols-outlined text-6xl text-text-secondary/40 block mb-4">
               event
             </span>
-            <h3 className="text-xl font-semibold text-white mb-2">
+            <h3 className="text-xl font-semibold text-text-primary mb-2">
               No events found
             </h3>
             <p className="text-text-secondary">
@@ -203,7 +200,7 @@ export default function SocietyEvents() {
               return (
                 <div
                   key={event._id}
-                  className="bg-surface border border-border rounded-lg overflow-hidden hover:border-[#1dc964]/50 transition-colors"
+                  className="bg-surface border border-border rounded-lg overflow-hidden hover:border-primary/50 transition-colors"
                 >
                   <div
                     className="h-48 bg-cover bg-center bg-surface-hover"
@@ -224,11 +221,10 @@ export default function SocietyEvents() {
                   <div className="p-4">
                     <div className="flex items-center justify-between mb-2">
                       <span
-                        className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          isUpcomingStatus
-                            ? "bg-primary/20 text-[#1dc964]"
-                            : "bg-[#9eb7a9]/20 text-text-secondary"
-                        }`}
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${isUpcomingStatus
+                          ? "bg-primary/20 text-primary"
+                          : "bg-text-secondary/20 text-text-secondary"
+                          }`}
                       >
                         {statusLabel}
                       </span>
@@ -238,7 +234,7 @@ export default function SocietyEvents() {
                           : ""}
                       </span>
                     </div>
-                    <h3 className="text-white font-bold text-lg mb-2 truncate">
+                    <h3 className="text-text-primary font-bold text-lg mb-2 truncate">
                       {event.title}
                     </h3>
                     <p className="text-text-secondary text-sm mb-4 line-clamp-2">
@@ -302,19 +298,19 @@ export default function SocietyEvents() {
         {/* Stats Summary */}
         <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="bg-surface border border-border rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-[#1dc964]">
+            <div className="text-3xl font-bold text-primary">
               {events.length}
             </div>
             <div className="text-sm text-text-secondary mt-1">Total Events</div>
           </div>
           <div className="bg-surface border border-border rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-[#1dc964]">
+            <div className="text-3xl font-bold text-primary">
               {events.filter((e) => isUpcoming(e.status)).length}
             </div>
             <div className="text-sm text-text-secondary mt-1">Upcoming</div>
           </div>
           <div className="bg-surface border border-border rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-[#1dc964]">
+            <div className="text-3xl font-bold text-primary">
               {totalRegistrations}
             </div>
             <div className="text-sm text-text-secondary mt-1">Total Registrations</div>

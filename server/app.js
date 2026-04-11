@@ -11,6 +11,7 @@ app.use(
         origin: [
             "https://Campus-Connect.vercel.app",
             "http://localhost:5173",
+            "http://localhost:5174",
         ],
         credentials: true,
     })
@@ -32,10 +33,10 @@ import fileRouter from "./src/routes/file.routes.js";
 import notificationRouter from "./src/routes/notification.routes.js";
 import adminRouter from "./src/routes/admin.routes.js";
 import aiRouter from "./src/routes/ai.routes.js";
+import noteRouter from "./src/routes/note.routes.js";
 
 app.get("/", (_req, res) => res.json({ status: "ok", service: "CampusConnect API" }));
 app.get("/api/v1", (_req, res) => res.json({ status: "ok", version: "1.0.0" }));
-
 
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/campuses", campusRouter);
@@ -48,6 +49,7 @@ app.use("/api/v1/files", fileRouter);
 app.use("/api/v1/notifications", notificationRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/ai", aiRouter);
+app.use("/api/v1/notes", noteRouter);
 
 app.use((err, _req, _res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && "body" in err) {

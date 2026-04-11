@@ -21,12 +21,12 @@ const Header = () => {
     {
       label: "Log In",
       path: "/login",
-      style: "bg-surface hover:bg-surface-hover border border-border",
+      style: "bg-primary hover:opacity-90 text-white",
     },
     {
       label: "Sign Up",
       path: "/signup",
-      style: "bg-green-600 hover:bg-green-700",
+      style: "bg-primary hover:opacity-90 text-white",
     },
   ];
 
@@ -34,11 +34,11 @@ const Header = () => {
   const isLoginPage = ["/login", "/signup"].includes(location.pathname);
 
   return (
-    <header className="bg-background border-b border-[#161b22] px-4 sm:px-10 py-3 sticky top-0 z-50">
+    <header className="bg-background border-b border-background px-4 sm:px-10 py-3 sticky top-0 z-50">
       <div className="flex items-center justify-between">
         {/* Logo */}
         <div
-          className="flex items-center gap-4 text-[#e6edf3] cursor-pointer"
+          className="flex items-center gap-4 text-text-primary cursor-pointer"
           onClick={() => navigate("/")}
           aria-label="CampusConnect Home"
         >
@@ -65,7 +65,7 @@ const Header = () => {
                 <button
                   key={btn.label}
                   onClick={() => navigate(btn.path)}
-                  className={`${btn.style} text-white text-xs font-bold px-4 h-8 rounded-md`}
+                  className={`${btn.style} text-xs font-bold px-4 h-8 rounded-md transition-colors`}
                 >
                   {btn.label}
                 </button>
@@ -74,7 +74,7 @@ const Header = () => {
 
             {/* Mobile Hamburger */}
             <button
-              className="md:hidden text-white focus:outline-none"
+              className="md:hidden text-text-primary focus:outline-none"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             >
               <span className="material-symbols-outlined text-3xl">
@@ -87,7 +87,7 @@ const Header = () => {
 
       {/* Mobile Menu */}
       {!isLoginPage && mobileMenuOpen && (
-        <div className="md:hidden mt-2 flex flex-col gap-3 bg-background px-4 py-3 border-t border-[#161b22]">
+        <div className="md:hidden mt-2 flex flex-col gap-3 bg-background px-4 py-3 border-t border-background">
           {navLinks.map((link) => (
             <NavLinkItem
               key={link.label}
@@ -105,7 +105,7 @@ const Header = () => {
                   navigate(btn.path);
                   setMobileMenuOpen(false);
                 }}
-                className={`${btn.style} text-white text-xs font-bold px-3 h-8 rounded-md w-full`}
+                className={`${btn.style} text-xs font-bold px-3 h-8 rounded-md w-full transition-colors`}
               >
                 {btn.label}
               </button>
@@ -134,11 +134,10 @@ const NavLinkItem = ({ link, isActive, mobile, onClick }) => (
   <Link
     to={link.path}
     onClick={onClick}
-    className={`text-sm font-medium ${
-      isActive
-        ? "text-white font-bold border-b-2 border-green-500 md:border-b-2 md:border-green-500"
-        : "text-text-secondary hover:text-white"
-    } ${mobile ? "block w-full" : ""}`}
+    className={`text-sm font-medium ${isActive
+      ? "text-text-primary font-bold border-b-2 border-primary md:border-b-2 md:border-primary"
+      : "text-text-secondary hover:text-text-primary"
+      } ${mobile ? "block w-full" : ""}`}
   >
     {link.label}
   </Link>

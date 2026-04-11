@@ -2,8 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import MentorUserMenu from "./MentorUserMenu";
 
-const DEFAULT_AVATAR_SRC =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuBgjnv-ixtGxRDh4QEaPBNUdMjXlCgO4Di7YsyjQZ_I21EDiOSRocUjGni8cViV_CJzUNuTwbKO6qL2ELKucJviHvtTGb5IoWrvryA6QiSKES--KcSvqsDWZ1KpSuZmk0lwuAdXOoKx29-hTfGzUVjUFmMfKN8ePF2jbbETEb-ZJ4sbGp0i5zNnzNhdXDhOyG5SRDAgKbhgIsTZDf5Qvwv7Du7ImY-uPgAE-OPeOuTdAxD6cykLE_jM18XdA4t_EU_5vQrYK9XVePg";
+// Avatar fallback is handled dynamically by generating a DiceBear avatar below
 
 export default function MentorTopBar({
   backPath = "/mentor/dashboard",
@@ -42,14 +41,14 @@ export default function MentorTopBar({
         {showBack && (
           <button
             onClick={handleBack}
-            className="flex items-center gap-4 text-white hover:text-[#1dc964] transition-colors cursor-pointer"
+            className="flex items-center gap-4 text-text-primary hover:text-primary transition-colors cursor-pointer"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
         )}
-        <div className="flex items-center gap-4 text-white">
+        <div className="flex items-center gap-4 text-text-primary">
           <svg
-            className="size-6 text-[#1dc964]"
+            className="size-6 text-primary"
             fill="none"
             viewBox="0 0 48 48"
             xmlns="http://www.w3.org/2000/svg"
@@ -59,7 +58,7 @@ export default function MentorTopBar({
               fill="currentColor"
             ></path>
           </svg>
-          <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em] hidden sm:block">
+          <h2 className="text-text-primary text-lg font-bold leading-tight tracking-[-0.015em] hidden sm:block">
             CampusConnect
           </h2>
         </div>
@@ -72,7 +71,7 @@ export default function MentorTopBar({
                 <span className="material-symbols-outlined text-xl">search</span>
               </div>
               <input
-                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-background h-full placeholder:text-text-secondary px-4 rounded-l-none pl-2 text-base font-normal"
+                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-0 border-none bg-background h-full placeholder:text-text-secondary px-4 rounded-l-none pl-2 text-base font-normal"
                 placeholder="Search"
                 value={searchValue}
                 onChange={(e) => onSearchChange(e.target.value)}
@@ -90,9 +89,9 @@ export default function MentorTopBar({
 
         <div className="flex items-center gap-4">
           {showNotifications && (
-            <button 
+            <button
               onClick={() => navigate("/mentor-notifications")}
-              className="flex min-w-[40px] cursor-pointer items-center justify-center rounded-lg h-10 px-2 text-white hover:bg-[#30363d] transition-colors"
+              className="flex min-w-[40px] cursor-pointer items-center justify-center rounded-lg h-10 px-2 text-text-secondary hover:bg-surface-hover transition-colors"
             >
               <span className="material-symbols-outlined">notifications</span>
             </button>

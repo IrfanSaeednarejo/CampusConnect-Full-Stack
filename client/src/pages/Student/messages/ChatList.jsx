@@ -142,8 +142,8 @@ export default function ChatList() {
   );
 
   const MessageStatusIcon = ({ status }) => {
-    if (status === 'sent') return <span className="material-symbols-outlined text-[14px] text-gray-400">check</span>;
-    if (status === 'delivered') return <span className="material-symbols-outlined text-[14px] text-gray-400">done_all</span>;
+    if (status === 'sent') return <span className="material-symbols-outlined text-[14px] text-text-secondary">check</span>;
+    if (status === 'delivered') return <span className="material-symbols-outlined text-[14px] text-text-secondary">done_all</span>;
     if (status === 'read') return <span className="material-symbols-outlined text-[14px] text-blue-400">done_all</span>;
     return null;
   };
@@ -155,10 +155,10 @@ export default function ChatList() {
         {/* LEFT PANEL: Conversation List */}
         <div className={`w-full lg:w-80 flex flex-col border border-border rounded-2xl glass backdrop-blur-xl overflow-hidden transition-all duration-300 shrink-0 ${activeConversationId ? 'hidden lg:flex' : 'flex'}`}>
           <div className="p-5 border-b border-border flex items-center justify-between bg-surface/30">
-            <h1 className="text-xl font-extrabold text-white tracking-tight">Messages</h1>
+            <h1 className="text-xl font-extrabold text-text-primary tracking-tight">Messages</h1>
             <button 
               onClick={() => setIsModalOpen(true)}
-              className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-text-primary hover:text-white hover:bg-[#30363d] transition-colors shadow-sm border border-border"
+              className="w-8 h-8 rounded-full bg-surface-hover flex items-center justify-center text-text-primary hover:text-white hover:bg-[#C7D2FE] transition-colors shadow-sm border border-border"
             >
               <span className="material-symbols-outlined text-[20px]">edit_square</span>
             </button>
@@ -172,7 +172,7 @@ export default function ChatList() {
                 placeholder="Search..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-surface border border-border text-white pl-10 pr-4 py-2 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                className="w-full bg-surface border border-border text-text-primary pl-10 pr-4 py-2 rounded-lg text-sm focus:outline-none focus:border-blue-500 transition-colors"
               />
             </div>
           </div>
@@ -194,17 +194,17 @@ export default function ChatList() {
                   }`}
                 >
                   <div className="relative flex-shrink-0">
-                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#238636] to-[#2ea043] flex items-center justify-center text-white font-bold shadow-lg shadow-[#238636]/20">
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#4F46E5] to-[#4338CA] flex items-center justify-center text-white font-bold shadow-lg shadow-[#4F46E5]/20">
                       {getInitials(conv.participantName)}
                     </div>
                     {conv.isOnline && (
-                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#0d1117] rounded-full"></span>
+                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#EEF2FF] rounded-full"></span>
                     )}
                   </div>
                   
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between items-center mb-1">
-                      <h4 className={`text-sm truncate pr-2 ${conv.unreadCount > 0 ? 'text-white font-bold' : 'text-text-primary font-semibold'}`}>
+                      <h4 className={`text-sm truncate pr-2 ${conv.unreadCount > 0 ? 'text-text-primary font-bold' : 'text-text-primary font-semibold'}`}>
                         {conv.participantName}
                       </h4>
                       <span className={`text-[11px] whitespace-nowrap ${conv.unreadCount > 0 ? 'text-blue-400 font-bold' : 'text-text-secondary'}`}>
@@ -236,16 +236,16 @@ export default function ChatList() {
         <div className={`flex-1 flex flex-col border border-border rounded-2xl glass backdrop-blur-xl overflow-hidden relative ${!activeConversationId ? 'hidden lg:flex' : 'flex'}`}>
           {!activeConversationId ? (
             <div className="flex-1 flex flex-col items-center justify-center text-text-secondary p-8 text-center bg-surface/10">
-              <div className="w-24 h-24 mb-6 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-2xl shadow-[#238636]/5 animate-pulse">
+              <div className="w-24 h-24 mb-6 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center shadow-2xl shadow-[#4F46E5]/5 animate-pulse">
                 <span className="material-symbols-outlined text-5xl text-primary">forum</span>
               </div>
-              <h3 className="text-xl font-bold text-white mb-2">Your Inbox</h3>
+              <h3 className="text-xl font-bold text-text-primary mb-2">Your Inbox</h3>
               <p className="max-w-xs text-sm leading-relaxed">
                 Connect with the campus community. Select a conversation to start messaging or click the "New Message" icon.
               </p>
               <button 
                 onClick={() => setIsModalOpen(true)}
-                className="mt-8 px-6 py-2.5 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[#238636]/20"
+                className="mt-8 px-6 py-2.5 bg-primary text-white rounded-xl font-bold hover:bg-primary-hover transition-all hover:scale-105 active:scale-95 shadow-lg shadow-[#4F46E5]/20"
               >
                 Start a New Chat
               </button>
@@ -257,20 +257,20 @@ export default function ChatList() {
                 <div className="flex items-center gap-4">
                   <button 
                     onClick={() => dispatch(setActiveConversation(null))}
-                    className="lg:hidden w-10 h-10 rounded-xl hover:bg-[#30363d] flex items-center justify-center text-text-primary transition-colors"
+                    className="lg:hidden w-10 h-10 rounded-xl hover:bg-[#C7D2FE] flex items-center justify-center text-text-primary transition-colors"
                   >
                     <span className="material-symbols-outlined text-[24px]">arrow_back</span>
                   </button>
                   <div className="relative">
-                    <div className="w-11 h-11 bg-gradient-to-br from-[#238636] to-[#2ea043] rounded-xl flex items-center justify-center text-white font-bold text-base shadow-lg shadow-[#238636]/10">
+                    <div className="w-11 h-11 bg-gradient-to-br from-[#4F46E5] to-[#4338CA] rounded-xl flex items-center justify-center text-white font-bold text-base shadow-lg shadow-[#4F46E5]/10">
                       {getInitials(activeConversation?.participantName)}
                     </div>
                     {activeConversation?.isOnline && (
-                      <span className="absolute bottom-[-2px] right-[-2px] w-3.5 h-3.5 bg-green-500 border-2 border-[#161b22] rounded-full"></span>
+                      <span className="absolute bottom-[-2px] right-[-2px] w-3.5 h-3.5 bg-green-500 border-2 border-background rounded-full"></span>
                     )}
                   </div>
                   <div>
-                    <h2 className="text-white font-bold tracking-wide text-sm leading-tight">
+                    <h2 className="text-text-primary font-bold tracking-wide text-sm leading-tight">
                       {activeConversation?.participantName}
                     </h2>
                     <div className="flex items-center gap-2">
@@ -285,7 +285,7 @@ export default function ChatList() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => addNotification({ type: 'info', title: 'Video Calls Coming Soon', message: 'Video calling will be available in a future update.' })}
-                    className="w-8 h-8 rounded-full hover:bg-[#30363d] flex items-center justify-center text-text-primary transition-colors"
+                    className="w-8 h-8 rounded-full hover:bg-[#C7D2FE] flex items-center justify-center text-text-primary transition-colors"
                     title="Video Call"
                   >
                     <span className="material-symbols-outlined text-[20px]">videocam</span>
@@ -293,7 +293,7 @@ export default function ChatList() {
                   <div className="relative" ref={menuRef}>
                     <button
                       onClick={() => setMenuOpen(prev => !prev)}
-                      className="w-8 h-8 rounded-full hover:bg-[#30363d] flex items-center justify-center text-text-primary transition-colors"
+                      className="w-8 h-8 rounded-full hover:bg-[#C7D2FE] flex items-center justify-center text-text-primary transition-colors"
                       title="More options"
                     >
                       <span className="material-symbols-outlined text-[20px]">more_vert</span>
@@ -351,7 +351,7 @@ export default function ChatList() {
                             {!isMine && (
                               <div className="w-6 shrink-0 flex items-end">
                                 {showAvatar && (
-                                  <div className="w-6 h-6 rounded-full bg-[#30363d] text-[10px] flex items-center justify-center text-white">
+                                  <div className="w-6 h-6 rounded-full bg-[#C7D2FE] text-[10px] flex items-center justify-center text-white">
                                     {getInitials(msg.senderName)}
                                   </div>
                                 )}
@@ -397,7 +397,7 @@ export default function ChatList() {
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Type a message..."
-                    className="flex-1 bg-transparent text-text-primary placeholder-[#8b949e] resize-none outline-none py-2 px-2 text-sm min-h-[40px] max-h-[120px] custom-scrollbar"
+                    className="flex-1 bg-transparent text-text-primary placeholder-[#475569] resize-none outline-none py-2 px-2 text-sm min-h-[40px] max-h-[120px] custom-scrollbar"
                     style={{ height: draft ? `${Math.min(120, draft.split('\n').length * 24 + 16)}px` : '40px' }}
                   />
                   <button 
@@ -422,13 +422,13 @@ export default function ChatList() {
 
     {/* NEW CHAT MODAL */}
     {isModalOpen && (
-      <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm transition-all duration-300">
+      <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-background/60 backdrop-blur-sm transition-all duration-300">
         <div className="w-full max-w-md rounded-2xl border border-[#ffffff]/10 glass backdrop-blur-2xl shadow-2xl flex flex-col max-h-[80vh] overflow-hidden animate-fadeIn">
             <div className="flex items-center justify-between p-4 border-b border-border">
-              <h3 className="text-lg font-bold text-white">New Message</h3>
+              <h3 className="text-lg font-bold text-text-primary">New Message</h3>
               <button 
                 onClick={() => setIsModalOpen(false)}
-                className="text-text-secondary hover:text-white transition-colors"
+                className="text-text-secondary hover:text-text-primary transition-colors"
               >
                 <span className="material-symbols-outlined">close</span>
               </button>
@@ -442,7 +442,7 @@ export default function ChatList() {
                    placeholder="Search connected profiles..."
                    value={newChatSearch}
                    onChange={(e) => setNewChatSearch(e.target.value)}
-                   className="w-full bg-background border border-border text-white pl-9 pr-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary transition-colors"
+                   className="w-full bg-background border border-border text-text-primary pl-9 pr-3 py-2 rounded-lg text-sm focus:outline-none focus:border-primary transition-colors"
                  />
                </div>
             </div>
@@ -454,11 +454,11 @@ export default function ChatList() {
                      onClick={() => handleStartNewChat(profile)}
                      className="flex items-center gap-3 p-3 hover:bg-surface-hover rounded-lg cursor-pointer transition-colors"
                    >
-                     <div className="w-10 h-10 bg-[#30363d] rounded-full flex items-center justify-center text-white font-bold text-sm">
+                     <div className="w-10 h-10 bg-[#C7D2FE] rounded-full flex items-center justify-center text-white font-bold text-sm">
                        {getInitials(profile.name)}
                      </div>
                      <div>
-                       <div className="text-white font-medium text-sm">{profile.name}</div>
+                       <div className="text-text-primary font-medium text-sm">{profile.name}</div>
                        <div className="text-text-secondary text-xs">{profile.role} · {profile.department}</div>
                      </div>
                    </div>

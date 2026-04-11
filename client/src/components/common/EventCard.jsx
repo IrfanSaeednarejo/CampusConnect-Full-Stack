@@ -14,13 +14,13 @@ export default function EventCard({
     <div
       className={`flex flex-col gap-3 p-4 rounded-lg border border-border bg-surface hover:bg-surface-hover transition-colors ${className}`}
     >
-      <h2 className="text-[#e6edf3] text-lg font-bold leading-tight">
+      <h2 className="text-text-primary text-lg font-bold leading-tight">
         {title}
       </h2>
       <div className="flex flex-col gap-2 text-sm text-text-secondary">
         <p>📅 {date}</p>
         <p>⏰ {time}</p>
-        <p>📍 {location}</p>
+        <p>📍 {typeof location === 'string' ? location : (location?.address || location?.type || 'Online')}</p>
       </div>
       <p className="text-text-secondary text-sm font-normal leading-normal">
         {description}

@@ -21,7 +21,7 @@ export default function AgentInputBar({
           onChange={(event) => onChange(event.target.value)}
           onKeyPress={(event) => event.key === "Enter" && onSend()}
           placeholder={placeholder}
-          className={`flex-1 bg-surface border border-border rounded-lg px-4 py-2 text-text-primary placeholder-[#8b949e] focus:outline-none focus:border-primary ${inputClassName}`}
+          className={`flex-1 bg-surface border border-border rounded-lg px-4 py-2 text-text-primary placeholder-[#475569] focus:outline-none focus:border-primary ${inputClassName}`}
           disabled={disabled}
         />
         <button

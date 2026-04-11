@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { notesApi } from '../../api/mock/notesApi';
+import { notesApi } from '../../api/notesApi';
 
 export const fetchNotes = createAsyncThunk(
   'notes/fetchNotes',
@@ -52,13 +52,13 @@ const applyFilters = (items, filters) => {
 
   if (filters.search) {
     const q = filters.search.toLowerCase();
-    result = result.filter(n => 
-      n.title.toLowerCase().includes(q) || 
+    result = result.filter(n =>
+      n.title.toLowerCase().includes(q) ||
       n.description?.toLowerCase().includes(q) ||
       n.tags?.some(t => t.toLowerCase().includes(q))
     );
   }
-  
+
   if (filters.subject !== 'All') {
     result = result.filter(n => n.subject === filters.subject);
   }
@@ -97,7 +97,7 @@ const notesSlice = createSlice({
     incrementDownloadCount: (state, action) => {
       const note = state.items.find(n => n.id === action.payload);
       if (note) note.downloadCount = (note.downloadCount || 0) + 1;
-      
+
       const filtered = state.filteredItems.find(n => n.id === action.payload);
       if (filtered) filtered.downloadCount = (filtered.downloadCount || 0) + 1;
     }
@@ -125,11 +125,11 @@ const notesSlice = createSlice({
         state.error = action.error.message;
       })
       .addCase(deleteNote.fulfilled, (state, action) => {
-        state.items = state.items.filter(n => n.id !== action.payload);
+        state.items = state.items.filter(n => n.id !== action.payload && n._id !== action.payload);
         state.filteredItems = applyFilters(state.items, state.filters);
       })
       .addCase(toggleNoteShare.fulfilled, (state, action) => {
-        const note = state.items.find(n => n.id === action.payload);
+        const note = state.items.find(n => n.id === action.payload || n._id === action.payload);
         if (note) note.isShared = !note.isShared;
         state.filteredItems = applyFilters(state.items, state.filters);
       });

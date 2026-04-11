@@ -5,7 +5,7 @@ import { getAgentResponse } from '../../api/mock/agents/agentEngine';
 const COLOR_MAP = {
   blue: { bg: 'bg-blue-600', text: 'text-blue-600', hover: 'hover:bg-blue-700', border: 'border-blue-200', lightBg: 'bg-blue-50' },
   purple: { bg: 'bg-purple-600', text: 'text-purple-600', hover: 'hover:bg-purple-700', border: 'border-purple-200', lightBg: 'bg-purple-50' },
-  green: { bg: 'bg-green-600', text: 'text-green-600', hover: 'hover:bg-green-700', border: 'border-green-200', lightBg: 'bg-green-50' },
+  green: { bg: 'bg-primary', text: 'text-green-600', hover: 'hover:bg-primary-hover', border: 'border-green-200', lightBg: 'bg-green-50' },
   orange: { bg: 'bg-orange-600', text: 'text-orange-600', hover: 'hover:bg-orange-700', border: 'border-orange-200', lightBg: 'bg-orange-50' },
   default: { bg: 'bg-primary', text: 'text-primary', hover: 'hover:bg-primary-hover', border: 'border-primary', lightBg: 'bg-primary/10' },
 };
@@ -192,7 +192,7 @@ export default function AgentChatUI({ agentConfig }) {
         <div className="flex flex-col items-center">
           <div className="flex items-center gap-2">
             <span className="text-xl">{icon}</span>
-            <h1 className="font-bold text-[#e6edf3] leading-tight">{name}</h1>
+            <h1 className="font-bold text-text-primary leading-tight">{name}</h1>
           </div>
           <div className="flex items-center gap-2">
             <p className="text-xs text-text-secondary">{subtitle}</p>
@@ -233,7 +233,7 @@ export default function AgentChatUI({ agentConfig }) {
               <div className={`w-20 h-20 rounded-full ${colorTheme.lightBg} flex items-center justify-center text-4xl mb-4 shadow-sm`}>
                 {icon}
               </div>
-              <h2 className="text-2xl font-bold text-[#e6edf3] mb-2">{name}</h2>
+              <h2 className="text-2xl font-bold text-text-primary mb-2">{name}</h2>
               <p className="text-text-secondary mb-8 text-center">{subtitle}</p>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg">
@@ -241,7 +241,7 @@ export default function AgentChatUI({ agentConfig }) {
                   <button
                     key={idx}
                     onClick={() => handleSend(starter)}
-                    className={`text-left px-4 py-3 rounded-xl border border-border bg-surface hover:border-[#8b949e] hover:shadow-sm transition-all text-sm text-text-primary`}
+                    className={`text-left px-4 py-3 rounded-xl border border-border bg-surface hover:border-[#475569] hover:shadow-sm transition-all text-sm text-text-primary`}
                   >
                     {starter}
                   </button>
@@ -258,7 +258,7 @@ export default function AgentChatUI({ agentConfig }) {
             return (
               <div key={msg.id} className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'} msg-enter`} style={{ animationDelay: `${Math.min(0.2, (messages.length - idx) * 0.05)}s` }}>
                 {!isUser && (
-                  <div className={`w-8 h-8 rounded-full ${colorTheme.bg} text-white flex items-center justify-center text-sm flex-shrink-0 mr-3 mt-1 shadow-sm`}>
+                  <div className={`w-8 h-8 rounded-full ${colorTheme.bg} text-text-primary flex items-center justify-center text-sm flex-shrink-0 mr-3 mt-1 shadow-sm`}>
                     {icon}
                   </div>
                 )}
@@ -267,7 +267,7 @@ export default function AgentChatUI({ agentConfig }) {
                   <div className={`
                     px-4 py-3 shadow-sm text-[15px] leading-relaxed
                     ${isUser 
-                      ? `${colorTheme.bg} text-white rounded-2xl rounded-br-sm` 
+                      ? `${colorTheme.bg} text-text-primary rounded-2xl rounded-br-sm` 
                       : isError
                         ? 'bg-red-900/20 text-text-primary border border-red-800/50 rounded-2xl rounded-bl-sm'
                         : 'bg-surface text-text-primary border border-border rounded-2xl rounded-bl-sm'
@@ -299,7 +299,7 @@ export default function AgentChatUI({ agentConfig }) {
           {/* TYPING INDICATOR */}
           {isTyping && (
             <div className="flex w-full justify-start msg-enter">
-              <div className={`w-8 h-8 rounded-full ${colorTheme.bg} text-white flex items-center justify-center text-sm flex-shrink-0 mr-3 mt-1 shadow-sm`}>
+              <div className={`w-8 h-8 rounded-full ${colorTheme.bg} text-text-primary flex items-center justify-center text-sm flex-shrink-0 mr-3 mt-1 shadow-sm`}>
                 {icon}
               </div>
               <div className="bg-surface border border-border rounded-2xl rounded-bl-sm px-4 py-4 shadow-sm flex gap-1 items-center h-[46px]">
@@ -340,7 +340,7 @@ export default function AgentChatUI({ agentConfig }) {
               onKeyDown={handleKeyDown}
               disabled={isTyping}
               placeholder="Ask me anything..."
-              className="flex-1 max-h-32 min-h-[40px] bg-transparent border-none focus:ring-0 resize-none py-2 px-3 text-text-primary placeholder-[#8b949e]"
+              className="flex-1 max-h-32 min-h-[40px] bg-transparent border-none focus:ring-0 resize-none py-2 px-3 text-text-primary placeholder-[#475569]"
               rows={1}
               style={{
                 height: inputText.length === 0 ? '40px' : 'auto'
@@ -352,8 +352,8 @@ export default function AgentChatUI({ agentConfig }) {
               className={`
                 w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 transition-all
                 ${!inputText.trim() || isTyping 
-                  ? 'bg-[#30363d] text-text-secondary cursor-not-allowed' 
-                  : `${colorTheme.bg} text-white shadow-md transform hover:scale-105 active:scale-95`
+                  ? 'bg-[#C7D2FE] text-text-secondary cursor-not-allowed' 
+                  : `${colorTheme.bg} text-text-primary shadow-md transform hover:scale-105 active:scale-95`
                 }
               `}
             >

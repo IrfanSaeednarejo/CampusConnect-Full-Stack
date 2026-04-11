@@ -34,13 +34,13 @@ export default function MentorUserMenu({ avatarSrc }) {
         aria-haspopup="true"
         aria-expanded={isOpen}
       >
-        <Avatar 
-          src={avatarSrc} 
-          size="10" 
-          border 
-          className={`group-hover:border-[#1dc964] transition-colors ${isOpen ? 'border-[#1dc964]' : ''}`} 
+        <Avatar
+          src={avatarSrc}
+          size="10"
+          border
+          className={`group-hover:border-primary transition-colors ${isOpen ? 'border-primary' : ''}`}
         />
-        <span className="material-symbols-outlined text-text-secondary group-hover:text-white transition-colors text-sm">
+        <span className="material-symbols-outlined text-text-secondary group-hover:text-text-primary transition-colors text-sm">
           {isOpen ? 'expand_less' : 'expand_more'}
         </span>
       </button>
@@ -50,7 +50,7 @@ export default function MentorUserMenu({ avatarSrc }) {
         <div className="absolute right-0 mt-3 w-56 bg-surface border border-border rounded-xl shadow-2xl overflow-hidden z-[110] animate-in fade-in slide-in-from-top-2 duration-200">
           {/* User Info Header */}
           <div className="px-4 py-3 border-b border-border bg-background/50">
-            <p className="text-sm font-bold text-white truncate">{user?.name || "Mentor"}</p>
+            <p className="text-sm font-bold text-text-primary truncate">{user?.name || "Mentor"}</p>
             <p className="text-[11px] text-text-secondary truncate">{user?.email}</p>
           </div>
 
@@ -60,18 +60,18 @@ export default function MentorUserMenu({ avatarSrc }) {
                 setIsOpen(false);
                 navigate("/mentor-profile-view");
               }}
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-text-primary hover:bg-[#30363d] hover:text-white transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-text-primary hover:bg-surface-hover transition-colors"
             >
               <span className="material-symbols-outlined text-lg">person</span>
               View Profile
             </button>
-            
+
             <button
               onClick={() => {
                 setIsOpen(false);
                 openModal(MODAL_TYPES.EDIT_PROFILE);
               }}
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-text-primary hover:bg-[#30363d] hover:text-white transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-text-primary hover:bg-surface-hover transition-colors"
             >
               <span className="material-symbols-outlined text-lg">edit</span>
               Edit Profile
@@ -82,7 +82,7 @@ export default function MentorUserMenu({ avatarSrc }) {
                 setIsOpen(false);
                 navigate("/mentor/dashboard");
               }}
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-text-primary hover:bg-[#30363d] hover:text-white transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-text-primary hover:bg-surface-hover transition-colors"
             >
               <span className="material-symbols-outlined text-lg">dashboard</span>
               Dashboard
@@ -92,7 +92,7 @@ export default function MentorUserMenu({ avatarSrc }) {
           <div className="py-2 border-t border-border">
             <button
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#f85149] hover:bg-[#f85149]/10 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#DC2626] hover:bg-[#DC2626]/10 transition-colors"
             >
               <span className="material-symbols-outlined text-lg">logout</span>
               Sign Out

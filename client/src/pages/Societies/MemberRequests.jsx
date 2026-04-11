@@ -91,13 +91,13 @@ export default function MemberRequests() {
     req.memberId?.profile?.displayName ||
     req.memberId?.profile?.firstName ||
     req.name || "Unknown User";
-  
+
   const getMemberEmail = (req) =>
     req.memberId?.email || req.email || "";
-  
+
   const getMemberAvatar = (req) =>
     req.memberId?.profile?.avatar || req.image || "";
-  
+
   const getMemberDate = (req) => {
     const d = req.joinedAt || req.createdAt || req.requestDate;
     if (!d) return "";
@@ -111,7 +111,7 @@ export default function MemberRequests() {
   const getMemberId = (req) => req.memberId?._id || req.memberId || req._id;
 
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="min-h-screen bg-background text-text-primary">
       <SocietyPageHeader
         title="Member Requests"
         subtitle="Review and approve new members"
@@ -119,7 +119,7 @@ export default function MemberRequests() {
         backPath="/society/dashboard"
         action={
           pendingRequests.length > 0 ? (
-            <span className="px-4 py-2 rounded-full bg-primary/20 text-[#1dc964] font-bold">
+            <span className="px-4 py-2 rounded-full bg-primary/20 text-primary font-bold">
               {pendingRequests.length} Pending
             </span>
           ) : null
@@ -129,14 +129,14 @@ export default function MemberRequests() {
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading ? (
           <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1dc964]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
           </div>
         ) : pendingRequests.length === 0 ? (
           <div className="bg-surface border border-border rounded-lg p-12 text-center">
-            <span className="material-symbols-outlined text-6xl text-[#29382f] block mb-4">
+            <span className="material-symbols-outlined text-6xl text-text-secondary/40 block mb-4">
               inbox
             </span>
-            <h3 className="text-xl font-semibold text-white mb-2">
+            <h3 className="text-xl font-semibold text-text-primary mb-2">
               No pending requests
             </h3>
             <p className="text-text-secondary">
@@ -153,17 +153,17 @@ export default function MemberRequests() {
               return (
                 <div
                   key={mid}
-                  className="bg-surface border border-border rounded-lg p-6 hover:border-[#1dc964]/50 transition-colors"
+                  className="bg-surface border border-border rounded-lg p-6 hover:border-primary/50 transition-colors"
                 >
                   <div className="flex items-start gap-6">
                     {/* Avatar */}
                     {avatar ? (
                       <div
-                        className="w-16 h-16 rounded-full bg-cover bg-center flex-shrink-0 ring-2 ring-[#29382f]"
+                        className="w-16 h-16 rounded-full bg-cover bg-center flex-shrink-0 ring-2 ring-border"
                         style={{ backgroundImage: `url("${avatar}")` }}
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#1dc964] to-[#238636] flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
+                      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-[#4F46E5] flex items-center justify-center text-white text-2xl font-bold flex-shrink-0">
                         {initial}
                       </div>
                     )}
@@ -171,7 +171,7 @@ export default function MemberRequests() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h3 className="text-white font-bold text-lg mb-1">
+                          <h3 className="text-text-primary font-bold text-lg mb-1">
                             {getMemberName(request)}
                           </h3>
                           {getMemberEmail(request) && (
@@ -211,7 +211,7 @@ export default function MemberRequests() {
                           className="flex-1 px-6 py-2 rounded-lg bg-primary text-white font-bold hover:bg-primary/90 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                         >
                           {actionLoading === mid ? (
-                            <div className="w-4 h-4 border-2 border-[#111714] border-t-transparent rounded-full animate-spin" />
+                            <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
                           ) : (
                             <span className="material-symbols-outlined text-sm">
                               check_circle
@@ -242,7 +242,7 @@ export default function MemberRequests() {
         {pendingRequests.length > 0 && (
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="bg-surface border border-border rounded-lg p-4 text-center">
-              <div className="text-3xl font-bold text-[#1dc964]">
+              <div className="text-3xl font-bold text-primary">
                 {pendingRequests.length}
               </div>
               <div className="text-sm text-text-secondary mt-1">
@@ -250,7 +250,7 @@ export default function MemberRequests() {
               </div>
             </div>
             <div className="bg-surface border border-border rounded-lg p-4 text-center">
-              <div className="text-3xl font-bold text-[#1dc964]">
+              <div className="text-3xl font-bold text-primary">
                 {new Set(pendingRequests.map(r => r.societyName)).size}
               </div>
               <div className="text-sm text-text-secondary mt-1">Societies</div>

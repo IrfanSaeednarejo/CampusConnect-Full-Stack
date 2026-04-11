@@ -12,7 +12,7 @@ export default function Input({
   const isTextarea = type === "textarea" || rows;
 
   const inputClasses =
-    "w-full px-3 py-2 rounded bg-background border border-border text-[#e6edf3] text-sm placeholder-[#8b949e] focus:outline-none focus:border-primary";
+    "w-full px-3 py-2 rounded bg-background border border-border text-text-primary text-sm placeholder-[#475569] focus:outline-none focus:border-primary";
 
   return (
     <div className={className}>

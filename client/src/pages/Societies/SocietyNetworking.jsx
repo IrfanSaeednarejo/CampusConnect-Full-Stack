@@ -105,7 +105,7 @@ export default function SocietyNetworking() {
   }, [members]);
 
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="min-h-screen bg-background text-text-primary">
       <SocietyPageHeader
         title="Networking Hub"
         subtitle="Connect with society members and alumni"
@@ -118,7 +118,7 @@ export default function SocietyNetworking() {
               placeholder="Search members..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="px-4 py-2 rounded-lg bg-background border border-border text-white placeholder-[#9eb7a9] focus:outline-none focus:border-[#1dc964] w-64"
+              className="px-4 py-2 rounded-lg bg-background border border-border text-text-primary placeholder-text-secondary/50 focus:outline-none focus:border-primary w-64"
             />
             <span className="material-symbols-outlined absolute right-3 top-2.5 text-text-secondary">
               search
@@ -133,11 +133,10 @@ export default function SocietyNetworking() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === "all"
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${filter === "all"
                   ? "bg-primary text-white"
-                  : "bg-surface text-text-secondary hover:bg-surface/80 hover:text-white"
-              }`}
+                  : "bg-surface text-text-secondary hover:bg-surface/80 hover:text-text-primary"
+                }`}
             >
               All Members ({members.length})
             </button>
@@ -145,11 +144,10 @@ export default function SocietyNetworking() {
               <button
                 key={role}
                 onClick={() => setFilter(role)}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${
-                  filter === role
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize ${filter === role
                     ? "bg-primary text-white"
-                    : "bg-surface text-text-secondary hover:bg-surface/80 hover:text-white"
-                }`}
+                    : "bg-surface text-text-secondary hover:bg-surface/80 hover:text-text-primary"
+                  }`}
               >
                 {role} ({members.filter((m) => getMemberRole(m) === role).length}
                 )
@@ -160,14 +158,14 @@ export default function SocietyNetworking() {
 
         {loading ? (
           <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1dc964]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
           </div>
         ) : filteredMembers.length === 0 ? (
           <div className="bg-surface border border-border rounded-lg p-12 text-center">
-            <span className="material-symbols-outlined text-6xl text-[#29382f] block mb-4">
+            <span className="material-symbols-outlined text-6xl text-text-secondary/40 block mb-4">
               group
             </span>
-            <h3 className="text-xl font-semibold text-white mb-2">
+            <h3 className="text-xl font-semibold text-text-primary mb-2">
               No members found
             </h3>
             <p className="text-text-secondary">
@@ -196,13 +194,13 @@ export default function SocietyNetworking() {
               return (
                 <div
                   key={mid}
-                  className="bg-surface border border-border rounded-lg p-6 hover:border-[#1dc964]/50 transition-colors"
+                  className="bg-surface border border-border rounded-lg p-6 hover:border-primary/50 transition-colors"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="relative">
                       {avatar ? (
                         <div
-                          className="w-16 h-16 rounded-full bg-cover bg-center ring-2 ring-[#29382f]"
+                          className="w-16 h-16 rounded-full bg-cover bg-center ring-2 ring-border"
                           style={{
                             backgroundImage: `url("${avatar}")`,
                           }}
@@ -216,18 +214,17 @@ export default function SocietyNetworking() {
                       )}
                     </div>
                     <span
-                      className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${
-                        getMemberRole(member) === "head" || getMemberRole(member) === "admin"
+                      className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${getMemberRole(member) === "head" || getMemberRole(member) === "admin"
                           ? "bg-purple-500/20 text-purple-400"
                           : getMemberRole(member) === "moderator"
-                          ? "bg-blue-500/20 text-blue-400"
-                          : "bg-primary/20 text-[#1dc964]"
-                      }`}
+                            ? "bg-blue-500/20 text-blue-400"
+                            : "bg-primary/20 text-primary"
+                        }`}
                     >
                       {getMemberRole(member)}
                     </span>
                   </div>
-                  <h3 className="text-white font-bold text-lg mb-1">
+                  <h3 className="text-text-primary font-bold text-lg mb-1">
                     {name}
                   </h3>
                   {getMemberEmail(member) && (
@@ -263,11 +260,11 @@ export default function SocietyNetworking() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-text-secondary text-sm mb-1">Total Members</p>
-                <p className="text-3xl font-bold text-white">
+                <p className="text-3xl font-bold text-text-primary">
                   {members.length}
                 </p>
               </div>
-              <span className="material-symbols-outlined text-[#1dc964] text-4xl">
+              <span className="material-symbols-outlined text-primary text-4xl">
                 group
               </span>
             </div>
@@ -276,11 +273,11 @@ export default function SocietyNetworking() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-text-secondary text-sm mb-1">Unique Roles</p>
-                <p className="text-3xl font-bold text-white">
+                <p className="text-3xl font-bold text-text-primary">
                   {roles.length}
                 </p>
               </div>
-              <span className="material-symbols-outlined text-[#1dc964] text-4xl">
+              <span className="material-symbols-outlined text-primary text-4xl">
                 diversity_3
               </span>
             </div>
@@ -289,11 +286,11 @@ export default function SocietyNetworking() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-text-secondary text-sm mb-1">Societies</p>
-                <p className="text-3xl font-bold text-white">
+                <p className="text-3xl font-bold text-text-primary">
                   {new Set(members.map((m) => m.societyName)).size}
                 </p>
               </div>
-              <span className="material-symbols-outlined text-[#1dc964] text-4xl">
+              <span className="material-symbols-outlined text-primary text-4xl">
                 apartment
               </span>
             </div>

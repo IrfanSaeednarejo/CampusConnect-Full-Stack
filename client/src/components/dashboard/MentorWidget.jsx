@@ -13,7 +13,7 @@ export default function MentorWidget({
 			className={`flex flex-col gap-4 p-6 bg-surface border border-border rounded-xl ${className}`}
 		>
 			<div className={`flex items-center justify-between mb-2 ${headerClassName}`}>
-				<h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">
+				<h2 className="text-text-primary text-[22px] font-bold leading-tight tracking-[-0.015em]">
 					{title}
 				</h2>
 				{(actionLabel || actionIcon) && (

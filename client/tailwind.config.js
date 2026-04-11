@@ -11,19 +11,19 @@ export default {
         surface: {
           DEFAULT: "var(--bg-surface)",
           hover: "var(--bg-surface-hover)",
-          dark: "#161b22",
+          dark: "#E0E7FF",
         },
         border: {
           DEFAULT: "var(--border-default)",
           hover: "var(--border-hover)",
-          dark: "#30363d",
+          dark: "#C7D2FE",
         },
         text: {
           primary: "var(--text-primary)",
           secondary: "var(--text-secondary)",
           tertiary: "var(--text-tertiary)",
-          "primary-dark": "#c9d1d9",
-          "secondary-dark": "#8b949e",
+          "primary-dark": "#0F172A",
+          "secondary-dark": "#475569",
         },
         primary: {
           DEFAULT: "var(--accent-primary)",

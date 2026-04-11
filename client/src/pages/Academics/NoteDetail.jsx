@@ -33,7 +33,7 @@ export default function NoteDetail() {
                   <span className="material-symbols-outlined text-[#57606a] dark:text-text-secondary cursor-pointer">
                     share
                   </span>
-                  <div className="absolute bottom-full mb-2 w-max max-w-xs px-3 py-2 text-xs font-medium text-white bg-gray-900 rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-opacity dark:bg-gray-700 whitespace-nowrap">
+                  <div className="absolute bottom-full mb-2 w-max max-w-xs px-3 py-2 text-xs font-medium text-text-primary bg-surface border border-border rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-opacity dark:bg-surface hover:bg-surface-hover border border-border whitespace-nowrap">
                     You can share this note in your study group.
                     <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-gray-900 dark:border-t-gray-700"></div>
                   </div>
@@ -43,7 +43,7 @@ export default function NoteDetail() {
                     alert("Downloading note: CS101 Lecture 5 Recap");
                     // Download logic here
                   }}
-                  className="px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-surface border border-[#d0d7de] dark:border-border rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 flex items-center gap-2"
+                  className="px-4 py-2 text-sm font-medium bg-gray-100 dark:bg-surface border border-[#d0d7de] dark:border-border rounded-lg hover:bg-gray-200 dark:hover:bg-surface hover:bg-surface-hover border border-border flex items-center gap-2"
                 >
                   <span className="material-symbols-outlined text-base">
                     download
@@ -57,7 +57,7 @@ export default function NoteDetail() {
                       navigate("/academics/notes");
                     }
                   }}
-                  className="px-4 py-2 text-sm font-medium text-danger bg-danger/10 border border-[#da3633]/20 rounded-lg hover:bg-danger/20"
+                  className="px-4 py-2 text-sm font-medium text-danger bg-danger/10 border border-[#EF4444]/20 rounded-lg hover:bg-danger/20"
                 >
                   Delete
                 </button>
@@ -102,7 +102,7 @@ export default function NoteDetail() {
       {/* Edit Modal */}
       {isEditMode && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4"
           id="edit-modal"
         >
           <div className="w-full max-w-4xl h-[90vh] bg-background border border-border rounded-xl flex flex-col shadow-2xl">
@@ -116,7 +116,7 @@ export default function NoteDetail() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setIsEditMode(false)}
-                  className="px-4 py-2 text-sm font-medium bg-surface border border-border rounded-lg hover:bg-gray-800"
+                  className="px-4 py-2 text-sm font-medium bg-surface border border-border rounded-lg hover:bg-surface border border-border"
                 >
                   Cancel
                 </button>
@@ -131,8 +131,8 @@ export default function NoteDetail() {
             <div className="flex flex-col flex-grow min-h-0">
               <div className="p-2 border-b border-border flex-shrink-0">
                 <NoteEditorToolbar
-                  buttonClassName="p-2 rounded hover:bg-gray-800"
-                  dividerClassName="w-px h-5 bg-[#30363d] mx-1"
+                  buttonClassName="p-2 rounded hover:bg-surface border border-border"
+                  dividerClassName="w-px h-5 bg-[#C7D2FE] mx-1"
                 />
               </div>
               <div className="flex-grow overflow-y-auto">

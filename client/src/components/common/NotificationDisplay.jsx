@@ -105,11 +105,11 @@ export default function NotificationDisplay() {
  * Get Tailwind classes for notification type
  */
 function getNotificationStyles(type) {
-  const baseStyles = "text-white";
+  const baseStyles = "text-text-primary";
 
   switch (type) {
     case "success":
-      return `${baseStyles} bg-green-600 border-green-700`;
+      return `${baseStyles} bg-primary border-green-700`;
     case "error":
       return `${baseStyles} bg-red-600 border-red-700`;
     case "warning":
@@ -117,6 +117,6 @@ function getNotificationStyles(type) {
     case "info":
       return `${baseStyles} bg-blue-600 border-blue-700`;
     default:
-      return `${baseStyles} bg-gray-600 border-gray-700`;
+      return `${baseStyles} bg-surface hover:bg-surface-hover border border-border border-border`;
   }
 }

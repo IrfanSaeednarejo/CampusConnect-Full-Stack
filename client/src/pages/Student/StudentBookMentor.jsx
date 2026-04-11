@@ -19,11 +19,11 @@ export default function StudentBookMentor() {
     <div className="w-full bg-background text-text-primary min-h-screen">
       <header className="flex items-center justify-between border-b border-border px-6 py-3 sticky top-0 bg-background z-40">
         <div className="flex items-center gap-8">
-          <button onClick={() => navigate("/student/dashboard")} className="text-white hover:text-primary transition-colors">
+          <button onClick={() => navigate("/student/dashboard")} className="text-text-primary hover:text-primary transition-colors">
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <div className="flex items-center gap-4 text-white">
-            <h2 className="text-white text-lg font-bold">CampusConnect Mentors</h2>
+          <div className="flex items-center gap-4 text-text-primary">
+            <h2 className="text-text-primary text-lg font-bold">CampusConnect Mentors</h2>
           </div>
         </div>
       </header>
@@ -31,7 +31,7 @@ export default function StudentBookMentor() {
       <main className="px-4 sm:px-10 lg:px-20 py-5 md:py-10 max-w-6xl mx-auto">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 border-b border-border pb-8">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Find a Mentor</h1>
+            <h1 className="text-4xl font-bold text-text-primary mb-2">Find a Mentor</h1>
             <p className="text-text-secondary">Browse industry experts and book personalized 1-on-1 sessions.</p>
           </div>
         </div>
@@ -47,22 +47,22 @@ export default function StudentBookMentor() {
         {status === "succeeded" && mentors.length === 0 ? (
           <div className="bg-surface border border-border rounded-xl p-16 flex flex-col items-center justify-center text-center">
             <span className="material-symbols-outlined text-6xl text-text-secondary mb-4">person_off</span>
-            <h3 className="text-xl font-bold text-white mb-2">No mentors available</h3>
+            <h3 className="text-xl font-bold text-text-primary mb-2">No mentors available</h3>
             <p className="text-text-secondary">Please check back later.</p>
           </div>
         ) : status === "succeeded" ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mentors.map((mentor) => (
-              <div key={mentor._id} className="bg-surface border border-border rounded-xl p-6 flex flex-col hover:border-primary/50 hover:shadow-lg hover:shadow-[#238636]/5 transition-all duration-300 group">
+              <div key={mentor._id} className="bg-surface border border-border rounded-xl p-6 flex flex-col hover:border-primary/50 hover:shadow-lg hover:shadow-[#4F46E5]/5 transition-all duration-300 group">
                 <div className="flex gap-4 mb-4">
                   <div
-                    className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#238636]/40 to-[#1f6feb]/40 border-2 border-border group-hover:border-primary/60 flex items-center justify-center flex-shrink-0 text-white font-bold text-xl bg-cover bg-center transition-colors"
+                    className="w-16 h-16 rounded-full bg-gradient-to-tr from-[#4F46E5]/40 to-[#1f6feb]/40 border-2 border-border group-hover:border-primary/60 flex items-center justify-center flex-shrink-0 text-white font-bold text-xl bg-cover bg-center transition-colors"
                     style={mentor.avatar ? { backgroundImage: `url("${mentor.avatar}")` } : undefined}
                   >
                     {!mentor.avatar && mentor.name.charAt(0).toUpperCase()}
                   </div>
                   <div className="min-w-0">
-                    <h3 className="text-white font-bold text-lg leading-tight capitalize truncate">{mentor.name}</h3>
+                    <h3 className="text-text-primary font-bold text-lg leading-tight capitalize truncate">{mentor.name}</h3>
                     <p className="text-text-secondary text-sm truncate">{mentor.department || 'CampusConnect Mentor'}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <div className="flex items-center gap-1 text-[#d29922] text-sm font-bold">
@@ -80,7 +80,7 @@ export default function StudentBookMentor() {
 
                 <div className="flex flex-wrap gap-2 mb-4">
                   {mentor.expertise.slice(0, 4).map((tag, idx) => (
-                    <span key={idx} className="bg-primary/10 text-[#3fb950] text-xs px-2.5 py-1 rounded-full border border-primary/20 capitalize">
+                    <span key={idx} className="bg-primary/10 text-primary text-xs px-2.5 py-1 rounded-full border border-primary/20 capitalize">
                       {tag}
                     </span>
                   ))}
@@ -89,7 +89,7 @@ export default function StudentBookMentor() {
                   )}
                 </div>
 
-                <div className="flex items-center justify-between mt-auto pt-4 border-t border-[#21262d]">
+                <div className="flex items-center justify-between mt-auto pt-4 border-t border-[#E0E7FF]">
                   <span className="text-text-secondary text-sm font-medium">
                     {mentor.hourlyRate > 0 ? `${mentor.currency} ${mentor.hourlyRate}/hr` : 'Free'}
                   </span>

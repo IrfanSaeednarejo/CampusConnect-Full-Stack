@@ -46,8 +46,8 @@ export default function MentorVerification() {
         <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-background">
             <div className="max-w-5xl mx-auto">
                 <header className="mb-6">
-                    <h1 className="text-3xl font-bold text-white">Mentor Verification</h1>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <h1 className="text-3xl font-bold text-text-primary">Mentor Verification</h1>
+                    <p className="text-sm text-text-secondary mt-1">
                         Review and approve pending mentor applications
                     </p>
                 </header>
@@ -59,7 +59,7 @@ export default function MentorVerification() {
                 ) : pendingMentors.length === 0 ? (
                     <div className="bg-surface border border-border rounded-lg p-12 text-center">
                         <span className="text-5xl block mb-4">✅</span>
-                        <p className="text-white text-lg font-semibold">All caught up!</p>
+                        <p className="text-text-primary text-lg font-semibold">All caught up!</p>
                         <p className="text-text-secondary mt-2">No pending mentor applications to review.</p>
                     </div>
                 ) : (
@@ -83,7 +83,7 @@ export default function MentorVerification() {
                                                 </div>
                                             )}
                                             <div>
-                                                <h3 className="text-white font-semibold capitalize">{name}</h3>
+                                                <h3 className="text-text-primary font-semibold capitalize">{name}</h3>
                                                 <p className="text-text-secondary text-sm">{user.email}</p>
                                                 <p className="text-text-secondary text-xs mt-1">{dept} • Applied {new Date(user.createdAt).toLocaleDateString()}</p>
                                             </div>
@@ -114,7 +114,7 @@ export default function MentorVerification() {
                                                 placeholder="Reason for rejection (optional)..."
                                                 value={rejectReason}
                                                 onChange={(e) => setRejectReason(e.target.value)}
-                                                className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-white text-sm placeholder:text-text-secondary"
+                                                className="flex-1 bg-background border border-border rounded-lg px-3 py-2 text-text-primary text-sm placeholder:text-text-secondary"
                                             />
                                             <button
                                                 onClick={() => handleReject(user._id)}

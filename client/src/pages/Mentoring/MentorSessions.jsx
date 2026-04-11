@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { 
-  selectScheduledSessions, 
-  selectCompletedSessions, 
+import {
+  selectScheduledSessions,
+  selectCompletedSessions,
   fetchSessionsThunk,
   confirmSessionThunk,
   completeSessionThunk,
@@ -20,7 +20,7 @@ export default function MentorSessions() {
   const scheduledSessions = useSelector(selectScheduledSessions);
   const completedSessions = useSelector(selectCompletedSessions);
   const loading = useSelector(selectMentoringLoading);
-  
+
   const [activeTab, setActiveTab] = useState("scheduled");
 
   useEffect(() => {
@@ -66,7 +66,7 @@ export default function MentorSessions() {
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-background">
       <div className="layout-container flex h-full grow flex-col">
         {/* TopNavBar */}
         <MentorTopBar backPath="/mentor/dashboard" />
@@ -76,7 +76,7 @@ export default function MentorSessions() {
           <div className="layout-content-container flex flex-col w-full max-w-5xl flex-1">
             {/* Page Heading */}
             <div className="mb-8">
-              <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
+              <h1 className="text-text-primary text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                 My Mentoring Sessions
               </h1>
               <p className="text-text-secondary text-base font-normal leading-normal">
@@ -88,11 +88,10 @@ export default function MentorSessions() {
             <div className="flex gap-4 mb-6 border-b border-border">
               <button
                 onClick={() => setActiveTab("scheduled")}
-                className={`px-4 py-3 font-medium transition-colors flex items-center gap-2 ${
-                  activeTab === "scheduled"
-                    ? "text-[#1dc964] border-b-2 border-[#1dc964]"
-                    : "text-text-secondary hover:text-white"
-                }`}
+                className={`px-4 py-3 font-medium transition-colors flex items-center gap-2 ${activeTab === "scheduled"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-text-secondary hover:text-text-primary"
+                  }`}
               >
                 <span className="material-symbols-outlined">
                   calendar_month
@@ -101,11 +100,10 @@ export default function MentorSessions() {
               </button>
               <button
                 onClick={() => setActiveTab("completed")}
-                className={`px-4 py-3 font-medium transition-colors flex items-center gap-2 ${
-                  activeTab === "completed"
-                    ? "text-[#1dc964] border-b-2 border-[#1dc964]"
-                    : "text-text-secondary hover:text-white"
-                }`}
+                className={`px-4 py-3 font-medium transition-colors flex items-center gap-2 ${activeTab === "completed"
+                    ? "text-primary border-b-2 border-primary"
+                    : "text-text-secondary hover:text-text-primary"
+                  }`}
               >
                 <span className="material-symbols-outlined">check_circle</span>
                 Completed
@@ -116,7 +114,7 @@ export default function MentorSessions() {
             <div className="space-y-4">
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-20">
-                  <div className="w-10 h-10 border-4 border-[#1dc964] border-t-transparent rounded-full animate-spin mb-4"></div>
+                  <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4"></div>
                   <p className="text-text-secondary">Loading sessions...</p>
                 </div>
               ) : activeTab === "scheduled" ? (
@@ -124,7 +122,7 @@ export default function MentorSessions() {
                   scheduledSessions.map((session) => (
                     <div
                       key={session._id}
-                      className="flex items-start justify-between p-5 bg-surface border border-border rounded-xl hover:border-[#1dc964] transition-colors"
+                      className="flex items-start justify-between p-5 bg-surface border border-border rounded-xl hover:border-primary transition-colors"
                     >
                       <div className="flex gap-4 flex-1">
                         <img
@@ -134,12 +132,11 @@ export default function MentorSessions() {
                         />
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <h3 className="text-white font-semibold text-lg">
+                            <h3 className="text-text-primary font-semibold text-lg">
                               {session.menteeId?.profile?.displayName || "Unknown Mentee"}
                             </h3>
-                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${
-                              session.status === 'confirmed' ? 'bg-[#1dc96422] text-[#1dc964]' : 'bg-[#e3b34122] text-[#e3b341]'
-                            }`}>
+                            <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase ${session.status === 'confirmed' ? 'bg-primary/10 text-primary' : 'bg-[#F59E0B22] text-[#F59E0B]'
+                              }`}>
                               {session.status}
                             </span>
                           </div>
@@ -170,7 +167,7 @@ export default function MentorSessions() {
                       </div>
                       <div className="flex flex-col sm:flex-row gap-2 ml-4">
                         {session.status === 'pending' ? (
-                          <button 
+                          <button
                             onClick={() => handleConfirm(session._id)}
                             className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white font-bold rounded hover:opacity-90 transition-opacity"
                           >
@@ -181,19 +178,19 @@ export default function MentorSessions() {
                           <>
                             {/* If confirmed, show Join Meeting if link exists */}
                             {session.meetingLink ? (
-                              <a 
+                              <a
                                 href={session.meetingLink}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2 px-4 py-2 bg-[#3b82f6] text-white font-bold rounded hover:opacity-90 transition-opacity"
+                                className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white font-bold rounded hover:opacity-90 transition-opacity"
                               >
                                 <span className="material-symbols-outlined">videocam</span>
                                 Join
                               </a>
                             ) : (
-                              <button 
+                              <button
                                 disabled
-                                className="flex items-center justify-center gap-2 px-4 py-2 bg-[#30363d] text-text-secondary font-bold rounded cursor-not-allowed"
+                                className="flex items-center justify-center gap-2 px-4 py-2 bg-surface text-text-secondary font-bold rounded cursor-not-allowed border border-border"
                                 title="No meeting link provided"
                               >
                                 <span className="material-symbols-outlined">videocam_off</span>
@@ -203,7 +200,7 @@ export default function MentorSessions() {
 
                             {/* Only show Complete if session time has likely passed */}
                             {new Date() > new Date(session.endAt) && (
-                              <button 
+                              <button
                                 onClick={() => handleComplete(session._id)}
                                 className="flex items-center justify-center gap-2 px-4 py-2 bg-primary text-white font-bold rounded hover:opacity-90 transition-opacity"
                               >
@@ -213,9 +210,9 @@ export default function MentorSessions() {
                             )}
                           </>
                         )}
-                        <button 
+                        <button
                           onClick={() => handleCancel(session._id)}
-                          className="flex items-center gap-2 px-4 py-2 bg-[#30363d] text-white rounded hover:bg-[#ff444455] hover:text-[#ff4444] transition-all"
+                          className="flex items-center gap-2 px-4 py-2 bg-surface text-text-primary rounded hover:bg-[#ff444455] hover:text-[#ff4444] transition-all border border-border"
                         >
                           <span className="material-symbols-outlined">cancel</span>
                           Cancel
@@ -224,7 +221,7 @@ export default function MentorSessions() {
                     </div>
                   ))
                 ) : (
-                  <EmptyState 
+                  <EmptyState
                     icon="calendar_today"
                     title="No scheduled sessions"
                     description="You don't have any upcoming mentoring sessions at the moment."
@@ -244,13 +241,13 @@ export default function MentorSessions() {
                       />
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1">
-                          <h3 className="text-white font-semibold text-lg">
+                          <h3 className="text-text-primary font-semibold text-lg">
                             {session.menteeId?.profile?.displayName || "Unknown Mentee"}
                           </h3>
                           {session.reviewId && (
                             <div className="flex items-center gap-1">
                               {[...Array(5)].map((_, i) => (
-                                <span key={i} className={i < (session.reviewId.rating || 0) ? "text-yellow-400" : "text-[#30363d]"}>
+                                <span key={i} className={i < (session.reviewId.rating || 0) ? "text-yellow-400" : "text-border"}>
                                   ★
                                 </span>
                               ))}
@@ -284,7 +281,7 @@ export default function MentorSessions() {
                   </div>
                 ))
               ) : (
-                <EmptyState 
+                <EmptyState
                   icon="check_circle"
                   title="No completed sessions"
                   description="Sessions you complete will appear here along with mentee feedback."

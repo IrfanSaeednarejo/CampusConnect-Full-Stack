@@ -161,6 +161,11 @@ const searchUsers = asyncHandler(async (req, res) => {
     );
 });
 
+const completeOnboarding = asyncHandler(async (req, res) => {
+    const updated = await userService.completeOnboarding(req.params.userId || req.user._id, req.body);
+    return res.status(200).json(new ApiResponse(200, updated, "Onboarding completed successfully"));
+});
+
 export {
     registerUser,
     sendEmailVerification,
@@ -183,4 +188,5 @@ export {
     softDeleteAccount,
     getUserSocieties,
     searchUsers,
+    completeOnboarding,
 };

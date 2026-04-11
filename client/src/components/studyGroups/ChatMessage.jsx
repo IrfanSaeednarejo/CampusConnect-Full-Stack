@@ -23,7 +23,7 @@ export default function ChatMessage({ message, isOwn }) {
         <p className="text-sm break-words">{message.message}</p>
         <p
           className={`text-xs mt-1 ${
-            isOwn ? "text-white/70" : "text-text-secondary"
+            isOwn ? "text-text-primary/70" : "text-text-secondary"
           }`}
         >
           {message.timestamp}

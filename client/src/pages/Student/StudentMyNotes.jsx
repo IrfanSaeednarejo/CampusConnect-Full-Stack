@@ -19,82 +19,82 @@ export default function StudentMyNotes() {
               <div className="flex flex-col gap-4">
                 <Link
                   to="/academics/notes/1"
-                  className="flex items-center justify-between p-6 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#17cf60]/50 transition-all group"
+                  className="flex items-center justify-between p-6 rounded-lg bg-surface border border-border hover:bg-surface border border-border border border-border hover:border-primary/50 transition-all group"
                 >
                   <div className="flex flex-1 items-center gap-4">
-                    <span className="material-symbols-outlined text-[#17cf60] text-3xl">
+                    <span className="material-symbols-outlined text-primary text-3xl">
                       description
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-white font-bold text-lg group-hover:text-[#17cf60] transition-colors">
+                      <h3 className="text-text-primary font-bold text-lg group-hover:text-primary transition-colors">
                         Advanced Calculus - Integration Techniques
                       </h3>
-                      <p className="text-white/60 text-sm mt-1">
+                      <p className="text-text-primary/60 text-sm mt-1">
                         Created on Oct 20, 2025 • Last edited 2 hours ago
                       </p>
                     </div>
                   </div>
-                  <span className="text-white/40 text-sm ml-4">→</span>
+                  <span className="text-text-primary/40 text-sm ml-4">→</span>
                 </Link>
 
                 <Link
                   to="/academics/notes/2"
-                  className="flex items-center justify-between p-6 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#17cf60]/50 transition-all group"
+                  className="flex items-center justify-between p-6 rounded-lg bg-surface border border-border hover:bg-surface border border-border border border-border hover:border-primary/50 transition-all group"
                 >
                   <div className="flex flex-1 items-center gap-4">
                     <span className="material-symbols-outlined text-blue-400 text-3xl">
                       description
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-white font-bold text-lg group-hover:text-[#17cf60] transition-colors">
+                      <h3 className="text-text-primary font-bold text-lg group-hover:text-primary transition-colors">
                         Literature Review - Shakespeare's Sonnets
                       </h3>
-                      <p className="text-white/60 text-sm mt-1">
+                      <p className="text-text-primary/60 text-sm mt-1">
                         Created on Oct 18, 2025 • Last edited 5 days ago
                       </p>
                     </div>
                   </div>
-                  <span className="text-white/40 text-sm ml-4">→</span>
+                  <span className="text-text-primary/40 text-sm ml-4">→</span>
                 </Link>
 
                 <Link
                   to="/academics/notes/3"
-                  className="flex items-center justify-between p-6 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#17cf60]/50 transition-all group"
+                  className="flex items-center justify-between p-6 rounded-lg bg-surface border border-border hover:bg-surface border border-border border border-border hover:border-primary/50 transition-all group"
                 >
                   <div className="flex flex-1 items-center gap-4">
                     <span className="material-symbols-outlined text-purple-400 text-3xl">
                       description
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-white font-bold text-lg group-hover:text-[#17cf60] transition-colors">
+                      <h3 className="text-text-primary font-bold text-lg group-hover:text-primary transition-colors">
                         History: World War II Timeline
                       </h3>
-                      <p className="text-white/60 text-sm mt-1">
+                      <p className="text-text-primary/60 text-sm mt-1">
                         Created on Oct 12, 2025 • Last edited 1 week ago
                       </p>
                     </div>
                   </div>
-                  <span className="text-white/40 text-sm ml-4">→</span>
+                  <span className="text-text-primary/40 text-sm ml-4">→</span>
                 </Link>
 
                 <Link
                   to="/academics/notes/4"
-                  className="flex items-center justify-between p-6 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-[#17cf60]/50 transition-all group"
+                  className="flex items-center justify-between p-6 rounded-lg bg-surface border border-border hover:bg-surface border border-border border border-border hover:border-primary/50 transition-all group"
                 >
                   <div className="flex flex-1 items-center gap-4">
                     <span className="material-symbols-outlined text-green-400 text-3xl">
                       description
                     </span>
                     <div className="flex-1">
-                      <h3 className="text-white font-bold text-lg group-hover:text-[#17cf60] transition-colors">
+                      <h3 className="text-text-primary font-bold text-lg group-hover:text-primary transition-colors">
                         Biology Lab Notes - DNA Sequencing
                       </h3>
-                      <p className="text-white/60 text-sm mt-1">
+                      <p className="text-text-primary/60 text-sm mt-1">
                         Created on Oct 8, 2025 • Last edited 2 weeks ago
                       </p>
                     </div>
                   </div>
-                  <span className="text-white/40 text-sm ml-4">→</span>
+                  <span className="text-text-primary/40 text-sm ml-4">→</span>
                 </Link>
               </div>
             </div>

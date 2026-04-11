@@ -25,6 +25,7 @@ import {
     softDeleteAccount,
     getUserSocieties,
     searchUsers,
+    completeOnboarding,
 } from "../controllers/user.controller.js";
 
 const router = Router();
@@ -95,6 +96,10 @@ router
 router
     .route("/search")
     .get(verifyJWT, searchUsers);
+
+router
+    .route("/:userId/complete-onboarding")
+    .post(verifyJWT, completeOnboarding);
 
 router
     .route("/:userId/societies")

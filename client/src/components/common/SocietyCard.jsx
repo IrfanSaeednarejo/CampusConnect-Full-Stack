@@ -20,7 +20,7 @@ export default function SocietyCard({ society, className = "" }) {
       {/* Society Info */}
       <div className="p-4 flex flex-col gap-3">
         <div>
-          <h3 className="text-white text-lg font-bold leading-tight">
+          <h3 className="text-text-primary text-lg font-bold leading-tight">
             {society.name}
           </h3>
         </div>
@@ -53,8 +53,8 @@ export default function SocietyCard({ society, className = "" }) {
         <button
           className={`w-full flex items-center justify-center overflow-hidden rounded-lg h-9 px-4 gap-2 text-sm font-bold leading-normal tracking-[0.015em] transition-colors ${
             society.status === "registered"
-              ? "bg-[#30363d] text-text-primary hover:bg-[#3d444d]"
-              : "bg-primary text-[#0d1117] hover:bg-primary-hover"
+              ? "bg-[#C7D2FE] text-text-primary hover:bg-surface-hover"
+              : "bg-primary text-[#EEF2FF] hover:bg-primary-hover"
           }`}
         >
           <span className="material-symbols-outlined text-base">

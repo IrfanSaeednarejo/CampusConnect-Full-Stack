@@ -5,10 +5,10 @@ export default function VerificationPending() {
   const navigate = useNavigate();
 
   return (
-    <div className="relative flex min-h-screen w-full flex-col bg-[#112116] overflow-x-hidden">
+    <div className="relative flex min-h-screen w-full flex-col bg-background overflow-x-hidden">
       {/* Header */}
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-white/10 px-6 sm:px-10 lg:px-20 py-4">
-        <div className="flex items-center gap-4 text-white">
+      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-border px-6 sm:px-10 lg:px-20 py-4">
+        <div className="flex items-center gap-4 text-text-primary">
           <div className="size-6 text-[#20df60]">
             <svg
               fill="none"
@@ -26,13 +26,13 @@ export default function VerificationPending() {
           </h2>
         </div>
         <div className="flex items-center gap-4">
-          <button className="flex items-center justify-center rounded-lg h-10 w-10 bg-white/5 text-gray-400 hover:bg-white/10 transition-colors">
+          <button className="flex items-center justify-center rounded-lg h-10 w-10 bg-surface border border-border text-text-secondary hover:bg-surface border border-border transition-colors">
             <span className="material-symbols-outlined text-xl">
               notifications
             </span>
           </button>
           <Avatar
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuBsCR8JCZrNjBxIUHrbCh_RrUARldx_KD0SIQiEdoaiAxuyxNyE3mx4Neni-aXlQ-wvOwPEQsoZ-D-D41BS1evU_dcTmM7qg4xIoo0K0V4yNA7IrELWYvPdARuJu-FbUH3m307szO1nHrb-Y91i9U4arNskQNwi0jGpNOfVTpNwozGYL-bUjVGX7FXUUPexyCSw129bKqGOvw6kf8xbbrzgGC-EoAUR5mRfjX4mnIrNLbe2fzHHkzyyNg9Szw8eWgw0z5pECU0Ao6c"
+            src=""
             size="10"
           />
         </div>
@@ -44,7 +44,7 @@ export default function VerificationPending() {
           {/* Background Icon */}
           <div className="absolute inset-0 -z-10 flex items-center justify-center">
             <span
-              className="material-symbols-outlined text-white/5"
+              className="material-symbols-outlined text-text-primary/5"
               style={{ fontSize: "20rem" }}
             >
               hourglass_top
@@ -52,13 +52,13 @@ export default function VerificationPending() {
           </div>
 
           {/* Content Card */}
-          <div className="w-full flex flex-col items-center gap-8 rounded-xl border border-white/10 bg-white/[.02] p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
+          <div className="w-full flex flex-col items-center gap-8 rounded-xl border border-border bg-white/[.02] p-8 shadow-2xl shadow-black/20 backdrop-blur-sm">
             {/* Heading */}
             <div className="flex flex-col gap-3">
-              <p className="text-4xl font-black leading-tight tracking-[-0.033em] text-gray-100">
+              <p className="text-4xl font-black leading-tight tracking-[-0.033em] text-text-primary">
                 Verification in Progress
               </p>
-              <p className="text-base font-normal leading-normal text-gray-400 max-w-md">
+              <p className="text-base font-normal leading-normal text-text-secondary max-w-md">
                 Your mentor application is under review. We'll notify you once
                 it's approved.
               </p>
@@ -66,13 +66,13 @@ export default function VerificationPending() {
 
             {/* Info Box and Button */}
             <div className="flex w-full max-w-sm flex-col gap-4">
-              <div className="flex items-center gap-4 rounded-lg bg-gray-200/5 border border-white/10 px-4 py-3">
+              <div className="flex items-center gap-4 rounded-lg bg-gray-200/5 border border-border px-4 py-3">
                 <div className="flex items-center justify-center text-[#20df60]">
                   <span className="material-symbols-outlined text-2xl">
                     info
                   </span>
                 </div>
-                <p className="flex-1 text-left text-sm font-normal leading-normal text-gray-300">
+                <p className="flex-1 text-left text-sm font-normal leading-normal text-text-secondary">
                   Average review time: 1-3 business days
                 </p>
               </div>

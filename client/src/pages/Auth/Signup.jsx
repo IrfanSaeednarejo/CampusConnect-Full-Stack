@@ -121,7 +121,7 @@ export default function Signup() {
       <AuthCard className="max-w-md rounded-2xl border-white/5 p-8 flex flex-col items-center gap-8 glass shadow-2xl">
         {/* Page Heading */}
         <div className="flex w-full flex-col gap-3 text-center">
-          <p className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
+          <p className="text-text-primary text-4xl font-black leading-tight tracking-[-0.033em]">
             Create Your Account
           </p>
           <p className="text-text-secondary text-base font-normal leading-normal">
@@ -173,7 +173,7 @@ export default function Signup() {
 
           {/* Role Selector */}
           <div className="flex flex-col gap-2">
-            <p className="text-white text-base font-medium leading-normal">
+            <p className="text-text-primary text-base font-medium leading-normal">
               Select Your Role
             </p>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -214,7 +214,7 @@ export default function Signup() {
               Already have an account?{" "}
               <button
                 type="button"
-                className="font-medium text-[#1dc964] hover:underline cursor-pointer"
+                className="font-medium text-primary hover:underline cursor-pointer"
                 onClick={() => navigate("/login")}
               >
                 Sign in
@@ -230,11 +230,11 @@ function RoleRadio({ name, value, label, checked, onChange, disabled = false, di
   return (
     <div className="flex flex-col gap-1">
       <label
-        className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-3 transition-colors whitespace-nowrap text-center ${disabled
-            ? "border-border bg-background opacity-60 cursor-not-allowed"
-            : checked
-              ? "border-[#1dc964] bg-[#1c2620] ring-2 ring-[#1dc964]/50"
-              : "border-[#3d5246] bg-[#1c2620] hover:border-[#1dc964]/40"
+        className={`flex cursor-pointer items-center justify-center gap-2 rounded-lg border px-3 py-3 transition-all whitespace-nowrap text-center ${disabled
+          ? "border-border bg-background opacity-60 cursor-not-allowed"
+          : checked
+            ? "border-primary bg-primary text-white shadow-md ring-2 ring-primary/20 scale-[1.02]"
+            : "border-border bg-surface text-text-primary hover:border-primary/50 hover:bg-surface-hover hover:scale-[1.02]"
           }`}
       >
         <input
@@ -244,9 +244,9 @@ function RoleRadio({ name, value, label, checked, onChange, disabled = false, di
           checked={checked}
           onChange={onChange}
           disabled={disabled}
-          className="form-radio h-4 w-4 shrink-0 border-[#9eb7a9] bg-transparent text-[#1dc964] focus:ring-[#1dc964]/50 focus:ring-offset-0 focus:ring-offset-transparent disabled:opacity-50"
+          className={`form-radio h-4 w-4 shrink-0 border-border bg-surface focus:ring-primary/50 focus:ring-offset-0 disabled:opacity-50 transition-colors ${checked ? 'text-white border-white' : 'text-primary'}`}
         />
-        <span className="text-white text-sm font-medium leading-normal">
+        <span className={`text-sm font-bold leading-normal ${checked ? 'text-white' : 'text-text-primary'}`}>
           {label}
         </span>
       </label>

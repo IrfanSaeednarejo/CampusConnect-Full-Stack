@@ -65,7 +65,7 @@ export default function StudySuggestionBox() {
         <h3 className="text-text-primary font-semibold">Study Agent</h3>
         <button
           onClick={handleDeactivate}
-          className="px-3 py-1 bg-danger text-white rounded text-xs font-medium hover:bg-[#f85149] transition-colors"
+          className="px-3 py-1 bg-danger text-white rounded text-xs font-medium hover:bg-[#DC2626] transition-colors"
         >
           Deactivate
         </button>
@@ -87,7 +87,7 @@ export default function StudySuggestionBox() {
                 className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
                   msg.sender === "user"
                     ? "bg-primary text-white"
-                    : "bg-[#30363d] text-text-primary"
+                    : "bg-[#C7D2FE] text-text-primary"
                 }`}
               >
                 {msg.message}

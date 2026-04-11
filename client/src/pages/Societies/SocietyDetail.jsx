@@ -107,28 +107,28 @@ export default function SocietyDetail() {
           <Card padding="p-6">
             <div className="text-center">
               <span className="material-symbols-outlined text-3xl text-primary mb-2">people</span>
-              <div className="text-2xl font-bold text-white">{memberCount}</div>
+              <div className="text-2xl font-bold text-text-primary">{memberCount}</div>
               <div className="text-sm text-text-secondary mt-1">Members</div>
             </div>
           </Card>
           <Card padding="p-6">
             <div className="text-center">
               <span className="material-symbols-outlined text-3xl text-primary mb-2">event</span>
-              <div className="text-2xl font-bold text-white">{events.length}</div>
+              <div className="text-2xl font-bold text-text-primary">{events.length}</div>
               <div className="text-sm text-text-secondary mt-1">Events</div>
             </div>
           </Card>
           <Card padding="p-6">
             <div className="text-center">
               <span className="material-symbols-outlined text-3xl text-primary mb-2">category</span>
-              <div className="text-2xl font-bold text-white capitalize">{category}</div>
+              <div className="text-2xl font-bold text-text-primary capitalize">{category}</div>
               <div className="text-sm text-text-secondary mt-1">Category</div>
             </div>
           </Card>
           <Card padding="p-6">
             <div className="text-center">
               <span className="material-symbols-outlined text-3xl text-primary mb-2">person</span>
-              <div className="text-lg font-bold text-white">{headName}</div>
+              <div className="text-lg font-bold text-text-primary">{headName}</div>
               <div className="text-sm text-text-secondary mt-1">Society Head</div>
             </div>
           </Card>
@@ -142,7 +142,7 @@ export default function SocietyDetail() {
               onClick={() => setActiveTab(tab)}
               className={`px-4 py-3 text-sm font-medium capitalize transition-colors ${activeTab === tab
                   ? "text-primary border-b-2 border-primary"
-                  : "text-text-secondary hover:text-white"
+                  : "text-text-secondary hover:text-text-primary"
                 }`}
             >
               {tab}
@@ -153,7 +153,7 @@ export default function SocietyDetail() {
         {/* Tab Content */}
         {activeTab === "overview" && (
           <Card padding="p-6">
-            <h3 className="text-xl font-bold text-white mb-4">About</h3>
+            <h3 className="text-xl font-bold text-text-primary mb-4">About</h3>
             <p className="text-text-secondary mb-6">{societyDesc || "No description available."}</p>
           </Card>
         )}
@@ -173,9 +173,9 @@ export default function SocietyDetail() {
                   <Card key={user?._id || idx} padding="p-4" hover={true}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
-                        <Avatar name={displayName} src={avatarUrl} size="12" borderColor="[#238636]" />
+                        <Avatar name={displayName} src={avatarUrl} size="12" borderColor="[#4F46E5]" />
                         <div>
-                          <h4 className="text-white font-medium">{displayName}</h4>
+                          <h4 className="text-text-primary font-medium">{displayName}</h4>
                           <p className="text-sm text-text-secondary capitalize">{member.role}</p>
                         </div>
                       </div>
@@ -201,7 +201,7 @@ export default function SocietyDetail() {
                   <Card key={event._id} padding="p-6" hover={true}>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h4 className="text-lg font-bold text-white mb-2">{event.title}</h4>
+                        <h4 className="text-lg font-bold text-text-primary mb-2">{event.title}</h4>
                         <div className="space-y-1 text-sm text-text-secondary">
                           <div className="flex items-center gap-2">
                             <span className="material-symbols-outlined text-sm">calendar_today</span>

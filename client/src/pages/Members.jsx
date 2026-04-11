@@ -88,7 +88,7 @@ export default function Members() {
   };
 
   return (
-    <div className="w-full bg-background text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
+    <div className="w-full bg-background text-text-primary min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-10">
@@ -110,12 +110,12 @@ export default function Members() {
               placeholder="Search by name, role, or interest..."
               value={searchTerm}
               onChange={handleSearchChange}
-              className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-background border border-border text-[#e6edf3] text-sm placeholder-[#484f58] focus:outline-none focus:border-[#3fb950] transition-colors"
+              className="w-full pl-10 pr-10 py-2.5 rounded-lg bg-background border border-border text-text-primary text-sm placeholder-[#475569] focus:outline-none focus:border-[#3fb950] transition-colors"
             />
             {searchTerm && (
               <button
                 onClick={handleClear}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-white"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-text-secondary hover:text-text-primary"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>

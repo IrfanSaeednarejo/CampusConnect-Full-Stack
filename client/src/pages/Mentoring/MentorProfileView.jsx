@@ -46,15 +46,15 @@ export default function MentorProfileView() {
   const displayName = user?.profile?.displayName || "";
   const firstName = user?.profile?.firstName || "";
   const lastName = user?.profile?.lastName || "";
-  
+
   // Robust name matching: Prefer displayName for the main heading
   // Capitalize for presentation since backend stores as lowercase
   const capitalize = (str) => str ? str.charAt(0).toUpperCase() + str.slice(1) : "";
   const formattedFirstName = capitalize(firstName);
   const formattedLastName = capitalize(lastName);
-  
-  const fullName = displayName 
-    ? (displayName.includes('.') ? displayName : capitalize(displayName)) 
+
+  const fullName = displayName
+    ? (displayName.includes('.') ? displayName : capitalize(displayName))
     : `${formattedFirstName} ${formattedLastName}`.trim() || "Mentor";
 
   const avatar = user?.profile?.avatar || "";
@@ -70,12 +70,12 @@ export default function MentorProfileView() {
 
   if (loading) {
     return (
-      <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary bg-[#112118]">
+      <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary bg-background">
         <div className="layout-container flex h-full grow flex-col">
           <MentorTopBar backPath="/mentor/dashboard" />
           <main className="px-4 sm:px-6 lg:px-8 xl:px-10 flex flex-1 justify-center py-8">
             <div className="flex flex-col items-center justify-center gap-4 py-16">
-              <div className="w-10 h-10 border-4 border-[#1dc964] border-t-transparent rounded-full animate-spin"></div>
+              <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
               <p className="text-text-secondary">Loading your profile...</p>
             </div>
           </main>
@@ -86,7 +86,7 @@ export default function MentorProfileView() {
   }
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-background">
       <div className="layout-container flex h-full grow flex-col">
         <MentorTopBar backPath="/mentor/dashboard" />
 
@@ -101,16 +101,16 @@ export default function MentorProfileView() {
             {/* Profile Header */}
             <div className="flex flex-col lg:flex-row gap-8 mb-8">
               <div className="flex flex-col items-center lg:items-start gap-4 flex-1">
-                <div 
-                  className="w-32 h-32 rounded-full border-4 border-[#1dc964] bg-center bg-cover bg-no-repeat bg-surface"
+                <div
+                  className="w-32 h-32 rounded-full border-4 border-primary bg-center bg-cover bg-no-repeat bg-surface"
                   style={{ backgroundImage: `url("${avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(fullName)}`}")` }}
                   title={fullName}
                 />
                 <div>
-                  <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] capitalize">
+                  <h1 className="text-text-primary text-4xl font-black leading-tight tracking-[-0.033em] capitalize">
                     {fullName}
                   </h1>
-                  <p className="text-[#1dc964] text-lg font-semibold capitalize">
+                  <p className="text-primary text-lg font-semibold capitalize">
                     {department} • Mentor
                   </p>
                   <p className="text-text-secondary text-sm mt-1">{email}</p>
@@ -126,26 +126,26 @@ export default function MentorProfileView() {
               <div className="grid grid-cols-2 gap-4 flex-1">
                 <div className="p-4 bg-surface border border-border rounded-xl text-center">
                   <p className="text-text-secondary text-sm mb-2">Total Sessions</p>
-                  <p className="text-white text-3xl font-bold">{totalSessions}</p>
+                  <p className="text-text-primary text-3xl font-bold">{totalSessions}</p>
                 </div>
                 <div className="p-4 bg-surface border border-border rounded-xl text-center">
                   <p className="text-text-secondary text-sm mb-2">Mentees</p>
-                  <p className="text-white text-3xl font-bold">{totalMentees}</p>
+                  <p className="text-text-primary text-3xl font-bold">{totalMentees}</p>
                 </div>
                 <div className="p-4 bg-surface border border-border rounded-xl text-center">
                   <p className="text-text-secondary text-sm mb-2">Avg Rating</p>
-                  <p className="text-white text-3xl font-bold">{avgRating > 0 ? avgRating.toFixed(1) : "—"}</p>
+                  <p className="text-text-primary text-3xl font-bold">{avgRating > 0 ? avgRating.toFixed(1) : "—"}</p>
                 </div>
                 <div className="p-4 bg-surface border border-border rounded-xl text-center">
                   <p className="text-text-secondary text-sm mb-2">Hourly Rate</p>
-                  <p className="text-white text-3xl font-bold">{hourlyRate > 0 ? `$${hourlyRate}` : "Free"}</p>
+                  <p className="text-text-primary text-3xl font-bold">{hourlyRate > 0 ? `$${hourlyRate}` : "Free"}</p>
                 </div>
               </div>
             </div>
 
             {/* Bio */}
             <div className="p-6 bg-surface border border-border rounded-xl mb-8">
-              <h2 className="text-white text-2xl font-bold mb-4">About Me</h2>
+              <h2 className="text-text-primary text-2xl font-bold mb-4">About Me</h2>
               <p className="text-text-primary leading-relaxed">
                 {bio}
               </p>
@@ -154,7 +154,7 @@ export default function MentorProfileView() {
             {/* Expertise */}
             {expertise.length > 0 && (
               <div className="p-6 bg-surface border border-border rounded-xl mb-8">
-                <h2 className="text-white text-2xl font-bold mb-4">
+                <h2 className="text-text-primary text-2xl font-bold mb-4">
                   Expertise & Skills
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
@@ -174,28 +174,28 @@ export default function MentorProfileView() {
 
             {/* Academic Info */}
             <div className="p-6 bg-surface border border-border rounded-xl mb-8">
-              <h2 className="text-white text-2xl font-bold mb-4">
+              <h2 className="text-text-primary text-2xl font-bold mb-4">
                 Academic Information
               </h2>
               <div className="space-y-4">
                 {user?.academic?.degree && (
                   <div className="flex gap-4 pb-4 border-b border-border">
-                    <span className="material-symbols-outlined text-[#1dc964] flex-shrink-0">
+                    <span className="material-symbols-outlined text-primary flex-shrink-0">
                       school
                     </span>
                     <div>
-                      <p className="text-white font-semibold capitalize">{user.academic.degree}</p>
+                      <p className="text-text-primary font-semibold capitalize">{user.academic.degree}</p>
                       <p className="text-text-secondary text-sm capitalize">{department}</p>
                     </div>
                   </div>
                 )}
                 {user?.academic?.semester > 0 && (
                   <div className="flex gap-4">
-                    <span className="material-symbols-outlined text-[#1dc964] flex-shrink-0">
+                    <span className="material-symbols-outlined text-primary flex-shrink-0">
                       calendar_today
                     </span>
                     <div>
-                      <p className="text-white font-semibold">Semester {user.academic.semester}</p>
+                      <p className="text-text-primary font-semibold">Semester {user.academic.semester}</p>
                       {user.academic.cgpa > 0 && (
                         <p className="text-text-secondary text-sm">CGPA: {user.academic.cgpa}</p>
                       )}
@@ -219,7 +219,7 @@ export default function MentorProfileView() {
               </button>
               <button
                 onClick={() => navigate("/mentor/dashboard")}
-                className="flex items-center gap-2 px-6 py-3 bg-[#30363d] text-white font-bold rounded-lg hover:bg-[#404851] transition-colors"
+                className="flex justify-center items-center gap-2 px-6 py-3 bg-surface border border-border text-text-primary font-bold rounded-lg hover:bg-surface-hover transition-colors flex-1"
               >
                 Back to Dashboard
               </button>

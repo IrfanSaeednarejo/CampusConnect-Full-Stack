@@ -15,7 +15,7 @@ export default function FilterButtons({
             onClick={() => onFilterChange(button.value)}
             className={`px-4 py-2 rounded-lg font-medium transition-colors ${
               activeFilter === button.value
-                ? "bg-primary text-[#0d1117]"
+                ? "bg-primary text-[#EEF2FF]"
                 : "bg-background text-text-primary hover:bg-surface"
             }`}
           >

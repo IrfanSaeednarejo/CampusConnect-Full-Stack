@@ -25,7 +25,7 @@ export default function ResourceCard({ resource, onDownload }) {
       case "Archive":
         return "text-yellow-400";
       default:
-        return "text-gray-400";
+        return "text-text-secondary";
     }
   };
 

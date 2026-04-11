@@ -49,7 +49,7 @@ export default function MentorApplication() {
   };
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-[#112118]">
+    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-text-primary group/design-root overflow-x-hidden bg-background">
       <div className="layout-container flex h-full grow flex-col">
         {/* TopNavBar */}
         <MentorTopBar backPath="/mentor/dashboard" />
@@ -59,7 +59,7 @@ export default function MentorApplication() {
           <div className="layout-content-container flex flex-col w-full max-w-4xl flex-1">
             {/* Page Heading */}
             <div className="mb-8">
-              <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
+              <h1 className="text-text-primary text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
                 Become a Mentor
               </h1>
               <p className="text-text-secondary text-base font-normal leading-normal">
@@ -76,25 +76,24 @@ export default function MentorApplication() {
                     className="flex flex-col items-center flex-1"
                   >
                     <div
-                      className={`w-12 h-12 rounded-full flex items-center justify-center font-bold mb-2 transition-colors ${
-                        activeStep >= step.id
+                      className={`w-12 h-12 rounded-full flex items-center justify-center font-bold mb-2 transition-colors ${activeStep >= step.id
                           ? "bg-primary text-white"
-                          : "bg-[#30363d] text-text-secondary"
-                      }`}
+                          : "bg-surface border border-border text-text-secondary"
+                        }`}
                     >
                       <span className="material-symbols-outlined">
                         {step.icon}
                       </span>
                     </div>
                     <span
-                      className={`text-sm font-medium ${activeStep >= step.id ? "text-white" : "text-text-secondary"}`}
+                      className={`text-sm font-medium ${activeStep >= step.id ? "text-text-primary" : "text-text-secondary"}`}
                     >
                       {step.title}
                     </span>
                   </div>
                 ))}
               </div>
-              <div className="h-2 bg-[#30363d] rounded-full overflow-hidden">
+              <div className="h-2 bg-surface border-border rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary transition-all"
                   style={{ width: `${(activeStep / 4) * 100}%` }}
@@ -106,11 +105,11 @@ export default function MentorApplication() {
             <div className="p-8 bg-surface border border-border rounded-xl mb-6">
               {activeStep === 1 && (
                 <div className="space-y-6">
-                  <h2 className="text-white text-2xl font-bold mb-6">
+                  <h2 className="text-text-primary text-2xl font-bold mb-6">
                     Personal Information
                   </h2>
                   <div>
-                    <label className="block text-white font-semibold mb-2">
+                    <label className="block text-text-primary font-semibold mb-2">
                       Full Name *
                     </label>
                     <input
@@ -119,11 +118,11 @@ export default function MentorApplication() {
                       value={formData.fullName}
                       onChange={handleInputChange}
                       placeholder="Enter your full name"
-                      className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none placeholder:text-text-secondary"
+                      className="w-full p-3 bg-background text-text-primary rounded-lg border border-border focus:border-primary focus:outline-none placeholder:text-text-secondary"
                     />
                   </div>
                   <div>
-                    <label className="block text-white font-semibold mb-2">
+                    <label className="block text-text-primary font-semibold mb-2">
                       Email Address *
                     </label>
                     <input
@@ -132,11 +131,11 @@ export default function MentorApplication() {
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="your@email.com"
-                      className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none placeholder:text-text-secondary"
+                      className="w-full p-3 bg-background text-text-primary rounded-lg border border-border focus:border-primary focus:outline-none placeholder:text-text-secondary"
                     />
                   </div>
                   <div>
-                    <label className="block text-white font-semibold mb-2">
+                    <label className="block text-text-primary font-semibold mb-2">
                       Bio *
                     </label>
                     <textarea
@@ -144,7 +143,7 @@ export default function MentorApplication() {
                       value={formData.bio}
                       onChange={handleInputChange}
                       placeholder="Tell us about yourself..."
-                      className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none placeholder:text-text-secondary resize-none"
+                      className="w-full p-3 bg-background text-text-primary rounded-lg border border-border focus:border-primary focus:outline-none placeholder:text-text-secondary resize-none"
                       rows="4"
                     ></textarea>
                   </div>
@@ -153,11 +152,11 @@ export default function MentorApplication() {
 
               {activeStep === 2 && (
                 <div className="space-y-6">
-                  <h2 className="text-white text-2xl font-bold mb-6">
+                  <h2 className="text-text-primary text-2xl font-bold mb-6">
                     Your Expertise
                   </h2>
                   <div>
-                    <label className="block text-white font-semibold mb-2">
+                    <label className="block text-text-primary font-semibold mb-2">
                       Main Expertise *
                     </label>
                     <input
@@ -166,18 +165,18 @@ export default function MentorApplication() {
                       value={formData.expertise}
                       onChange={handleInputChange}
                       placeholder="e.g., Web Development, Data Science..."
-                      className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none placeholder:text-text-secondary"
+                      className="w-full p-3 bg-background text-text-primary rounded-lg border border-border focus:border-primary focus:outline-none placeholder:text-text-secondary"
                     />
                   </div>
                   <div>
-                    <label className="block text-white font-semibold mb-2">
+                    <label className="block text-text-primary font-semibold mb-2">
                       Years of Experience *
                     </label>
                     <select
                       name="yearsExperience"
                       value={formData.yearsExperience}
                       onChange={handleInputChange}
-                      className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none"
+                      className="w-full p-3 bg-background text-text-primary rounded-lg border border-border focus:border-primary focus:outline-none"
                     >
                       <option value="">Select years of experience</option>
                       <option value="0-2">0-2 years</option>
@@ -187,7 +186,7 @@ export default function MentorApplication() {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-white font-semibold mb-2">
+                    <label className="block text-text-primary font-semibold mb-2">
                       Hourly Rate ($) *
                     </label>
                     <input
@@ -196,7 +195,7 @@ export default function MentorApplication() {
                       value={formData.hourlyRate}
                       onChange={handleInputChange}
                       placeholder="50"
-                      className="w-full p-3 bg-background text-white rounded-lg border border-border focus:border-[#1dc964] focus:outline-none placeholder:text-text-secondary"
+                      className="w-full p-3 bg-background text-text-primary rounded-lg border border-border focus:border-primary focus:outline-none placeholder:text-text-secondary"
                     />
                   </div>
                 </div>
@@ -204,14 +203,14 @@ export default function MentorApplication() {
 
               {activeStep === 3 && (
                 <div className="space-y-6">
-                  <h2 className="text-white text-2xl font-bold mb-6">
+                  <h2 className="text-text-primary text-2xl font-bold mb-6">
                     Supporting Documents
                   </h2>
                   <div className="p-6 border-2 border-dashed border-border rounded-lg text-center">
                     <span className="material-symbols-outlined text-5xl text-text-secondary mb-3 inline-block">
                       upload_file
                     </span>
-                    <p className="text-white font-semibold mb-2">
+                    <p className="text-text-primary font-semibold mb-2">
                       Upload your credentials
                     </p>
                     <p className="text-text-secondary text-sm mb-4">
@@ -239,10 +238,10 @@ export default function MentorApplication() {
                   </div>
                   {formData.documents && (
                     <div className="p-3 bg-background rounded-lg flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[#1dc964]">
+                      <span className="material-symbols-outlined text-primary">
                         check_circle
                       </span>
-                      <span className="text-white">
+                      <span className="text-text-primary">
                         {formData.documents.name}
                       </span>
                     </div>
@@ -258,37 +257,37 @@ export default function MentorApplication() {
 
               {activeStep === 4 && (
                 <div className="space-y-6">
-                  <h2 className="text-white text-2xl font-bold mb-6">
+                  <h2 className="text-text-primary text-2xl font-bold mb-6">
                     Review Your Application
                   </h2>
                   <div className="space-y-4">
                     <div className="p-4 bg-background rounded-lg">
                       <p className="text-text-secondary text-sm mb-1">Full Name</p>
-                      <p className="text-white font-semibold">
+                      <p className="text-text-primary font-semibold">
                         {formData.fullName || "Not provided"}
                       </p>
                     </div>
                     <div className="p-4 bg-background rounded-lg">
                       <p className="text-text-secondary text-sm mb-1">Email</p>
-                      <p className="text-white font-semibold">
+                      <p className="text-text-primary font-semibold">
                         {formData.email || "Not provided"}
                       </p>
                     </div>
                     <div className="p-4 bg-background rounded-lg">
                       <p className="text-text-secondary text-sm mb-1">Expertise</p>
-                      <p className="text-white font-semibold">
+                      <p className="text-text-primary font-semibold">
                         {formData.expertise || "Not provided"}
                       </p>
                     </div>
                     <div className="p-4 bg-background rounded-lg">
                       <p className="text-text-secondary text-sm mb-1">Hourly Rate</p>
-                      <p className="text-white font-semibold">
+                      <p className="text-text-primary font-semibold">
                         ${formData.hourlyRate || "0"}/hour
                       </p>
                     </div>
                   </div>
-                  <div className="p-4 bg-primary/10 border border-[#1dc964] rounded-lg">
-                    <p className="text-[#1dc964] font-semibold">
+                  <div className="p-4 bg-primary/10 border border-primary rounded-lg">
+                    <p className="text-primary font-semibold">
                       ✓ All information verified and ready to submit
                     </p>
                   </div>
@@ -301,11 +300,10 @@ export default function MentorApplication() {
               <button
                 onClick={handlePrevStep}
                 disabled={activeStep === 1}
-                className={`flex items-center gap-2 px-6 py-3 font-bold rounded-lg transition-colors ${
-                  activeStep === 1
-                    ? "bg-[#30363d] text-text-secondary cursor-not-allowed"
-                    : "bg-[#30363d] text-white hover:bg-[#404851]"
-                }`}
+                className={`flex items-center gap-2 px-6 py-3 font-bold rounded-lg transition-colors ${activeStep === 1
+                    ? "bg-surface border border-border text-text-secondary cursor-not-allowed"
+                    : "bg-surface border border-border text-text-primary hover:bg-surface-hover"
+                  }`}
               >
                 <span className="material-symbols-outlined">arrow_back</span>
                 Previous

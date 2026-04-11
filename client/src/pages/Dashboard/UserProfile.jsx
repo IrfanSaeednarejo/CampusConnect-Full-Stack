@@ -7,7 +7,7 @@ const UserProfile = ({ profile }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex flex-col min-h-screen bg-black text-white">
+    <div className="flex flex-col min-h-screen bg-background text-white">
       {/* Shared Header */}
       <Header page="student-dashboard" />
 

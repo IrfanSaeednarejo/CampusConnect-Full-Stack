@@ -76,8 +76,8 @@ export default function StudentNotifications() {
       case 'session':
       case 'mentor_booking': return { icon: 'videocam', bg: 'bg-green-500/20', text: 'text-green-500' };
       case 'task': return { icon: 'task_alt', bg: 'bg-orange-500/20', text: 'text-orange-500' };
-      case 'system': return { icon: 'notifications', bg: 'bg-gray-500/20', text: 'text-gray-400' };
-      default: return { icon: 'info', bg: 'bg-gray-500/20', text: 'text-gray-400' };
+      case 'system': return { icon: 'notifications', bg: 'bg-gray-500/20', text: 'text-text-secondary' };
+      default: return { icon: 'info', bg: 'bg-gray-500/20', text: 'text-text-secondary' };
     }
   };
 
@@ -97,7 +97,7 @@ export default function StudentNotifications() {
             {/* HEADER ROW */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
-                <h1 className="text-3xl font-extrabold text-white">Notifications</h1>
+                <h1 className="text-3xl font-extrabold text-text-primary">Notifications</h1>
                 {unreadCount > 0 && (
                   <span className="bg-blue-600 text-white text-xs font-bold px-3 py-1 rounded-full">
                     {unreadCount} unread
@@ -109,7 +109,7 @@ export default function StudentNotifications() {
                 onClick={handleMarkAllRead}
                 disabled={unreadCount === 0 || status === 'loading'}
                 className="flex items-center gap-2 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed
-                           bg-surface-hover border border-border px-4 py-2 rounded-lg text-white hover:bg-[#30363d]"
+                           bg-surface-hover border border-border px-4 py-2 rounded-lg text-text-primary hover:bg-[#C7D2FE]"
               >
                 <span className="material-symbols-outlined text-[18px]">done_all</span>
                 Mark all as read
@@ -124,8 +124,8 @@ export default function StudentNotifications() {
                   onClick={() => setActiveTab(tab)}
                   className={`flex-shrink-0 px-6 py-2.5 rounded-xl font-bold text-sm transition-all duration-200 ${
                     activeTab === tab
-                      ? 'bg-primary text-white shadow-lg shadow-[#238636]/20 scale-105'
-                      : 'text-text-secondary hover:bg-[#30363d]/50 hover:text-text-primary hover:translate-y-[-1px]'
+                      ? 'bg-primary text-white shadow-lg shadow-[#4F46E5]/20 scale-105'
+                      : 'text-text-secondary hover:bg-[#C7D2FE]/50 hover:text-text-primary hover:translate-y-[-1px]'
                   }`}
                 >
                   {tab}
@@ -137,10 +137,10 @@ export default function StudentNotifications() {
             <div className="glass border border-border rounded-2xl overflow-hidden min-h-[500px] backdrop-blur-xl shadow-2xl">
               {status === 'failed' ? (
                 <div className="flex flex-col items-center justify-center py-24 px-6 text-center">
-                  <div className="w-20 h-20 bg-[#f85149]/10 rounded-full flex items-center justify-center border border-[#f85149]/30 mb-4">
-                    <span className="material-symbols-outlined text-4xl text-[#f85149]">error</span>
+                  <div className="w-20 h-20 bg-[#DC2626]/10 rounded-full flex items-center justify-center border border-[#DC2626]/30 mb-4">
+                    <span className="material-symbols-outlined text-4xl text-[#DC2626]">error</span>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">Failed to load notifications</h3>
+                  <h3 className="text-xl font-bold text-text-primary mb-2">Failed to load notifications</h3>
                   <p className="text-text-secondary mb-6">Something went wrong. Please try again.</p>
                   <button
                     onClick={() => dispatch(fetchNotifications())}
@@ -167,7 +167,7 @@ export default function StudentNotifications() {
                           group relative flex items-start gap-5 p-6 cursor-pointer
                           border-b border-border/30 last:border-0 transition-all duration-300
                           ${notif.read 
-                            ? 'hover:bg-white/5 bg-transparent' 
+                            ? 'hover:bg-surface border border-border bg-transparent' 
                             : 'bg-blue-600/5 hover:bg-blue-600/10 border-l-4 border-l-blue-500 shadow-[inset_0_0_30px_rgba(59,130,246,0.03)]'}
                         `}
                       >
@@ -180,7 +180,7 @@ export default function StudentNotifications() {
                         <div className="flex-1 min-w-0 pr-16">
                           <div className="flex justify-between items-start gap-2 mb-1">
                             {/* FIX [Bug 5]: Unread title text is bold white, read is lighter gray text */}
-                            <h3 className={`text-base truncate ${notif.read ? 'text-gray-300 font-normal' : 'text-white font-semibold'}`}>
+                            <h3 className={`text-base truncate ${notif.read ? 'text-text-secondary font-normal' : 'text-text-primary font-semibold'}`}>
                               {notif.title}
                             </h3>
                             <span className="text-xs text-text-secondary whitespace-nowrap mt-1 flex-none hidden sm:block">
@@ -218,12 +218,12 @@ export default function StudentNotifications() {
               ) : (
                 /* EMPTY STATE */
                 <div className="flex flex-col items-center justify-center py-32 px-6 text-center bg-surface/10">
-                  <div className="w-24 h-24 bg-primary/10 rounded-3xl flex items-center justify-center border border-primary/20 mb-6 shadow-2xl shadow-[#238636]/5 animate-pulse">
+                  <div className="w-24 h-24 bg-primary/10 rounded-3xl flex items-center justify-center border border-primary/20 mb-6 shadow-2xl shadow-[#4F46E5]/5 animate-pulse">
                     <span className="material-symbols-outlined text-5xl text-primary">
                       {activeTab === 'All' ? 'notifications_off' : getIconData(activeTab.toLowerCase()).icon}
                     </span>
                   </div>
-                  <h3 className="text-xl font-bold text-white mb-2">You're All Caught Up</h3>
+                  <h3 className="text-xl font-bold text-text-primary mb-2">You're All Caught Up</h3>
                   <p className="text-text-secondary max-w-xs mx-auto leading-relaxed">
                     {activeTab === 'All' 
                       ? "Awesome! You've cleared all your notifications. Enjoy the peace and quiet." 

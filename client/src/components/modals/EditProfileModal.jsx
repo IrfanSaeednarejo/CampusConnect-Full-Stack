@@ -115,7 +115,7 @@ export default function EditProfileModal({ closeModal }) {
     <div className="fixed inset-0 z-[100] flex justify-end">
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-300" 
+        className="fixed inset-0 bg-background/60 backdrop-blur-sm transition-opacity animate-in fade-in duration-300" 
         onClick={closeModal}
       />
       
@@ -124,12 +124,12 @@ export default function EditProfileModal({ closeModal }) {
         {/* Header */}
         <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-background/50">
           <div>
-            <h2 className="text-xl font-bold text-white">Edit Profile</h2>
+            <h2 className="text-xl font-bold text-text-primary">Edit Profile</h2>
             <p className="text-text-secondary text-sm">Update your public information</p>
           </div>
           <button 
             onClick={closeModal}
-            className="p-2 text-text-secondary hover:text-white rounded-full hover:bg-[#30363d] transition-colors"
+            className="p-2 text-text-secondary hover:text-white rounded-full hover:bg-[#C7D2FE] transition-colors"
           >
             <span className="material-symbols-outlined">close</span>
           </button>
@@ -138,7 +138,7 @@ export default function EditProfileModal({ closeModal }) {
         {/* Scrollable Form */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
 <section>
-            <h3 className="text-[#1dc964] text-xs font-bold uppercase tracking-wider mb-4">Basic Information</h3>
+            <h3 className="text-primary text-xs font-bold uppercase tracking-wider mb-4">Basic Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
               <FormField
                 label="First Name"
@@ -185,7 +185,7 @@ export default function EditProfileModal({ closeModal }) {
           </section>
 
 <section>
-            <h3 className="text-[#1dc964] text-xs font-bold uppercase tracking-wider mb-4">Academic Details</h3>
+            <h3 className="text-primary text-xs font-bold uppercase tracking-wider mb-4">Academic Details</h3>
             <div className="space-y-5">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <FormField
@@ -218,7 +218,7 @@ export default function EditProfileModal({ closeModal }) {
                     min="1"
                     max="10"
                     placeholder="1-10"
-                    className="w-full bg-background border border-border rounded-lg p-2.5 text-white outline-none focus:border-[#1dc964] transition-colors"
+                    className="w-full bg-background border border-border rounded-lg p-2.5 text-text-primary outline-none focus:border-primary transition-colors"
                   />
                 </div>
                 <FormField
@@ -238,19 +238,19 @@ export default function EditProfileModal({ closeModal }) {
           </section>
 
           <section>
-            <h3 className="text-[#1dc964] text-xs font-bold uppercase tracking-wider mb-4">Expertise & Skills</h3>
+            <h3 className="text-primary text-xs font-bold uppercase tracking-wider mb-4">Expertise & Skills</h3>
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2 mb-2">
                 {form.expertise.map((skill, index) => (
                   <span 
                     key={index}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 border border-[#1dc964]/30 text-[#1dc964] text-xs font-medium rounded-full animate-in zoom-in-95 duration-200"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 border border-primary/30 text-primary text-xs font-medium rounded-full animate-in zoom-in-95 duration-200"
                   >
                     {skill}
                     <button 
                       type="button"
                       onClick={() => removeSkill(skill)}
-                      className="hover:text-white transition-colors"
+                      className="hover:text-text-primary transition-colors"
                     >
                       <span className="material-symbols-outlined text-[14px]">close</span>
                     </button>
@@ -267,7 +267,7 @@ export default function EditProfileModal({ closeModal }) {
                   onChange={(e) => setSkillInput(e.target.value)}
                   onKeyDown={handleAddSkill}
                   placeholder="Add expertise (e.g. React, UX Design)..."
-                  className="w-full bg-background border border-border rounded-lg py-2.5 pl-10 pr-4 text-white outline-none focus:border-[#1dc964] transition-colors"
+                  className="w-full bg-background border border-border rounded-lg py-2.5 pl-10 pr-4 text-text-primary outline-none focus:border-primary transition-colors"
                 />
               </div>
               <p className="text-[11px] text-text-secondary italic">Press Enter or use commas to add multiple skills.</p>
@@ -275,7 +275,7 @@ export default function EditProfileModal({ closeModal }) {
           </section>
 
           <section>
-            <h3 className="text-[#1dc964] text-xs font-bold uppercase tracking-wider mb-4">About Me</h3>
+            <h3 className="text-primary text-xs font-bold uppercase tracking-wider mb-4">About Me</h3>
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-text-primary">Short Bio</label>
               <textarea
@@ -284,7 +284,7 @@ export default function EditProfileModal({ closeModal }) {
                 onChange={handleChange}
                 rows={5}
                 placeholder="Tell students about your experience..."
-                className="w-full bg-background border border-border rounded-lg p-3 text-white outline-none focus:border-[#1dc964] transition-colors resize-none"
+                className="w-full bg-background border border-border rounded-lg p-3 text-text-primary outline-none focus:border-primary transition-colors resize-none"
               />
               <p className="text-[11px] text-text-secondary italic">This will be displayed on your mentor profile.</p>
             </div>
@@ -296,7 +296,7 @@ export default function EditProfileModal({ closeModal }) {
           <button
             type="button"
             onClick={closeModal}
-            className="flex-1 px-4 py-2 border border-border text-white rounded-lg hover:bg-[#30363d] transition-colors font-medium"
+            className="flex-1 px-4 py-2 border border-border text-white rounded-lg hover:bg-[#C7D2FE] transition-colors font-medium"
           >
             Cancel
           </button>

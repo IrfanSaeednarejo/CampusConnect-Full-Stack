@@ -17,7 +17,7 @@ export default function MemberCard({
       className={`flex flex-col gap-4 p-4 rounded-lg border border-border bg-surface hover:bg-surface-hover transition-colors ${className}`}
     >
       <div>
-        <h2 className="text-[#e6edf3] text-lg font-bold leading-tight">
+        <h2 className="text-text-primary text-lg font-bold leading-tight">
           {name}
         </h2>
         <p className="text-text-secondary text-sm mt-1">{role}</p>
@@ -43,7 +43,7 @@ export default function MemberCard({
         variant={connectionStatus === 'none' ? "primary" : "secondary"}
         className={`h-8 px-3 text-xs w-full flex items-center justify-center gap-2 ${
           connectionStatus === 'pending'
-            ? 'bg-[#30363d] text-white border-transparent cursor-default hover:bg-[#30363d]'
+            ? 'bg-[#C7D2FE] text-text-primary border-transparent cursor-default hover:bg-[#C7D2FE]'
             : connectionStatus === 'connected'
             ? 'bg-primary text-white hover:bg-primary-hover border-transparent'
             : ''

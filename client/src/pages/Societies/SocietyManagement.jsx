@@ -116,9 +116,9 @@ export default function SocietyManagement() {
 
   if (loading || !societyData) {
     return (
-      <div className="min-h-screen bg-background text-white flex items-center justify-center">
+      <div className="min-h-screen bg-background text-text-primary flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <span className="material-symbols-outlined text-4xl animate-spin text-[#1dc964]">sync</span>
+          <span className="material-symbols-outlined text-4xl animate-spin text-primary">sync</span>
           <p className="text-text-secondary">Loading society data...</p>
         </div>
       </div>
@@ -137,7 +137,7 @@ export default function SocietyManagement() {
   const societyLogo = societyData.media?.logo || societyData.logoUrl || "🏛️";
 
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="min-h-screen bg-background text-text-primary">
       {/* Header */}
       <SocietyPageHeader
         title={societyName}
@@ -154,7 +154,7 @@ export default function SocietyManagement() {
           <>
             <button
               onClick={() => navigate(`/society/edit/${societyId}`)}
-              className="px-4 py-2 rounded-lg bg-surface-hover text-white text-sm font-medium hover:bg-surface-hover/80 transition-colors"
+              className="px-4 py-2 rounded-lg bg-surface-hover text-text-primary text-sm font-medium hover:bg-surface-hover/80 transition-colors"
             >
               Edit Society
             </button>
@@ -186,36 +186,36 @@ export default function SocietyManagement() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-text-secondary text-sm">Total Members</p>
-                    <p className="text-3xl font-bold text-white mt-2">{totalMembers}</p>
+                    <p className="text-3xl font-bold text-text-primary mt-2">{totalMembers}</p>
                   </div>
-                  <span className="material-symbols-outlined text-[#1dc964] text-4xl">group</span>
+                  <span className="material-symbols-outlined text-primary text-4xl">group</span>
                 </div>
               </div>
               <div className="bg-surface border border-border rounded-lg p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-text-secondary text-sm">Total Events</p>
-                    <p className="text-3xl font-bold text-white mt-2">{totalEvents}</p>
+                    <p className="text-3xl font-bold text-text-primary mt-2">{totalEvents}</p>
                   </div>
-                  <span className="material-symbols-outlined text-[#1dc964] text-4xl">event</span>
+                  <span className="material-symbols-outlined text-primary text-4xl">event</span>
                 </div>
               </div>
               <div className="bg-surface border border-border rounded-lg p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-text-secondary text-sm">Pending Requests</p>
-                    <p className="text-3xl font-bold text-white mt-2">{pendingCount}</p>
+                    <p className="text-3xl font-bold text-text-primary mt-2">{pendingCount}</p>
                   </div>
-                  <span className="material-symbols-outlined text-[#1dc964] text-4xl">person_add</span>
+                  <span className="material-symbols-outlined text-primary text-4xl">person_add</span>
                 </div>
               </div>
               <div className="bg-surface border border-border rounded-lg p-6">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-text-secondary text-sm">Upcoming Events</p>
-                    <p className="text-3xl font-bold text-white mt-2">{upcomingEvents}</p>
+                    <p className="text-3xl font-bold text-text-primary mt-2">{upcomingEvents}</p>
                   </div>
-                  <span className="material-symbols-outlined text-[#1dc964] text-4xl">upcoming</span>
+                  <span className="material-symbols-outlined text-primary text-4xl">upcoming</span>
                 </div>
               </div>
             </div>
@@ -226,21 +226,21 @@ export default function SocietyManagement() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <p className="text-text-secondary text-sm mb-1">Description</p>
-                  <p className="text-white">{societyDesc || "No description provided"}</p>
+                  <p className="text-text-primary">{societyDesc || "No description provided"}</p>
                 </div>
                 <div>
                   <p className="text-text-secondary text-sm mb-1">Category</p>
-                  <p className="text-white capitalize">{societyCategory}</p>
+                  <p className="text-text-primary capitalize">{societyCategory}</p>
                 </div>
                 <div>
                   <p className="text-text-secondary text-sm mb-1">Founded</p>
-                  <p className="text-white">{societyFounded}</p>
+                  <p className="text-text-primary">{societyFounded}</p>
                 </div>
                 <div>
                   <p className="text-text-secondary text-sm mb-1">Status</p>
                   <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${societyStatus === "approved"
-                      ? "bg-primary/20 text-[#1dc964]"
-                      : "bg-yellow-500/20 text-yellow-400"
+                    ? "bg-primary/20 text-primary"
+                    : "bg-yellow-500/20 text-yellow-400"
                     }`}>
                     {societyStatus === "approved" ? "Active" : societyStatus}
                   </span>
@@ -280,17 +280,17 @@ export default function SocietyManagement() {
                       const joinedDate = member.joinedAt ? new Date(member.joinedAt).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "N/A";
 
                       return (
-                        <tr key={user?._id || idx} className="border-b border-border hover:bg-white/5">
+                        <tr key={user?._id || idx} className="border-b border-border hover:bg-surface border border-border">
                           <td className="py-3 px-4">
                             <div className="flex items-center gap-3">
                               <Avatar name={displayName} src={avatarUrl} size="sm" />
-                              <span className="text-white">{displayName}</span>
+                              <span className="text-text-primary">{displayName}</span>
                             </div>
                           </td>
                           <td className="py-3 px-4 text-text-secondary capitalize">{member.role}</td>
                           <td className="py-3 px-4 text-text-secondary">{joinedDate}</td>
                           <td className="py-3 px-4">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/20 text-[#1dc964]">
+                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/20 text-primary">
                               {member.status}
                             </span>
                           </td>
@@ -331,7 +331,7 @@ export default function SocietyManagement() {
                       className="flex items-center justify-between p-4 bg-background rounded-lg border border-border"
                     >
                       <div className="flex-1">
-                        <h3 className="text-white font-semibold mb-1">{event.title}</h3>
+                        <h3 className="text-text-primary font-semibold mb-1">{event.title}</h3>
                         <div className="flex items-center gap-4 text-sm text-text-secondary">
                           <span className="flex items-center gap-1">
                             <span className="material-symbols-outlined text-sm">calendar_today</span>
@@ -344,10 +344,10 @@ export default function SocietyManagement() {
                         </div>
                       </div>
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${event.status === "registration" || event.status === "ongoing"
-                          ? "bg-primary/20 text-[#1dc964]"
-                          : event.status === "draft"
-                            ? "bg-yellow-500/20 text-yellow-400"
-                            : "bg-[#9eb7a9]/20 text-text-secondary"
+                        ? "bg-primary/20 text-primary"
+                        : event.status === "draft"
+                          ? "bg-yellow-500/20 text-yellow-400"
+                          : "bg-text-secondary/20 text-text-secondary"
                         }`}>
                         {event.status}
                       </span>
@@ -382,7 +382,7 @@ export default function SocietyManagement() {
                       <div className="flex items-center gap-3">
                         <Avatar name={displayName} src={avatarUrl} size="sm" />
                         <div>
-                          <p className="text-white font-medium">{displayName}</p>
+                          <p className="text-text-primary font-medium">{displayName}</p>
                           {requestDate && <p className="text-text-secondary text-xs">Requested {requestDate}</p>}
                         </div>
                       </div>
@@ -395,7 +395,7 @@ export default function SocietyManagement() {
                         </button>
                         <button
                           onClick={() => handleReject(memberId)}
-                          className="px-3 py-1.5 text-xs font-bold rounded-lg border border-[#f85149] text-[#f85149] hover:bg-[#f85149]/10 transition-colors"
+                          className="px-3 py-1.5 text-xs font-bold rounded-lg border border-[#DC2626] text-[#DC2626] hover:bg-[#DC2626]/10 transition-colors"
                         >
                           Reject
                         </button>
@@ -417,15 +417,15 @@ export default function SocietyManagement() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div className="bg-background rounded-lg p-4 border border-border">
                     <p className="text-text-secondary text-sm">Total Members</p>
-                    <p className="text-2xl font-bold text-white">{stats.members?.total || 0}</p>
+                    <p className="text-2xl font-bold text-text-primary">{stats.members?.total || 0}</p>
                   </div>
                   <div className="bg-background rounded-lg p-4 border border-border">
                     <p className="text-text-secondary text-sm">Total Events</p>
-                    <p className="text-2xl font-bold text-white">{stats.events?.total || 0}</p>
+                    <p className="text-2xl font-bold text-text-primary">{stats.events?.total || 0}</p>
                   </div>
                   <div className="bg-background rounded-lg p-4 border border-border">
                     <p className="text-text-secondary text-sm">Joined Last 30 Days</p>
-                    <p className="text-2xl font-bold text-white">{stats.members?.joinedLast30Days || 0}</p>
+                    <p className="text-2xl font-bold text-text-primary">{stats.members?.joinedLast30Days || 0}</p>
                   </div>
                 </div>
               ) : (

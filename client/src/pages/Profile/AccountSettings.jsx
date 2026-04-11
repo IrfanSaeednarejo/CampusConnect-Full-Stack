@@ -65,7 +65,7 @@ export default function AccountSettings() {
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Appearance */}
           <Card padding="p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">Appearance</h2>
+            <h2 className="text-lg font-semibold text-text-primary mb-4">Appearance</h2>
             <div className="space-y-4">
               <FormField
                 label="Theme"
@@ -83,7 +83,7 @@ export default function AccountSettings() {
 
           {/* Localization */}
           <Card padding="p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+            <h2 className="text-lg font-semibold text-text-primary mb-4">
               Localization
             </h2>
             <div className="space-y-4">
@@ -118,7 +118,7 @@ export default function AccountSettings() {
 
           {/* Email Preferences */}
           <Card padding="p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+            <h2 className="text-lg font-semibold text-text-primary mb-4">
               Email Preferences
             </h2>
             <div className="space-y-4">

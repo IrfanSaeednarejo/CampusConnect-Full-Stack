@@ -14,7 +14,7 @@ export default function SessionExpired() {
   return (
     <ErrorPageShell
       icon="schedule"
-      iconClassName="text-[#e6edf3]"
+      iconClassName="text-text-primary"
       title="Session Expired"
       message="Your session has expired for security reasons. Please log in again to continue."
       actions={

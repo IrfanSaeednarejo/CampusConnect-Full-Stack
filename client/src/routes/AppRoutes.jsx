@@ -4,6 +4,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 // Standard components (loaded immediately for layout structure)
 import Layout from "../components/Layout";
 import StudentLayout from "../components/StudentLayout";
+import AdminLayout from "../components/admin/AdminLayout";
 import ProtectedRoute from "./ProtectedRoute";
 
 // ==========================================
@@ -19,6 +20,9 @@ const RoleSelection = lazy(() => import("../pages/Auth/RoleSelection"));
 const Logout = lazy(() => import("../pages/Misc/Logout"));
 
 // Main Pages
+const ThemePreview = lazy(() => import("../pages/Misc/ThemePreview"));
+const AdminThemePreview = lazy(() => import("../pages/Misc/AdminThemePreview"));
+const StudentThemePreview = lazy(() => import("../pages/Misc/StudentThemePreview"));
 const Home = lazy(() => import("../pages/Misc/Home"));
 const Events = lazy(() => import("../pages/Events"));
 const Mentors = lazy(() => import("../pages/Mentors"));
@@ -145,6 +149,11 @@ export default function AppRoutes() {
   return (
     <Suspense fallback={<GlobalLoader />}>
       <Routes>
+        {/* ========== MISC ROUTES (NO LAYOUT) ========== */}
+        <Route path="/themes" element={<ThemePreview />} />
+        <Route path="/themespreview" element={<AdminThemePreview />} />
+        <Route path="/student-themes" element={<StudentThemePreview />} />
+
         {/* ========== AUTH ROUTES (NO LAYOUT) ========== */}
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
@@ -152,7 +161,7 @@ export default function AppRoutes() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password" element={<ResetPassword />} />
 
-        {/* ========== ONBOARDING ROUTES - Protected by AuthContext only, no role/onboarding completion required ========== */}
+        {/* ========== ONBOARDING ROUTES ========== */}
         <Route element={<ProtectedRoute requiresOnboarding={false} />}>
           <Route path="/onboarding/welcome" element={<OnboardingWizardWelcome />} />
           <Route path="/onboarding/profile-setup" element={<ProfileSetup />} />
@@ -172,141 +181,133 @@ export default function AppRoutes() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
 
-          {/* ========== STUDENT ROUTES - Require 'student' role + onboarding completion ========== */}
-          <Route element={<ProtectedRoute requiredRole="student" />}>
-            <Route element={<StudentLayout />}>
-              <Route path="/student/dashboard" element={<StudentDashboard />} />
-              <Route path="/student/profile" element={<StudentProfile />} />
-              <Route path="/student/academic-network" element={<AcademicNetwork />} />
-              <Route path="/student/academic-network/:profileId" element={<AcademicNetwork />} />
-              <Route path="/student/messages" element={<ChatList />} />
-              <Route path="/student/tasks" element={<StudentTasks />} />
-              <Route path="/student/events" element={<StudentEvents />} />
-              <Route path="/student/book-mentor" element={<StudentBookMentor />} />
-              <Route path="/student/sessions" element={<StudentSessions />} />
-              <Route path="/student/notifications" element={<StudentNotifications />} />
-              <Route path="/student/personal-notes" element={<StudentPersonalNotes />} />
-              <Route path="/student/my-notes" element={<StudentMyNotes />} />
-            </Route>
-          </Route>
-
-          {/* Societies list accessible by student, society_head, and admin */}
-          <Route element={<ProtectedRoute requiredRole={["student", "society_head", "admin"]} />}>
-            <Route element={<StudentLayout />}>
-              <Route path="/student/societies" element={<StudentSocieties />} />
-              <Route path="/student/societies/:societyId" element={<SocietyDetailPage />} />
-            </Route>
-          </Route>
-
-          {/* Mentor Routes moved completely out of Layout below */}
-
-          {/* ========== SOCIETY ROUTES - Require 'society_head' role + onboarding completion ========== */}
-          <Route element={<ProtectedRoute requiredRole="society_head" />}>
-            <Route path="/society/dashboard" element={<SocietyDashboard />} />
-            <Route path="/society/manage" element={<SocietyManagement />} />
-            <Route path="/society/events" element={<SocietyEvents />} />
-            <Route path="/society/mentoring" element={<SocietyMentoring />} />
-            <Route path="/society/networking" element={<SocietyNetworking />} />
-            <Route path="/society/settings" element={<SocietySettings />} />
-            <Route path="/society/create" element={<CreateSociety />} />
-            <Route path="/society/member-requests" element={<MemberRequests />} />
-            <Route path="/society/profile" element={<SocietyProfile />} />
-            <Route path="/society/list" element={<SocietiesList />} />
-            <Route path="/society/analytics" element={<SocietyAnalytics />} />
-            <Route path="/society/edit/:id" element={<EditSociety />} />
-          </Route>
-
-          {/* ========== PUBLIC SOCIETY DETAIL ROUTES ========== */}
+          {/* Public society detail */}
           <Route path="/societies/:id" element={<SocietyDetail />} />
 
-          {/* ========== ADMIN ROUTES - Require 'admin' role, skip onboarding ========== */}
-          <Route element={<ProtectedRoute requiredRole="admin" requiresOnboarding={false} />}>
+          {/* Event Dashboard inside Layout */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/event/dashboard" element={<EventDashboard />} />
+          </Route>
+
+          {/* Create Event — society_head or admin */}
+          <Route element={<ProtectedRoute requiredRole={['society_head', 'admin']} />}>
+            <Route path="/events/create" element={<CreateEventPage />} />
+          </Route>
+        </Route>
+
+        {/* ========== MENTOR REGISTRATION / APPLICATION ROUTES (Standalone, NO Layout) ========== */}
+        <Route element={<ProtectedRoute requiresOnboarding={false} />}>
+          <Route path="/mentor-registration" element={<MentorRegistration />} />
+          <Route path="/mentor-apply" element={<MentorApplication />} />
+          <Route path="/verification-pending" element={<VerificationPending />} />
+          <Route path="/application-rejected" element={<ApplicationRejected />} />
+          <Route path="/request-accepted" element={<RequestAcceptedConfirmation />} />
+        </Route>
+
+        {/* Public mentor profile — viewable by anyone */}
+        <Route path="/mentor-profile/:id" element={<MentorDisplayProfile />} />
+
+        {/* Booking/Feedback — requires auth */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/book-session" element={<BookSession />} />
+          <Route path="/feedback" element={<FeedbackMentoring />} />
+        </Route>
+
+        {/* ========== SOCIETY ROUTES (OWN LAYOUT — outside global Layout) ========== */}
+        <Route element={<ProtectedRoute requiredRole="society_head" />}>
+          <Route path="/society/dashboard" element={<SocietyDashboard />} />
+          <Route path="/society/manage" element={<SocietyManagement />} />
+          <Route path="/society/events" element={<SocietyEvents />} />
+          <Route path="/society/mentoring" element={<SocietyMentoring />} />
+          <Route path="/society/networking" element={<SocietyNetworking />} />
+          <Route path="/society/settings" element={<SocietySettings />} />
+          <Route path="/society/create" element={<CreateSociety />} />
+          <Route path="/society/member-requests" element={<MemberRequests />} />
+          <Route path="/society/profile" element={<SocietyProfile />} />
+          <Route path="/society/list" element={<SocietiesList />} />
+          <Route path="/society/analytics" element={<SocietyAnalytics />} />
+          <Route path="/society/edit/:id" element={<EditSociety />} />
+        </Route>
+
+        {/* ========== STUDENT ROUTES (StudentLayout) ========== */}
+        <Route element={<ProtectedRoute requiredRole="student" />}>
+          <Route element={<StudentLayout />}>
+            <Route path="/student/dashboard" element={<StudentDashboard />} />
+            <Route path="/student/profile" element={<StudentProfile />} />
+            <Route path="/student/academic-network" element={<AcademicNetwork />} />
+            <Route path="/student/academic-network/:profileId" element={<AcademicNetwork />} />
+            <Route path="/student/messages" element={<ChatList />} />
+            <Route path="/student/tasks" element={<StudentTasks />} />
+            <Route path="/student/events" element={<StudentEvents />} />
+            <Route path="/student/book-mentor" element={<StudentBookMentor />} />
+            <Route path="/student/sessions" element={<StudentSessions />} />
+            <Route path="/student/notifications" element={<StudentNotifications />} />
+            <Route path="/student/personal-notes" element={<StudentPersonalNotes />} />
+            <Route path="/student/my-notes" element={<StudentMyNotes />} />
+            <Route path="/student/notes" element={<NotesList />} />
+            <Route path="/student/notes/create" element={<CreateNote />} />
+            <Route path="/student/notes/:id" element={<NoteDetail />} />
+            <Route path="/student/research" element={<CreateTask />} />
+            <Route path="/student/societies" element={<StudentSocieties />} />
+            <Route path="/student/societies/:societyId" element={<SocietyDetailPage />} />
+          </Route>
+        </Route>
+
+        {/* ========== SHARED ROUTES (Study Groups, Profile — any logged-in user) ========== */}
+        <Route element={<ProtectedRoute />}>
+          {/* Study Groups — standalone, no dashboard wrapper */}
+          <Route path="/study-groups" element={<StudyGroupsList />} />
+          <Route path="/study-groups/create" element={<CreateStudyGroup />} />
+          <Route path="/study-groups/:id" element={<StudyGroupDetail />} />
+          <Route path="/study-groups/:id/join" element={<JoinStudyGroup />} />
+          <Route path="/study-groups/:id/edit" element={<EditStudyGroup />} />
+          <Route path="/study-groups/:id/chat" element={<StudyGroupChat />} />
+          <Route path="/study-groups/:id/resources" element={<StudyGroupResources />} />
+
+          {/* General Profile/Settings */}
+          <Route path="/profile/view" element={<ViewProfile />} />
+          <Route path="/profile/edit" element={<EditProfile />} />
+          <Route path="/profile/account-settings" element={<AccountSettings />} />
+          <Route path="/profile/privacy-settings" element={<PrivacySettings />} />
+          <Route path="/profile/notification-preferences" element={<NotificationPreferences />} />
+          <Route path="/profile/delete-account" element={<DeleteAccount />} />
+        </Route>
+
+        {/* ========== ADMIN ROUTES (AdminLayout) ========== */}
+        <Route element={<ProtectedRoute requiredRole="admin" requiresOnboarding={false} />}>
+          <Route element={<AdminLayout />}>
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<UserManagement />} />
             <Route path="/admin/mentor-approvals" element={<MentorVerification />} />
             <Route path="/admin/society-head-approvals" element={<SocietyApproval />} />
             <Route path="/admin/societies" element={<AdminSocieties />} />
           </Route>
-
-          {/* ========== STUDY GROUPS ROUTES - Require authentication + onboarding completion ========== */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/study-groups" element={<StudyGroupsList />} />
-            <Route path="/study-groups/create" element={<CreateStudyGroup />} />
-            <Route path="/study-groups/:id" element={<StudyGroupDetail />} />
-            <Route path="/study-groups/:id/join" element={<JoinStudyGroup />} />
-            <Route path="/study-groups/:id/edit" element={<EditStudyGroup />} />
-            <Route path="/study-groups/:id/chat" element={<StudyGroupChat />} />
-            <Route path="/study-groups/:id/resources" element={<StudyGroupResources />} />
-          </Route>
-
-          {/* ========== ACADEMICS ROUTES - Require authentication + onboarding completion ========== */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/academics/notes" element={<NotesList />} />
-            <Route path="/academics/notes/create" element={<CreateNote />} />
-            <Route path="/academics/notes/:id" element={<NoteDetail />} />
-            <Route path="/academics/research" element={<CreateTask />} />
-          </Route>
-
-          {/* ========== PROFILE ROUTES - Require authentication + onboarding completion ========== */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/profile/view" element={<ViewProfile />} />
-            <Route path="/profile/edit" element={<EditProfile />} />
-            <Route path="/profile/account-settings" element={<AccountSettings />} />
-            <Route path="/profile/privacy-settings" element={<PrivacySettings />} />
-            <Route path="/profile/notification-preferences" element={<NotificationPreferences />} />
-            <Route path="/profile/delete-account" element={<DeleteAccount />} />
-          </Route>
-
-          {/* ========== MENTOR/MENTORSHIP ROUTES - Inside Layout ========== */}
-          <Route element={<ProtectedRoute requiresOnboarding={false} />}>
-            <Route path="/mentor-registration" element={<MentorRegistration />} />
-            <Route path="/mentor-apply" element={<MentorApplication />} />
-            <Route path="/verification-pending" element={<VerificationPending />} />
-            <Route path="/application-rejected" element={<ApplicationRejected />} />
-            <Route path="/request-accepted" element={<RequestAcceptedConfirmation />} />
-          </Route>
-
-          {/* Mentor internal tools moved completely out of Layout below */}
-
-          {/* Public mentor pages — viewable by anyone */}
-          <Route path="/mentor-profile/:id" element={<MentorDisplayProfile />} />
-
-          {/* Booking/Feedback — requires auth + onboarding */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/book-session" element={<BookSession />} />
-            <Route path="/feedback" element={<FeedbackMentoring />} />
-          </Route>
-
-          {/* ========== EVENT DASHBOARD ROUTE - Protected ========== */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/event/dashboard" element={<EventDashboard />} />
-          </Route>
-
-          {/* FIX: /events/create — accessible by both society_head and admin */}
-          <Route element={<ProtectedRoute requiredRole={['society_head', 'admin']} />}>
-            <Route path="/events/create" element={<CreateEventPage />} />
-          </Route>
         </Route>
 
-        {/* ========== MENTOR INTERNAL DASHBOARD ROUTES (NO GLOBAL LAYOUT) ========== */}
+        {/* ========== MENTOR DASHBOARD ROUTES (Own layout, outside global Layout) ========== */}
         <Route element={<ProtectedRoute requiredRole="mentor" />}>
           <Route path="/mentor/dashboard" element={<MentorDashboard />} />
           <Route path="/mentorship-hub" element={<MentorshipHub />} />
-          <Route path="/mentor-sessions" element={<MentorSessions />} />
+          <Route path="/mentor/sessions" element={<MentorSessions />} />
           <Route path="/my-sessions" element={<MentorSessions />} />
+          <Route path="/mentor-sessions" element={<MentorSessions />} />
           <Route path="/earnings" element={<MentorEarnings />} />
+          <Route path="/mentor/mentees" element={<MentorMentees />} />
           <Route path="/mentor-mentees" element={<MentorMentees />} />
+          <Route path="/mentor/events" element={<MentorEvents />} />
           <Route path="/mentor-events" element={<MentorEvents />} />
+          <Route path="/mentor/profile" element={<MentorProfileView />} />
           <Route path="/mentor-profile-view" element={<MentorProfileView />} />
           <Route path="/mentor/availability" element={<MentorAvailability />} />
+          <Route path="/mentor/notifications" element={<MentorNotifications />} />
           <Route path="/mentor-notifications" element={<MentorNotifications />} />
           <Route path="/mentor/display-profile" element={<MentorDisplayProfile />} />
         </Route>
 
-        {/* FIX: /mentor/register redirect alias — old broken route was 404-ing */}
+        {/* Redirect aliases */}
         <Route path="/mentor/register" element={<Navigate to="/mentor-registration" replace />} />
 
-        {/* ========== AI AGENT ROUTES (NO LAYOUT, FULLSCREEN) ========== */}
+        {/* ========== AI AGENT ROUTES (fullscreen, no layout) ========== */}
         <Route element={<ProtectedRoute requiredRole="student" />}>
           <Route path="/student/agents/study" element={<StudyAgentPage />} />
           <Route path="/student/agents/mentor" element={<MentorAgentPage />} />

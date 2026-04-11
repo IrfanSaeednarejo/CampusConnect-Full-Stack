@@ -19,7 +19,7 @@ const NAV_ITEMS = [
   { path: '/student/sessions', label: 'Sessions', icon: 'event_available' },
   { path: '/student/messages', label: 'Messages', icon: 'chat' },
   { path: '/student/tasks', label: 'Tasks', icon: 'task_alt' },
-  { path: '/academics/notes', label: 'Notes', icon: 'description' },
+  { path: '/student/notes', label: 'Notes', icon: 'description' },
   { path: '/student/academic-network', label: 'Network', icon: 'hub' },
 ];
 
@@ -29,10 +29,9 @@ export default function StudentSidebar() {
   const [isExpanded, setIsExpanded] = useState(true);
 
   return (
-    <aside 
-      className={`hidden lg:flex flex-col p-4 text-text-primary shrink-0 border-r border-[#21262d] sticky top-[65px] h-[calc(100vh-65px)] overflow-y-auto transition-all duration-300 ease-in-out glass backdrop-blur-xl ${
-        isExpanded ? 'w-64' : 'w-[72px] items-center'
-      }`}
+    <aside
+      className={`hidden lg:flex flex-col p-4 text-text-primary shrink-0 border-r border-border h-screen overflow-y-auto scrollbar-hide transition-all duration-300 ease-in-out glass backdrop-blur-xl ${isExpanded ? 'w-64' : 'w-[72px] items-center'
+        }`}
     >
       <div className="flex flex-col gap-6 w-full">
         {/* Header Area with Toggle */}
@@ -40,10 +39,10 @@ export default function StudentSidebar() {
           {isExpanded && (
             <div className="flex items-center gap-2 overflow-hidden">
               <div className="w-8 h-8 shrink-0 rounded-full bg-primary flex items-center justify-center text-white font-bold text-xs">CC</div>
-              <h1 className="text-white text-lg font-semibold truncate tracking-tight">CampusConnect</h1>
+              <h1 className="text-text-primary text-lg font-semibold truncate tracking-tight">CampusConnect</h1>
             </div>
           )}
-          <button 
+          <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="text-text-secondary hover:text-text-primary p-1.5 rounded-md hover:bg-surface-hover transition-colors flex items-center justify-center shrink-0"
             title={isExpanded ? "Collapse Sidebar" : "Expand Sidebar"}
@@ -63,25 +62,23 @@ export default function StudentSidebar() {
                 key={item.path}
                 to={item.path}
                 title={!isExpanded ? item.label : undefined}
-                className={`group relative flex items-center ${isExpanded ? 'justify-between px-3' : 'justify-center px-0 w-10 h-10 mx-auto'} py-2 rounded-lg transition-colors ${
-                  isActive ? 'bg-surface-hover' : 'hover:bg-surface-hover'
-                }`}
+                className={`group relative flex items-center ${isExpanded ? 'justify-between px-3' : 'justify-center px-0 w-10 h-10 mx-auto'} py-2 rounded-lg transition-colors ${isActive ? 'bg-surface-hover' : 'hover:bg-surface-hover'
+                  }`}
               >
                 <div className={`flex items-center gap-3 ${isExpanded ? 'overflow-hidden' : 'justify-center w-full'}`}>
                   <span className={`material-symbols-outlined text-xl shrink-0 ${isActive ? 'text-text-primary' : 'text-text-secondary group-hover:text-text-primary'}`}>
                     {item.icon}
                   </span>
                   {isExpanded && (
-                    <span className={`text-sm font-medium truncate transition-colors ${isActive ? 'text-white' : 'text-text-primary group-hover:text-white'}`}>
+                    <span className={`text-sm font-medium truncate transition-colors ${isActive ? 'text-text-primary' : 'text-text-primary group-hover:text-text-primary'}`}>
                       {item.label}
                     </span>
                   )}
                 </div>
                 {/* Notification Badge */}
                 {item.showBadge && unreadCount > 0 && (
-                  <span className={`flex items-center justify-center font-semibold text-white bg-primary rounded-full shrink-0 ${
-                    isExpanded ? 'min-w-[20px] h-5 px-1.5 text-xs' : 'absolute top-1 right-1 w-2.5 h-2.5 text-[0px]'
-                  }`}>
+                  <span className={`flex items-center justify-center font-semibold text-white bg-primary rounded-full shrink-0 ${isExpanded ? 'min-w-[20px] h-5 px-1.5 text-xs' : 'absolute top-1 right-1 w-2.5 h-2.5 text-[0px]'
+                    }`}>
                     {isExpanded ? unreadCount : ''}
                   </span>
                 )}

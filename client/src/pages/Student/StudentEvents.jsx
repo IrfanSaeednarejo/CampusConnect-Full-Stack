@@ -32,7 +32,7 @@ function EventActionBlock({ event }) {
     if (!isRegistered) {
       buttonText = "Register Now";
       icon = "add_circle";
-      activeClasses = "bg-primary text-[#0d1117] hover:bg-primary-hover";
+      activeClasses = "bg-primary text-[#EEF2FF] hover:bg-primary-hover";
       buttonAction = () => openModal(MODAL_TYPES.REGISTER_EVENT, { 
         eventId: event._id,
         onConfirm: () => dispatch(registerForEvent(event._id))
@@ -56,19 +56,19 @@ function EventActionBlock({ event }) {
       buttonText = "Registration Closed";
       icon = "do_not_disturb";
       disabled = true;
-      activeClasses = "bg-[#30363d] text-text-secondary cursor-not-allowed";
+      activeClasses = "bg-[#C7D2FE] text-text-secondary cursor-not-allowed";
     }
   } else if (liveStatus === 'completed') {
     if (isRegistered) {
       buttonText = "View Details";
       icon = "info";
-      activeClasses = "bg-surface text-text-primary border border-border hover:bg-[#30363d]";
+      activeClasses = "bg-surface text-text-primary border border-border hover:bg-[#C7D2FE]";
       buttonAction = () => navigate(`/student/events`); // FIX [C2]: Navigate instead of alert()
     } else {
       buttonText = "Ended";
       icon = "event_available";
       disabled = true;
-      activeClasses = "bg-[#30363d] text-text-secondary cursor-not-allowed";
+      activeClasses = "bg-[#C7D2FE] text-text-secondary cursor-not-allowed";
     }
   }
 
@@ -127,7 +127,7 @@ export default function StudentEvents() {
       {/* Main Content */}
       <main className="px-4 sm:px-10 lg:px-20 py-5 md:py-10 max-w-6xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-2">All Events</h1>
+          <h1 className="text-4xl font-bold text-text-primary mb-2">All Events</h1>
           <p className="text-text-secondary">Discover and register for campus events in your institution.</p>
         </div>
 
@@ -138,7 +138,7 @@ export default function StudentEvents() {
             className={`px-6 py-2 rounded-lg font-medium transition-colors ${
               activeTab === "upcoming"
                 ? "bg-primary text-white"
-                : "text-text-primary hover:bg-[#30363d]"
+                : "text-text-primary hover:bg-[#C7D2FE]"
             }`}
           >
             <span className="flex items-center gap-2">
@@ -151,7 +151,7 @@ export default function StudentEvents() {
             className={`px-6 py-2 rounded-lg font-medium transition-colors ${
               activeTab === "past"
                 ? "bg-primary text-white"
-                : "text-text-primary hover:bg-[#30363d]"
+                : "text-text-primary hover:bg-[#C7D2FE]"
             }`}
           >
             <span className="flex items-center gap-2">
@@ -176,7 +176,7 @@ export default function StudentEvents() {
             <span className="material-symbols-outlined text-6xl text-text-secondary mb-4">
               event_busy
             </span>
-            <h3 className="text-xl font-bold text-white mb-2">No {activeTab} events yet</h3>
+            <h3 className="text-xl font-bold text-text-primary mb-2">No {activeTab} events yet</h3>
             <p className="text-text-secondary">Check back later for new opportunities.</p>
           </div>
         ) : status === 'succeeded' ? (
@@ -190,9 +190,9 @@ export default function StudentEvents() {
                 <div className="h-40 bg-surface relative overflow-hidden">
                   <div 
                     className="absolute inset-0 bg-cover bg-center transition-transform hover:scale-105"
-                    style={{ backgroundImage: `url("${event.coverImage || event.image || 'https://lh3.googleusercontent.com/aida-public/AB6AXuD9RA_fMuSaLKstjcMP5ozR-vSaxtqQ_kzINRu0QEbitLaiaOGSvhHQ0t3zi1Py769dste1tAWujcMGzeKsHP3LIDU8GpBrAtxlzAEKMTgoN2PCuAMYnxMVStac_6sgv9hNluDqsTZg4B7sFD-1sE6Uqn7KpdMC_eKzapyTUfan20XYGE2tBdjBB1D9B7MnCMh1-NNhn67QqbuDD5OKhys_-_9nTeollnRzd23QBgopcA4rmFIaSDdXU_42pp-765L5mTwpjWlySM8'}")` }}
+                    style={{ backgroundImage: `url("${event.coverImage || event.image || ''}")` }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0d1117] to-transparent opacity-60"></div>
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#EEF2FF] to-transparent opacity-60"></div>
                   <div className="absolute top-3 right-3">
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-bold border ${
@@ -214,7 +214,7 @@ export default function StudentEvents() {
                     <p className="text-text-secondary text-xs font-medium uppercase tracking-wider mb-1">
                       {event.organizer || event.society?.name || "Society Event"}
                     </p>
-                    <h3 className="text-white text-lg font-bold leading-tight">
+                    <h3 className="text-text-primary text-lg font-bold leading-tight">
                       {event.title}
                     </h3>
                   </div>

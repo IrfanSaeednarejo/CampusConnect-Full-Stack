@@ -16,7 +16,7 @@ export default function AgentMessageList({
             className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
               msg.sender === "user"
                 ? "bg-primary text-white rounded-br-none"
-                : "bg-[#1f2937] text-text-primary border border-border rounded-bl-none"
+                : "bg-surface text-text-primary border border-border rounded-bl-none"
             }`}
           >
             <p className="text-sm break-words">{msg.text}</p>
@@ -32,11 +32,11 @@ export default function AgentMessageList({
 
       {isTyping && (
         <div className="flex justify-start">
-          <div className="bg-[#1f2937] border border-border px-4 py-3 rounded-lg rounded-bl-none">
+          <div className="bg-surface border border-border px-4 py-3 rounded-lg rounded-bl-none">
             <div className="flex gap-1">
-              <div className="w-2 h-2 bg-[#8b949e] rounded-full animate-bounce"></div>
-              <div className="w-2 h-2 bg-[#8b949e] rounded-full animate-bounce delay-100"></div>
-              <div className="w-2 h-2 bg-[#8b949e] rounded-full animate-bounce delay-200"></div>
+              <div className="w-2 h-2 bg-[#475569] rounded-full animate-bounce"></div>
+              <div className="w-2 h-2 bg-[#475569] rounded-full animate-bounce delay-100"></div>
+              <div className="w-2 h-2 bg-[#475569] rounded-full animate-bounce delay-200"></div>
             </div>
           </div>
         </div>

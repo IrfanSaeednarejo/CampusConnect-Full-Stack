@@ -112,7 +112,7 @@ export default function Login() {
         <div className="layout-content-container flex flex-col w-full max-w-[384px] flex-1">
           {/* Header */}
           <div className="flex flex-col items-center gap-4 text-center mb-8">
-            <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-2xl shadow-[#238636]/40 border border-white/10 glass">
+            <div className="w-16 h-16 rounded-full bg-primary flex items-center justify-center shadow-2xl shadow-[#4F46E5]/40 border border-border glass">
               <svg
                 className="w-8 h-8"
                 fill="white"
@@ -156,7 +156,7 @@ export default function Login() {
                   <button
                     type="button"
                     onClick={() => navigate("/forgot-password")}
-                    className="text-[#58a6ff] text-xs font-normal leading-normal hover:underline"
+                    className="text-primary text-xs font-normal leading-normal hover:underline"
                   >
                     Forgot your password?
                   </button>
@@ -189,7 +189,7 @@ export default function Login() {
               <button
                 type="button"
                 onClick={() => navigate("/signup")}
-                className="text-[#58a6ff] hover:underline cursor-pointer"
+                className="text-primary hover:underline cursor-pointer"
               >
                 Sign up
               </button>

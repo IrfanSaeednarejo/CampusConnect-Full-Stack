@@ -34,7 +34,7 @@ export default function ContactUs() {
   };
 
   return (
-    <div className="w-full bg-background text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
+    <div className="w-full bg-background text-text-primary min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-12">
@@ -132,16 +132,16 @@ export default function ContactUs() {
 
             <ContactInfoCard icon="🌐" title="Follow Us">
               <div className="flex gap-3">
-                <a href="#" className="text-primary hover:text-[#2ea043]">
+                <a href="#" className="text-primary hover:text-[#4338CA]">
                   Twitter
                 </a>
-                <a href="#" className="text-primary hover:text-[#2ea043]">
+                <a href="#" className="text-primary hover:text-[#4338CA]">
                   LinkedIn
                 </a>
-                <a href="#" className="text-primary hover:text-[#2ea043]">
+                <a href="#" className="text-primary hover:text-[#4338CA]">
                   Instagram
                 </a>
-                <a href="#" className="text-primary hover:text-[#2ea043]">
+                <a href="#" className="text-primary hover:text-[#4338CA]">
                   Facebook
                 </a>
               </div>

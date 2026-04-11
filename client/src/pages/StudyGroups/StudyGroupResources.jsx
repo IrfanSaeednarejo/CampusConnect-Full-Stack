@@ -160,7 +160,7 @@ export default function StudyGroupResources() {
               description="Try changing your filter or upload a new resource."
             />
           ) : (
-            <div className="divide-y divide-[#30363d]">
+            <div className="divide-y divide-[#C7D2FE]">
               {filteredResources.map((resource) => (
                 <ResourceCard
                   key={resource.id}

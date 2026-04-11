@@ -15,7 +15,7 @@ export default function GroupChatInput({ message, setMessage, onSend }) {
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Type a message... (Shift+Enter for new line)"
-            className="flex-1 px-4 py-3 rounded-lg bg-surface border border-border text-text-primary placeholder-[#8b949e] focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors resize-none"
+            className="flex-1 px-4 py-3 rounded-lg bg-surface border border-border text-text-primary placeholder-[#475569] focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary transition-colors resize-none"
             rows={2}
           />
           <button

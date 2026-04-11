@@ -38,24 +38,24 @@ export default function Home() {
     }
   };
   return (
-    <div className="w-full bg-background text-[#e6edf3] min-h-screen">
+    <div className="w-full bg-background text-text-primary min-h-screen">
       {/* Hero Section */}
       <div className="relative flex min-h-[560px] flex-col items-center justify-center overflow-hidden px-4 py-20 md:px-10">
         {/* Background Gradients */}
         <div className="absolute inset-0 bg-background z-0" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#1f6feb]/20 via-[#0d1117] to-[#0d1117] z-0" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-[#238636]/15 via-transparent to-transparent z-0" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#1f6feb]/20 via-[#EEF2FF] to-[#EEF2FF] z-0" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,_var(--tw-gradient-stops))] from-[#4F46E5]/15 via-transparent to-transparent z-0" />
 
         <div className="relative z-10 flex flex-col gap-6 text-center max-w-4xl mx-auto mt-10">
           <div className="inline-flex items-center justify-center px-4 py-1.5 rounded-full bg-surface border border-border self-center mb-4 transition-transform hover:scale-105 cursor-default">
-            <span className="text-[#2ea043] text-sm font-semibold flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-[#2ea043] animate-pulse"></span>
+            <span className="text-[#4338CA] text-sm font-semibold flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
               Join the CampusConnect Beta
             </span>
           </div>
 
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-[#c9d1d9] via-white to-[#8b949e]">
-            Your Campus, <br className="hidden md:block"/> Connected.
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-black leading-tight tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-[#0F172A] via-[#4F46E5] to-[#475569]">
+            Your Campus, <br className="hidden md:block" /> Connected.
           </h1>
           <h2 className="text-text-secondary text-lg md:text-xl font-normal leading-relaxed max-w-2xl mx-auto mt-2">
             The ultimate platform uniting students, mentors, and societies to
@@ -63,20 +63,20 @@ export default function Home() {
           </h2>
 
           <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
-            <button 
+            <button
               className="px-8 py-3 rounded-lg bg-primary text-white font-bold text-base hover:bg-primary-hover hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(46,160,67,0.4)] transition-all duration-200"
               onClick={() => handleGetStarted("student")}
             >
               I'm a Student
             </button>
-            <button 
-              className="px-8 py-3 rounded-lg bg-surface border border-border text-text-primary font-bold text-base hover:bg-surface-hover hover:text-white hover:-translate-y-0.5 transition-all duration-200"
+            <button
+              className="px-8 py-3 rounded-lg bg-surface border border-border text-text-primary font-bold text-base hover:bg-surface-hover hover:text-text-primary hover:-translate-y-0.5 transition-all duration-200"
               onClick={() => handleGetStarted("mentor")}
             >
               I'm a Mentor
             </button>
-            <button 
-              className="px-8 py-3 rounded-lg bg-surface border border-border text-text-primary font-bold text-base hover:bg-surface-hover hover:text-white hover:-translate-y-0.5 transition-all duration-200"
+            <button
+              className="px-8 py-3 rounded-lg bg-surface border border-border text-text-primary font-bold text-base hover:bg-surface-hover hover:text-text-primary hover:-translate-y-0.5 transition-all duration-200"
               onClick={() => handleGetStarted("society_head")}
             >
               I'm a Society Head
@@ -96,9 +96,9 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mt-6">
           <div className="flex justify-center md:justify-end pr-0 md:pr-10 relative">
             {/* Abstract decorative element for steps */}
-            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-2xl bg-gradient-to-br from-[#238636] to-[rgba(35,134,54,0.1)] p-1 transform rotate-3 hover:rotate-6 transition-transform duration-500 shadow-2xl">
+            <div className="relative w-64 h-64 md:w-80 md:h-80 rounded-2xl bg-gradient-to-br from-[#4F46E5] to-[rgba(35,134,54,0.1)] p-1 transform rotate-3 hover:rotate-6 transition-transform duration-500 shadow-2xl">
               <div className="w-full h-full rounded-xl bg-background border border-border flex items-center justify-center p-8">
-                <span className="material-symbols-outlined text-8xl text-transparent bg-clip-text bg-gradient-to-tr from-[#238636] to-[#2ea043]">
+                <span className="material-symbols-outlined text-8xl text-transparent bg-clip-text bg-gradient-to-tr from-[#4F46E5] to-[#4338CA]">
                   hub
                 </span>
               </div>
@@ -164,8 +164,8 @@ export default function Home() {
       {/* CTA Section */}
       <div className="relative py-24 px-4 overflow-hidden">
         {/* Decorative background glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[400px] bg-gradient-to-r from-[#1f6feb]/20 to-[#238636]/20 blur-[100px] -z-10 rounded-full mix-blend-screen" />
-        
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-[400px] bg-gradient-to-r from-[#1f6feb]/20 to-[#4F46E5]/20 blur-[100px] -z-10 rounded-full mix-blend-screen" />
+
         <div className="flex flex-col items-center justify-center gap-8 max-w-4xl mx-auto text-center border border-border bg-surface/50 backdrop-blur-sm rounded-3xl p-10 md:p-16 shadow-2xl">
           <div className="flex flex-col gap-3">
             <h2 className="text-4xl md:text-5xl font-black text-text-primary tracking-tight">
@@ -176,8 +176,8 @@ export default function Home() {
             </p>
           </div>
 
-          <button 
-            className="group relative px-8 py-4 bg-white text-[#0d1117] rounded-full font-bold text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.2)] hover:shadow-[0_0_60px_rgba(255,255,255,0.4)] overflow-hidden"
+          <button
+            className="group relative px-8 py-4 bg-primary text-white rounded-full font-bold text-lg hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(79,70,229,0.3)] hover:shadow-[0_0_60px_rgba(79,70,229,0.5)] overflow-hidden"
             onClick={() => navigate("/signup")}
           >
             <span className="relative z-10 flex items-center gap-2">

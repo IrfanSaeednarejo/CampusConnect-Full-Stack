@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { setUserPreferences } from "../../redux/slices/userSlice";
+import { useAuth } from "../../contexts/AuthContext.jsx";
+import { updateAccountDetails } from "../../api/authApi";
 import FormActions from "../../components/common/FormActions";
 import OnboardingShell from "../../components/onboarding/OnboardingShell";
 import OnboardingCard from "../../components/onboarding/OnboardingCard";
@@ -10,18 +10,37 @@ import OnboardingOptionRow from "../../components/onboarding/OnboardingOptionRow
 
 export default function NotificationsSetup() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { updateUser } = useAuth();
 
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsReminders, setSmsReminders] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const handleFinish = () => {
-    // Save notification preferences to Redux
-    dispatch(setUserPreferences({
-      emailUpdates: emailNotifications,
-      smsReminders: smsReminders,
-      notifications: emailNotifications || smsReminders,
-    }));
+  const handleFinish = async () => {
+    setSaving(true);
+    try {
+      // Persist notification preferences to backend
+      await updateAccountDetails({
+        preferences: {
+          emailUpdates: emailNotifications,
+          smsReminders: smsReminders,
+          notifications: emailNotifications || smsReminders,
+        },
+      });
+      // Update context
+      updateUser({
+        preferences: {
+          emailUpdates: emailNotifications,
+          smsReminders,
+          notifications: emailNotifications || smsReminders,
+        },
+      });
+    } catch (err) {
+      console.error("Failed to save notification preferences:", err);
+      // Continue anyway — don't block onboarding
+    } finally {
+      setSaving(false);
+    }
     navigate("/onboarding/complete");
   };
 
@@ -37,7 +56,7 @@ export default function NotificationsSetup() {
 
         {/* Page Heading */}
         <div className="flex flex-col gap-2">
-          <p className="text-[#e6edf3] text-3xl font-black tracking-[-0.03em]">
+          <p className="text-text-primary text-3xl font-black tracking-[-0.03em]">
             Enable Notifications
           </p>
           <p className="text-text-secondary text-base">
@@ -66,10 +85,11 @@ export default function NotificationsSetup() {
 
         {/* Action Buttons */}
         <FormActions
-          submitText="Finish Setup"
+          submitText={saving ? "Saving..." : "Finish Setup"}
           cancelText="Skip for now"
           onSubmit={handleFinish}
           onCancel={() => navigate("/onboarding/complete")}
+          disabled={saving}
         />
       </OnboardingCard>
     </OnboardingShell>

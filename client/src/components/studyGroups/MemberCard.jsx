@@ -10,7 +10,7 @@ export default function MemberCard({ member }) {
           <div className="text-sm text-text-secondary">{member.role}</div>
         </div>
       </div>
-      <button className="px-4 py-2 rounded-lg bg-surface-hover text-text-primary text-sm font-medium border border-border hover:bg-[#30363d] transition-colors">
+      <button className="px-4 py-2 rounded-lg bg-surface-hover text-text-primary text-sm font-medium border border-border hover:bg-[#C7D2FE] transition-colors">
         View Profile
       </button>
     </div>

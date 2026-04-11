@@ -9,7 +9,7 @@ export default function FormActions({
       <button
         type="button"
         onClick={onCancel}
-        className="flex-1 px-6 py-3 rounded-lg bg-surface-hover text-text-primary font-semibold border border-border hover:bg-[#30363d] transition-colors"
+        className="flex-1 px-6 py-3 rounded-lg bg-surface-hover text-text-primary font-semibold border border-border hover:bg-[#C7D2FE] transition-colors"
       >
         {cancelLabel}
       </button>

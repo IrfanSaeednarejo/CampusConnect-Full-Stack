@@ -6,13 +6,9 @@ export default function Sidebar() {
       <div className="flex flex-col gap-6">
         <div className="flex items-center gap-2 px-2 pt-2">
           <div
-            className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8"
-            style={{
-              backgroundImage:
-                'url("https://lh3.googleusercontent.com/aida-public/AB6AXuByHDKs6VLKKg0tivmOOz9TQ-8vono2ty3KY16w06RsABgFGlPaZBbajp_j7DnJ8M2TWVe9YUs_ziqa5E1inc09THc6UAqVQpNASwI1BAPi-du_2FupZ21f-RAAHcnZdVlgytCuoAILhOCB7Op93usaVvDKvYhPdJDKDxMdnVNYB7gSi_c6jZuNe67pgvBT9L6vc4htdTQ6s4lXm7w6g3jooaDixQvdx8VJwcO2ZUQ0ILQly30bWli-W6oMNM_8tzX6_8haj1KXJUk")',
-            }}
-          ></div>
-          <h1 className="text-white text-lg font-semibold">CampusConnect</h1>
+            className="bg-primary flex items-center justify-center rounded-full size-8 text-white font-bold text-xs"
+          >CC</div>
+          <h1 className="text-text-primary text-lg font-semibold">CampusConnect</h1>
         </div>
         <nav className="flex flex-col gap-2">
           <Link
@@ -34,9 +30,6 @@ export default function Sidebar() {
               </span>
               <span className="text-sm font-medium">Notifications</span>
             </div>
-            <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-semibold text-white bg-primary rounded-full">
-              3
-            </span>
           </Link>
           <Link
             className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-hover transition-colors"
@@ -60,7 +53,7 @@ export default function Sidebar() {
       </div>
 
       <div className="flex-grow">
-        <hr className="border-t border-[#21262d] my-4" />
+        <hr className="border-t border-border my-4" />
         <div className="flex flex-col gap-1 mb-6">
           <h2 className="px-3 text-xs font-semibold uppercase text-text-secondary tracking-wider mb-1">
             Society HQ
@@ -82,7 +75,7 @@ export default function Sidebar() {
                 </span>
                 <span>Manage Members</span>
               </p>
-              <div className="flex flex-col mt-1 pl-4 border-l border-[#21262d] ml-4">
+              <div className="flex flex-col mt-1 pl-4 border-l border-border ml-4">
                 <Link
                   className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-surface-hover transition-colors text-text-secondary hover:text-text-primary"
                   to="/society/member-requests"
@@ -113,7 +106,7 @@ export default function Sidebar() {
                 </span>
                 <span>Event Registrations</span>
               </p>
-              <div className="flex flex-col mt-1 pl-4 border-l border-[#21262d] ml-4">
+              <div className="flex flex-col mt-1 pl-4 border-l border-border ml-4">
                 <Link
                   className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-surface-hover transition-colors text-text-secondary hover:text-text-primary"
                   to="/society/events"
@@ -153,7 +146,7 @@ export default function Sidebar() {
                 </span>
                 <span>Manage Mentees</span>
               </p>
-              <div className="flex flex-col mt-1 pl-4 border-l border-[#21262d] ml-4">
+              <div className="flex flex-col mt-1 pl-4 border-l border-border ml-4">
                 <Link
                   className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-surface-hover transition-colors text-text-secondary hover:text-text-primary"
                   to="/mentor-mentees"
@@ -177,7 +170,7 @@ export default function Sidebar() {
                 </span>
                 <span>Mentorship Sessions</span>
               </p>
-              <div className="flex flex-col mt-1 pl-4 border-l border-[#21262d] ml-4">
+              <div className="flex flex-col mt-1 pl-4 border-l border-border ml-4">
                 <Link
                   className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-surface-hover transition-colors text-text-secondary hover:text-text-primary"
                   to="/mentor-sessions"
@@ -199,7 +192,7 @@ export default function Sidebar() {
       </div>
 
       <div className="flex flex-col gap-1">
-        <hr className="border-t border-[#21262d] my-4" />
+        <hr className="border-t border-border my-4" />
         <nav className="flex flex-col gap-1">
           <Link
             className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-hover transition-colors"

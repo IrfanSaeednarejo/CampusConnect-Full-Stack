@@ -24,7 +24,7 @@ export const Button = ({
         primary: 'bg-primary text-white hover:bg-primary-hover focus:ring-primary border border-transparent',
         secondary: 'bg-surface border border-border text-text-primary hover:border-border-hover focus:ring-primary',
         ghost: 'bg-transparent text-text-secondary hover:text-text-primary hover:bg-surface focus:ring-border',
-        danger: 'bg-danger text-white hover:bg-danger-hover focus:ring-danger border border-transparent',
+        danger: 'bg-danger text-text-primary hover:bg-danger-hover focus:ring-danger border border-transparent',
         outline: 'bg-transparent border border-border text-text-primary hover:bg-surface focus:ring-primary',
     };
 

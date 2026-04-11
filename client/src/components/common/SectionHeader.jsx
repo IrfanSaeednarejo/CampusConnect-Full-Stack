@@ -8,7 +8,7 @@ export default function SectionHeader({
 
   return (
     <div className={`flex flex-col gap-2 ${alignClass}`}>
-      <h1 className="text-[#e6edf3] tracking-light text-2xl md:text-4xl font-bold md:font-black leading-tight">
+      <h1 className="text-text-primary tracking-light text-2xl md:text-4xl font-bold md:font-black leading-tight">
         {title}
       </h1>
       {subtitle && (

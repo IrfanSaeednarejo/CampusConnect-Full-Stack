@@ -99,11 +99,11 @@ export default function CreateTask() {
   ];
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-[#112117] text-white font-['Lexend']">
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-white/10 px-4 sm:px-6 lg:px-10 py-3">
+    <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-background text-text-primary font-display">
+      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-border px-4 sm:px-6 lg:px-10 py-3">
         <div className="flex items-center gap-8">
-          <div className="flex items-center gap-4 text-white">
-            <div className="size-4 text-[#17cf60]">
+          <div className="flex items-center gap-4 text-text-primary">
+            <div className="size-4 text-primary">
               <svg
                 fill="none"
                 viewBox="0 0 48 48"
@@ -115,31 +115,31 @@ export default function CreateTask() {
                 ></path>
               </svg>
             </div>
-            <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
+            <h2 className="text-text-primary text-lg font-bold leading-tight tracking-[-0.015em]">
               CampusConnect
             </h2>
           </div>
           <div className="hidden md:flex items-center gap-9">
             <Link
-              className="text-white/80 hover:text-white text-sm font-medium leading-normal"
+              className="text-text-primary/80 hover:text-text-primary text-sm font-medium leading-normal"
               to="/student/dashboard"
             >
               Dashboard
             </Link>
             <Link
-              className="text-white/80 hover:text-white text-sm font-medium leading-normal"
+              className="text-text-primary/80 hover:text-text-primary text-sm font-medium leading-normal"
               to="/events"
             >
               Events
             </Link>
             <Link
-              className="text-white/80 hover:text-white text-sm font-medium leading-normal"
+              className="text-text-primary/80 hover:text-text-primary text-sm font-medium leading-normal"
               to="/mentorship-hub"
             >
               Mentoring
             </Link>
             <Link
-              className="text-white text-sm font-medium leading-normal"
+              className="text-text-primary text-sm font-medium leading-normal"
               to="/academics/research"
             >
               Research Hub
@@ -149,13 +149,13 @@ export default function CreateTask() {
         <div className="flex flex-1 justify-end items-center gap-4">
           <label className="hidden sm:flex flex-col min-w-40 !h-10 max-w-64">
             <div className="flex w-full flex-1 items-stretch rounded-lg h-full">
-              <div className="text-white/60 flex border-none bg-white/5 items-center justify-center pl-3 rounded-l-lg border-r-0">
+              <div className="text-text-primary/60 flex border-none bg-surface border border-border items-center justify-center pl-3 rounded-l-lg border-r-0">
                 <span className="material-symbols-outlined !text-xl">
                   search
                 </span>
               </div>
               <input
-                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-white/5 focus:border-none h-full placeholder:text-white/60 px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
+                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-0 border-none bg-surface border border-border focus:border-none h-full placeholder:text-text-primary/60 px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
                 placeholder="Search"
               />
             </div>
@@ -163,13 +163,13 @@ export default function CreateTask() {
           <div className="flex gap-2">
             <Link
               to="/student/notifications"
-              className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-white/5 text-white/80 hover:text-white hover:bg-white/10 gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
+              className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-surface border border-border text-text-primary/80 hover:text-text-primary hover:bg-surface border border-border gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
             >
               <span className="material-symbols-outlined">notifications</span>
             </Link>
             <Link
               to="/student/profile"
-              className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-white/5 text-white/80 hover:text-white hover:bg-white/10 gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
+              className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 w-10 bg-surface border border-border text-text-primary/80 hover:text-text-primary hover:bg-surface border border-border gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
             >
               <span className="material-symbols-outlined">settings</span>
             </Link>
@@ -188,10 +188,10 @@ export default function CreateTask() {
         <section className="md:col-span-2 xl:col-span-3 flex flex-col gap-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex flex-col">
-              <p className="text-white text-3xl font-black leading-tight tracking-[-0.033em]">
+              <p className="text-text-primary text-3xl font-black leading-tight tracking-[-0.033em]">
                 Research Hub Dashboard
               </p>
-              <p className="text-white/60 text-base font-normal leading-normal">
+              <p className="text-text-primary/60 text-base font-normal leading-normal">
                 Organize, discover, and collaborate on your academic resources.
               </p>
             </div>
@@ -217,7 +217,7 @@ export default function CreateTask() {
                   };
                   input.click();
                 }}
-                className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-white/10 hover:bg-white/20 text-white text-sm font-bold leading-normal tracking-[0.015em] gap-2"
+                className="flex min-w-[5rem] max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-surface border border-border hover:bg-surface border border-border text-text-primary text-sm font-bold leading-normal tracking-[0.015em] gap-2"
               >
                 <span className="material-symbols-outlined">upload_file</span>
                 <span className="truncate">Upload File</span>
@@ -225,16 +225,16 @@ export default function CreateTask() {
             </div>
           </div>
 
-          <div className="bg-[#1a2a20] rounded-xl p-4 md:p-6 flex flex-col flex-1 border border-[#2a3d32] shadow-lg">
-            <div className="flex justify-between items-center mb-4 pb-4 border-b border-[#2a3d32]">
-              <h3 className="text-xl font-bold text-white">
+          <div className="bg-surface rounded-xl p-4 md:p-6 flex flex-col flex-1 border border-border shadow-lg">
+            <div className="flex justify-between items-center mb-4 pb-4 border-b border-border">
+              <h3 className="text-xl font-bold text-text-primary">
                 Document Explorer
               </h3>
               <div className="flex gap-2">
-                <button className="text-white/60 hover:text-white">
+                <button className="text-text-primary/60 hover:text-text-primary">
                   <span className="material-symbols-outlined">tune</span>
                 </button>
-                <button className="text-white/60 hover:text-white">
+                <button className="text-text-primary/60 hover:text-text-primary">
                   <span className="material-symbols-outlined">sort</span>
                 </button>
               </div>
@@ -242,26 +242,26 @@ export default function CreateTask() {
 
             <div className="flex flex-col sm:flex-row gap-4 mb-4">
               <label className="flex-1 flex flex-col min-w-40 !h-10">
-                <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-white/5">
-                  <div className="text-white/60 flex items-center justify-center pl-3">
+                <div className="flex w-full flex-1 items-stretch rounded-lg h-full bg-surface border border-border">
+                  <div className="text-text-primary/60 flex items-center justify-center pl-3">
                     <span className="material-symbols-outlined !text-xl">
                       search
                     </span>
                   </div>
                   <input
-                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-transparent focus:border-none h-full placeholder:text-white/60 px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
+                    className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-0 border-none bg-transparent focus:border-none h-full placeholder:text-text-primary/60 px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
                     placeholder="Search documents..."
                   />
                 </div>
               </label>
-              <select className="form-select h-10 rounded-lg bg-white/5 border-none text-white/80 focus:ring-[#17cf60] focus:border-[#17cf60] text-sm">
+              <select className="form-select h-10 rounded-lg bg-surface border border-border border-none text-text-primary/80 focus:ring-primary focus:border-primary text-sm">
                 <option>All Types</option>
                 <option>Notes</option>
                 <option>Papers</option>
                 <option>Lectures</option>
                 <option>Reports</option>
               </select>
-              <select className="form-select h-10 rounded-lg bg-white/5 border-none text-white/80 focus:ring-[#17cf60] focus:border-[#17cf60] text-sm">
+              <select className="form-select h-10 rounded-lg bg-surface border border-border border-none text-text-primary/80 focus:ring-primary focus:border-primary text-sm">
                 <option>Last 7 Days</option>
                 <option>Last 30 Days</option>
                 <option>All Time</option>
@@ -269,31 +269,31 @@ export default function CreateTask() {
             </div>
 
             <div className="mb-4">
-              <p className="text-white/80 text-sm font-medium mb-2">
+              <p className="text-text-primary/80 text-sm font-medium mb-2">
                 Popular Tags:
               </p>
               <div className="flex flex-wrap gap-2">
-                <span className="px-3 py-1 bg-primary/20 text-[#17cf60] text-xs rounded-full cursor-pointer hover:bg-primary/30">
+                <span className="px-3 py-1 bg-primary/20 text-primary text-xs rounded-full cursor-pointer hover:bg-primary/30">
                   #AI Ethics
                 </span>
-                <span className="px-3 py-1 bg-white/10 text-white/80 text-xs rounded-full cursor-pointer hover:bg-white/20">
+                <span className="px-3 py-1 bg-surface border border-border text-text-primary/80 text-xs rounded-full cursor-pointer hover:bg-surface border border-border">
                   #MachineLearning
                 </span>
-                <span className="px-3 py-1 bg-white/10 text-white/80 text-xs rounded-full cursor-pointer hover:bg-white/20">
+                <span className="px-3 py-1 bg-surface border border-border text-text-primary/80 text-xs rounded-full cursor-pointer hover:bg-surface border border-border">
                   #QuantumPhysics
                 </span>
-                <span className="px-3 py-1 bg-white/10 text-white/80 text-xs rounded-full cursor-pointer hover:bg-white/20">
+                <span className="px-3 py-1 bg-surface border border-border text-text-primary/80 text-xs rounded-full cursor-pointer hover:bg-surface border border-border">
                   #Sociology
                 </span>
-                <span className="px-3 py-1 bg-white/10 text-white/80 text-xs rounded-full cursor-pointer hover:bg-white/20">
+                <span className="px-3 py-1 bg-surface border border-border text-text-primary/80 text-xs rounded-full cursor-pointer hover:bg-surface border border-border">
                   #BigData
                 </span>
               </div>
             </div>
 
             <div className="overflow-x-auto flex-1">
-              <table className="w-full text-sm text-white/80 text-left">
-                <thead className="text-xs text-white/60 uppercase bg-[#112117] sticky top-0">
+              <table className="w-full text-sm text-text-primary/80 text-left">
+                <thead className="text-xs text-text-secondary uppercase bg-background sticky top-0">
                   <tr>
                     <th className="px-4 py-2" scope="col">
                       Title
@@ -315,13 +315,13 @@ export default function CreateTask() {
                     </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#2a3d32]">
+                <tbody className="divide-y divide-border">
                   {documents.map((doc, index) => (
                     <tr
                       key={index}
-                      className="bg-[#1a2a20] hover:bg-white/5 cursor-pointer"
+                      className="bg-surface hover:bg-surface border border-border cursor-pointer"
                     >
-                      <td className="px-4 py-3 font-medium text-white whitespace-nowrap">
+                      <td className="px-4 py-3 font-medium text-text-primary whitespace-nowrap">
                         {doc.title}
                       </td>
                       <td className="px-4 py-3 hidden sm:table-cell">
@@ -332,7 +332,7 @@ export default function CreateTask() {
                           {doc.tags.map((tag, i) => (
                             <span
                               key={i}
-                              className="px-2 py-0.5 bg-white/10 text-white/70 text-xs rounded"
+                              className="px-2 py-0.5 bg-surface border border-border text-text-primary/70 text-xs rounded"
                             >
                               {tag}
                             </span>
@@ -344,12 +344,12 @@ export default function CreateTask() {
                       </td>
                       <td className="px-4 py-3">{doc.lastModified}</td>
                       <td className="px-4 py-3 text-right">
-                        <button className="text-white/60 hover:text-[#17cf60] px-1">
+                        <button className="text-text-primary/60 hover:text-primary px-1">
                           <span className="material-symbols-outlined">
                             edit
                           </span>
                         </button>
-                        <button className="text-white/60 hover:text-[#17cf60] px-1">
+                        <button className="text-text-primary/60 hover:text-primary px-1">
                           <span className="material-symbols-outlined">
                             share
                           </span>
@@ -364,28 +364,28 @@ export default function CreateTask() {
         </section>
 
         <aside className="flex flex-col gap-6 md:col-span-1 xl:col-span-1">
-          <div className="bg-[#1a2a20] rounded-xl p-4 md:p-5 flex flex-col flex-1 border border-[#2a3d32] shadow-lg">
-            <h3 className="text-xl font-bold text-white mb-4 pb-4 border-b border-[#2a3d32]">
+          <div className="bg-surface rounded-xl p-4 md:p-5 flex flex-col flex-1 border border-border shadow-lg">
+            <h3 className="text-xl font-bold text-text-primary mb-4 pb-4 border-b border-border">
               Recent Activity
             </h3>
             <div className="flex-1 overflow-y-auto">
-              <ul className="divide-y divide-[#2a3d32]">
+              <ul className="divide-y divide-border">
                 {activities.map((activity, index) => (
                   <li key={index} className="py-3 flex items-start gap-3">
-                    <span className="material-symbols-outlined text-[#17cf60] mt-1">
+                    <span className="material-symbols-outlined text-primary mt-1">
                       {activity.icon}
                     </span>
                     <div>
                       <p
-                        className="text-white text-sm font-medium"
+                        className="text-text-primary text-sm font-medium"
                         dangerouslySetInnerHTML={{
                           __html: activity.text.replace(
                             /"([^"]+)"/g,
-                            '<span class="text-[#17cf60]">$1</span>',
+                            '<span class="text-primary">$1</span>',
                           ),
                         }}
                       ></p>
-                      <p className="text-white/60 text-xs">{activity.time}</p>
+                      <p className="text-text-primary/60 text-xs">{activity.time}</p>
                     </div>
                   </li>
                 ))}
@@ -393,16 +393,16 @@ export default function CreateTask() {
             </div>
           </div>
 
-          <div className="bg-[#1a2a20] rounded-xl p-4 md:p-5 flex flex-col border border-[#2a3d32] shadow-lg">
-            <h3 className="text-xl font-bold text-white mb-4 pb-4 border-b border-[#2a3d32]">
+          <div className="bg-surface rounded-xl p-4 md:p-5 flex flex-col border border-border shadow-lg">
+            <h3 className="text-xl font-bold text-text-primary mb-4 pb-4 border-b border-border">
               Quick Note Scratchpad
             </h3>
             <textarea
-              className="form-textarea w-full flex-1 min-h-[150px] resize-y overflow-y-auto rounded-lg bg-white/5 border-none text-white focus:ring-[#17cf60] focus:border-[#17cf60] placeholder:text-white/60 text-sm p-3"
+              className="form-textarea w-full flex-1 min-h-[150px] resize-y overflow-y-auto rounded-lg bg-surface border border-border border-none text-text-primary focus:ring-primary focus:border-primary placeholder:text-text-primary/60 text-sm p-3"
               placeholder="Jot down quick thoughts, ideas, or to-dos..."
             ></textarea>
             <div className="flex justify-end mt-4 gap-2">
-              <button className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-3 bg-white/10 hover:bg-white/20 text-white text-sm font-bold leading-normal tracking-[0.015em] gap-1">
+              <button className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-9 px-3 bg-surface border border-border hover:bg-surface border border-border text-text-primary text-sm font-bold leading-normal tracking-[0.015em] gap-1">
                 <span className="material-symbols-outlined !text-base">
                   auto_awesome
                 </span>

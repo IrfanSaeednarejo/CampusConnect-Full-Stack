@@ -5,20 +5,20 @@ export default function NetworkErrorNotification({
 }) {
 	return (
 		<div
-			className={`flex items-center justify-between gap-4 rounded-lg border border-[#f85149] bg-surface px-4 py-3 ${className}`}
+			className={`flex items-center justify-between gap-4 rounded-lg border border-[#DC2626] bg-surface px-4 py-3 ${className}`}
 			role="alert"
 		>
 			<div className="flex items-center gap-3">
-				<span className="material-symbols-outlined text-[#f85149]">
+				<span className="material-symbols-outlined text-[#DC2626]">
 					wifi_off
 				</span>
-				<p className="text-sm text-[#e6edf3]">{message}</p>
+				<p className="text-sm text-text-primary">{message}</p>
 			</div>
 			{onRetry && (
 				<button
 					type="button"
 					onClick={onRetry}
-					className="text-sm font-semibold text-[#58a6ff] hover:underline"
+					className="text-sm font-semibold text-primary hover:underline"
 				>
 					Retry
 				</button>

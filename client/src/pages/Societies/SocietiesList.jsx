@@ -97,7 +97,7 @@ export default function SocietiesList() {
               placeholder="Search societies..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-surface border border-border rounded-lg text-[#e6edf3] placeholder-[#8b949e] focus:outline-none focus:border-primary"
+              className="w-full pl-12 pr-4 py-3 bg-surface border border-border rounded-lg text-text-primary placeholder-[#475569] focus:outline-none focus:border-primary"
             />
           </div>
         </div>
@@ -145,7 +145,7 @@ export default function SocietiesList() {
                       )}
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-white mb-1">
+                      <h3 className="text-lg font-bold text-text-primary mb-1">
                         {society.name}
                       </h3>
                       <span className="px-2 py-1 bg-primary/20 text-primary text-xs rounded-full font-medium">

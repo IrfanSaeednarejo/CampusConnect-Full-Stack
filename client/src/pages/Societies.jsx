@@ -118,7 +118,7 @@ export default function Societies() {
   };
 
   return (
-    <div className="w-full bg-background text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
+    <div className="w-full bg-background text-text-primary min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-10">
@@ -156,7 +156,7 @@ export default function Societies() {
                   category={society.category}
                   members={society.memberCount || 0}
                   description={society.description}
-                  head={society.createdBy?.profile?.displayName || "N/A"}
+                  head={society.createdBy?.profile?.displayName || society.createdBy?.name || society.headName || society.head?.name || (typeof society.head === 'string' && society.head !== 'society.head' ? society.head : null) || "Not assigned"}
                   onJoin={() => handleJoinClick(society)}
                   onLearnMore={() => handleLearnMore(societyId)}
                   joinLabel={joinLabel}

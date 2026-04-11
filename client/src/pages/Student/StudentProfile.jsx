@@ -75,11 +75,11 @@ export default function StudentProfile() {
         <div className="flex items-center gap-8">
           <button
             onClick={() => navigate("/student/dashboard")}
-            className="text-white hover:text-primary transition-colors"
+            className="text-text-primary hover:text-primary transition-colors"
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <div className="flex items-center gap-4 text-white">
+          <div className="flex items-center gap-4 text-text-primary">
             <svg
               className="size-6 text-primary"
               fill="none"
@@ -91,7 +91,7 @@ export default function StudentProfile() {
                 fill="currentColor"
               ></path>
             </svg>
-            <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
+            <h2 className="text-text-primary text-lg font-bold leading-tight tracking-[-0.015em]">
               CampusConnect
             </h2>
           </div>
@@ -104,7 +104,7 @@ export default function StudentProfile() {
                 </span>
               </div>
               <input
-                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-surface focus:border-none h-full placeholder:text-text-secondary px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
+                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-0 border-none bg-surface focus:border-none h-full placeholder:text-text-secondary px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
                 placeholder="Search"
               />
             </div>
@@ -115,43 +115,43 @@ export default function StudentProfile() {
           <div className="hidden lg:flex items-center gap-9">
             <button
               onClick={() => navigate("/student/dashboard")}
-              className="text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
+              className="text-text-primary text-sm font-medium leading-normal hover:text-primary transition-colors"
             >
               Dashboard
             </button>
             <a
-              className="text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
+              className="text-text-primary text-sm font-medium leading-normal hover:text-primary transition-colors"
               href="/events"
             >
               Events
             </a>
             <a
-              className="text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
+              className="text-text-primary text-sm font-medium leading-normal hover:text-primary transition-colors"
               href="/societies"
             >
               Societies
             </a>
             <a
-              className="text-white text-sm font-medium leading-normal hover:text-primary transition-colors"
+              className="text-text-primary text-sm font-medium leading-normal hover:text-primary transition-colors"
               href="/mentors"
             >
               Mentors
             </a>
           </div>
           <div className="flex gap-2">
-            <button className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-surface text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-[#30363d] transition-colors">
+            <button className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-surface text-text-primary gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-[#C7D2FE] transition-colors">
               <span className="material-symbols-outlined text-xl">
                 notifications
               </span>
             </button>
-            <button className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-surface text-white gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-[#30363d] transition-colors">
+            <button className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-surface text-text-primary gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-[#C7D2FE] transition-colors">
               <span className="material-symbols-outlined text-xl">
                 chat_bubble
               </span>
             </button>
           </div>
           <Avatar
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAnPK_XOPkn_xRuJjkJ28yxLKxQIg3E7DdzwpZWAUgeAqsJeg1D0pmo858Xb6Fnx4adCLic40zRTqLsOgB5E6boNvQW2Wu0w08lQ8gAHHahDiL6kDHGnwyILKuDNZcMSbweDjM8qBupJvllgQTJWoxWH6d86ONwwFSFxfNP61cxoz4janxWpttRZcAk3RL0x_QOxMM51XYQYX2b552BqA-0bjn5bBeUsZ_NyXsgVxC2-H7bNrQwoisuCAVm2GoW5vct4koHXzgMiuI"
+            src=""
             size="10"
             hover={true}
           />
@@ -177,7 +177,7 @@ export default function StudentProfile() {
                   </div>
                 )}
                 <div>
-                  <h1 className="text-white text-2xl font-bold leading-tight tracking-tight">
+                  <h1 className="text-text-primary text-2xl font-bold leading-tight tracking-tight">
                     {displayName}
                   </h1>
                   <p className="text-text-secondary text-lg font-normal leading-normal">
@@ -185,17 +185,17 @@ export default function StudentProfile() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-3">
-                  <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#30363d] text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#404851] transition-colors gap-2">
+                  <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#C7D2FE] text-text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary-hover transition-colors gap-2">
                     <span className="material-symbols-outlined">edit</span>
                     <span className="truncate">Edit Profile</span>
                   </button>
-                  <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-[#0d1117] text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity gap-2">
+                  <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-[#EEF2FF] text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity gap-2">
                     <span className="material-symbols-outlined">people</span>
                     <span className="truncate">View Connections</span>
                   </button>
                 </div>
                 <div className="border-t border-border pt-6">
-                  <p className="text-white text-base font-normal leading-normal">
+                  <p className="text-text-primary text-base font-normal leading-normal">
                     {bio}
                   </p>
                 </div>
@@ -220,7 +220,7 @@ export default function StudentProfile() {
                   </div>
                 </div>
                 <div className="border-t border-border pt-6">
-                  <h3 className="text-white text-base font-bold leading-normal mb-3">
+                  <h3 className="text-text-primary text-base font-bold leading-normal mb-3">
                     Interests
                   </h3>
                   <div className="flex gap-2 flex-wrap">
@@ -259,8 +259,8 @@ export default function StudentProfile() {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-2 px-2 transition-colors ${activeTab === tab.id
-                          ? "border-b-[#238636] text-white"
-                          : "border-b-transparent text-text-secondary hover:text-white"
+                          ? "border-b-[#4F46E5] text-text-primary"
+                          : "border-b-transparent text-text-secondary hover:text-text-primary"
                           }`}
                       >
                         <p className="text-sm font-bold leading-normal tracking-[0.015em]">
@@ -276,7 +276,7 @@ export default function StudentProfile() {
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Achievements */}
                     <div className="col-span-1 lg:col-span-2">
-                      <h2 className="text-xl font-bold text-white mb-4">
+                      <h2 className="text-xl font-bold text-text-primary mb-4">
                         Achievements
                       </h2>
                       {ACHIEVEMENTS.map((achievement) => (
@@ -291,7 +291,7 @@ export default function StudentProfile() {
                               </span>
                             </div>
                             <div>
-                              <h3 className="font-bold text-white">
+                              <h3 className="font-bold text-text-primary">
                                 {achievement.title}
                               </h3>
                               <p className="text-text-secondary text-sm">
@@ -308,7 +308,7 @@ export default function StudentProfile() {
 
                     {/* Upcoming Events */}
                     <div>
-                      <h2 className="text-xl font-bold text-white mb-4">
+                      <h2 className="text-xl font-bold text-text-primary mb-4">
                         Upcoming Events
                       </h2>
                       <div className="flex flex-col gap-4">
@@ -323,7 +323,7 @@ export default function StudentProfile() {
                               </span>
                             </div>
                             <div>
-                              <h3 className="font-bold text-white">
+                              <h3 className="font-bold text-text-primary">
                                 {event.title}
                               </h3>
                               <p className="text-text-secondary text-sm">
@@ -337,7 +337,7 @@ export default function StudentProfile() {
 
                     {/* Mentorship Status */}
                     <div>
-                      <h2 className="text-xl font-bold text-white mb-4">
+                      <h2 className="text-xl font-bold text-text-primary mb-4">
                         Mentorship Status
                       </h2>
                       <div className="bg-surface p-4 rounded-lg border border-border flex items-start gap-4">
@@ -360,7 +360,7 @@ export default function StudentProfile() {
 
                     {/* My Societies */}
                     <div className="col-span-1 lg:col-span-2">
-                      <h2 className="text-xl font-bold text-white mb-4">
+                      <h2 className="text-xl font-bold text-text-primary mb-4">
                         My Societies
                       </h2>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -384,7 +384,7 @@ export default function StudentProfile() {
                                 </div>
                               )}
                               <div>
-                                <h3 className="font-bold text-white">
+                                <h3 className="font-bold text-text-primary">
                                   {socName}
                                 </h3>
                                 <p className="text-text-secondary text-sm capitalize">
@@ -404,7 +404,7 @@ export default function StudentProfile() {
                     <span className="material-symbols-outlined text-6xl text-text-secondary block mb-4">
                       groups
                     </span>
-                    <p className="text-white">
+                    <p className="text-text-primary">
                       View your society memberships and activities
                     </p>
                   </div>
@@ -415,7 +415,7 @@ export default function StudentProfile() {
                     <span className="material-symbols-outlined text-6xl text-text-secondary block mb-4">
                       event
                     </span>
-                    <p className="text-white">
+                    <p className="text-text-primary">
                       View your event history and upcoming events
                     </p>
                   </div>
@@ -426,7 +426,7 @@ export default function StudentProfile() {
                     <span className="material-symbols-outlined text-6xl text-text-secondary block mb-4">
                       school
                     </span>
-                    <p className="text-white">
+                    <p className="text-text-primary">
                       View your mentorship history and availability
                     </p>
                   </div>

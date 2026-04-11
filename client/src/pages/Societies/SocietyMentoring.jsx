@@ -98,7 +98,7 @@ export default function SocietyMentoring() {
   );
 
   return (
-    <div className="min-h-screen bg-background text-white">
+    <div className="min-h-screen bg-background text-text-primary">
       <SocietyPageHeader
         title="Mentoring Program"
         subtitle="Connect students with experienced mentors"
@@ -123,7 +123,7 @@ export default function SocietyMentoring() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading ? (
           <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1dc964]"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
           </div>
         ) : (
           <>
@@ -132,10 +132,10 @@ export default function SocietyMentoring() {
               <div>
                 {mentors.length === 0 ? (
                   <div className="bg-surface border border-border rounded-lg p-12 text-center">
-                    <span className="material-symbols-outlined text-6xl text-[#29382f] block mb-4">
+                    <span className="material-symbols-outlined text-6xl text-text-secondary/40 block mb-4">
                       school
                     </span>
-                    <h3 className="text-xl font-semibold text-white mb-2">
+                    <h3 className="text-xl font-semibold text-text-primary mb-2">
                       No mentors found
                     </h3>
                     <p className="text-text-secondary">
@@ -155,18 +155,18 @@ export default function SocietyMentoring() {
                       ];
                       const colorClass =
                         colors[
-                          (getMentorName(mentor) || "").length % colors.length
+                        (getMentorName(mentor) || "").length % colors.length
                         ];
 
                       return (
                         <div
                           key={mentor._id}
-                          className="bg-surface border border-border rounded-lg p-6 hover:border-[#1dc964]/50 transition-colors"
+                          className="bg-surface border border-border rounded-lg p-6 hover:border-primary/50 transition-colors"
                         >
                           <div className="flex flex-col items-center text-center">
                             {avatar ? (
                               <div
-                                className="w-24 h-24 rounded-full bg-cover bg-center mb-4 ring-2 ring-[#29382f]"
+                                className="w-24 h-24 rounded-full bg-cover bg-center mb-4 ring-2 ring-border"
                                 style={{
                                   backgroundImage: `url("${avatar}")`,
                                 }}
@@ -178,13 +178,13 @@ export default function SocietyMentoring() {
                                 {initial}
                               </div>
                             )}
-                            <h3 className="text-white font-bold text-lg mb-1">
+                            <h3 className="text-text-primary font-bold text-lg mb-1">
                               {getMentorName(mentor)}
                             </h3>
                             <p className="text-text-secondary text-sm mb-2">
                               {getMentorTitle(mentor)}
                             </p>
-                            <span className="px-3 py-1 rounded-full bg-primary/20 text-[#1dc964] text-xs font-medium mb-4 truncate max-w-full">
+                            <span className="px-3 py-1 rounded-full bg-primary/20 text-primary text-xs font-medium mb-4 truncate max-w-full">
                               {getMentorSpecialty(mentor)}
                             </span>
                             <div className="w-full space-y-2 mb-4">
@@ -192,13 +192,13 @@ export default function SocietyMentoring() {
                                 <span className="text-text-secondary">
                                   Sessions:
                                 </span>
-                                <span className="text-white font-medium">
+                                <span className="text-text-primary font-medium">
                                   {mentor.sessionsCompleted || mentor.sessions || 0}
                                 </span>
                               </div>
                               <div className="flex items-center justify-between text-sm">
                                 <span className="text-text-secondary">Rating:</span>
-                                <span className="text-white font-medium flex items-center gap-1">
+                                <span className="text-text-primary font-medium flex items-center gap-1">
                                   {(mentor.rating || 0).toFixed(1)}{" "}
                                   <span className="text-yellow-500">★</span>
                                 </span>
@@ -209,11 +209,10 @@ export default function SocietyMentoring() {
                                     Status:
                                   </span>
                                   <span
-                                    className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                                      mentor.status === "approved"
-                                        ? "bg-primary/20 text-[#1dc964]"
-                                        : "bg-yellow-500/20 text-yellow-500"
-                                    }`}
+                                    className={`text-xs font-medium px-2 py-0.5 rounded-full ${mentor.status === "approved"
+                                      ? "bg-primary/20 text-primary"
+                                      : "bg-yellow-500/20 text-yellow-500"
+                                      }`}
                                   >
                                     {mentor.status}
                                   </span>
@@ -244,10 +243,10 @@ export default function SocietyMentoring() {
               <div>
                 {sessions.length === 0 ? (
                   <div className="bg-surface border border-border rounded-lg p-12 text-center">
-                    <span className="material-symbols-outlined text-6xl text-[#29382f] block mb-4">
+                    <span className="material-symbols-outlined text-6xl text-text-secondary/40 block mb-4">
                       event_note
                     </span>
-                    <h3 className="text-xl font-semibold text-white mb-2">
+                    <h3 className="text-xl font-semibold text-text-primary mb-2">
                       No sessions yet
                     </h3>
                     <p className="text-text-secondary">
@@ -284,9 +283,9 @@ export default function SocietyMentoring() {
                           {sessions.map((session) => (
                             <tr
                               key={session._id}
-                              className="border-b border-border hover:bg-white/5"
+                              className="border-b border-border hover:bg-surface border border-border"
                             >
-                              <td className="py-3 px-4 text-white">
+                              <td className="py-3 px-4 text-text-primary">
                                 {getSessionMentor(session)}
                               </td>
                               <td className="py-3 px-4 text-text-secondary">
@@ -303,16 +302,15 @@ export default function SocietyMentoring() {
                               </td>
                               <td className="py-3 px-4">
                                 <span
-                                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                    session.status === "confirmed" ||
+                                  className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${session.status === "confirmed" ||
                                     session.status === "scheduled"
-                                      ? "bg-primary/20 text-[#1dc964]"
-                                      : session.status === "completed"
+                                    ? "bg-primary/20 text-primary"
+                                    : session.status === "completed"
                                       ? "bg-blue-500/20 text-blue-400"
                                       : session.status === "cancelled"
-                                      ? "bg-red-500/20 text-red-400"
-                                      : "bg-yellow-500/20 text-yellow-400"
-                                  }`}
+                                        ? "bg-red-500/20 text-red-400"
+                                        : "bg-yellow-500/20 text-yellow-400"
+                                    }`}
                                 >
                                   {session.status}
                                 </span>
@@ -332,10 +330,10 @@ export default function SocietyMentoring() {
               <div className="space-y-4">
                 {pendingSessions.length === 0 ? (
                   <div className="bg-surface border border-border rounded-lg p-12 text-center">
-                    <span className="material-symbols-outlined text-6xl text-[#29382f] block mb-4">
+                    <span className="material-symbols-outlined text-6xl text-text-secondary/40 block mb-4">
                       inbox
                     </span>
-                    <h3 className="text-xl font-semibold text-white mb-2">
+                    <h3 className="text-xl font-semibold text-text-primary mb-2">
                       No pending requests
                     </h3>
                     <p className="text-text-secondary">
@@ -351,7 +349,7 @@ export default function SocietyMentoring() {
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-2">
-                            <h3 className="text-white font-semibold">
+                            <h3 className="text-text-primary font-semibold">
                               {getSessionStudent(request)}
                             </h3>
                             <span className="px-2 py-1 rounded-full bg-yellow-500/20 text-yellow-500 text-xs font-medium">
@@ -360,13 +358,13 @@ export default function SocietyMentoring() {
                           </div>
                           <p className="text-text-secondary text-sm mb-2">
                             Wants to connect with:{" "}
-                            <span className="text-white">
+                            <span className="text-text-primary">
                               {getSessionMentor(request)}
                             </span>
                           </p>
                           <p className="text-text-secondary text-sm mb-2">
                             Topic:{" "}
-                            <span className="text-white">
+                            <span className="text-text-primary">
                               {request.topic || "General mentoring"}
                             </span>
                           </p>
@@ -384,7 +382,7 @@ export default function SocietyMentoring() {
             {/* Stats Summary */}
             <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="bg-surface border border-border rounded-lg p-4 text-center">
-                <div className="text-3xl font-bold text-[#1dc964]">
+                <div className="text-3xl font-bold text-primary">
                   {mentors.length}
                 </div>
                 <div className="text-sm text-text-secondary mt-1">
@@ -392,7 +390,7 @@ export default function SocietyMentoring() {
                 </div>
               </div>
               <div className="bg-surface border border-border rounded-lg p-4 text-center">
-                <div className="text-3xl font-bold text-[#1dc964]">
+                <div className="text-3xl font-bold text-primary">
                   {sessions.length}
                 </div>
                 <div className="text-sm text-text-secondary mt-1">
@@ -400,7 +398,7 @@ export default function SocietyMentoring() {
                 </div>
               </div>
               <div className="bg-surface border border-border rounded-lg p-4 text-center">
-                <div className="text-3xl font-bold text-[#1dc964]">
+                <div className="text-3xl font-bold text-primary">
                   {pendingSessions.length}
                 </div>
                 <div className="text-sm text-text-secondary mt-1">

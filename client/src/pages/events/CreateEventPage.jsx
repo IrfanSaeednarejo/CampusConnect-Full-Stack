@@ -193,7 +193,7 @@ export default function CreateEventPage() {
   if (loadingSocieties) {
     return (
       <div className="w-full bg-background min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#1dc964]"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -205,11 +205,11 @@ export default function CreateEventPage() {
           <button 
             type="button"
             onClick={() => navigate('/society/events')}
-            className="flex items-center gap-1 text-text-secondary hover:text-[#58a6ff] transition-colors self-start text-sm"
+            className="flex items-center gap-1 text-text-secondary hover:text-primary transition-colors self-start text-sm"
           >
             ← Back to Events
           </button>
-          <h1 className="text-white font-bold text-2xl tracking-tight">Create New Event</h1>
+          <h1 className="text-text-primary font-bold text-2xl tracking-tight">Create New Event</h1>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-surface border border-border rounded-2xl p-8 mt-6 flex flex-col gap-6 shadow-xl">
@@ -222,7 +222,7 @@ export default function CreateEventPage() {
               value={formData.title}
               onChange={handleChange}
               placeholder="e.g. Annual Tech Summit 2026"
-              className={`bg-background border ${errors.title ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-white rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
+              className={`bg-background border ${errors.title ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-text-primary rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
             />
             {errors.title && <span className="text-red-400 text-sm mt-1">{errors.title}</span>}
           </div>
@@ -233,7 +233,7 @@ export default function CreateEventPage() {
               name="societyId"
               value={formData.societyId}
               onChange={handleChange}
-              className={`bg-background border ${errors.societyId ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-white rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
+              className={`bg-background border ${errors.societyId ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-text-primary rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
             >
               <option value="" disabled>Select a society</option>
               {societies.map((soc) => (
@@ -254,7 +254,7 @@ export default function CreateEventPage() {
               onChange={handleChange}
               placeholder="Describe your event in detail..."
               rows={4}
-              className={`bg-background border ${errors.description ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-white rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
+              className={`bg-background border ${errors.description ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-text-primary rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
             />
             {errors.description && <span className="text-red-400 text-sm mt-1">{errors.description}</span>}
           </div>
@@ -267,7 +267,7 @@ export default function CreateEventPage() {
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="bg-background border border-border focus:border-[#58a6ff] text-white rounded-lg px-4 py-2.5 w-full outline-none transition-colors"
+                className="bg-background border border-border focus:border-[#58a6ff] text-text-primary rounded-lg px-4 py-2.5 w-full outline-none transition-colors"
               >
                 <option value="academic">Academic</option>
                 <option value="cultural">Cultural</option>
@@ -285,7 +285,7 @@ export default function CreateEventPage() {
                 name="eventType"
                 value={formData.eventType}
                 onChange={handleChange}
-                className="bg-background border border-border focus:border-[#58a6ff] text-white rounded-lg px-4 py-2.5 w-full outline-none transition-colors"
+                className="bg-background border border-border focus:border-[#58a6ff] text-text-primary rounded-lg px-4 py-2.5 w-full outline-none transition-colors"
               >
                 <option value="general">General</option>
                 <option value="hackathon">Hackathon</option>
@@ -312,8 +312,8 @@ export default function CreateEventPage() {
                   />
                   <div className={`text-center py-2 px-4 rounded-lg border transition-all ${
                     formData.participationType === type 
-                    ? 'bg-primary/10 border-[#1dc964] text-[#1dc964]' 
-                    : 'bg-background border-border text-text-secondary hover:border-[#484f58]'
+                    ? 'bg-primary/10 border-primary text-primary' 
+                    : 'bg-background border-border text-text-secondary hover:border-[#475569]'
                   }`}>
                     <span className="text-sm font-bold capitalize">{type}</span>
                   </div>
@@ -330,14 +330,14 @@ export default function CreateEventPage() {
                 <button
                   type="button"
                   onClick={() => setFormData(p => ({ ...p, venueType: 'physical' }))}
-                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${formData.venueType === 'physical' ? 'bg-[#30363d] text-white shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${formData.venueType === 'physical' ? 'bg-[#C7D2FE] text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
                 >
                   Physical
                 </button>
                 <button
                   type="button"
                   onClick={() => setFormData(p => ({ ...p, venueType: 'online' }))}
-                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${formData.venueType === 'online' ? 'bg-[#30363d] text-white shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
+                  className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${formData.venueType === 'online' ? 'bg-[#C7D2FE] text-text-primary shadow-sm' : 'text-text-secondary hover:text-text-primary'}`}
                 >
                   Online
                 </button>
@@ -353,7 +353,7 @@ export default function CreateEventPage() {
                   value={formData.location}
                   onChange={handleChange}
                   placeholder="e.g. Main Auditorium, Room 301"
-                  className={`bg-surface border ${errors.location ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-white rounded-lg px-4 py-2 w-full outline-none transition-colors text-sm`}
+                  className={`bg-surface border ${errors.location ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-text-primary rounded-lg px-4 py-2 w-full outline-none transition-colors text-sm`}
                 />
                 {errors.location && <span className="text-red-400 text-xs">{errors.location}</span>}
               </div>
@@ -366,7 +366,7 @@ export default function CreateEventPage() {
                   value={formData.onlineUrl}
                   onChange={handleChange}
                   placeholder="e.g. https://meet.google.com/abc-defg-hij"
-                  className={`bg-surface border ${errors.onlineUrl ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-white rounded-lg px-4 py-2 w-full outline-none transition-colors text-sm`}
+                  className={`bg-surface border ${errors.onlineUrl ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-text-primary rounded-lg px-4 py-2 w-full outline-none transition-colors text-sm`}
                 />
                 {errors.onlineUrl && <span className="text-red-400 text-xs">{errors.onlineUrl}</span>}
               </div>
@@ -382,7 +382,7 @@ export default function CreateEventPage() {
               onChange={handleChange}
               placeholder="e.g. 100"
               min="1"
-              className={`bg-background border ${errors.capacity ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-white rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
+              className={`bg-background border ${errors.capacity ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-text-primary rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
             />
             {errors.capacity && <span className="text-red-400 text-sm mt-1">{errors.capacity}</span>}
           </div>
@@ -397,7 +397,7 @@ export default function CreateEventPage() {
                 min={today}
                 value={formData.startDate}
                 onChange={handleChange}
-                className={`bg-background border ${errors.startDate ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-white rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
+                className={`bg-background border ${errors.startDate ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-text-primary rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
               />
               {errors.startDate && <span className="text-red-400 text-sm mt-1">{errors.startDate}</span>}
             </div>
@@ -410,7 +410,7 @@ export default function CreateEventPage() {
                 min={formData.startDate || today}
                 value={formData.endDate}
                 onChange={handleChange}
-                className={`bg-background border ${errors.endDate ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-white rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
+                className={`bg-background border ${errors.endDate ? 'border-red-500' : 'border-border focus:border-[#58a6ff]'} text-text-primary rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
               />
               {errors.endDate && <span className="text-red-400 text-sm mt-1">{errors.endDate}</span>}
             </div>
@@ -425,7 +425,7 @@ export default function CreateEventPage() {
               max={formData.startDate}
               value={formData.registrationDeadline}
               onChange={handleChange}
-              className={`bg-background border border-border focus:border-[#58a6ff] text-white rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
+              className={`bg-background border border-border focus:border-[#58a6ff] text-text-primary rounded-lg px-4 py-2.5 w-full outline-none transition-colors`}
             />
             <span className="text-xs text-text-secondary">Leave blank if registration is open until start.</span>
           </div>
@@ -439,7 +439,7 @@ export default function CreateEventPage() {
               value={formData.tags}
               onChange={handleChange}
               placeholder="tech, workshop, networking (comma-separated)"
-              className="bg-background border border-border focus:border-[#58a6ff] text-white rounded-lg px-4 py-2.5 w-full outline-none transition-colors"
+              className="bg-background border border-border focus:border-[#58a6ff] text-text-primary rounded-lg px-4 py-2.5 w-full outline-none transition-colors"
             />
             <span className="text-xs text-text-secondary">Separate tags with commas</span>
           </div>
@@ -452,7 +452,7 @@ export default function CreateEventPage() {
                 type="file"
                 accept=".jpg,.jpeg,.png,.webp"
                 onChange={handleFileChange}
-                className="text-sm text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#30363d] file:text-white hover:file:bg-[#484f58] cursor-pointer transition-colors"
+                className="text-sm text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#C7D2FE] file:text-white hover:file:bg-[#475569] cursor-pointer transition-colors"
               />
             </div>
 
@@ -465,7 +465,7 @@ export default function CreateEventPage() {
                   onChange={handleChange}
                   className="sr-only"
                 />
-                <div className={`block w-10 h-6 rounded-full transition-colors ${formData.isPublic ? 'bg-[#2ea043]' : 'bg-[#30363d]'}`}></div>
+                <div className={`block w-10 h-6 rounded-full transition-colors ${formData.isPublic ? 'bg-primary' : 'bg-[#C7D2FE]'}`}></div>
                 <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${formData.isPublic ? 'transform translate-x-4' : ''}`}></div>
               </div>
               <span className="text-sm font-semibold text-text-primary tracking-wide">Make this event public</span>
@@ -481,7 +481,7 @@ export default function CreateEventPage() {
             >
               {isSubmitting ? (
                 <>
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-5 w-5 text-text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -492,7 +492,7 @@ export default function CreateEventPage() {
             <button
               type="button"
               onClick={() => navigate('/society/events')}
-              className="text-text-secondary hover:text-white text-sm text-center block w-full mt-4 cursor-pointer outline-none transition-colors"
+              className="text-text-secondary hover:text-text-primary text-sm text-center block w-full mt-4 cursor-pointer outline-none transition-colors"
             >
               Cancel
             </button>

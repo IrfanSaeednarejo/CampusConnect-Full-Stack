@@ -133,8 +133,8 @@ const ChatHeader = ({
                 position: 'absolute',
                 right: 0,
                 top: '100%',
-                backgroundColor: '#161b22',
-                border: '1px solid #30363d',
+                backgroundColor: '#FFFFFF',
+                border: '1px solid #C7D2FE',
                 borderRadius: '8px',
                 boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
                 zIndex: 1000,
@@ -150,13 +150,13 @@ const ChatHeader = ({
                     padding: '10px 16px',
                     border: 'none',
                     backgroundColor: 'transparent',
-                    color: '#c9d1d9',
+                    color: '#0F172A',
                     textAlign: 'left',
                     cursor: 'pointer',
                     fontSize: '14px',
-                    borderBottom: '1px solid #30363d',
+                    borderBottom: '1px solid #C7D2FE',
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#0d1117'}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#EEF2FF'}
                   onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                 >
                   Clear Chat History
@@ -171,13 +171,13 @@ const ChatHeader = ({
                     padding: '10px 16px',
                     border: 'none',
                     backgroundColor: 'transparent',
-                    color: '#c9d1d9',
+                    color: '#0F172A',
                     textAlign: 'left',
                     cursor: 'pointer',
                     fontSize: '14px',
-                    borderBottom: '1px solid #30363d',
+                    borderBottom: '1px solid #C7D2FE',
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#0d1117'}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#EEF2FF'}
                   onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                 >
                   {isArchived ? 'Unarchive' : 'Archive'}
@@ -191,12 +191,12 @@ const ChatHeader = ({
                     padding: '10px 16px',
                     border: 'none',
                     backgroundColor: 'transparent',
-                    color: '#c9d1d9',
+                    color: '#0F172A',
                     textAlign: 'left',
                     cursor: 'pointer',
                     fontSize: '14px',
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#0d1117'}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#EEF2FF'}
                   onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                 >
                   Report
