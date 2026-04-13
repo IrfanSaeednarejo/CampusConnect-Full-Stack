@@ -1,8 +1,9 @@
 import { useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
+  fetchStudyGroups,
   selectAllStudyGroups,
-  setStudyGroups,
+  selectStudyGroupLoading,
 } from "../../redux/slices/studyGroupSlice";
 import { useNavigation, useFilterSort } from "../../hooks";
 import GroupCard from "../../components/studyGroups/GroupCard";
@@ -26,68 +27,11 @@ export default function StudyGroupsList() {
   const dispatch = useDispatch();
 
   const allGroups = useSelector(selectAllStudyGroups);
+  const loading = useSelector(selectStudyGroupLoading);
 
   useEffect(() => {
-    if (allGroups.length === 0) {
-      const mockGroups = [
-        {
-          id: 1,
-          name: "COMP1511 Exam Prep",
-          description:
-            "Focused sessions on tackling past exam papers and key concepts for the final exam.",
-          course: "COMP1511",
-          members: 12,
-          category: "Computer Science",
-        },
-        {
-          id: 2,
-          name: "PHYS1121 Study Sessions",
-          description:
-            "Collaborative group for understanding lectures and solving tutorial problems in physics.",
-          course: "PHYS1121",
-          members: 8,
-          category: "Physics",
-        },
-        {
-          id: 3,
-          name: "MATH1081 Problem Solvers",
-          description:
-            "Working through discrete mathematics problems and proof techniques together.",
-          course: "MATH1081",
-          members: 15,
-          category: "Mathematics",
-        },
-        {
-          id: 4,
-          name: "ENGG1000 Project Hub",
-          description:
-            "A space for first-year engineering students to collaborate on their major project.",
-          course: "ENGG1000",
-          members: 21,
-          category: "Engineering",
-        },
-        {
-          id: 5,
-          name: "CHEM1011 Weekly Review",
-          description:
-            "Weekly meetings to discuss chemistry lecture content and lab reports.",
-          course: "CHEM1011",
-          members: 7,
-          category: "Chemistry",
-        },
-        {
-          id: 6,
-          name: "PSYC1001 Concept Masters",
-          description:
-            "Group dedicated to mastering core psychology concepts and preparing for quizzes.",
-          course: "PSYC1001",
-          members: 18,
-          category: "Psychology",
-        },
-      ];
-      dispatch(setStudyGroups(mockGroups));
-    }
-  }, [dispatch, allGroups.length]);
+    dispatch(fetchStudyGroups());
+  }, [dispatch]);
 
   // Use filter and sort hook
   const {
@@ -103,7 +47,7 @@ export default function StudyGroupsList() {
   });
 
   const totalMembers = useMemo(
-    () => allGroups.reduce((sum, g) => sum + g.members, 0),
+    () => allGroups.reduce((sum, g) => sum + (g.memberCount || g.members?.length || 0), 0),
     [allGroups]
   );
 
@@ -126,8 +70,8 @@ export default function StudyGroupsList() {
             onClick={() => goTo("/study-groups/create")}
             className="px-4 py-2 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-primary-hover transition-colors flex items-center gap-2"
           >
-             <span className="material-symbols-outlined text-[18px]">add</span>
-             Create Study Group
+            <span className="material-symbols-outlined text-[18px]">add</span>
+            Create Study Group
           </button>
         }
       />
@@ -164,7 +108,7 @@ export default function StudyGroupsList() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sortedGroups.map((group) => (
-              <GroupCard key={group.id} group={group} />
+              <GroupCard key={group._id || group.id} group={group} />
             ))}
           </div>
         )}

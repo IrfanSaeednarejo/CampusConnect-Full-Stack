@@ -2,10 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  selectStudyGroupById,
+  fetchStudyGroupById,
+  selectSelectedGroup,
   selectGroupMessages,
   setGroupMessages,
   addMessage,
+  selectStudyGroupLoading,
 } from "../../redux/slices/studyGroupSlice";
 import PageHeader from "../../components/common/PageHeader";
 import ChatMessage from "../../components/studyGroups/ChatMessage";
@@ -17,59 +19,29 @@ export default function StudyGroupChat() {
   const { id } = useParams();
   const [message, setMessage] = useState("");
 
-  const group = useSelector(selectStudyGroupById(id));
+  const group = useSelector(selectSelectedGroup);
   const messages = useSelector(selectGroupMessages(id));
+  const loading = useSelector(selectStudyGroupLoading);
 
   useEffect(() => {
-    if (messages.length === 0) {
-      const mockMessages = [
-        {
-          id: 1,
-          author: "Sarah Johnson",
-          avatar: "SJ",
-          message:
-            "Hey everyone! Don't forget we're meeting tomorrow at 6 PM in the library.",
-          timestamp: "10:30 AM",
-          isOwn: false,
-        },
-        {
-          id: 2,
-          author: "Alex Chen",
-          avatar: "AC",
-          message:
-            "Thanks for the reminder! I'll bring my notes from last week's lecture.",
-          timestamp: "10:35 AM",
-          isOwn: true,
-        },
-        {
-          id: 3,
-          author: "Emma Wilson",
-          avatar: "EW",
-          message:
-            "Can someone explain the concept of pointers? I'm still confused.",
-          timestamp: "11:15 AM",
-          isOwn: false,
-        },
-        {
-          id: 4,
-          author: "Michael Brown",
-          avatar: "MB",
-          message:
-            "Sure! I can go over that tomorrow. It's actually not as complicated as it seems.",
-          timestamp: "11:20 AM",
-          isOwn: false,
-        },
-      ];
-      dispatch(setGroupMessages({ groupId: id, messages: mockMessages }));
+    if (id) {
+      dispatch(fetchStudyGroupById(id));
     }
-  }, [dispatch, id, messages.length]);
+  }, [dispatch, id]);
 
   const handleSend = () => {
     if (message.trim()) {
+      // Get current user info
+      let currentUser = { displayName: 'You' };
+      try {
+        const authState = JSON.parse(localStorage.getItem('authState') || '{}');
+        currentUser = authState?.user || currentUser;
+      } catch { /* ignore */ }
+
       const newMessage = {
-        id: messages.length > 0 ? Math.max(...messages.map((m) => m.id)) + 1 : 1,
-        author: "You",
-        avatar: "Y",
+        id: Date.now(),
+        author: currentUser.profile?.displayName || currentUser.displayName || "You",
+        avatar: (currentUser.profile?.displayName || "Y").substring(0, 2).toUpperCase(),
         message: message.trim(),
         timestamp: new Date().toLocaleTimeString([], {
           hour: "2-digit",
@@ -81,6 +53,14 @@ export default function StudyGroupChat() {
       setMessage("");
     }
   };
+
+  if (loading) {
+    return (
+      <div className="h-screen bg-background text-text-primary flex items-center justify-center">
+        <p className="text-text-secondary">Loading chat...</p>
+      </div>
+    );
+  }
 
   if (!group) {
     return (
@@ -95,7 +75,7 @@ export default function StudyGroupChat() {
       {/* Header */}
       <PageHeader
         title={group.name}
-        subtitle={`${group.members} members`}
+        subtitle={`${group.memberCount || 0} members`}
         icon="chat"
         backPath={`/study-groups/${id}`}
       />
@@ -103,9 +83,16 @@ export default function StudyGroupChat() {
       {/* Messages Container */}
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4">
-          {messages.map((msg) => (
-            <ChatMessage key={msg.id} message={msg} isOwn={msg.isOwn} />
-          ))}
+          {messages.length === 0 ? (
+            <div className="text-center py-10 text-text-secondary">
+              <span className="material-symbols-outlined text-5xl mb-4 block">chat</span>
+              <p>No messages yet. Start the conversation!</p>
+            </div>
+          ) : (
+            messages.map((msg) => (
+              <ChatMessage key={msg._id || msg.id} message={msg} isOwn={msg.isOwn} />
+            ))
+          )}
         </div>
       </div>
 

@@ -2,9 +2,11 @@ import { useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  selectStudyGroupById,
+  fetchStudyGroupById,
+  fetchGroupResources,
+  selectSelectedGroup,
   selectGroupResources,
-  setGroupResources,
+  selectStudyGroupLoading,
 } from "../../redux/slices/studyGroupSlice";
 import { useFilterSort, useNavigation } from "../../hooks";
 import PageHeader from "../../components/common/PageHeader";
@@ -26,66 +28,16 @@ export default function StudyGroupResources() {
   const dispatch = useDispatch();
   const { id } = useParams();
 
-  const group = useSelector(selectStudyGroupById(id));
+  const group = useSelector(selectSelectedGroup);
   const resources = useSelector(selectGroupResources(id));
+  const loading = useSelector(selectStudyGroupLoading);
 
   useEffect(() => {
-    if (resources.length === 0) {
-      const mockResources = [
-        {
-          id: 1,
-          name: "Week 1-5 Lecture Notes.pdf",
-          type: "PDF",
-          category: "Lectures",
-          size: "2.4 MB",
-          uploadedBy: "Sarah Johnson",
-          uploadDate: "2024-02-10",
-          downloads: 15,
-        },
-        {
-          id: 2,
-          name: "Practice Problems Set 1.pdf",
-          type: "PDF",
-          category: "Practice",
-          size: "1.8 MB",
-          uploadedBy: "Alex Chen",
-          uploadDate: "2024-02-12",
-          downloads: 12,
-        },
-        {
-          id: 3,
-          name: "Exam Tips and Strategies.docx",
-          type: "Document",
-          category: "Study Guides",
-          size: "850 KB",
-          uploadedBy: "Emma Wilson",
-          uploadDate: "2024-02-14",
-          downloads: 20,
-        },
-        {
-          id: 4,
-          name: "Pointers Tutorial Video.mp4",
-          type: "Video",
-          category: "Tutorials",
-          size: "45 MB",
-          uploadedBy: "Michael Brown",
-          uploadDate: "2024-02-15",
-          downloads: 8,
-        },
-        {
-          id: 5,
-          name: "Past Exam Papers 2020-2023.zip",
-          type: "Archive",
-          category: "Exams",
-          size: "5.2 MB",
-          uploadedBy: "Sarah Johnson",
-          uploadDate: "2024-02-16",
-          downloads: 25,
-        },
-      ];
-      dispatch(setGroupResources({ groupId: id, resources: mockResources }));
+    if (id) {
+      dispatch(fetchStudyGroupById(id));
+      dispatch(fetchGroupResources(id));
     }
-  }, [dispatch, id, resources.length]);
+  }, [dispatch, id]);
 
   // Use filter hook
   const {
@@ -98,22 +50,25 @@ export default function StudyGroupResources() {
   });
 
   const totalDownloads = useMemo(
-    () => resources.reduce((sum, r) => sum + r.downloads, 0),
-    [resources]
-  );
-
-  const totalSize = useMemo(
-    () =>
-      (resources.reduce((sum, r) => sum + parseFloat(r.size), 0) / 1000).toFixed(
-        1
-      ),
+    () => resources.reduce((sum, r) => sum + (r.downloads || 0), 0),
     [resources]
   );
 
   const handleDownload = (resource) => {
-    alert(`Downloading: ${resource.name}`);
-    // Download logic here
+    if (resource.fileUrl) {
+      window.open(resource.fileUrl, '_blank');
+    } else {
+      alert(`Downloading: ${resource.name || resource.title}`);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background text-text-primary flex items-center justify-center">
+        <p className="text-text-secondary">Loading resources...</p>
+      </div>
+    );
+  }
 
   if (!group) {
     return (
@@ -163,7 +118,7 @@ export default function StudyGroupResources() {
             <div className="divide-y divide-[#C7D2FE]">
               {filteredResources.map((resource) => (
                 <ResourceCard
-                  key={resource.id}
+                  key={resource._id || resource.id}
                   resource={resource}
                   onDownload={handleDownload}
                 />
@@ -173,7 +128,7 @@ export default function StudyGroupResources() {
         </div>
 
         {/* Stats */}
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="bg-surface border border-border rounded-lg p-4 text-center">
             <div className="text-3xl font-bold text-primary">
               {resources.length}
@@ -185,12 +140,6 @@ export default function StudyGroupResources() {
               {totalDownloads}
             </div>
             <div className="text-sm text-text-secondary mt-1">Total Downloads</div>
-          </div>
-          <div className="bg-surface border border-border rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-primary">
-              {totalSize} MB
-            </div>
-            <div className="text-sm text-text-secondary mt-1">Total Size</div>
           </div>
         </div>
       </main>

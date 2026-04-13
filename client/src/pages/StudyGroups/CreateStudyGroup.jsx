@@ -1,8 +1,5 @@
-import { useDispatch, useSelector } from "react-redux";
-import {
-  addStudyGroup,
-  selectAllStudyGroups,
-} from "../../redux/slices/studyGroupSlice";
+import { useDispatch } from "react-redux";
+import { createStudyGroupThunk } from "../../redux/slices/studyGroupSlice";
 import { useFormState, useNavigation } from "../../hooks";
 import { useNotification } from "../../contexts/NotificationContext.jsx";
 import FormField from "../../components/common/FormField";
@@ -29,27 +26,23 @@ function getCategoryFromCourse(courseCode) {
 export default function CreateStudyGroup() {
   const { goTo } = useNavigation();
   const dispatch = useDispatch();
-  const allGroups = useSelector(selectAllStudyGroups);
   const { showSuccess, showError } = useNotification();
 
   const handleSubmit = async (values) => {
     try {
-      const newGroup = {
-        id: allGroups.length > 0 ? Math.max(...allGroups.map((g) => g.id)) + 1 : 1,
+      const groupData = {
         name: values.name,
         course: values.course,
+        subject: getCategoryFromCourse(values.course),
         description: values.description,
-        meetingSchedule: values.meetingSchedule || "TBD",
-        maxMembers: values.maxMembers ? parseInt(values.maxMembers) : null,
-        members: 1,
-        category: getCategoryFromCourse(values.course),
+        maxMembers: values.maxMembers ? parseInt(values.maxMembers) : 20,
       };
 
-      dispatch(addStudyGroup(newGroup));
+      await dispatch(createStudyGroupThunk(groupData)).unwrap();
       showSuccess("Study group created successfully!");
       goTo("/study-groups");
     } catch (error) {
-      showError("Failed to create study group");
+      showError(error || "Failed to create study group");
       console.error("Create group error:", error);
     }
   };
@@ -130,7 +123,7 @@ export default function CreateStudyGroup() {
               min="2"
               max="50"
               placeholder="e.g., 20"
-              helpText="Leave blank for unlimited members"
+              helpText="Leave blank for default (20 members)"
             />
 
             {/* Info Box */}
