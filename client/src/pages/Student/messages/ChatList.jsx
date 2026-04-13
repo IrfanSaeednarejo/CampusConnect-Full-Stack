@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -9,6 +9,7 @@ import {
   startNewConversation,
   setActiveConversation,
   clearConversationMessages,
+  receiveMessage,
   selectConversations,
   selectActiveMessages,
   selectActiveConversationId
@@ -17,19 +18,21 @@ import { fetchProfiles } from '../../../redux/slices/academicNetworkSlice';
 import { selectUnreadCount } from '../../../redux/slices/notificationsSlice';
 import { timeAgo, getInitials, formatDate } from '../../../utils/helpers';
 import { useNotification } from '../../../contexts/NotificationContext';
+import { useSocket } from '../../../contexts/SocketContext.jsx';
 
 
 export default function ChatList() {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigate = useNavigate();
+  const { on, off, isConnected } = useSocket();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [draft, setDraft] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newChatSearch, setNewChatSearch] = useState('');
-  // FIX [Bug 5]: State for three-dot menu dropdown
   const [menuOpen, setMenuOpen] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState(new Set());
   const menuRef = useRef(null);
 
   const scrollRef = useRef(null);
@@ -84,13 +87,59 @@ export default function ChatList() {
           });
         }
       }
-    } else if (status === 'succeeded' && conversations.length > 0 && !activeConversationId && !location.state?.openChatWith) {
-      // Auto-open first automatically on desktop, but let's just do it
-      if (window.innerWidth >= 1024) {
-        handleSelectConversation(conversations[0]);
-      }
     }
+    // No auto-open — user must click a conversation from the sidebar
   }, [status, location.state, conversations, allProfiles, dispatch, navigate, activeConversationId]);
+
+  // Real-time: listen for incoming messages via Socket.io
+  useEffect(() => {
+    if (!on || !off) return;
+
+    // The server emits message:new with the populated message directly
+    // The message has a `chat` field (the chatId)
+    const handleNewMessage = (data) => {
+      if (!data) return;
+      const chatId = data.chatId || data.chat?._id?.toString() || data.chat?.toString();
+      if (chatId) {
+        dispatch(receiveMessage({ chatId, message: data.message || data }));
+      }
+    };
+
+    const handleUserOnline = (data) => {
+      if (data?.userId) {
+        setOnlineUsers(prev => new Set([...prev, data.userId]));
+      }
+    };
+
+    const handleUserOffline = (data) => {
+      if (data?.userId) {
+        setOnlineUsers(prev => {
+          const next = new Set(prev);
+          next.delete(data.userId);
+          return next;
+        });
+      }
+    };
+
+    // Initial online users list from the server
+    const handleOnlineUsers = (data) => {
+      if (data?.users && Array.isArray(data.users)) {
+        setOnlineUsers(new Set(data.users));
+      }
+    };
+
+    on('message:new', handleNewMessage);
+    on('user:online', handleUserOnline);
+    on('user:offline', handleUserOffline);
+    on('presence:online-users', handleOnlineUsers);
+
+    return () => {
+      off('message:new', handleNewMessage);
+      off('user:online', handleUserOnline);
+      off('user:offline', handleUserOffline);
+      off('presence:online-users', handleOnlineUsers);
+    };
+  }, [on, off, dispatch]);
 
   // 3. Auto-scroll to bottom of messages
   useEffect(() => {
@@ -198,7 +247,7 @@ export default function ChatList() {
                     <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#4F46E5] to-[#4338CA] flex items-center justify-center text-white font-bold shadow-lg shadow-[#4F46E5]/20">
                       {getInitials(conv.participantName)}
                     </div>
-                    {conv.isOnline && (
+                    {(conv.isOnline || onlineUsers.has(conv.participantId)) && (
                       <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-[#EEF2FF] rounded-full"></span>
                     )}
                   </div>
@@ -331,8 +380,7 @@ export default function ChatList() {
               {/* Chat Messages */}
               <div
                 ref={scrollRef}
-                className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-cover bg-center"
-                style={{ backgroundImage: 'linear-gradient(rgba(13, 17, 23, 0.95), rgba(13, 17, 23, 0.95)), url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%2330363d\' fill-opacity=\'0.2\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")' }}
+                className="flex-1 overflow-y-auto p-4 custom-scrollbar bg-surface"
               >
                 {activeMessages.length === 0 ? (
                   <div className="text-center py-10 mt-20 text-text-secondary text-sm bg-surface max-w-xs mx-auto rounded-lg border border-border px-4">
