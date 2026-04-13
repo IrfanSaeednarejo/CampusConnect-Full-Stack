@@ -101,14 +101,14 @@ export default function StudentProfile() {
                 <div className="flex flex-col gap-3">
                   <button
                     onClick={() => navigate("/profile/edit")}
-                    className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#C7D2FE] text-text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary-hover transition-colors gap-2"
+                    className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-surface-hover border border-border text-text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary/20 transition-colors gap-2"
                   >
                     <span className="material-symbols-outlined">edit</span>
                     <span className="truncate">Edit Profile</span>
                   </button>
                   <button
                     onClick={() => navigate("/student/academic-network")}
-                    className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-[#EEF2FF] text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity gap-2"
+                    className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity gap-2"
                   >
                     <span className="material-symbols-outlined">people</span>
                     <span className="truncate">View Connections</span>

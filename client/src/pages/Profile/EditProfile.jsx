@@ -114,7 +114,7 @@ export default function EditProfile() {
               Profile Picture
             </h2>
             <div className="flex items-center gap-4">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#4F46E5] to-[#1f6feb] flex items-center justify-center text-white text-2xl font-bold">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary to-primary-hover flex items-center justify-center text-white text-2xl font-bold">
                 {form.name?.charAt(0).toUpperCase() || "U"}
               </div>
               <button

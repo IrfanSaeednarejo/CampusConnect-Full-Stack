@@ -196,7 +196,7 @@ const studyGroupSlice = createSlice({
       .addCase(fetchStudyGroups.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(fetchStudyGroups.fulfilled, (state, action) => {
         state.loading = false;
-        state.groups = Array.isArray(action.payload) ? action.payload : (action.payload?.studyGroups || []);
+        state.groups = Array.isArray(action.payload) ? action.payload : (action.payload?.docs || action.payload?.studyGroups || []);
       })
       .addCase(fetchStudyGroups.rejected, (state, action) => {
         state.loading = false;
@@ -206,7 +206,7 @@ const studyGroupSlice = createSlice({
     // fetchMyStudyGroups
     builder
       .addCase(fetchMyStudyGroups.fulfilled, (state, action) => {
-        state.myGroups = Array.isArray(action.payload) ? action.payload : [];
+        state.myGroups = Array.isArray(action.payload) ? action.payload : (action.payload?.docs || action.payload?.studyGroups || []);
       });
 
     // fetchStudyGroupById

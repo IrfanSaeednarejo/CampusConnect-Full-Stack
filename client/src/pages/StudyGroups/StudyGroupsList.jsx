@@ -95,7 +95,7 @@ export default function StudyGroupsList() {
         {/* Study Groups Grid */}
         {sortedGroups.length === 0 ? (
           <div className="bg-surface border border-border rounded-lg p-12 text-center">
-            <span className="material-symbols-outlined text-6xl text-[#C7D2FE] block mb-4">
+            <span className="material-symbols-outlined text-6xl text-primary/40 block mb-4">
               groups
             </span>
             <h3 className="text-xl font-semibold text-text-primary mb-2">
