@@ -25,11 +25,11 @@ export default function StudentProfile() {
   const upcomingEvents = useSelector(selectUpcomingEvents);
   const societies = useSelector(selectRegisteredSocieties);
 
-  const displayName = user?.profile?.displayName || `${user?.profile?.firstName || ""} ${user?.profile?.lastName || ""}`.trim() || "Student";
+  const displayName = user?.profile?.displayName || user?.name || "Student";
   const username = user?.email?.split("@")[0] || "student";
-  const bio = user?.profile?.bio || "Campus Connect member";
-  const department = user?.profile?.department || "Student";
-  const avatarUrl = user?.profile?.avatar || "";
+  const bio = user?.profile?.bio || user?.bio || "Campus Connect member";
+  const department = user?.profile?.department || user?.department || "Student";
+  const avatarUrl = user?.profile?.avatar || user?.avatar || "";
 
   useEffect(() => {
     // Fetch real events from backend
@@ -70,93 +70,7 @@ export default function StudentProfile() {
 
   return (
     <div className="w-full bg-background text-text-primary min-h-screen">
-      {/* Header */}
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-border px-6 sm:px-10 lg:px-20 py-3 sticky top-0 bg-background/80 backdrop-blur-sm z-50">
-        <div className="flex items-center gap-8">
-          <button
-            onClick={() => navigate("/student/dashboard")}
-            className="text-text-primary hover:text-primary transition-colors"
-          >
-            <span className="material-symbols-outlined">arrow_back</span>
-          </button>
-          <div className="flex items-center gap-4 text-text-primary">
-            <svg
-              className="size-6 text-primary"
-              fill="none"
-              viewBox="0 0 48 48"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M6 6H42L36 24L42 42H6L12 24L6 6Z"
-                fill="currentColor"
-              ></path>
-            </svg>
-            <h2 className="text-text-primary text-lg font-bold leading-tight tracking-[-0.015em]">
-              CampusConnect
-            </h2>
-          </div>
 
-          <label className="hidden md:flex flex-col min-w-40 !h-10 max-w-64">
-            <div className="flex w-full flex-1 items-stretch rounded-lg h-full">
-              <div className="text-text-secondary flex border-none bg-surface items-center justify-center pl-4 rounded-l-lg border-r-0">
-                <span className="material-symbols-outlined text-xl">
-                  search
-                </span>
-              </div>
-              <input
-                className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-text-primary focus:outline-0 focus:ring-0 border-none bg-surface focus:border-none h-full placeholder:text-text-secondary px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
-                placeholder="Search"
-              />
-            </div>
-          </label>
-        </div>
-
-        <div className="flex flex-1 justify-end gap-2 sm:gap-4 md:gap-8 items-center">
-          <div className="hidden lg:flex items-center gap-9">
-            <button
-              onClick={() => navigate("/student/dashboard")}
-              className="text-text-primary text-sm font-medium leading-normal hover:text-primary transition-colors"
-            >
-              Dashboard
-            </button>
-            <a
-              className="text-text-primary text-sm font-medium leading-normal hover:text-primary transition-colors"
-              href="/events"
-            >
-              Events
-            </a>
-            <a
-              className="text-text-primary text-sm font-medium leading-normal hover:text-primary transition-colors"
-              href="/societies"
-            >
-              Societies
-            </a>
-            <a
-              className="text-text-primary text-sm font-medium leading-normal hover:text-primary transition-colors"
-              href="/mentors"
-            >
-              Mentors
-            </a>
-          </div>
-          <div className="flex gap-2">
-            <button className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-surface text-text-primary gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-[#C7D2FE] transition-colors">
-              <span className="material-symbols-outlined text-xl">
-                notifications
-              </span>
-            </button>
-            <button className="flex max-w-lg cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-surface text-text-primary gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5 hover:bg-[#C7D2FE] transition-colors">
-              <span className="material-symbols-outlined text-xl">
-                chat_bubble
-              </span>
-            </button>
-          </div>
-          <Avatar
-            src=""
-            size="10"
-            hover={true}
-          />
-        </div>
-      </header>
 
       {/* Main Content */}
       <main className="px-4 sm:px-10 lg:px-20 flex flex-1 justify-center py-5 md:py-10">
@@ -185,11 +99,17 @@ export default function StudentProfile() {
                   </p>
                 </div>
                 <div className="flex flex-col gap-3">
-                  <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#C7D2FE] text-text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary-hover transition-colors gap-2">
+                  <button
+                    onClick={() => navigate("/profile/edit")}
+                    className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#C7D2FE] text-text-primary text-sm font-bold leading-normal tracking-[0.015em] hover:bg-primary-hover transition-colors gap-2"
+                  >
                     <span className="material-symbols-outlined">edit</span>
                     <span className="truncate">Edit Profile</span>
                   </button>
-                  <button className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-[#EEF2FF] text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity gap-2">
+                  <button
+                    onClick={() => navigate("/student/academic-network")}
+                    className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-[#EEF2FF] text-sm font-bold leading-normal tracking-[0.015em] hover:opacity-90 transition-opacity gap-2"
+                  >
                     <span className="material-symbols-outlined">people</span>
                     <span className="truncate">View Connections</span>
                   </button>
@@ -259,7 +179,7 @@ export default function StudentProfile() {
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`flex flex-col items-center justify-center border-b-[3px] pb-[13px] pt-2 px-2 transition-colors ${activeTab === tab.id
-                          ? "border-b-[#4F46E5] text-text-primary"
+                          ? "border-b-primary text-text-primary"
                           : "border-b-transparent text-text-secondary hover:text-text-primary"
                           }`}
                       >
@@ -275,36 +195,38 @@ export default function StudentProfile() {
                 {activeTab === "overview" && (
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Achievements */}
-                    <div className="col-span-1 lg:col-span-2">
-                      <h2 className="text-xl font-bold text-text-primary mb-4">
-                        Achievements
-                      </h2>
-                      {ACHIEVEMENTS.map((achievement) => (
-                        <div
-                          key={achievement.id}
-                          className="bg-surface p-6 rounded-lg border border-border flex items-center justify-between hover:border-primary/50 transition-colors"
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="text-primary">
-                              <span className="material-symbols-outlined text-4xl">
-                                {achievement.icon}
-                              </span>
+                    {ACHIEVEMENTS.length > 0 && (
+                      <div className="col-span-1 lg:col-span-2">
+                        <h2 className="text-xl font-bold text-text-primary mb-4">
+                          Achievements
+                        </h2>
+                        {ACHIEVEMENTS.map((achievement) => (
+                          <div
+                            key={achievement.id}
+                            className="bg-surface p-6 rounded-lg border border-border flex items-center justify-between hover:border-primary/50 transition-colors"
+                          >
+                            <div className="flex items-center gap-4">
+                              <div className="text-primary">
+                                <span className="material-symbols-outlined text-4xl">
+                                  {achievement.icon}
+                                </span>
+                              </div>
+                              <div>
+                                <h3 className="font-bold text-text-primary">
+                                  {achievement.title}
+                                </h3>
+                                <p className="text-text-secondary text-sm">
+                                  {achievement.description}
+                                </p>
+                              </div>
                             </div>
-                            <div>
-                              <h3 className="font-bold text-text-primary">
-                                {achievement.title}
-                              </h3>
-                              <p className="text-text-secondary text-sm">
-                                {achievement.description}
-                              </p>
-                            </div>
+                            <span className="material-symbols-outlined text-text-secondary">
+                              arrow_forward_ios
+                            </span>
                           </div>
-                          <span className="material-symbols-outlined text-text-secondary">
-                            arrow_forward_ios
-                          </span>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
 
                     {/* Upcoming Events */}
                     <div>
@@ -336,27 +258,28 @@ export default function StudentProfile() {
                     </div>
 
                     {/* Mentorship Status */}
-                    <div>
-                      <h2 className="text-xl font-bold text-text-primary mb-4">
-                        Mentorship Status
-                      </h2>
-                      <div className="bg-surface p-4 rounded-lg border border-border flex items-start gap-4">
-                        <div className="bg-primary/20 rounded-lg p-3 text-primary">
-                          <span className="material-symbols-outlined">
-                            school
-                          </span>
-                        </div>
-                        <div>
-                          <h3 className="font-bold text-primary">
-                            Available to Mentor
-                          </h3>
-                          <p className="text-text-secondary text-sm">
-                            Looking to mentor students in Python and Machine
-                            Learning. Reach out!
-                          </p>
+                    {user?.role === 'mentor' && (
+                      <div>
+                        <h2 className="text-xl font-bold text-text-primary mb-4">
+                          Mentorship Status
+                        </h2>
+                        <div className="bg-surface p-4 rounded-lg border border-border flex items-start gap-4 hover:border-primary/50 transition-colors">
+                          <div className="bg-primary/20 rounded-lg p-3 text-primary">
+                            <span className="material-symbols-outlined">
+                              school
+                            </span>
+                          </div>
+                          <div>
+                            <h3 className="font-bold text-primary">
+                              Available to Mentor
+                            </h3>
+                            <p className="text-text-secondary text-sm">
+                              You are registered as a mentor. Check your Mentorship dashboard for pending requests!
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
 
                     {/* My Societies */}
                     <div className="col-span-1 lg:col-span-2">

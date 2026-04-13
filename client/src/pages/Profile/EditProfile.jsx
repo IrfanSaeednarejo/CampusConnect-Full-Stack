@@ -17,7 +17,7 @@ export default function EditProfile() {
   const { showSuccess, showError } = useNotification();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
+
   const [campuses, setCampuses] = useState([]);
 
   const [form, setForm] = useState({
@@ -33,7 +33,9 @@ export default function EditProfile() {
     const fetchCampuses = async () => {
       try {
         const res = await getAllCampuses();
-        setCampuses(res.data?.campuses || []);
+        // The backend uses pagination for campuses, so it returns { docs: [...] }
+        const campusList = res.data?.docs || res.data?.campuses || res.data || res.docs || [];
+        setCampuses(Array.isArray(campusList) ? campusList : []);
       } catch (err) {
         console.error("Failed to fetch campuses:", err);
       }
