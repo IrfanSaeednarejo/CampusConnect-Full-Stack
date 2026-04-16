@@ -7,10 +7,9 @@ import EventStatusBadge from "../../../components/events/Shared/EventStatusBadge
 import { selectUser } from "../../../redux/slices/authSlice";
 import EnrollmentCTA from "../../../components/events/Detail/EnrollmentCTA";
 
-// Placeholder tabs
-const OverviewTab = () => <div className="p-6 text-[#8b949e]">Overview Content (See EventDetail.jsx logic)</div>;
-const TeamsTab = () => <div className="p-6 text-[#8b949e]">Teams Management Tab</div>;
-const LeaderboardTab = () => <div className="p-6 text-[#8b949e]">Leaderboard Tab</div>;
+import OverviewTab from "../../../components/events/Detail/OverviewTab";
+import TeamsTab from "../../../components/events/Detail/TeamsTab";
+import LeaderboardTab from "../../../components/events/Detail/LeaderboardTab";
 
 export default function EventDetailLayout() {
   const { id } = useParams();

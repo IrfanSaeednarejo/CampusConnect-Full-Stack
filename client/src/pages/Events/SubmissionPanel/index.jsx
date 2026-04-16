@@ -14,6 +14,7 @@ import {
 import CircularProgress from "../../../components/common/CircularProgress";
 import FormField from "../../../components/common/FormField";
 import Button from "../../../components/common/Button";
+import FileDropzone from "../../../components/events/Submissions/FileDropzone";
 
 export default function SubmissionPanel() {
   const { id: eventId } = useParams();
@@ -207,25 +208,15 @@ export default function SubmissionPanel() {
 
             {/* Droppable / File Input */}
             {submissionsOpen && submission?.status !== 'submitted' && (
-              <div 
-                className={`mt-4 border-2 border-dashed rounded-lg p-8 flex flex-col justify-center items-center cursor-pointer transition-colors ${uploadStatus === 'loading' ? 'border-[#1f6feb] bg-[#1f6feb]/10' : 'border-[#30363d] hover:border-[#8b949e] bg-[#0d1117]'}`}
-                onClick={() => document.getElementById('submission-file-upload').click()}
-              >
-                <span className={`material-symbols-outlined text-4xl mb-2 ${uploadStatus === 'loading' ? 'text-[#1f6feb] animate-bounce' : 'text-[#8b949e]'}`}>
-                  {uploadStatus === 'loading' ? 'cloud_upload' : 'note_add'}
-                </span>
-                <p className="text-sm font-semibold text-white">
-                  {uploadStatus === 'loading' ? 'Uploading...' : 'Click to add a file'}
-                </p>
-                <p className="text-xs text-[#8b949e] mt-1">PDF, ZIP, PPTX, or MP4 up to 50MB</p>
-                <input 
-                  id="submission-file-upload" 
-                  type="file" 
-                  className="hidden" 
-                  onChange={handleFileUpload}
-                  disabled={uploadStatus === 'loading'}
-                />
-              </div>
+              <FileDropzone 
+                disabled={!submissionsOpen || submission?.status === 'submitted'} 
+                isUploading={uploadStatus === 'loading'} 
+                onUpload={(file) => {
+                  const fileData = new FormData();
+                  fileData.append("file", file);
+                  dispatch(addSubmissionFileThunk({ eventId, formData: fileData }));    
+                }} 
+              />
             )}
           </div>
         </div>
