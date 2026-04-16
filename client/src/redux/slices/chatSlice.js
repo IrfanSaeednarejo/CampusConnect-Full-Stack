@@ -36,6 +36,66 @@ export const sendMessageThunk = createAsyncThunk(
 		}
 	}
 );
+
+export const editMessageThunk = createAsyncThunk(
+	"chat/editMessage",
+	async ({ chatId, messageId, content }, { rejectWithValue }) => {
+		try {
+			const { data } = await chatApi.editMessage(chatId, messageId, { content });
+			return { chatId, message: data.data };
+		} catch (err) {
+			return rejectWithValue(err.message);
+		}
+	}
+);
+
+export const deleteMessageThunk = createAsyncThunk(
+	"chat/deleteMessage",
+	async ({ chatId, messageId }, { rejectWithValue }) => {
+		try {
+			await chatApi.deleteMessage(chatId, messageId);
+			return { chatId, messageId };
+		} catch (err) {
+			return rejectWithValue(err.message);
+		}
+	}
+);
+
+export const toggleReactionThunk = createAsyncThunk(
+	"chat/toggleReaction",
+	async ({ chatId, messageId, emoji }, { rejectWithValue }) => {
+		try {
+			const { data } = await chatApi.toggleReaction(chatId, messageId, emoji);
+			return { chatId, messageId, reactions: data.data.reactions };
+		} catch (err) {
+			return rejectWithValue(err.message);
+		}
+	}
+);
+
+export const markAsReadThunk = createAsyncThunk(
+	"chat/markAsRead",
+	async (chatId, { rejectWithValue }) => {
+		try {
+			await chatApi.markChatAsRead(chatId);
+			return { chatId };
+		} catch (err) {
+			return rejectWithValue(err.message);
+		}
+	}
+);
+
+export const createOrGetDMThunk = createAsyncThunk(
+	"chat/createOrGetDM",
+	async (participantId, { rejectWithValue }) => {
+		try {
+			const { data } = await chatApi.createOrGetDM(participantId);
+			return data.data;
+		} catch (err) {
+			return rejectWithValue(err.message);
+		}
+	}
+);
 const initialState = {
 	conversations: [],
 	messagesByConversation: {},
@@ -47,7 +107,11 @@ const initialState = {
 	draftsByConversation: {},
 	typingByConversation: {},
 	forwardingMessage: null,
-	loading: { chats: false, messages: false },
+	replyTo: null,
+	editingMessage: null,
+	searchQuery: "",
+	searchResults: [],
+	loading: { chats: false, messages: false, operation: false },
 	error: null,
 	connection: { isConnected: false, error: null, lastConnectedAt: null },
 };
@@ -189,17 +253,51 @@ const chatSlice = createSlice({
 			state.connection.error = error || null;
 			if (isConnected) state.connection.lastConnectedAt = new Date().toISOString();
 		},
-		setReplyTo: (state) => {},
-		clearReplyTo: (state) => {},
-		setEditingMessage: (state) => {},
-		clearEditingMessage: (state) => {},
-		deleteMessageForMe: (state) => {},
-		toggleArchiveConversation: (state) => {},
-		clearConversation: (state) => {},
-		setSearchQuery: (state) => {},
-		forwardMessageToConversation: (state) => {},
-		syncPendingMessages: (state) => {},
-		retryMessage: (state) => {},
+		setReplyTo: (state, action) => {
+			state.replyTo = action.payload;
+		},
+		clearReplyTo: (state) => {
+			state.replyTo = null;
+		},
+		setEditingMessage: (state, action) => {
+			state.editingMessage = action.payload;
+		},
+		clearEditingMessage: (state) => {
+			state.editingMessage = null;
+		},
+		deleteMessageForMe: (state, action) => {
+			const { conversationId, messageId } = action.payload;
+			if (state.messagesByConversation[conversationId]) {
+				state.messagesByConversation[conversationId] = state.messagesByConversation[
+					conversationId
+				].filter((m) => m._id !== messageId && m.id !== messageId);
+			}
+		},
+		toggleArchiveConversation: (state, action) => {
+			const id = action.payload;
+			if (state.archivedConversations.includes(id)) {
+				state.archivedConversations = state.archivedConversations.filter((i) => i !== id);
+			} else {
+				state.archivedConversations.push(id);
+			}
+		},
+		clearConversation: (state, action) => {
+			const conversationId = action.payload;
+			state.messagesByConversation[conversationId] = [];
+		},
+		setSearchQuery: (state, action) => {
+			state.searchQuery = action.payload;
+		},
+		forwardMessageToConversation: (state, action) => {
+			// This would usually trigger a thunk, but we can set the state here
+			state.forwardingMessage = action.payload.message;
+		},
+		syncPendingMessages: (state) => {
+			// Implementation for offline sync if needed
+		},
+		retryMessage: (state, action) => {
+			// Implementation for retrying failed messages
+		},
 	},
 	extraReducers: (builder) => {
 		builder
@@ -242,6 +340,56 @@ const chatSlice = createSlice({
 					state.messagesByConversation[chatId].push(message);
 				}
 			});
+
+		builder.addCase(createOrGetDMThunk.fulfilled, (state, action) => {
+			const chat = action.payload;
+			const exists = state.conversations.find((c) => c._id === chat._id);
+			if (!exists) {
+				state.conversations.unshift(chat);
+			}
+			state.selectedConversationId = chat._id;
+		});
+
+		builder.addCase(editMessageThunk.fulfilled, (state, action) => {
+			const { chatId, message } = action.payload;
+			const msgs = state.messagesByConversation[chatId];
+			if (msgs) {
+				const idx = msgs.findIndex((m) => m._id === message._id);
+				if (idx !== -1) {
+					msgs[idx] = message;
+				}
+			}
+		});
+
+		builder.addCase(deleteMessageThunk.fulfilled, (state, action) => {
+			const { chatId, messageId } = action.payload;
+			const msgs = state.messagesByConversation[chatId];
+			if (msgs) {
+				const msg = msgs.find((m) => m._id === messageId);
+				if (msg) {
+					msg.content = "This message was deleted";
+					msg.deleted = true;
+				}
+			}
+		});
+
+		builder.addCase(toggleReactionThunk.fulfilled, (state, action) => {
+			const { chatId, messageId, reactions } = action.payload;
+			const msgs = state.messagesByConversation[chatId];
+			if (msgs) {
+				const msg = msgs.find((m) => m._id === messageId);
+				if (msg) {
+					msg.reactions = reactions;
+				}
+			}
+		});
+
+		builder.addCase(markAsReadThunk.fulfilled, (state, action) => {
+			const { chatId } = action.payload;
+			state.unreadByConversation[chatId] = 0;
+			const chat = state.conversations.find((c) => c._id === chatId);
+			if (chat) chat.unreadCount = 0;
+		});
 	},
 });
 
@@ -291,11 +439,17 @@ export const selectPinnedConversations = (state) => state.chat.pinnedConversatio
 export const selectArchivedConversations = (state) => state.chat.archivedConversations || [];
 export const selectMutedConversations = (state) => state.chat.mutedConversations || [];
 export const selectDraftsByConversation = (state) => state.chat.draftsByConversation || {};
-export const selectSearchByConversation = (state) => ({});
-export const selectHiddenMessagesByConversation = (state) => ({});
-export const selectForwardingMessage = (state) => state.chat.forwardingMessage || null;
-export const selectLastSeenByConversation = (state) => ({});
+export const selectSearchQuery = (state) => state.chat.searchQuery;
+export const selectSearchResults = (state) => state.chat.searchResults;
+export const selectReplyTo = (state) => state.chat.replyTo;
+export const selectEditingMessage = (state) => state.chat.editingMessage;
+export const selectLastSeenByConversation = (state) => state.chat.lastSeenByConversation || {};
 
 export const sendMessage = sendMessageThunk;
+export const createOrGetDM = createOrGetDMThunk;
+export const editMessage = editMessageThunk;
+export const deleteMessage = deleteMessageThunk;
+export const toggleReactionThunkAction = toggleReactionThunk;
+export const markAsRead = markAsReadThunk;
 
 export default chatSlice.reducer;
