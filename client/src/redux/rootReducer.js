@@ -13,6 +13,7 @@ import chatReducer from './slices/chatSlice';
 import campusReducer from './slices/campusSlice';
 import notesReducer from './slices/notesSlice';
 import agentReducer from './slices/agentSlice';
+import paymentReducer from './slices/paymentSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -29,6 +30,7 @@ const rootReducer = combineReducers({
   campus: campusReducer,
   notes: notesReducer,
   agent: agentReducer,
+  payments: paymentReducer,
 });
 
 export default rootReducer;

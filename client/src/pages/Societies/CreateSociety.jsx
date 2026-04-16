@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import FormField from "@/components/common/FormField";
 import FormActions from "@/components/common/FormActions";
+import { createSocietyThunk, selectSocietyLoading, selectSocietyError } from "@/redux/slices/societySlice";
 
 const CATEGORIES = [
   "Technology",
@@ -13,32 +15,44 @@ const CATEGORIES = [
   "Other",
 ];
 
-const LOGO_OPTIONS = [
-  "🚀",
-  "💼",
-  "🎤",
-  "📚",
-  "🎨",
-  "⚽",
-  "🔬",
-  "🎭",
-  "💻",
-  "🌍",
-];
-
 export default function CreateSociety() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const loading = useSelector(selectSocietyLoading);
+  const error = useSelector(selectSocietyError);
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     category: "Technology",
-    logo: "🚀",
+    logo: null,
   });
 
-  const handleSubmit = (e) => {
+  const [logoPreview, setLogoPreview] = useState(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, logo: file });
+      setLogoPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Society created successfully!");
-    navigate("/society/dashboard");
+    
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("description", formData.description);
+    data.append("category", formData.category);
+    if (formData.logo) {
+      data.append("logo", formData.logo);
+    }
+
+    const resultAction = await dispatch(createSocietyThunk(data));
+    if (createSocietyThunk.fulfilled.match(resultAction)) {
+      navigate("/society/dashboard");
+    }
   };
 
   return (
@@ -79,6 +93,12 @@ export default function CreateSociety() {
           onSubmit={handleSubmit}
           className="bg-[#1a241e] border border-[#29382f] rounded-lg p-8"
         >
+          {error && (
+            <div className="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-500 text-sm">
+              {error}
+            </div>
+          )}
+
           <div className="space-y-6">
             {/* Society Name */}
             <FormField
@@ -125,49 +145,31 @@ export default function CreateSociety() {
               ))}
             </FormField>
 
-            {/* Logo Selection */}
+            {/* Logo Upload */}
             <div>
               <label className="block text-sm font-medium text-[#9eb7a9] mb-2">
-                Choose Logo
+                Society Logo
               </label>
-              <div className="grid grid-cols-5 gap-3">
-                {LOGO_OPTIONS.map((emoji) => (
-                  <button
-                    key={emoji}
-                    type="button"
-                    onClick={() => setFormData({ ...formData, logo: emoji })}
-                    className={`p-4 text-4xl rounded-lg border-2 transition-all hover:scale-110 ${
-                      formData.logo === emoji
-                        ? "border-[#1dc964] bg-[#1dc964]/20"
-                        : "border-[#29382f] hover:border-[#1dc964]/50"
-                    }`}
-                  >
-                    {emoji}
-                  </button>
-                ))}
+              <div 
+                className="w-32 h-32 rounded-lg border-2 border-dashed border-[#29382f] flex flex-col items-center justify-center bg-[#111714] cursor-pointer hover:border-[#1dc964]/50 transition-colors"
+                onClick={() => document.getElementById('logo-upload').click()}
+              >
+                {logoPreview ? (
+                  <img src={logoPreview} alt="Logo" className="w-full h-full object-cover rounded-lg" />
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-4xl text-[#9eb7a9]">image</span>
+                    <span className="text-xs text-[#9eb7a9] mt-2">Upload Logo</span>
+                  </>
+                )}
               </div>
-            </div>
-
-            {/* Preview */}
-            <div className="pt-6 border-t border-[#29382f]">
-              <h3 className="text-lg font-semibold text-white mb-4">Preview</h3>
-              <div className="bg-[#111714] border border-[#29382f] rounded-lg p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="text-4xl">{formData.logo}</div>
-                  <div className="flex-1">
-                    <h4 className="text-white font-bold text-lg">
-                      {formData.name || "Society Name"}
-                    </h4>
-                    <p className="text-[#9eb7a9] text-sm">
-                      {formData.category}
-                    </p>
-                  </div>
-                </div>
-                <p className="text-[#9eb7a9] text-sm">
-                  {formData.description ||
-                    "Society description will appear here..."}
-                </p>
-              </div>
+              <input 
+                id="logo-upload"
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
             </div>
 
             {/* Submit Buttons */}
@@ -176,9 +178,9 @@ export default function CreateSociety() {
                 onCancel={() => navigate("/society/dashboard")}
                 onSubmit={handleSubmit}
                 cancelText="Cancel"
-                submitText="Create Society"
+                submitText={loading ? "Creating..." : "Create Society"}
                 submitVariant="primary"
-                className=""
+                disabled={loading}
               />
             </div>
           </div>

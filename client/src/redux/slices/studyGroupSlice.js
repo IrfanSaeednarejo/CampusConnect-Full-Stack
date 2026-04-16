@@ -60,99 +60,58 @@ const studyGroupSlice = createSlice({
     addResource: (state, action) => {
       const { groupId, resource } = action.payload;
       if (!state.resources[groupId]) {
-        state.resources[groupId] = [];
-      }
-      state.resources[groupId].push(resource);
+    clearSelectedGroup: (state) => {
+      state.selectedGroup = null;
     },
-    removeResource: (state, action) => {
-      const { groupId, resourceId } = action.payload;
-      if (state.resources[groupId]) {
-        state.resources[groupId] = state.resources[groupId].filter(
-          (r) => r.id !== resourceId
-        );
-      }
-    },
-    setGroupMessages: (state, action) => {
-      const { groupId, messages } = action.payload;
-      state.messages[groupId] = messages;
-    },
-    addMessage: (state, action) => {
-      const { groupId, message } = action.payload;
-      if (!state.messages[groupId]) {
-        state.messages[groupId] = [];
-      }
-      state.messages[groupId].push(message);
-    },
-    setGroupDiscussions: (state, action) => {
-      const { groupId, discussions } = action.payload;
-      state.discussions[groupId] = discussions;
-    },
-    addDiscussion: (state, action) => {
-      const { groupId, discussion } = action.payload;
-      if (!state.discussions[groupId]) {
-        state.discussions[groupId] = [];
-      }
-      state.discussions[groupId].push(discussion);
-    },
-    setGroupMembers: (state, action) => {
-      const { groupId, members } = action.payload;
-      state.members[groupId] = members;
-    },
-    setFilter: (state, action) => {
-      state.filter = action.payload;
-    },
-    setSortBy: (state, action) => {
-      state.sortBy = action.payload;
-    },
-    setStudyGroupLoading: (state, action) => {
-      state.loading = action.payload;
-    },
-    setStudyGroupError: (state, action) => {
-      state.error = action.payload;
-    },
-    clearStudyGroupError: (state) => {
+    clearError: (state) => {
       state.error = null;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      // Fetch All
+      .addCase(fetchStudyGroups.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchStudyGroups.fulfilled, (state, action) => {
+        state.loading = false;
+        state.groups = action.payload;
+      })
+      .addCase(fetchStudyGroups.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Fetch My
+      .addCase(fetchMyStudyGroups.fulfilled, (state, action) => {
+        state.myGroups = action.payload;
+      })
+      // Fetch By Id
+      .addCase(fetchStudyGroupById.fulfilled, (state, action) => {
+        state.selectedGroup = action.payload;
+      })
+      // Create
+      .addCase(createStudyGroup.fulfilled, (state, action) => {
+        state.groups.push(action.payload);
+        state.myGroups.push(action.payload);
+      })
+      // Join
+      .addCase(joinStudyGroup.fulfilled, (state, action) => {
+        state.myGroups.push(action.payload);
+      })
+      // Leave
+      .addCase(leaveStudyGroup.fulfilled, (state, action) => {
+        state.myGroups = state.myGroups.filter(g => g.id !== action.payload && g._id !== action.payload);
+      });
+  },
 });
 
-export const {
-  setStudyGroups,
-  addStudyGroup,
-  updateStudyGroup,
-  removeStudyGroup,
-  setSelectedGroup,
-  setMyGroups,
-  joinGroup,
-  leaveGroup,
-  setGroupResources,
-  addResource,
-  removeResource,
-  setGroupMessages,
-  addMessage,
-  setGroupDiscussions,
-  addDiscussion,
-  setGroupMembers,
-  setFilter,
-  setSortBy,
-  setStudyGroupLoading,
-  setStudyGroupError,
-  clearStudyGroupError,
-} = studyGroupSlice.actions;
+export const { clearSelectedGroup, clearError } = studyGroupSlice.actions;
 
 export const selectAllStudyGroups = (state) => state.studyGroups.groups;
 export const selectMyStudyGroups = (state) => state.studyGroups.myGroups;
-export const selectSelectedGroup = (state) => state.studyGroups.selectedGroup;
-export const selectStudyGroupFilter = (state) => state.studyGroups.filter;
-export const selectStudyGroupSortBy = (state) => state.studyGroups.sortBy;
+export const selectSelectedStudyGroup = (state) => state.studyGroups.selectedGroup;
 export const selectStudyGroupLoading = (state) => state.studyGroups.loading;
 export const selectStudyGroupError = (state) => state.studyGroups.error;
-
-export const selectStudyGroupById = (groupId) => (state) =>
-  state.studyGroups.groups.find((group) => group.id === parseInt(groupId));
-
-export const selectGroupResources = (groupId) => (state) =>
-  state.studyGroups.resources[groupId] || [];
 
 export const selectGroupMessages = (groupId) => (state) =>
   state.studyGroups.messages[groupId] || [];

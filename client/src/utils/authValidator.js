@@ -136,89 +136,48 @@ export function canSelfAssignRole(role) {
 }
 
 /**
- * Validate full name
- * @param {string} fullName
+ * Validate display name
+ * @param {string} displayName
  * @returns {boolean}
  */
-export function isValidFullName(fullName) {
-  if (!fullName || typeof fullName !== 'string') return false;
-
-  const trimmedName = fullName.trim();
-
-  // Minimum 2 characters
-  if (trimmedName.length < 2) return false;
-
-  // Maximum 100 characters
-  if (trimmedName.length > 100) return false;
-
-  // Allow letters, spaces, hyphens, apostrophes
-  if (!/^[a-zA-Z\s\-']+$/.test(trimmedName)) return false;
-
-  return true;
+export function isValidDisplayName(displayName) {
+  if (!displayName || typeof displayName !== 'string') return false;
+  const trimmed = displayName.trim();
+  return trimmed.length >= 3 && trimmed.length <= 50 && /^[a-zA-Z0-9_\-]+$/.test(trimmed);
 }
 
 /**
- * Sanitize user input to prevent XSS (basic)
- * @param {string} input
- * @returns {string}
- */
-export function sanitizeInput(input) {
-  if (typeof input !== 'string') return '';
-  return input.trim().replace(/[<>]/g, '');
-}
-
-/**
- * Check if user has access to specific role-based resource
- * @param {string} userRole
- * @param {string} requiredRole
+ * Validate name (first or last)
+ * @param {string} name
  * @returns {boolean}
  */
-export function hasRoleAccess(userRole, requiredRole) {
-  if (!userRole || !requiredRole) return false;
-  if (!isValidRole(userRole) || !isValidRole(requiredRole)) return false;
-  return userRole === requiredRole;
-}
-
-/**
- * Check if user has access to resource with multiple allowed roles
- * @param {string} userRole
- * @param {array} allowedRoles
- * @returns {boolean}
- */
-export function hasMultiRoleAccess(userRole, allowedRoles = []) {
-  if (!userRole || !Array.isArray(allowedRoles)) return false;
-  if (!isValidRole(userRole)) return false;
-  return allowedRoles.includes(userRole);
-}
-
-/**
- * Get dashboard route based on user role
- * Returns appropriate dashboard URL for role
- * @param {string} role
- * @returns {string}
- */
-export function getDashboardRoute(role) {
-  const dashboards = {
-    [VALID_ROLES.STUDENT]: '/student/dashboard',
-    [VALID_ROLES.MENTOR]: '/mentor/dashboard',
-    [VALID_ROLES.SOCIETY_HEAD]: '/society/dashboard',
-    [VALID_ROLES.ADMIN]: '/admin/dashboard',
-  };
-
-  return dashboards[role] || '/';
+export function isValidName(name) {
+  if (!name || typeof name !== 'string') return false;
+  const trimmed = name.trim();
+  return trimmed.length >= 2 && trimmed.length <= 50 && /^[a-zA-Z\s\-']+$/.test(trimmed);
 }
 
 /**
  * Validate signup form data
- * @param {object} formData { fullName, email, password, confirmPassword, role }
+ * @param {object} formData { firstName, lastName, displayName, email, password, confirmPassword, role, avatar }
  * @returns {object} { isValid, errors }
  */
 export function validateSignupForm(formData) {
   const errors = {};
 
-  // Validate full name
-  if (!isValidFullName(formData.fullName)) {
-    errors.fullName = 'Full name must be 2-100 characters with letters, spaces, hyphens, or apostrophes only';
+  // Validate first name
+  if (!isValidName(formData.firstName)) {
+    errors.firstName = 'First name must be 2-50 characters';
+  }
+
+  // Validate last name
+  if (!isValidName(formData.lastName)) {
+    errors.lastName = 'Last name must be 2-50 characters';
+  }
+
+  // Validate display name
+  if (!isValidDisplayName(formData.displayName)) {
+    errors.displayName = 'Display name must be 3-50 characters (letters, numbers, hyphens, underscores only)';
   }
 
   // Validate email
@@ -229,7 +188,7 @@ export function validateSignupForm(formData) {
   // Validate password
   const passwordValidation = validatePassword(formData.password);
   if (!passwordValidation.isValid) {
-    errors.password = passwordValidation.errors[0]; // Show first error
+    errors.password = passwordValidation.errors[0];
   }
 
   // Validate password confirmation
@@ -237,14 +196,9 @@ export function validateSignupForm(formData) {
     errors.confirmPassword = 'Passwords do not match';
   }
 
-  // Validate role
-  if (!isValidRole(formData.role)) {
-    errors.role = 'Invalid role selected';
-  }
-
-  // Check if role can be self-assigned
-  if (!canSelfAssignRole(formData.role)) {
-    errors.role = 'You can only register as a Student. Other roles require approval.';
+  // Validate avatar
+  if (!formData.avatar) {
+    errors.avatar = 'Profile picture is required';
   }
 
   return {
