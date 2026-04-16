@@ -3,7 +3,6 @@ export { useNavigation } from './useNavigation';
 export { useFilterSort } from './useFilterSort';
 export { useTabs } from './useTabs';
 export { useFetch, useLazyFetch } from './useFetch';
-export { useMockData, useMultipleMockData } from './useMockData';
 export { useDebounce } from './useDebounce';
 export { useModal } from './useModal';
 export { usePagination } from './usePagination';
