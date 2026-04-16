@@ -27,6 +27,8 @@ import AdminDashboard from "../pages/Dashboard/AdminDashboard";
 import SocietyDashboard from "../pages/Dashboard/SocietyDashboard";
 import MentorDashboard from "../pages/Dashboard/MentorDashboard";
 import EventDashboard from "../pages/Dashboard/EventDashboard";
+import EventDetailLayout from "../pages/events/EventDetailFlow";
+import EditEvent from "../pages/events/EditEvent";
 
 // Student Pages
 import StudentProfile from "../pages/Student/StudentProfile";
@@ -257,6 +259,10 @@ export default function AppRoutes() {
         <Route path="/mentor-events" element={<MentorEvents />} />
         <Route path="/mentor-notifications" element={<MentorNotifications />} />
       </Route>
+
+      {/* ========== EVENT DETAILS (NESTED) ========== */}
+      <Route path="/events/:id/*" element={<EventDetailLayout />} />
+      <Route path="/events/:id/edit" element={<EditEvent />} />
 
       {/* ========== EVENT DASHBOARD ROUTE ========== */}
       <Route path="/event/dashboard" element={<EventDashboard />} />
