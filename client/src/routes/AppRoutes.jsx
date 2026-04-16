@@ -233,24 +233,30 @@ export default function AppRoutes() {
         </Route>
       </Route>
 
-      {/* ========== MENTOR/MENTORSHIP ROUTES (NO LAYOUT) ========== */}
-      <Route path="/mentorship-hub" element={<MentorshipHub />} />
-      <Route path="/mentor-sessions" element={<MentorSessionsManagement />} />
-      <Route path="/mentor-registration" element={<MentorRegistration />} />
-      <Route path="/request-accepted" element={<RequestAcceptedConfirmation />} />
-      <Route path="/verification-pending" element={<VerificationPending />} />
-      <Route path="/application-rejected" element={<ApplicationRejected />} />
-      <Route path="/mentor-profile/:id" element={<MentorProfile />} />
-      <Route path="/my-sessions" element={<MentorSessions />} />
-      <Route path="/book-session" element={<BookSession />} />
-      <Route path="/feedback" element={<FeedbackMentoring />} />
-      <Route path="/mentor-apply" element={<MentorApplication />} />
-      <Route path="/earnings" element={<MentorEarnings />} />
-      <Route path="/mentor-mentees" element={<MentorMentees />} />
-      <Route path="/mentor-events" element={<MentorEvents />} />
-      <Route path="/mentor-profile-view" element={<MentorProfileView />} />
-      <Route path="/mentor-notifications" element={<MentorNotifications />} />
-      <Route path="/mentor/display-profile" element={<MentorDisplayProfile />} />
+      {/* ========== MENTOR/MENTORSHIP ROUTES (NO LAYOUT, AUTH REQUIRED) ========== */}
+      <Route element={<ProtectedRoute requireOnboarding={true} />}>
+        <Route path="/mentorship-hub" element={<MentorshipHub />} />
+        <Route path="/mentor-registration" element={<MentorRegistration />} />
+        <Route path="/request-accepted" element={<RequestAcceptedConfirmation />} />
+        <Route path="/verification-pending" element={<VerificationPending />} />
+        <Route path="/application-rejected" element={<ApplicationRejected />} />
+        <Route path="/mentor-profile/:id" element={<MentorProfile />} />
+        <Route path="/book-session" element={<BookSession />} />
+        <Route path="/feedback" element={<FeedbackMentoring />} />
+        <Route path="/mentor-apply" element={<MentorApplication />} />
+        <Route path="/mentor-profile-view" element={<MentorProfileView />} />
+        <Route path="/mentor/display-profile" element={<MentorDisplayProfile />} />
+      </Route>
+
+      {/* ========== MENTOR ONLY ROUTES ========== */}
+      <Route element={<ProtectedRoute requiredRole="mentor" requireOnboarding={true} />}>
+        <Route path="/mentor-sessions" element={<MentorSessionsManagement />} />
+        <Route path="/my-sessions" element={<MentorSessions />} />
+        <Route path="/earnings" element={<MentorEarnings />} />
+        <Route path="/mentor-mentees" element={<MentorMentees />} />
+        <Route path="/mentor-events" element={<MentorEvents />} />
+        <Route path="/mentor-notifications" element={<MentorNotifications />} />
+      </Route>
 
       {/* ========== EVENT DASHBOARD ROUTE ========== */}
       <Route path="/event/dashboard" element={<EventDashboard />} />
