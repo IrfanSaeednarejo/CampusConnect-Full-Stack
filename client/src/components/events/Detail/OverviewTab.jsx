@@ -1,15 +1,41 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import { selectSelectedEvent } from "../../../../redux/slices/eventSlice";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { selectSelectedEvent, selectEventAnnouncements, fetchAnnouncementsThunk } from "../../../../redux/slices/eventSlice";
 
 export default function OverviewTab() {
+  const dispatch = useDispatch();
   const event = useSelector(selectSelectedEvent);
+  const announcements = useSelector(selectEventAnnouncements);
+
+  useEffect(() => {
+    if (event?._id) {
+       dispatch(fetchAnnouncementsThunk(event._id));
+    }
+  }, [dispatch, event]);
 
   if (!event) return null;
 
   return (
     <div className="p-6 md:p-8 space-y-8 animate-fade-in text-[#c9d1d9]">
       
+      {/* Announcements Block */}
+      {announcements && announcements.length > 0 && (
+        <section>
+          <div className="bg-[#1f6feb]/10 border border-[#1f6feb]/30 p-4 rounded-xl">
+             <h2 className="text-lg font-bold text-[#58a6ff] mb-4 flex items-center gap-2">
+               <span className="material-symbols-outlined">campaign</span> Live Updates
+             </h2>
+             <div className="space-y-3 max-h-40 overflow-y-auto">
+               {announcements.map((ann, idx) => (
+                 <div key={idx} className="bg-[#161b22] border border-[#30363d] p-3 rounded-lg text-sm text-white">
+                   <p>{ann.content || ann}</p>
+                 </div>
+               ))}
+             </div>
+          </div>
+        </section>
+      )}
+
       {/* Description Block */}
       <section>
         <h2 className="text-xl font-bold text-white mb-4 border-b border-[#30363d] pb-2">About This Event</h2>

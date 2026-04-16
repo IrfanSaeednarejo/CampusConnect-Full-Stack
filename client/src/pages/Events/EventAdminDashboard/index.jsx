@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEventById, selectSelectedEvent, transitionStateThunk, postAnnouncementThunk, publishLeaderboardThunk } from "../../../redux/slices/eventSlice";
+import { fetchEventById, selectSelectedEvent, transitionStateThunk, postAnnouncementThunk, publishLeaderboardThunk, updateJudgesThunk } from "../../../redux/slices/eventSlice";
+import { fetchAllSubmissionsThunk, selectAllSubmissions } from "../../../redux/slices/submissionSlice";
+import { disqualifyTeamThunk } from "../../../redux/slices/teamSlice";
 import CircularProgress from "../../../components/common/CircularProgress";
 import Button from "../../../components/common/Button";
 
@@ -11,11 +13,17 @@ export default function EventAdminDashboard() {
   const navigate = useNavigate();
 
   const [announcementText, setAnnouncementText] = useState("");
+  const [judgeIdInput, setJudgeIdInput] = useState("");
+  
   const event = useSelector(selectSelectedEvent);
+  const allSubmissions = useSelector(selectAllSubmissions);
   const loading = !event;
 
   useEffect(() => {
-    if (eventId) dispatch(fetchEventById(eventId));
+    if (eventId) {
+      dispatch(fetchEventById(eventId));
+      dispatch(fetchAllSubmissionsThunk(eventId));
+    }
   }, [dispatch, eventId]);
 
   if (loading) return <div className="h-screen flex justify-center items-center bg-[#0d1117]"><CircularProgress /></div>;
@@ -35,6 +43,20 @@ export default function EventAdminDashboard() {
   const handlePublishLeaderboard = async () => {
     if (!window.confirm("Publishing the leaderboard makes all scores visible. Continue?")) return;
     await dispatch(publishLeaderboardThunk(eventId));
+  };
+
+  const handleAssignJudge = async (e) => {
+    e.preventDefault();
+    if (!judgeIdInput.trim()) return;
+    // For MVP, we pass the current judges + the new one.
+    const currentJudges = event.judgingConfig?.judges?.map(j => j._id) || [];
+    await dispatch(updateJudgesThunk({ id: eventId, judgeIds: [...currentJudges, judgeIdInput.trim()] }));
+    setJudgeIdInput("");
+  };
+
+  const handleDisqualify = async (teamId) => {
+    if (!window.confirm("Are you sure you want to disqualify this team? This cannot be undone automatically.")) return;
+    await dispatch(disqualifyTeamThunk({ eventId, teamId }));
   };
 
   return (
@@ -89,14 +111,37 @@ export default function EventAdminDashboard() {
              <h3 className="font-bold text-white border-b border-[#30363d] pb-2 mb-4">Event KPIs</h3>
              <div className="grid grid-cols-2 gap-4">
                <div className="bg-[#0d1117] border border-[#30363d] p-4 rounded-lg text-center">
-                 <p className="text-3xl font-black text-[#1f6feb]">{event.registrationCount || 0}</p>
-                 <p className="text-xs text-[#8b949e] uppercase font-bold tracking-widest mt-1">Registrations</p>
+                 <p className="text-3xl font-black text-[#1f6feb]">{allSubmissions.length || 0}</p>
+                 <p className="text-xs text-[#8b949e] uppercase font-bold tracking-widest mt-1">Submissions</p>
                </div>
                <div className="bg-[#0d1117] border border-[#30363d] p-4 rounded-lg text-center">
                  <p className="text-3xl font-black text-[#1dc964]">{0}</p>
                  <p className="text-xs text-[#8b949e] uppercase font-bold tracking-widest mt-1">Checked In</p>
                </div>
              </div>
+           </div>
+
+           <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6">
+             <h3 className="font-bold text-white border-b border-[#30363d] pb-2 mb-4">Assign Judges</h3>
+             <form onSubmit={handleAssignJudge} className="flex gap-2">
+                 <input 
+                   type="text" 
+                   required
+                   value={judgeIdInput}
+                   onChange={e => setJudgeIdInput(e.target.value)}
+                   placeholder="Enter User ID..." 
+                   className="flex-1 bg-[#0d1117] text-white p-2 text-sm rounded border border-[#30363d] focus:border-[#1f6feb] outline-none" 
+                 />
+                 <Button type="submit" variant="primary" className="text-sm px-3 py-2 whitespace-nowrap">Assign</Button>
+             </form>
+             <p className="text-xs text-[#8b949e] mt-2">Current Judges: {event.judgingConfig?.judges?.length || 0}</p>
+           </div>
+           
+           <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 text-center">
+               <h3 className="font-bold text-white border-b border-[#30363d] pb-2 mb-4 text-left">Master Data</h3>
+               <Button variant="outline" className="w-full justify-center gap-2" onClick={() => console.log(allSubmissions)}>
+                 <span className="material-symbols-outlined text-sm">download</span> Dump Submissions JSON
+               </Button>
            </div>
         </div>
 
@@ -114,18 +159,23 @@ export default function EventAdminDashboard() {
                  </tr>
                </thead>
                <tbody className="divide-y divide-[#30363d]">
-                 {/* Dummy row mapped until backend provides participant hydration */}
-                 <tr className="hover:bg-[#21262d] transition-colors">
-                   <td className="p-3 flex items-center gap-2">
-                     <span className="material-symbols-outlined text-[#8b949e] text-lg">person</span>
-                     <span className="text-white font-medium">Jane Doe</span>
-                   </td>
-                   <td className="p-3 text-[#c9d1d9]">The Innovators</td>
-                   <td className="p-3"><span className="text-[#e3b341]">Pending Check-In</span></td>
-                   <td className="p-3">
-                     <button className="text-[#8b949e] hover:text-[#f85149] transition-colors"><span className="material-symbols-outlined text-[20px]">person_remove</span></button>
-                   </td>
-                 </tr>
+                 {allSubmissions.length === 0 ? (
+                   <tr><td colSpan="4" className="p-4 text-center text-[#8b949e]">No participating teams found.</td></tr>
+                 ) : (
+                   allSubmissions.map(sub => (
+                     <tr key={sub._id} className="hover:bg-[#21262d] transition-colors">
+                       <td className="p-3 flex items-center gap-2">
+                         <span className="material-symbols-outlined text-[#8b949e] text-lg">integration_instructions</span>
+                         <span className="text-white font-medium line-clamp-1">{sub.title || "Untitled"}</span>
+                       </td>
+                       <td className="p-3 text-[#c9d1d9]">{sub.team?.name || "Unknown"}</td>
+                       <td className="p-3"><span className="text-[#e3b341]">{sub.status}</span></td>
+                       <td className="p-3">
+                         <button onClick={() => handleDisqualify(sub.team?._id)} title="Disqualify Team" className="text-[#8b949e] hover:text-[#f85149] transition-colors"><span className="material-symbols-outlined text-[20px]">person_remove</span></button>
+                       </td>
+                     </tr>
+                   ))
+                 )}
                </tbody>
              </table>
            </div>

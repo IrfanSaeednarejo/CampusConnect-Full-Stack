@@ -98,11 +98,36 @@ export const postAnnouncementThunk = createAsyncThunk(
   }
 );
 
+export const updateJudgesThunk = createAsyncThunk(
+  'events/updateJudges',
+  async ({ id, judgeIds }, { rejectWithValue }) => {
+    try {
+      const { data } = await eventApi.updateJudges(id, { judgeIds });
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Failed to update judges');
+    }
+  }
+);
+
+export const fetchAnnouncementsThunk = createAsyncThunk(
+  'events/fetchAnnouncements',
+  async (id, { rejectWithValue }) => {
+    try {
+      const { data } = await eventApi.getAnnouncements(id);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Failed to fetch announcements');
+    }
+  }
+);
+
 const initialState = {
   events: [],
   upcomingEvents: [],
   registeredEvents: [],
   selectedEvent: null,
+  announcements: [],
   loading: false,
   error: null,
 };
@@ -199,6 +224,32 @@ const eventSlice = createSlice({
       .addCase(publishLeaderboardThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      // Announcements
+      .addCase(postAnnouncementThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        // Optionally inject into list if returned 
+      })
+      .addCase(fetchAnnouncementsThunk.pending, (state) => { state.loading = true; })
+      .addCase(fetchAnnouncementsThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.announcements = action.payload || [];
+      })
+      .addCase(fetchAnnouncementsThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Assign Judges
+      .addCase(updateJudgesThunk.pending, (state) => { state.loading = true; })
+      .addCase(updateJudgesThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.selectedEvent && (state.selectedEvent._id === action.payload._id || state.selectedEvent.id === action.payload.id)) {
+           state.selectedEvent = action.payload;
+        }
+      })
+      .addCase(updateJudgesThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
@@ -209,6 +260,7 @@ export const selectAllEvents = (state) => state.events.events;
 export const selectUpcomingEvents = (state) => state.events.upcomingEvents;
 export const selectRegisteredEvents = (state) => state.events.registeredEvents;
 export const selectSelectedEvent = (state) => state.events.selectedEvent;
+export const selectEventAnnouncements = (state) => state.events.announcements;
 export const selectEventLoading = (state) => state.events.loading;
 export const selectEventError = (state) => state.events.error;
 export const selectEventById = (eventId) => (state) =>

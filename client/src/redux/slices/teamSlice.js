@@ -86,6 +86,18 @@ export const transferLeadershipThunk = createAsyncThunk(
   }
 );
 
+export const disqualifyTeamThunk = createAsyncThunk(
+  'team/disqualifyTeam',
+  async ({ eventId, teamId }, { rejectWithValue }) => {
+    try {
+      const response = await eventApi.disqualifyTeam(eventId, teamId, { disqualified: true });
+      return response.data.data; // usually updated team or id
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 // Slice
 const teamSlice = createSlice({
   name: 'team',
@@ -197,6 +209,16 @@ const teamSlice = createSlice({
         state.error = null;
       })
       .addCase(transferLeadershipThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      // Disqualify Team
+      .addCase(disqualifyTeamThunk.pending, (state) => { state.loading = true; })
+      .addCase(disqualifyTeamThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        // Optionally update the teams list if it's cached in this slice, but Team Management Flow fetches all via fetchTeams.
+        state.error = null;
+      })
+      .addCase(disqualifyTeamThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

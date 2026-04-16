@@ -13,6 +13,18 @@ export const fetchMySubmission = createAsyncThunk(
   }
 );
 
+export const fetchAllSubmissionsThunk = createAsyncThunk(
+  "submissions/fetchAll",
+  async (eventId, { rejectWithValue }) => {
+    try {
+      const response = await eventApi.getSubmissions(eventId);
+      return response.data.data; // Should return an array of all submissions
+    } catch (err) {
+       return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 export const submitWorkThunk = createAsyncThunk(
   'submission/submitWork',
   async ({ eventId, data }, { rejectWithValue }) => {
@@ -62,7 +74,8 @@ const submissionSlice = createSlice({
       state.error = null;
     },
     resetSubmissionState: (state) => {
-      state.mySubmission = null;
+      state.submission = null;
+      state.allSubmissions = [];
       state.uploadStatus = 'idle';
       state.error = null;
       state.loading = false;
@@ -71,15 +84,29 @@ const submissionSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // Fetch My Submission
-      .addCase(fetchMySubmission.pending, (state) => { state.loading = true; })
+      .addCase(fetchMySubmission.pending, (state) => { state.uploadStatus = "loading"; })
       .addCase(fetchMySubmission.fulfilled, (state, action) => {
-        state.loading = false;
-        state.mySubmission = action.payload;
+        state.uploadStatus = "succeeded";
+        state.submission = action.payload;
         state.error = null;
       })
       .addCase(fetchMySubmission.rejected, (state, action) => {
-        state.loading = false;
-        state.mySubmission = null; // 404 means no submission yet
+        state.uploadStatus = "failed";
+        state.error = action.payload;
+        state.submission = null;
+      })
+
+      // Fetch All Submissions (Admin)
+      .addCase(fetchAllSubmissionsThunk.pending, (state) => { state.uploadStatus = "loading"; })
+      .addCase(fetchAllSubmissionsThunk.fulfilled, (state, action) => {
+        state.uploadStatus = "succeeded";
+        state.allSubmissions = action.payload || [];
+        state.error = null;
+      })
+      .addCase(fetchAllSubmissionsThunk.rejected, (state, action) => {
+        state.uploadStatus = "failed";
+        state.error = action.payload;
+        state.allSubmissions = [];
       })
 
       // Upsert Submission
@@ -124,6 +151,7 @@ const submissionSlice = createSlice({
 export const { clearSubmissionError, resetSubmissionState } = submissionSlice.actions;
 
 export const selectMySubmission = (state) => state.submissions.mySubmission;
+export const selectAllSubmissions = (state) => state.submissions.allSubmissions;
 export const selectSubmissionLoading = (state) => state.submissions.loading;
 export const selectUploadStatus = (state) => state.submissions.uploadStatus;
 export const selectSubmissionError = (state) => state.submissions.error;
