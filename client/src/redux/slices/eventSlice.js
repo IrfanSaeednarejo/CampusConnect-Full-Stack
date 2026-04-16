@@ -142,6 +142,23 @@ const eventSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    // Live Socket Payloads
+    socketAddAnnouncement: (state, action) => {
+      // Prevent duplicates if already fetched via REST implicitly
+      const newAnn = action.payload; // Usually the backend sends the fully populated string/object
+      if (state.announcements && !state.announcements.some(a => a._id === newAnn._id || a === newAnn)) {
+        state.announcements = [newAnn, ...state.announcements];
+      }
+    },
+    socketUpdateEventStatus: (state, action) => {
+      if (state.selectedEvent && state.selectedEvent._id === action.payload.eventId) {
+        state.selectedEvent.status = action.payload.status;
+      }
+    },
+    socketUpdateLeaderboard: (state, action) => {
+      // Trigger a soft-refresh tag or directly update state if we cached the leaderboard locally
+      // For now, if a leaderboard update hits, we might just want to refetch the leaderboard dynamically from the component
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -254,7 +271,13 @@ const eventSlice = createSlice({
   },
 });
 
-export const { clearSelectedEvent, clearError } = eventSlice.actions;
+export const { 
+  clearSelectedEvent, 
+  clearError,
+  socketAddAnnouncement,
+  socketUpdateEventStatus,
+  socketUpdateLeaderboard
+} = eventSlice.actions;
 
 export const selectAllEvents = (state) => state.events.events;
 export const selectUpcomingEvents = (state) => state.events.upcomingEvents;

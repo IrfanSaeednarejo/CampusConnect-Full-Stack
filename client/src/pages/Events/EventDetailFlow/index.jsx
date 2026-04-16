@@ -11,6 +11,8 @@ import OverviewTab from "../../../components/events/Detail/OverviewTab";
 import TeamsTab from "../../../components/events/Detail/TeamsTab";
 import LeaderboardTab from "../../../components/events/Detail/LeaderboardTab";
 
+import useEventSocket from "../../../hooks/useEventSocket";
+
 export default function EventDetailLayout() {
   const { id } = useParams();
   const dispatch = useDispatch();
@@ -20,6 +22,9 @@ export default function EventDetailLayout() {
   const loading = useSelector(selectEventLoading);
   const error = useSelector(selectEventError);
   const user = useSelector(selectUser);
+
+  // Hook into live Websocket updates broadly for the event ecosystem
+  useEventSocket(id);
 
   useEffect(() => {
     if (id) dispatch(fetchEventById(id));
