@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEventById, selectSelectedEvent } from "../../../redux/slices/eventSlice";
+import { fetchEventById, selectSelectedEvent, transitionStateThunk, postAnnouncementThunk, publishLeaderboardThunk } from "../../../redux/slices/eventSlice";
 import CircularProgress from "../../../components/common/CircularProgress";
 import Button from "../../../components/common/Button";
 
@@ -10,6 +10,7 @@ export default function EventAdminDashboard() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  const [announcementText, setAnnouncementText] = useState("");
   const event = useSelector(selectSelectedEvent);
   const loading = !event;
 
@@ -18,6 +19,23 @@ export default function EventAdminDashboard() {
   }, [dispatch, eventId]);
 
   if (loading) return <div className="h-screen flex justify-center items-center bg-[#0d1117]"><CircularProgress /></div>;
+
+  const handleTransition = async (newState) => {
+    if (!window.confirm(`Are you sure you want to transition this event to: ${newState}?`)) return;
+    await dispatch(transitionStateThunk({ id: eventId, stateData: { status: newState } }));
+  };
+
+  const handleBroadcast = async (e) => {
+    e.preventDefault();
+    if (!announcementText.trim()) return;
+    await dispatch(postAnnouncementThunk({ id: eventId, payload: { content: announcementText } }));
+    setAnnouncementText("");
+  };
+
+  const handlePublishLeaderboard = async () => {
+    if (!window.confirm("Publishing the leaderboard makes all scores visible. Continue?")) return;
+    await dispatch(publishLeaderboardThunk(eventId));
+  };
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#e6edf3] pb-20">
@@ -54,15 +72,15 @@ export default function EventAdminDashboard() {
              <ul className="space-y-4">
                <li className="flex justify-between items-center text-sm">
                  <span className="text-white">Push to Ongoing</span>
-                 <Button variant="outline" className="text-xs px-2 py-1">Execute</Button>
+                 <Button variant="outline" className="text-xs px-2 py-1" onClick={() => handleTransition("ongoing")}>Execute</Button>
                </li>
                <li className="flex justify-between items-center text-sm">
                  <span className="text-white">Lock Submissions</span>
-                 <Button variant="outline" className="text-xs px-2 py-1 border-[#f85149] text-[#f85149] hover:bg-[#f85149] hover:text-white">Lock</Button>
+                 <Button variant="outline" className="text-xs px-2 py-1 border-[#f85149] text-[#f85149] hover:bg-[#f85149] hover:text-white" onClick={() => handleTransition("judging")}>Lock</Button>
                </li>
                <li className="flex justify-between items-center text-sm">
                  <span className="text-white">Publish Leaderboard</span>
-                 <Button variant="outline" className="text-xs px-2 py-1">Publish</Button>
+                 <Button variant="outline" className="text-xs px-2 py-1" onClick={handlePublishLeaderboard}>Publish</Button>
                </li>
              </ul>
            </div>
@@ -112,11 +130,11 @@ export default function EventAdminDashboard() {
              </table>
            </div>
 
-           <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6">
+            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6">
              <h3 className="font-bold text-white border-b border-[#30363d] pb-2 mb-4">Broadcast Announcement</h3>
-             <form className="flex flex-col gap-3">
-               <textarea rows="3" placeholder="Push a live notification to all participants' screens..." className="w-full bg-[#0d1117] text-white p-3 rounded-lg border border-[#30363d] focus:border-[#1f6feb] outline-none resize-none"></textarea>
-               <Button variant="primary" className="self-end"><span className="material-symbols-outlined mr-2 text-sm">campaign</span> Push Alert via WebSocket</Button>
+             <form className="flex flex-col gap-3" onSubmit={handleBroadcast}>
+               <textarea rows="3" value={announcementText} onChange={(e) => setAnnouncementText(e.target.value)} placeholder="Push a live notification to all participants' screens..." className="w-full bg-[#0d1117] text-white p-3 rounded-lg border border-[#30363d] focus:border-[#1f6feb] outline-none resize-none"></textarea>
+               <Button type="submit" variant="primary" className="self-end" disabled={!announcementText.trim()}><span className="material-symbols-outlined mr-2 text-sm">campaign</span> Push Alert via WebSocket</Button>
              </form>
            </div>
         </div>

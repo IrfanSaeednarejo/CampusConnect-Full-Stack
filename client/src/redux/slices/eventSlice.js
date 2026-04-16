@@ -61,6 +61,43 @@ export const deleteEventThunk = createAsyncThunk(
   }
 );
 
+// Admin Control Thunks
+export const transitionStateThunk = createAsyncThunk(
+  'events/transitionState',
+  async ({ id, stateData }, { rejectWithValue }) => {
+    try {
+      const { data } = await eventApi.transitionState(id, stateData);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Failed to transition event state');
+    }
+  }
+);
+
+export const publishLeaderboardThunk = createAsyncThunk(
+  'events/publishLeaderboard',
+  async (id, { rejectWithValue }) => {
+    try {
+      const { data } = await eventApi.publishLeaderboard(id);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Failed to publish leaderboard');
+    }
+  }
+);
+
+export const postAnnouncementThunk = createAsyncThunk(
+  'events/postAnnouncement',
+  async ({ id, payload }, { rejectWithValue }) => {
+    try {
+      const { data } = await eventApi.postAnnouncement(id, payload);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Failed to post announcement');
+    }
+  }
+);
+
 const initialState = {
   events: [],
   upcomingEvents: [],
@@ -137,6 +174,31 @@ const eventSlice = createSlice({
       // Delete
       .addCase(deleteEventThunk.fulfilled, (state, action) => {
         state.events = state.events.filter(e => e._id !== action.payload && e.id !== action.payload);
+      })
+      
+      // Admin Transitions
+      .addCase(transitionStateThunk.pending, (state) => { state.loading = true; })
+      .addCase(transitionStateThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.selectedEvent && (state.selectedEvent._id === action.payload._id || state.selectedEvent.id === action.payload.id)) {
+           state.selectedEvent = action.payload; // Update live view
+        }
+      })
+      .addCase(transitionStateThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      .addCase(publishLeaderboardThunk.pending, (state) => { state.loading = true; })
+      .addCase(publishLeaderboardThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.selectedEvent && (state.selectedEvent._id === action.payload._id || state.selectedEvent.id === action.payload.id)) {
+           state.selectedEvent = action.payload; // Update live view to show published
+        }
+      })
+      .addCase(publishLeaderboardThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

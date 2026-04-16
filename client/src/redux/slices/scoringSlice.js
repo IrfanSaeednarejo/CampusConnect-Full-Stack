@@ -26,6 +26,18 @@ export const submitScoreThunk = createAsyncThunk(
   }
 );
 
+export const retractScoreThunk = createAsyncThunk(
+  'scoring/retractScore',
+  async ({ eventId, subId }, { rejectWithValue }) => {
+    try {
+      const response = await eventApi.retractScore(eventId, subId);
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 const scoringSlice = createSlice({
   name: 'scoring',
   initialState: {
@@ -66,6 +78,17 @@ const scoringSlice = createSlice({
         state.error = null;
       })
       .addCase(submitScoreThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Retract Score
+      .addCase(retractScoreThunk.pending, (state) => { state.loading = true; })
+      .addCase(retractScoreThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(retractScoreThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

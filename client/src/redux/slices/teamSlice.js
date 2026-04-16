@@ -62,6 +62,30 @@ export const leaveTeamThunk = createAsyncThunk(
   }
 );
 
+export const kickMemberThunk = createAsyncThunk(
+  'team/kickMember',
+  async ({ eventId, teamId, userId }, { rejectWithValue }) => {
+    try {
+      await eventApi.kickMember(eventId, teamId, userId);
+      return userId;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+export const transferLeadershipThunk = createAsyncThunk(
+  'team/transferLeadership',
+  async ({ eventId, teamId, newLeaderId }, { rejectWithValue }) => {
+    try {
+      const response = await eventApi.transferLeadership(eventId, teamId, { newLeaderId });
+      return response.data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
 // Slice
 const teamSlice = createSlice({
   name: 'team',
@@ -144,10 +168,35 @@ const teamSlice = createSlice({
       .addCase(leaveTeamThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.myTeam = null;
-        // The list can be refreshed via fetchTeams later, or we can optimistally remove user from team members
         state.error = null;
       })
       .addCase(leaveTeamThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      
+      // Kick Member
+      .addCase(kickMemberThunk.pending, (state) => { state.loading = true; })
+      .addCase(kickMemberThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        if (state.myTeam) {
+           state.myTeam.members = state.myTeam.members.filter(m => (m.user?._id || m.userId) !== action.payload);
+        }
+        state.error = null;
+      })
+      .addCase(kickMemberThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // Transfer Leadership
+      .addCase(transferLeadershipThunk.pending, (state) => { state.loading = true; })
+      .addCase(transferLeadershipThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.myTeam = action.payload; // Endpoint returns updated team
+        state.error = null;
+      })
+      .addCase(transferLeadershipThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
