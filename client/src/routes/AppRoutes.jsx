@@ -27,8 +27,11 @@ import AdminDashboard from "../pages/Dashboard/AdminDashboard";
 import SocietyDashboard from "../pages/Dashboard/SocietyDashboard";
 import MentorDashboard from "../pages/Dashboard/MentorDashboard";
 import EventDashboard from "../pages/Dashboard/EventDashboard";
+import EventDashboard from "../pages/Dashboard/EventDashboard";
 import EventDetailLayout from "../pages/events/EventDetailFlow";
 import EditEvent from "../pages/events/EditEvent";
+import SubmissionPanel from "../pages/events/SubmissionPanel";
+import JudgingDashboard from "../pages/events/JudgingDashboard";
 
 // Student Pages
 import StudentProfile from "../pages/Student/StudentProfile";
@@ -263,6 +266,10 @@ export default function AppRoutes() {
       {/* ========== EVENT DETAILS (NESTED) ========== */}
       <Route path="/events/:id/*" element={<EventDetailLayout />} />
       <Route path="/events/:id/edit" element={<EditEvent />} />
+      <Route element={<ProtectedRoute requireOnboarding={true} />}>
+        <Route path="/events/:id/submission" element={<SubmissionPanel />} />
+        <Route path="/events/:id/judge" element={<JudgingDashboard />} />
+      </Route>
 
       {/* ========== EVENT DASHBOARD ROUTE ========== */}
       <Route path="/event/dashboard" element={<EventDashboard />} />

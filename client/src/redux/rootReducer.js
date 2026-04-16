@@ -1,3 +1,4 @@
+// Redux slice registrations
 import { combineReducers } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import userReducer from './slices/userSlice';
@@ -15,6 +16,11 @@ import notesReducer from './slices/notesSlice';
 import agentReducer from './slices/agentSlice';
 import paymentReducer from './slices/paymentSlice';
 
+// Event Sub-System Slices
+import teamReducer from './slices/teamSlice';
+import submissionReducer from './slices/submissionSlice';
+import scoringReducer from './slices/scoringSlice';
+
 const rootReducer = combineReducers({
   auth: authReducer,
   user: userReducer,
@@ -31,6 +37,11 @@ const rootReducer = combineReducers({
   notes: notesReducer,
   agent: agentReducer,
   payments: paymentReducer,
+  
+  // Event Engine Modules
+  teams: teamReducer,
+  submissions: submissionReducer,
+  scoring: scoringReducer,
 });
 
 export default rootReducer;
