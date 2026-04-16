@@ -211,6 +211,7 @@ const teamSlice = createSlice({
       .addCase(transferLeadershipThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
       // Disqualify Team
       .addCase(disqualifyTeamThunk.pending, (state) => { state.loading = true; })
       .addCase(disqualifyTeamThunk.fulfilled, (state, action) => {

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { selectSelectedEvent } from "../../../../redux/slices/eventSlice";
-import api from "../../../../api/axios";
+import { selectSelectedEvent } from "../../../redux/slices/eventSlice";
+import api from "../../../api/axios";
 import CircularProgress from "../../../common/CircularProgress";
 
 export default function LeaderboardTab() {

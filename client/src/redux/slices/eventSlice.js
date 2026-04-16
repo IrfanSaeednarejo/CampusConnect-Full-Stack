@@ -241,6 +241,7 @@ const eventSlice = createSlice({
       .addCase(publishLeaderboardThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
       // Announcements
       .addCase(postAnnouncementThunk.fulfilled, (state, action) => {
         state.loading = false;

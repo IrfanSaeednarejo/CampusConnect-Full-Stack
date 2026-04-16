@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectSelectedEvent, selectEventAnnouncements, fetchAnnouncementsThunk } from "../../../../redux/slices/eventSlice";
+import { selectSelectedEvent, selectEventAnnouncements, fetchAnnouncementsThunk } from "../../../redux/slices/eventSlice";
 
 export default function OverviewTab() {
   const dispatch = useDispatch();

@@ -57,9 +57,6 @@ const studyGroupSlice = createSlice({
       const { groupId, resources } = action.payload;
       state.resources[groupId] = resources;
     },
-    addResource: (state, action) => {
-      const { groupId, resource } = action.payload;
-      if (!state.resources[groupId]) {
     clearSelectedGroup: (state) => {
       state.selectedGroup = null;
     },
