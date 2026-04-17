@@ -111,6 +111,8 @@ const initialState = {
 	editingMessage: null,
 	searchQuery: "",
 	searchResults: [],
+	hiddenMessagesByConversation: {},
+	searchByConversation: {},
 	loading: { chats: false, messages: false, operation: false },
 	error: null,
 	connection: { isConnected: false, error: null, lastConnectedAt: null },
@@ -443,6 +445,9 @@ export const selectSearchQuery = (state) => state.chat.searchQuery;
 export const selectSearchResults = (state) => state.chat.searchResults;
 export const selectReplyTo = (state) => state.chat.replyTo;
 export const selectEditingMessage = (state) => state.chat.editingMessage;
+export const selectForwardingMessage = (state) => state.chat.forwardingMessage;
+export const selectHiddenMessagesByConversation = (state) => state.chat.hiddenMessagesByConversation || {};
+export const selectSearchByConversation = (state) => state.chat.searchByConversation || {};
 export const selectLastSeenByConversation = (state) => state.chat.lastSeenByConversation || {};
 
 export const sendMessage = sendMessageThunk;

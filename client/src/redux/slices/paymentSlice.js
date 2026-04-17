@@ -106,12 +106,20 @@ const paymentSlice = createSlice({
   },
 });
 
+// Export actions
 export const { clearPaymentState } = paymentSlice.actions;
 
+// Export selectors
 export const selectAllPayments = (state) => state.payments.payments;
+export const selectPayments = selectAllPayments; // Alias for consistency in components
 export const selectCurrentIntent = (state) => state.payments.currentIntent;
 export const selectPaymentLoading = (state) => state.payments.loading;
 export const selectPaymentError = (state) => state.payments.error;
 export const selectPaymentSuccess = (state) => state.payments.success;
+
+// Alias thunks for consistency
+export const fetchMyPaymentsThunk = fetchMyPayments;
+export const createPaymentIntentThunk = createPaymentIntent;
+export const verifyPaymentThunk = verifyPayment;
 
 export default paymentSlice.reducer;

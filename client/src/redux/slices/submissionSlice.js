@@ -65,6 +65,7 @@ const submissionSlice = createSlice({
   name: 'submission',
   initialState: {
     mySubmission: null,
+    allSubmissions: [],
     uploadStatus: 'idle', // 'idle' | 'loading' | 'success' | 'failed'
     loading: false,
     error: null,
@@ -74,7 +75,7 @@ const submissionSlice = createSlice({
       state.error = null;
     },
     resetSubmissionState: (state) => {
-      state.submission = null;
+      state.mySubmission = null;
       state.allSubmissions = [];
       state.uploadStatus = 'idle';
       state.error = null;
@@ -87,13 +88,13 @@ const submissionSlice = createSlice({
       .addCase(fetchMySubmission.pending, (state) => { state.uploadStatus = "loading"; })
       .addCase(fetchMySubmission.fulfilled, (state, action) => {
         state.uploadStatus = "succeeded";
-        state.submission = action.payload;
+        state.mySubmission = action.payload;
         state.error = null;
       })
       .addCase(fetchMySubmission.rejected, (state, action) => {
         state.uploadStatus = "failed";
         state.error = action.payload;
-        state.submission = null;
+        state.mySubmission = null;
       })
 
       // Fetch All Submissions (Admin)

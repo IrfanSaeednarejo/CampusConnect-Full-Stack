@@ -145,10 +145,11 @@ const eventSlice = createSlice({
     setUpcomingEvents: (state, action) => {
       state.upcomingEvents = action.payload;
     },
-    // Live Socket Payloads
+    setEvents: (state, action) => {
+      state.events = action.payload;
+    },
     socketAddAnnouncement: (state, action) => {
-      // Prevent duplicates if already fetched via REST implicitly
-      const newAnn = action.payload; // Usually the backend sends the fully populated string/object
+      const newAnn = action.payload;
       if (state.announcements && !state.announcements.some(a => a._id === newAnn._id || a === newAnn)) {
         state.announcements = [newAnn, ...state.announcements];
       }
@@ -178,7 +179,7 @@ const eventSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      
+
       // Fetch by ID
       .addCase(fetchEventById.pending, (state) => {
         state.loading = true;
@@ -204,7 +205,7 @@ const eventSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      
+
       // Update
       .addCase(updateEventThunk.fulfilled, (state, action) => {
         const idx = state.events.findIndex(e => e._id === action.payload._id || e.id === action.payload.id);
@@ -215,30 +216,30 @@ const eventSlice = createSlice({
           state.selectedEvent = action.payload;
         }
       })
-      
+
       // Delete
       .addCase(deleteEventThunk.fulfilled, (state, action) => {
         state.events = state.events.filter(e => e._id !== action.payload && e.id !== action.payload);
       })
-      
+
       // Admin Transitions
       .addCase(transitionStateThunk.pending, (state) => { state.loading = true; })
       .addCase(transitionStateThunk.fulfilled, (state, action) => {
         state.loading = false;
         if (state.selectedEvent && (state.selectedEvent._id === action.payload._id || state.selectedEvent.id === action.payload.id)) {
-           state.selectedEvent = action.payload; // Update live view
+          state.selectedEvent = action.payload; // Update live view
         }
       })
       .addCase(transitionStateThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
-      
+
       .addCase(publishLeaderboardThunk.pending, (state) => { state.loading = true; })
       .addCase(publishLeaderboardThunk.fulfilled, (state, action) => {
         state.loading = false;
         if (state.selectedEvent && (state.selectedEvent._id === action.payload._id || state.selectedEvent.id === action.payload.id)) {
-           state.selectedEvent = action.payload; // Update live view to show published
+          state.selectedEvent = action.payload; // Update live view to show published
         }
       })
       .addCase(publishLeaderboardThunk.rejected, (state, action) => {
@@ -265,7 +266,7 @@ const eventSlice = createSlice({
       .addCase(updateJudgesThunk.fulfilled, (state, action) => {
         state.loading = false;
         if (state.selectedEvent && (state.selectedEvent._id === action.payload._id || state.selectedEvent.id === action.payload.id)) {
-           state.selectedEvent = action.payload;
+          state.selectedEvent = action.payload;
         }
       })
       .addCase(updateJudgesThunk.rejected, (state, action) => {
@@ -275,10 +276,11 @@ const eventSlice = createSlice({
   },
 });
 
-export const { 
-  clearSelectedEvent, 
+export const {
+  clearSelectedEvent,
   clearError,
   setUpcomingEvents,
+  setEvents,
   socketAddAnnouncement,
   socketUpdateEventStatus,
   socketUpdateLeaderboard
