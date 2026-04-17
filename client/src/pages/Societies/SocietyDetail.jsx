@@ -1,198 +1,213 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  selectSocietyById,
-  selectRegisteredSocieties,
-  joinSociety,
-  leaveSociety,
+  fetchSocietyById,
+  fetchSocietyMembers,
+  joinSocietyThunk,
+  leaveSocietyThunk,
+  selectCurrentSociety,
+  selectSocietyMembers,
+  selectSocietyLoading,
+  selectMembersLoading,
+  selectSocietyError,
+  clearCurrentSociety,
 } from "../../redux/slices/societySlice";
+import { selectUser } from "../../redux/slices/authSlice";
 import PageHeader from "../../components/common/PageHeader";
 import Button from "../../components/common/Button";
 import Card from "../../components/common/Card";
-import Avatar from "../../components/common/Avatar";
 import EmptyState from "../../components/common/EmptyState";
+import { useNotification } from "../../contexts/NotificationContext.jsx";
+
+const TABS = ["overview", "members", "events"];
 
 export default function SocietyDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [activeTab, setActiveTab] = useState("overview");
+  const { showSuccess, showError } = useNotification();
 
-  const societyId = Number(id);
-  const society = useSelector(selectSocietyById(societyId));
-  const registeredSocieties = useSelector(selectRegisteredSocieties);
-  const isMember = useMemo(
-    () => registeredSocieties.some((s) => s.id === societyId),
-    [registeredSocieties, societyId]
+  const society        = useSelector(selectCurrentSociety);
+  const members        = useSelector(selectSocietyMembers);
+  const loading        = useSelector(selectSocietyLoading);
+  const membersLoading = useSelector(selectMembersLoading);
+  const error          = useSelector(selectSocietyError);
+  const user           = useSelector(selectUser);
+
+  const [activeTab,   setActiveTab]   = useState("overview");
+  const [actionBusy,  setActionBusy]  = useState(false);
+
+  // Load society + members on mount
+  useEffect(() => {
+    dispatch(fetchSocietyById(id));
+    dispatch(fetchSocietyMembers({ id }));
+    return () => { dispatch(clearCurrentSociety()); };
+  }, [dispatch, id]);
+
+  // Derive membership — check if logged-in user is in the members list
+  const isMember = members.some(
+    (m) => (m.user?._id || m.user || m._id) === user?._id
   );
 
-  // Mock data for members and events
-  const [members] = useState([
-    { id: 1, name: "Sarah Johnson", role: "President", avatar: "SJ", email: "sarah.j@university.edu" },
-    { id: 2, name: "Alex Chen", role: "Vice President", avatar: "AC", email: "alex.c@university.edu" },
-    { id: 3, name: "Emma Wilson", role: "Secretary", avatar: "EW", email: "emma.w@university.edu" },
-    { id: 4, name: "Michael Brown", role: "Member", avatar: "MB", email: "michael.b@university.edu" },
-    { id: 5, name: "Lisa Wang", role: "Member", avatar: "LW", email: "lisa.w@university.edu" },
-  ]);
+  // Also check if current user is the society_head
+  const isHead = society?.createdBy === user?._id ||
+    society?.adminId === user?._id;
 
-  const [events] = useState([
-    {
-      id: 1,
-      title: "Workshop: Introduction to AI",
-      date: "March 15, 2026",
-      time: "3:00 PM",
-      location: "Room 201",
-      attendees: 45,
-    },
-    {
-      id: 2,
-      title: "Tech Talk: Future of Web Development",
-      date: "March 22, 2026",
-      time: "4:00 PM",
-      location: "Auditorium",
-      attendees: 78,
-    },
-    {
-      id: 3,
-      title: "Networking Mixer",
-      date: "March 28, 2026",
-      time: "6:00 PM",
-      location: "Student Lounge",
-      attendees: 32,
-    },
-  ]);
+  const handleJoinLeave = async () => {
+    setActionBusy(true);
+    try {
+      if (isMember) {
+        await dispatch(leaveSocietyThunk(id)).unwrap();
+        showSuccess("You have left the society.");
+        dispatch(fetchSocietyMembers({ id }));
+      } else {
+        await dispatch(joinSocietyThunk(id)).unwrap();
+        showSuccess("Successfully joined the society!");
+        dispatch(fetchSocietyMembers({ id }));
+      }
+    } catch (err) {
+      showError(err || "Action failed. Please try again.");
+    } finally {
+      setActionBusy(false);
+    }
+  };
 
-  const [posts] = useState([
-    {
-      id: 1,
-      author: "Sarah Johnson",
-      avatar: "SJ",
-      content: "Excited to announce our upcoming AI Workshop! Register now to secure your spot!",
-      timestamp: "2 hours ago",
-      likes: 24,
-    },
-    {
-      id: 2,
-      author: "Alex Chen",
-      avatar: "AC",
-      content: "Great turnout at yesterday's meeting! Thanks everyone for the amazing ideas.",
-      timestamp: "1 day ago",
-      likes: 18,
-    },
-  ]);
-
-  if (!society) {
+  // ── Loading state ────────────────────────────────────────────────────────────
+  if (loading) {
     return (
-      <div className="flex flex-col min-h-screen overflow-y-auto bg-[#0d1117]">
-        <div className="flex items-center justify-center h-screen">
-          <Card padding="p-12">
-            <EmptyState
-              icon="error"
-              title="Society not found"
-              description="The society you're looking for doesn't exist"
-              action={
-                <Button onClick={() => navigate("/societies")} variant="primary">
-                  Back to Societies
-                </Button>
-              }
-            />
-          </Card>
+      <div className="flex flex-col min-h-screen bg-[#0d1117]">
+        <div className="max-w-5xl mx-auto px-4 py-8 w-full space-y-6 animate-pulse">
+          <div className="h-10 bg-[#161b22] rounded w-1/2" />
+          <div className="grid grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="h-24 bg-[#161b22] border border-[#30363d] rounded-xl" />
+            ))}
+          </div>
+          <div className="h-48 bg-[#161b22] border border-[#30363d] rounded-xl" />
         </div>
       </div>
     );
   }
 
-  const handleJoinLeave = () => {
-    if (!society) {
-      return;
-    }
-    if (isMember) {
-      dispatch(leaveSociety(society.id));
-    } else {
-      dispatch(joinSociety(society.id));
-    }
-  };
+  // ── Error / not found ─────────────────────────────────────────────────────────
+  if (error || (!loading && !society)) {
+    return (
+      <div className="flex flex-col min-h-screen bg-[#0d1117] items-center justify-center p-8">
+        <Card padding="p-12">
+          <EmptyState
+            icon="error"
+            title="Society not found"
+            description={error || "This society doesn't exist or has been removed."}
+            action={
+              <Button onClick={() => navigate("/societies/browse")} variant="primary">
+                Back to Societies
+              </Button>
+            }
+          />
+        </Card>
+      </div>
+    );
+  }
+
+  const statusColor = {
+    active:    "bg-[#238636]/20 text-[#238636]",
+    pending:   "bg-yellow-500/20 text-yellow-400",
+    suspended: "bg-[#f85149]/20 text-[#f85149]",
+    rejected:  "bg-[#f85149]/20 text-[#f85149]",
+  }[society.status] ?? "bg-[#8b949e]/20 text-[#8b949e]";
 
   return (
-    <div className="flex flex-col min-h-screen overflow-y-auto bg-[#0d1117]">
-      {/* Header */}
+    <div className="flex flex-col min-h-screen bg-[#0d1117]">
       <PageHeader
         title={society.name}
         subtitle={society.description}
         icon="groups"
-        backPath="/societies"
+        backPath="/societies/browse"
         action={
-          <div className="flex flex-wrap gap-3">
+          <div className="flex gap-3 flex-wrap">
+            {isHead && (
+              <Button
+                onClick={() => navigate(`/society/manage`)}
+                variant="secondary"
+                size="sm"
+              >
+                <span className="material-symbols-outlined text-sm mr-1">settings</span>
+                Manage
+              </Button>
+            )}
             <Button
-              onClick={() => navigate(`/society/edit/${society.id}`)}
-              variant="secondary"
-              className="min-w-0"
-            >
-              Edit Society
-            </Button>
-            <Button
+              id="join-leave-btn"
               onClick={handleJoinLeave}
               variant={isMember ? "secondary" : "primary"}
+              size="sm"
+              disabled={actionBusy || society.status !== "active"}
             >
-              {isMember ? "Leave Society" : "Join Society"}
+              {actionBusy
+                ? "Processing…"
+                : isMember
+                ? "Leave Society"
+                : "Join Society"}
             </Button>
           </div>
         }
       />
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        {/* Society Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
-          <Card padding="p-6">
-            <div className="text-center">
-              <span className="material-symbols-outlined text-3xl text-[#238636] mb-2">
-                people
-              </span>
-              <div className="text-2xl font-bold text-white">{society.members}</div>
-              <div className="text-sm text-[#8b949e] mt-1">Members</div>
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        {/* Pending / Suspended Banner */}
+        {society.status !== "active" && (
+          <div className={`mb-6 p-4 rounded-lg border flex items-center gap-3 ${
+            society.status === "pending"
+              ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-400"
+              : "bg-[#f85149]/10 border-[#f85149]/30 text-[#f85149]"
+          }`}>
+            <span className="material-symbols-outlined">
+              {society.status === "pending" ? "pending" : "block"}
+            </span>
+            <div>
+              <p className="font-semibold capitalize">{society.status}</p>
+              {society.statusReason && (
+                <p className="text-sm opacity-80">{society.statusReason}</p>
+              )}
             </div>
-          </Card>
-          <Card padding="p-6">
-            <div className="text-center">
-              <span className="material-symbols-outlined text-3xl text-[#238636] mb-2">
-                event
-              </span>
-              <div className="text-2xl font-bold text-white">{society.events}</div>
-              <div className="text-sm text-[#8b949e] mt-1">Events</div>
-            </div>
-          </Card>
-          <Card padding="p-6">
-            <div className="text-center">
-              <span className="material-symbols-outlined text-3xl text-[#238636] mb-2">
-                category
-              </span>
-              <div className="text-2xl font-bold text-white">{society.category}</div>
-              <div className="text-sm text-[#8b949e] mt-1">Category</div>
-            </div>
-          </Card>
-          <Card padding="p-6">
-            <div className="text-center">
-              <span className="material-symbols-outlined text-3xl text-[#238636] mb-2">
-                person
-              </span>
-              <div className="text-lg font-bold text-white">{society.head}</div>
-              <div className="text-sm text-[#8b949e] mt-1">Society Head</div>
-            </div>
-          </Card>
+          </div>
+        )}
+
+        {/* Stats Row */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          {[
+            { label: "Members", value: society.memberCount ?? members.length, icon: "people" },
+            { label: "Category", value: society.category ?? "—", icon: "category" },
+            { label: "Status", value: society.status ?? "active", icon: "verified", badge: statusColor },
+            { label: "Founded", value: society.createdAt ? new Date(society.createdAt).getFullYear() : "—", icon: "calendar_today" },
+          ].map((stat) => (
+            <Card key={stat.label} padding="p-4">
+              <div className="flex flex-col items-center text-center gap-1">
+                <span className="material-symbols-outlined text-2xl text-[#238636]">{stat.icon}</span>
+                {stat.badge ? (
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${stat.badge}`}>
+                    {stat.value}
+                  </span>
+                ) : (
+                  <div className="text-lg font-bold text-white">{stat.value}</div>
+                )}
+                <div className="text-xs text-[#8b949e]">{stat.label}</div>
+              </div>
+            </Card>
+          ))}
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2 mb-6 border-b border-[#30363d]">
-          {["overview", "members", "events", "posts"].map((tab) => (
+        <div className="flex gap-1 mb-6 border-b border-[#30363d]">
+          {TABS.map((tab) => (
             <button
               key={tab}
+              id={`tab-${tab}`}
               onClick={() => setActiveTab(tab)}
-              className={`px-4 py-3 text-sm font-medium capitalize transition-colors ${
+              className={`px-4 py-2.5 text-sm font-medium capitalize transition-colors border-b-2 -mb-px ${
                 activeTab === tab
-                  ? "text-[#238636] border-b-2 border-[#238636]"
-                  : "text-[#8b949e] hover:text-white"
+                  ? "text-[#238636] border-[#238636]"
+                  : "text-[#8b949e] border-transparent hover:text-white"
               }`}
             >
               {tab}
@@ -200,118 +215,84 @@ export default function SocietyDetail() {
           ))}
         </div>
 
-        {/* Tab Content */}
+        {/* Overview Tab */}
         {activeTab === "overview" && (
           <Card padding="p-6">
-            <h3 className="text-xl font-bold text-white mb-4">About</h3>
-            <p className="text-[#8b949e] mb-6">{society.description}</p>
-            
-            <h4 className="text-lg font-bold text-white mb-3">What We Do</h4>
-            <ul className="space-y-2 text-[#8b949e]">
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#238636] text-sm mt-1">check_circle</span>
-                <span>Regular workshops and technical sessions</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#238636] text-sm mt-1">check_circle</span>
-                <span>Networking events with industry professionals</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#238636] text-sm mt-1">check_circle</span>
-                <span>Collaborative projects and competitions</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="material-symbols-outlined text-[#238636] text-sm mt-1">check_circle</span>
-                <span>Mentorship and skill development programs</span>
-              </li>
-            </ul>
+            <h3 className="text-lg font-bold text-white mb-3">About</h3>
+            <p className="text-[#8b949e] mb-6 leading-relaxed">
+              {society.description || "No description provided."}
+            </p>
+            {society.contact?.email && (
+              <div className="flex items-center gap-2 text-sm text-[#8b949e]">
+                <span className="material-symbols-outlined text-sm">email</span>
+                <a href={`mailto:${society.contact.email}`} className="hover:text-[#238636] transition-colors">
+                  {society.contact.email}
+                </a>
+              </div>
+            )}
           </Card>
         )}
 
+        {/* Members Tab */}
         {activeTab === "members" && (
-          <div className="space-y-4">
-            {members.map((member) => (
-              <Card key={member.id} padding="p-4" hover={true}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <Avatar
-                      name={member.avatar}
-                      size="12"
-                      borderColor="[#238636]"
-                    />
-                    <div>
-                      <h4 className="text-white font-medium">{member.name}</h4>
-                      <p className="text-sm text-[#8b949e]">{member.role}</p>
-                    </div>
-                  </div>
-                  <a
-                    href={`mailto:${member.email}`}
-                    className="text-[#238636] hover:text-[#2ea043] text-sm font-medium"
-                  >
-                    Contact
-                  </a>
-                </div>
+          <div className="space-y-3">
+            {membersLoading ? (
+              Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-16 bg-[#161b22] border border-[#30363d] rounded-lg animate-pulse" />
+              ))
+            ) : members.length === 0 ? (
+              <Card padding="p-12">
+                <EmptyState icon="people" title="No members yet" description="Be the first to join this society!" />
               </Card>
-            ))}
+            ) : (
+              members.map((m) => {
+                const profile = m.user?.profile ?? m.profile ?? {};
+                const name = profile.displayName || profile.firstName
+                  ? `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim()
+                  : m.user?.email ?? "Unknown";
+                const avatar = profile.avatar;
+                const initials = name.slice(0, 2).toUpperCase();
+                return (
+                  <Card key={m._id || m.user?._id} padding="p-4" hover>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        {avatar ? (
+                          <img src={avatar} alt={name} className="w-10 h-10 rounded-full object-cover border border-[#30363d]" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-[#238636] flex items-center justify-center text-white text-xs font-bold">
+                            {initials}
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-white font-medium text-sm">{name}</p>
+                          <p className="text-[#8b949e] text-xs capitalize">{m.role ?? "member"}</p>
+                        </div>
+                      </div>
+                      <span className="text-xs text-[#8b949e]">
+                        {m.joinedAt ? new Date(m.joinedAt).toLocaleDateString() : ""}
+                      </span>
+                    </div>
+                  </Card>
+                );
+              })
+            )}
           </div>
         )}
 
+        {/* Events Tab */}
         {activeTab === "events" && (
-          <div className="space-y-4">
-            {events.map((event) => (
-              <Card key={event.id} padding="p-6" hover={true}>
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h4 className="text-lg font-bold text-white mb-2">{event.title}</h4>
-                    <div className="space-y-1 text-sm text-[#8b949e]">
-                      <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-sm">calendar_today</span>
-                        <span>{event.date}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-sm">schedule</span>
-                        <span>{event.time}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-sm">location_on</span>
-                        <span>{event.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="material-symbols-outlined text-sm">people</span>
-                        <span>{event.attendees} attendees</span>
-                      </div>
-                    </div>
-                  </div>
-                  <Button variant="primary" size="sm">
-                    Register
-                  </Button>
-                </div>
-              </Card>
-            ))}
-          </div>
-        )}
-
-        {activeTab === "posts" && (
-          <div className="space-y-4">
-            {posts.map((post) => (
-              <Card key={post.id} padding="p-6">
-                <div className="flex items-start gap-4">
-                  <Avatar name={post.avatar} size="10" borderColor="[#238636]" />
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-white font-medium">{post.author}</h4>
-                      <span className="text-xs text-[#8b949e]">{post.timestamp}</span>
-                    </div>
-                    <p className="text-[#8b949e] mb-3">{post.content}</p>
-                    <button className="flex items-center gap-1 text-[#8b949e] hover:text-[#238636] text-sm">
-                      <span className="material-symbols-outlined text-sm">favorite</span>
-                      <span>{post.likes}</span>
-                    </button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+          <Card padding="p-12">
+            <EmptyState
+              icon="event"
+              title="Events"
+              description="Society events are managed through the Events module."
+              action={
+                <Button onClick={() => navigate("/events")} variant="secondary">
+                  Browse Events
+                </Button>
+              }
+            />
+          </Card>
         )}
       </main>
     </div>
