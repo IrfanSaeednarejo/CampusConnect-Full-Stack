@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { logout as logoutAction } from "../../redux/slices/authSlice";
-import { resetUserState } from "../../redux/slices/userSlice";
+import { clearSearch, clearViewedProfile } from "../../redux/slices/userSlice";
 import { clearAllNotifications } from "../../redux/slices/notificationSlice";
-import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useAuth } from "../../hooks/useAuth.js";
 
 export default function Logout() {
 	const navigate = useNavigate();
@@ -14,7 +14,8 @@ export default function Logout() {
 	useEffect(() => {
 		logout();
 		dispatch(logoutAction());
-		dispatch(resetUserState());
+		dispatch(clearSearch());
+		dispatch(clearViewedProfile());
 		dispatch(clearAllNotifications());
 		navigate("/login", { replace: true });
 	}, [dispatch, logout, navigate]);

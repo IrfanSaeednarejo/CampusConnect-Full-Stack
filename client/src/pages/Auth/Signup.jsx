@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { registerUser, setRole, selectRole, selectIsAuthenticated } from "../../redux/slices/authSlice";
-import { setUserProfile } from "../../redux/slices/userSlice";
 import {
   validateSignupForm,
   VALID_ROLES,

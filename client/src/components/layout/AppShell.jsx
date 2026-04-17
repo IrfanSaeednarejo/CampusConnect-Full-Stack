@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import GlobalNavbar from './GlobalNavbar';
 import AppSidebar from './AppSidebar';
+import EmailVerificationBanner from './EmailVerificationBanner';
 
 /**
  * AppShell — the single authenticated layout wrapper.
@@ -39,8 +40,9 @@ export default function AppShell() {
         {/* Page content */}
         <main
           id="main-content"
-          className="flex-1 overflow-y-auto bg-[#0d1117]"
+          className="flex-1 flex flex-col overflow-y-auto bg-[#0d1117]"
         >
+          <EmailVerificationBanner />
           <div className="h-full">
             <Outlet />
           </div>
