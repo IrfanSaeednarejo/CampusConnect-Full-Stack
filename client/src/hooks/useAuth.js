@@ -76,3 +76,5 @@ export const useAuth = () => {
 };
 
 export default useAuth;
+
+export const useHasRole = (role) => useAuth().hasRole(role);

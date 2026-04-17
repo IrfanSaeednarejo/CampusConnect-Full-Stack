@@ -14,20 +14,16 @@ export default function OnboardingWizardComplete() {
   const handleGoToDashboard = async () => {
     try {
       // Mark onboarding as complete in Backend, Redux and Context
-      await completeOnboarding({ isComplete: true });
+      await completeOnboarding({ 
+        isComplete: true, 
+        completedSteps: ['welcome', 'profile', 'notifications', 'complete'],
+        roleSelected: role || 'student'
+      });
 
       showSuccess(`Welcome to CampusConnect, ${user?.profile?.firstName || 'User'}!`);
-
-      // Route user to appropriate dashboard based on role
-      const dashboards = {
-        student: "/student/dashboard",
-        mentor: "/mentor/dashboard",
-        society_head: "/society/dashboard",
-        admin: "/admin/dashboard",
-      };
-
-      const dashboardUrl = dashboards[role] || "/";
-      navigate(dashboardUrl, { replace: true });
+      
+      // All users go to the unified dashboard
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       console.error("Onboarding completion failed:", err);
     }

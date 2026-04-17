@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { updateUserProfile } from "../../redux/slices/userSlice";
+import { updateAccountThunk, updateAcademicThunk, completeOnboardingThunk } from "../../redux/slices/authSlice";
 import FormField from "../../components/common/FormField";
 import FormActions from "../../components/common/FormActions";
 import OnboardingShell from "../../components/onboarding/OnboardingShell";
@@ -20,13 +20,18 @@ export default function ProfileSetup() {
     navigate("/onboarding/notifications-setup");
   };
 
-  const handleNext = () => {
-    // Save profile data to Redux
-    if (bio || department) {
-      dispatch(updateUserProfile({
-        bio,
-        department,
-      }));
+  const handleNext = async () => {
+    try {
+      if (bio) {
+        await dispatch(updateAccountThunk({ bio })).unwrap();
+      }
+      if (department) {
+        await dispatch(updateAcademicThunk({ department })).unwrap();
+      }
+      // Update step progress
+      await dispatch(completeOnboardingThunk({ completedSteps: ['welcome', 'profile'] })).unwrap();
+    } catch (error) {
+      console.error("Failed to update profile details:", error);
     }
     navigate("/onboarding/notifications-setup");
   };

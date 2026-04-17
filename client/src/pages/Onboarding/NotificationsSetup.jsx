@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setUserPreferences } from "../../redux/slices/userSlice";
+import { updatePreferencesThunk, completeOnboardingThunk } from "../../redux/slices/authSlice";
 import FormActions from "../../components/common/FormActions";
 import OnboardingShell from "../../components/onboarding/OnboardingShell";
 import OnboardingCard from "../../components/onboarding/OnboardingCard";
@@ -15,13 +15,22 @@ export default function NotificationsSetup() {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsReminders, setSmsReminders] = useState(false);
 
-  const handleFinish = () => {
-    // Save notification preferences to Redux
-    dispatch(setUserPreferences({
-      emailUpdates: emailNotifications,
-      smsReminders: smsReminders,
-      notifications: emailNotifications || smsReminders,
-    }));
+  const handleFinish = async () => {
+    try {
+      await dispatch(updatePreferencesThunk({
+        notifications: {
+          email: emailNotifications,
+          push: smsReminders,
+          inApp: emailNotifications || smsReminders,
+          digest: emailNotifications
+        }
+      })).unwrap();
+
+      // Update step progress
+      await dispatch(completeOnboardingThunk({ completedSteps: ['welcome', 'profile', 'notifications'] })).unwrap();
+    } catch (error) {
+      console.error("Failed to update notification preferences:", error);
+    }
     navigate("/onboarding/complete");
   };
 

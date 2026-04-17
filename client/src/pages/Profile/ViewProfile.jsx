@@ -1,14 +1,22 @@
-import { useAuth } from "@/contexts/AuthContext.jsx";
-import { useSelector } from "react-redux";
-import { selectUserProfile } from "../../redux/slices/userSlice";
+import { useAuth } from "../../hooks/useAuth.js";
 import { Link, useNavigate } from "react-router-dom";
 import Card from "../../components/common/Card";
 import ProfilePageHeader from "../../components/profile/ProfilePageHeader";
 
 export default function ViewProfile() {
-  const { user, role } = useAuth();
-  const userProfile = useSelector(selectUserProfile);
+  const { user, roles } = useAuth();
   const navigate = useNavigate();
+
+  const firstName = user?.profile?.firstName || "";
+  const lastName = user?.profile?.lastName || "";
+  const fullName = firstName ? `${firstName} ${lastName}`.trim() : "User";
+  const initials = firstName ? firstName.charAt(0).toUpperCase() : "U";
+  
+  const email = user?.email || "";
+  const avatarUrl = user?.profile?.avatar;
+  const department = user?.academic?.department;
+  const bio = user?.profile?.bio;
+  const displayRole = roles && roles.length > 0 ? roles[0] : "Student";
 
   return (
     <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen">
@@ -32,37 +40,48 @@ export default function ViewProfile() {
         <Card padding="p-6" className="mb-6">
           <div className="flex items-start gap-6">
             {/* Avatar */}
-            <div
-              className="w-24 h-24 rounded-full bg-gradient-to-br from-[#238636] to-[#1f6feb] flex items-center justify-center text-white text-3xl font-bold"
-            >
-              {user?.name?.charAt(0).toUpperCase() || "U"}
-            </div>
+            {avatarUrl ? (
+              <img 
+                src={avatarUrl} 
+                alt={fullName} 
+                className="w-24 h-24 rounded-full object-cover border-2 border-[#30363d]" 
+              />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#238636] to-[#1f6feb] flex items-center justify-center text-white text-3xl font-bold">
+                {initials}
+              </div>
+            )}
 
             {/* Info */}
             <div className="flex-1">
               <h2 className="text-2xl font-bold text-white mb-1">
-                {user?.name || userProfile?.name || "User"}
+                {fullName}
               </h2>
+              {user?.profile?.displayName && (
+                <p className="text-[#8b949e] text-sm mb-1">@{user.profile.displayName}</p>
+              )}
               <p className="text-[#8b949e] mb-4">
-                {user?.email || userProfile?.email || "email@example.com"}
+                {email}
               </p>
-              <div className="flex items-center gap-4">
-                <span className="px-3 py-1 bg-[#1f6feb]/20 text-[#58a6ff] rounded-full text-sm font-medium capitalize">
-                  {role || "Student"}
-                </span>
-                {userProfile?.department && (
-                  <span className="px-3 py-1 bg-[#238636]/20 text-[#3fb950] rounded-full text-sm font-medium">
-                    {userProfile.department}
+              <div className="flex flex-wrap items-center gap-3">
+                {roles && roles.map(r => (
+                  <span key={r} className="px-3 py-1 bg-[#1f6feb]/20 text-[#58a6ff] rounded-full text-xs font-medium uppercase tracking-wider">
+                    {r.replace('_', ' ')}
+                  </span>
+                ))}
+                {department && (
+                  <span className="px-3 py-1 bg-[#238636]/20 text-[#3fb950] rounded-full text-xs font-medium">
+                    {department}
                   </span>
                 )}
               </div>
             </div>
           </div>
           {/* Bio */}
-          {userProfile?.bio && (
+          {bio && (
             <div className="mt-6 pt-6 border-t border-[#30363d]">
               <h3 className="text-sm font-semibold text-[#8b949e] mb-2">Bio</h3>
-              <p className="text-[#c9d1d9]">{userProfile.bio}</p>
+              <p className="text-[#c9d1d9]">{bio}</p>
             </div>
           )}
         </Card>
