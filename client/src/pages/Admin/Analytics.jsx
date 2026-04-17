@@ -90,7 +90,7 @@ export default function AdminAnalytics() {
                         <span className="text-[10px] text-gray-500 font-mono">14:0{item} UTC</span>
                      </div>
                      <p className="text-xs text-gray-400 mt-1">
-                        Detected an unusual response time increase (>500ms) on the Payment verification node. 
+                        Detected an unusual response time increase (&gt;500ms) on the Payment verification node. 
                         Automatic scaling initiated.
                      </p>
                   </div>
