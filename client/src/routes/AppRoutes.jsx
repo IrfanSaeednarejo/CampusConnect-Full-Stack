@@ -117,6 +117,7 @@ import SystemHealth from "../pages/Admin/SystemHealth";
 import ReportsExport from "../pages/Admin/ReportsExport";
 import CampusList from "../pages/Admin/CampusList";
 import CampusDetail from "../pages/Admin/CampusDetail";
+import PaymentHistory from "../pages/Payments/PaymentHistory";
 
 // Academics Pages
 import NotesList from "../pages/Academics/NotesList";
@@ -192,6 +193,7 @@ export default function AppRoutes() {
           <Route path="/student/agents/mentor" element={<MentorMatchAgent />} />
           <Route path="/student/agents/wellbeing" element={<WellbeingAgent />} />
           <Route path="/student/agents/feedback" element={<FeedbackAgent />} />
+          <Route path="/student/payments/history" element={<PaymentHistory />} />
         </Route>
 
         {/* ========== MENTOR ROUTES - Require 'mentor' role + onboarding completion ========== */}
