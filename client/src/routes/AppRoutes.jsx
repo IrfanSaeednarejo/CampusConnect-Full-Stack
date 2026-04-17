@@ -105,6 +105,19 @@ import MentorProfileView from "../pages/Mentoring/MentorProfileView";
 import MentorNotifications from "../pages/Mentoring/MentorNotifications";
 import MentorDisplayProfile from "../pages/Mentoring/MentorDisplayProfile";
 
+// Admin Pages (New Registration)
+import UserManagement from "../pages/Admin/UserManagement";
+import SocietyApproval from "../pages/Admin/SocietyApproval";
+import MentorVerification from "../pages/Admin/MentorVerification";
+import AdminAnalytics from "../pages/Admin/Analytics";
+import ContentModeration from "../pages/Admin/ContentModeration";
+import Disputes from "../pages/Admin/Disputes";
+import LogsViewer from "../pages/Admin/LogsViewer";
+import SystemHealth from "../pages/Admin/SystemHealth";
+import ReportsExport from "../pages/Admin/ReportsExport";
+import CampusList from "../pages/Admin/CampusList";
+import CampusDetail from "../pages/Admin/CampusDetail";
+
 // Academics Pages
 import NotesList from "../pages/Academics/NotesList";
 import NoteDetail from "../pages/Academics/NoteDetail";
@@ -208,6 +221,17 @@ export default function AppRoutes() {
         {/* ========== ADMIN ROUTES - Require 'admin' role + onboarding completion ========== */}
         <Route element={<ProtectedRoute requiredRole="admin" requireOnboarding={true} />}>
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
+          <Route path="/admin/users" element={<UserManagement />} />
+          <Route path="/admin/societies/approvals" element={<SocietyApproval />} />
+          <Route path="/admin/mentors/verifications" element={<MentorVerification />} />
+          <Route path="/admin/analytics" element={<AdminAnalytics />} />
+          <Route path="/admin/moderation" element={<ContentModeration />} />
+          <Route path="/admin/disputes" element={<Disputes />} />
+          <Route path="/admin/logs" element={<LogsViewer />} />
+          <Route path="/admin/system" element={<SystemHealth />} />
+          <Route path="/admin/reports" element={<ReportsExport />} />
+          <Route path="/admin/campuses" element={<CampusList />} />
+          <Route path="/admin/campuses/:slug" element={<CampusDetail />} />
         </Route>
 
         {/* ========== STUDY GROUPS ROUTES - Require authentication + onboarding completion ========== */}
