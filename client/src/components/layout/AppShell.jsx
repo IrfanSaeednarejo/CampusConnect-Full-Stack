@@ -22,7 +22,7 @@ export default function AppShell() {
 
   return (
     <div className="flex flex-col h-screen bg-[#0d1117] overflow-hidden">
-      MenuToggle={() => setSidebarOpen((o) => !o)} />
+      <GlobalNavbar onMenuToggle={() => setSidebarOpen((o) => !o)} />
       <div className="flex flex-1 overflow-hidden">
         <AppSidebar
           open={sidebarOpen}
