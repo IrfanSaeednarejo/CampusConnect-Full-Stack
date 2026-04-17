@@ -48,6 +48,18 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+export const completeOnboardingThunk = createAsyncThunk(
+  'auth/completeOnboarding',
+  async (onboardingData, { rejectWithValue }) => {
+    try {
+      const { data } = await authApi.updateOnboarding(onboardingData);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.message || 'Failed to update onboarding');
+    }
+  }
+);
+
 const initialState = {
   isAuthenticated: false,
   user: null,
@@ -91,9 +103,11 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(loginUser.fulfilled, (state, action) => {
+        const user = action.payload.user || action.payload;
         state.isAuthenticated = true;
-        state.user = action.payload.user || action.payload;
-        state.role = action.payload.user?.roles?.[0] || action.payload.roles?.[0] || null;
+        state.user = user;
+        state.role = user?.roles?.[0] || null;
+        state.onboardingCompleted = user?.onboarding?.isComplete || false;
         state.loading = false;
         state.error = null;
       })
@@ -108,9 +122,11 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(registerUser.fulfilled, (state, action) => {
+        const user = action.payload.user || action.payload;
         state.isAuthenticated = true;
-        state.user = action.payload.user || action.payload;
-        state.role = action.payload.user?.roles?.[0] || action.payload.roles?.[0] || null;
+        state.user = user;
+        state.role = user?.roles?.[0] || null;
+        state.onboardingCompleted = user?.onboarding?.isComplete || false;
         state.loading = false;
         state.error = null;
       })
@@ -124,9 +140,11 @@ const authSlice = createSlice({
         state.loading = true;
       })
       .addCase(checkAuth.fulfilled, (state, action) => {
+        const user = action.payload;
         state.isAuthenticated = true;
-        state.user = action.payload;
-        state.role = action.payload?.roles?.[0] || null;
+        state.user = user;
+        state.role = user?.roles?.[0] || null;
+        state.onboardingCompleted = user?.onboarding?.isComplete || false;
         state.loading = false;
         state.error = null;
       })
@@ -144,6 +162,20 @@ const authSlice = createSlice({
         state.role = null;
         state.loading = false;
         state.onboardingCompleted = false;
+      });
+
+    builder
+      .addCase(completeOnboardingThunk.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(completeOnboardingThunk.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.onboardingCompleted = action.payload?.onboarding?.isComplete || false;
+        state.loading = false;
+      })
+      .addCase(completeOnboardingThunk.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

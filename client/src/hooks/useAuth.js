@@ -10,6 +10,8 @@ import {
   selectRole,
   selectAuthLoading,
   selectAuthError,
+  selectOnboardingCompleted,
+  completeOnboardingThunk,
 } from '../redux/slices/authSlice';
 import { connectSocket, disconnectSocket } from '../socket/socket';
 
@@ -21,6 +23,7 @@ export const useAuth = () => {
   const role = useSelector(selectRole);
   const loading = useSelector(selectAuthLoading);
   const error = useSelector(selectAuthError);
+  const onboardingCompleted = useSelector(selectOnboardingCompleted);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -40,6 +43,11 @@ export const useAuth = () => {
     dispatch(logoutUser());
   }, [dispatch]);
 
+  const completeOnboarding = useCallback(
+    (data) => dispatch(completeOnboardingThunk(data)),
+    [dispatch]
+  );
+
   const dismissError = useCallback(() => {
     dispatch(clearError());
   }, [dispatch]);
@@ -50,8 +58,10 @@ export const useAuth = () => {
     role,
     loading,
     error,
+    onboardingCompleted,
     login,
     logout,
+    completeOnboarding,
     dismissError,
   };
 };

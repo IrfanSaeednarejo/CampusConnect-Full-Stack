@@ -25,9 +25,11 @@ import {
     softDeleteAccount,
     getUserSocieties,
     searchUsers,
+    updateOnboarding,
 } from "../controllers/user.controller.js";
 
 const router = Router();
+router.route("/update-onboarding").patch(verifyJWT, updateOnboarding);
 
 router.route("/register").post(
     upload.fields([

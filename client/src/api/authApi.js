@@ -33,3 +33,6 @@ export const resetPassword = (token, data) =>
 
 export const changePassword = (data) =>
   api.patch('/users/change-password', data);
+
+export const updateOnboarding = (data) =>
+  api.patch('/users/update-onboarding', data);

@@ -1,14 +1,23 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth.js";
 import Button from "../../components/common/Button";
 import OnboardingShell from "../../components/onboarding/OnboardingShell";
 import OnboardingProgress from "../../components/onboarding/OnboardingProgress";
 
 export default function OnboardingWizardWelcome() {
   const navigate = useNavigate();
+  const { completeOnboarding } = useAuth();
 
-  const handleStart = () => {
-    // Navigate to the next onboarding step (Profile Setup)
-    navigate("/onboarding/profile-setup");
+  const handleStart = async () => {
+    try {
+      await completeOnboarding({ completedSteps: ['welcome'] });
+      // Navigate to the next onboarding step (Profile Setup)
+      navigate("/onboarding/profile-setup");
+    } catch (err) {
+      console.error("Failed to start onboarding:", err);
+      // Still navigate so user isn't stuck
+      navigate("/onboarding/profile-setup");
+    }
   };
 
   return (

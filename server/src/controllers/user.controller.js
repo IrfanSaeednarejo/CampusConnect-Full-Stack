@@ -151,7 +151,7 @@ const getUserSocieties = asyncHandler(async (req, res) => {
             societies,
             `Found ${societies.length} societ${societies.length === 1 ? "y" : "ies"}`
         )
-    );
+    )
 });
 
 const searchUsers = asyncHandler(async (req, res) => {
@@ -159,6 +159,11 @@ const searchUsers = asyncHandler(async (req, res) => {
     return res.status(200).json(
         new ApiResponse(200, result, `${result.pagination.total} result${result.pagination.total === 1 ? "" : "s"} found`)
     );
+});
+
+const updateOnboarding = asyncHandler(async (req, res) => {
+    const updated = await userService.updateOnboarding(req.user._id, req.body);
+    return res.status(200).json(new ApiResponse(200, updated, "Onboarding progress updated"));
 });
 
 export {
@@ -183,4 +188,5 @@ export {
     softDeleteAccount,
     getUserSocieties,
     searchUsers,
+    updateOnboarding,
 };

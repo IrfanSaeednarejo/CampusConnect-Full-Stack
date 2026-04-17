@@ -596,3 +596,29 @@ export const search = async (requestUser, queryParams) => {
         },
     };
 };
+
+export const updateOnboarding = async (userId, onboardingData) => {
+    const { isComplete, completedSteps, roleSelected } = onboardingData;
+
+    const updates = {};
+    if (isComplete !== undefined) {
+        updates["onboarding.isComplete"] = isComplete;
+        if (isComplete) {
+            updates["onboarding.completedAt"] = new Date();
+        }
+    }
+    if (completedSteps !== undefined) updates["onboarding.completedSteps"] = completedSteps;
+    if (roleSelected !== undefined) {
+        updates["onboarding.roleSelected"] = roleSelected;
+        // Optionally update the roles array if it's empty or needs to be set
+        updates["roles"] = [roleSelected];
+    }
+
+    const updated = await User.findByIdAndUpdate(
+        userId,
+        { $set: updates },
+        { new: true, runValidators: true }
+    ).select(SAFE_SELECT);
+
+    return updated;
+};

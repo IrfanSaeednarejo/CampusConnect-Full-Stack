@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { completeOnboarding } from "../../redux/slices/authSlice";
-import { useAuth } from "../../contexts/AuthContext.jsx";
+import { useAuth } from "../../hooks/useAuth.js";
+import { useNotification } from "../../contexts/NotificationContext.jsx";
 import Button from "../../components/common/Button";
 import OnboardingShell from "../../components/onboarding/OnboardingShell";
 import OnboardingCard from "../../components/onboarding/OnboardingCard";
@@ -9,24 +8,29 @@ import OnboardingProgress from "../../components/onboarding/OnboardingProgress";
 
 export default function OnboardingWizardComplete() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const { role, completeOnboarding: completeOnboardingContext } = useAuth();
+  const { role, user, completeOnboarding } = useAuth();
+  const { showSuccess } = useNotification();
 
-  const handleGoToDashboard = () => {
-    // Mark onboarding as complete in both Redux and Context
-    dispatch(completeOnboarding());
-    completeOnboardingContext();
+  const handleGoToDashboard = async () => {
+    try {
+      // Mark onboarding as complete in Backend, Redux and Context
+      await completeOnboarding({ isComplete: true });
 
-    // Route user to appropriate dashboard based on role
-    const dashboards = {
-      student: "/student/dashboard",
-      mentor: "/mentor/dashboard",
-      society_head: "/society/dashboard",
-      admin: "/admin/dashboard",
-    };
+      showSuccess(`Welcome to CampusConnect, ${user?.profile?.firstName || 'User'}!`);
 
-    const dashboardUrl = dashboards[role] || "/";
-    navigate(dashboardUrl, { replace: true });
+      // Route user to appropriate dashboard based on role
+      const dashboards = {
+        student: "/student/dashboard",
+        mentor: "/mentor/dashboard",
+        society_head: "/society/dashboard",
+        admin: "/admin/dashboard",
+      };
+
+      const dashboardUrl = dashboards[role] || "/";
+      navigate(dashboardUrl, { replace: true });
+    } catch (err) {
+      console.error("Onboarding completion failed:", err);
+    }
   };
 
   return (
