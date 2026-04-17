@@ -63,7 +63,8 @@ export const completeOnboardingThunk = createAsyncThunk(
 const initialState = {
   isAuthenticated: false,
   user: null,
-  role: null,
+  roles: [],        // full roles array from user.roles[]
+  role: null,       // primary role (roles[0]) kept for compatibility
   loading: true,
   error: null,
   onboardingCompleted: false,
@@ -76,6 +77,7 @@ const authSlice = createSlice({
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;
+      state.roles = [];
       state.role = null;
       state.loading = false;
       state.error = null;
@@ -86,6 +88,9 @@ const authSlice = createSlice({
     },
     completeOnboarding: (state) => {
       state.onboardingCompleted = true;
+      if (state.user?.onboarding) {
+        state.user.onboarding.isComplete = true;
+      }
     },
     clearError: (state) => {
       state.error = null;
@@ -106,6 +111,7 @@ const authSlice = createSlice({
         const user = action.payload.user || action.payload;
         state.isAuthenticated = true;
         state.user = user;
+        state.roles = user?.roles ?? [];
         state.role = user?.roles?.[0] || null;
         state.onboardingCompleted = user?.onboarding?.isComplete || false;
         state.loading = false;
@@ -125,6 +131,7 @@ const authSlice = createSlice({
         const user = action.payload.user || action.payload;
         state.isAuthenticated = true;
         state.user = user;
+        state.roles = user?.roles ?? [];
         state.role = user?.roles?.[0] || null;
         state.onboardingCompleted = user?.onboarding?.isComplete || false;
         state.loading = false;
@@ -143,6 +150,7 @@ const authSlice = createSlice({
         const user = action.payload;
         state.isAuthenticated = true;
         state.user = user;
+        state.roles = user?.roles ?? [];
         state.role = user?.roles?.[0] || null;
         state.onboardingCompleted = user?.onboarding?.isComplete || false;
         state.loading = false;
@@ -151,6 +159,7 @@ const authSlice = createSlice({
       .addCase(checkAuth.rejected, (state) => {
         state.isAuthenticated = false;
         state.user = null;
+        state.roles = [];
         state.role = null;
         state.loading = false;
       });
@@ -159,6 +168,7 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.isAuthenticated = false;
         state.user = null;
+        state.roles = [];
         state.role = null;
         state.loading = false;
         state.onboardingCompleted = false;
@@ -169,8 +179,11 @@ const authSlice = createSlice({
         state.loading = true;
       })
       .addCase(completeOnboardingThunk.fulfilled, (state, action) => {
-        state.user = action.payload;
-        state.onboardingCompleted = action.payload?.onboarding?.isComplete || false;
+        const user = action.payload;
+        state.user = user;
+        state.roles = user?.roles ?? [];
+        state.role = user?.roles?.[0] || null;
+        state.onboardingCompleted = user?.onboarding?.isComplete || false;
         state.loading = false;
       })
       .addCase(completeOnboardingThunk.rejected, (state, action) => {
@@ -190,7 +203,9 @@ export const {
 
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectUser = (state) => state.auth.user;
-export const selectRole = (state) => state.auth.role;
+export const selectRole = (state) => state.auth.role;            // primary role (roles[0])
+export const selectUserRoles = (state) => state.auth.roles ?? []; // full roles array
+export const selectHasRole = (role) => (state) => (state.auth.roles ?? []).includes(role);
 export const selectAuthLoading = (state) => state.auth.loading;
 export const selectAuthError = (state) => state.auth.error;
 export const selectOnboardingCompleted = (state) => state.auth.onboardingCompleted;

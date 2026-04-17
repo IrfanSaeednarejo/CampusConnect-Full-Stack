@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { registerUser, setRole, selectRole } from "../../redux/slices/authSlice";
+import { registerUser, setRole, selectRole, selectIsAuthenticated } from "../../redux/slices/authSlice";
 import { setUserProfile } from "../../redux/slices/userSlice";
 import {
   validateSignupForm,
@@ -17,6 +17,12 @@ export default function Signup() {
   const location = useLocation();
   const dispatch = useDispatch();
   const selectedRole = useSelector(selectRole);
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
+  // ── Already logged in → skip signup page ──
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const initialRole = location.state?.role || selectedRole || VALID_ROLES.STUDENT;
 
@@ -76,9 +82,7 @@ export default function Signup() {
       const resultAction = await dispatch(registerUser(formData));
 
       if (registerUser.fulfilled.match(resultAction)) {
-        setTimeout(() => {
-          navigate("/onboarding/welcome");
-        }, 500);
+        navigate("/onboarding/welcome", { replace: true });
       } else {
         setErrors({ email: resultAction.payload || "Registration failed" });
       }

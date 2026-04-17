@@ -1,323 +1,355 @@
-import { Routes, Route } from "react-router-dom";
-import Layout from "../components/Layout";
-import ProtectedRoute from "./ProtectedRoute";
+/**
+ * AppRoutes.jsx — Phase 1 refactored routing
+ *
+ * Layout hierarchy:
+ *   PublicLayout  (Layout.jsx)  → public pages: Header + Footer, no sidebar
+ *   AppShell                    → all authenticated pages: GlobalNavbar + AppSidebar + content
+ *   (no layout)                 → auth pages (login, signup, onboarding, errors)
+ *
+ * Auth gates:
+ *   <ProtectedRoute>                        → must be logged in + onboarding complete
+ *   <ProtectedRoute requireOnboarding={false}> → must be logged in (onboarding routes)
+ *   <ProtectedRoute requiredRole="mentor">  → must have "mentor" in user.roles[]
+ */
 
-// Auth Pages
-import Login from "../pages/Auth/Login";
-import Signup from "../pages/Auth/Signup";
+import { Routes, Route, Navigate } from "react-router-dom";
+
+// Layout components
+import Layout          from "../components/Layout";        // PublicLayout (Header+Footer)
+import AppShell        from "../components/layout/AppShell"; // Authenticated shell
+import ProtectedRoute  from "./ProtectedRoute";
+
+// ── Auth Pages (no layout) ───────────────────────────────────────────────────
+import Login          from "../pages/Auth/Login";
+import Signup         from "../pages/Auth/Signup";
 import ForgotPassword from "../pages/Auth/ForgotPassword";
-import ResetPassword from "../pages/Auth/ResetPassword";
-import RoleSelection from "../pages/Auth/RoleSelection";
-import Logout from "../pages/Misc/Logout";
+import ResetPassword  from "../pages/Auth/ResetPassword";
+import Logout         from "../pages/Misc/Logout";
 
-// Main Pages
-import Home from "../pages/Misc/Home";
-import Events from "../pages/Events";
-import Mentors from "../pages/Mentors";
-import Members from "../pages/Members";
-import Societies from "../pages/Societies";
-import AboutUs from "../pages/Misc/About";
-import ContactUs from "../pages/Help/ContactUs";
-import LegalPrivacy from "../pages/Misc/LegalPrivacy";
-import TermsOfService from "../pages/Misc/TermsOfService";
-
-// Dashboard Pages
-import StudentDashboard from "../pages/Dashboard/StudentDashboard";
-import AdminDashboard from "../pages/Dashboard/AdminDashboard";
-import SocietyDashboard from "../pages/Dashboard/SocietyDashboard";
-import MentorDashboard from "../pages/Dashboard/MentorDashboard";
-import EventDashboard from "../pages/Dashboard/EventDashboard";
-import EventDetailLayout from "../pages/events/EventDetailFlow";
-import EditEvent from "../pages/events/EditEvent";
-import SubmissionPanel from "../pages/events/SubmissionPanel";
-import JudgingDashboard from "../pages/events/JudgingDashboard";
-import TeamManagementFlow from "../pages/events/TeamManagementFlow";
-import EventAdminDashboard from "../pages/events/EventAdminDashboard";
-import QRCheckInPanel from "../pages/events/CheckIn/QRCheckInPanel";
-
-// Student Pages
-import StudentProfile from "../pages/Student/StudentProfile";
-import AcademicNetwork from "../pages/Student/AcademicNetwork";
-import ChatList from "../pages/Chat/ChatList";
-import Conversation from "../pages/Chat/Conversation";
-import GroupChat from "../pages/Chat/GroupChat";
-import EventChat from "../pages/Chat/EventChat";
-import StudentTasks from "../pages/Student/StudentTasks";
-import StudentEvents from "../pages/Student/StudentEvents";
-import StudentSocieties from "../pages/Student/StudentSocieties";
-import StudentBookMentor from "../pages/Student/StudentBookMentor";
-import StudentSessions from "../pages/Student/StudentSessions";
-import StudentNotifications from "../pages/Student/StudentNotifications";
-import StudentPersonalNotes from "../pages/Student/StudentPersonalNotes";
-import StudentMyNotes from "../pages/Student/StudentMyNotes";
-
-// Society Pages
-import SocietyManagement from "../pages/Societies/SocietyManagement";
-import SocietyEvents from "../pages/Societies/SocietyEvents";
-import SocietyMentoring from "../pages/Societies/SocietyMentoring";
-import SocietyNetworking from "../pages/Societies/SocietyNetworking";
-import SocietySettings from "../pages/Societies/SocietySettings";
-import CreateSociety from "../pages/Societies/CreateSociety";
-import MemberRequests from "../pages/Societies/MemberRequests";
-import SocietyProfile from "../pages/Societies/SocietyProfile";
-import SocietiesList from "../pages/Societies/SocietiesList";
-import SocietyDetail from "../pages/Societies/SocietyDetail";
-import EditSociety from "../pages/Societies/EditSociety";
-import SocietyAnalytics from "../pages/Societies/SocietyAnalytics";
-
-// Study Groups Pages
-import StudyGroupsList from "../pages/StudyGroups/StudyGroupsList";
-import CreateStudyGroup from "../pages/StudyGroups/CreateStudyGroup";
-import StudyGroupDetail from "../pages/StudyGroups/StudyGroupDetail";
-import JoinStudyGroup from "../pages/StudyGroups/JoinStudyGroup";
-import EditStudyGroup from "../pages/StudyGroups/EditStudyGroup";
-import StudyGroupChat from "../pages/StudyGroups/StudyGroupChat";
-import StudyGroupResources from "../pages/StudyGroups/StudyGroupResources";
-
-// Onboarding Pages
-import OnboardingWizardWelcome from "../pages/Onboarding/OnboardingWizardWelcome";
-import ProfileSetup from "../pages/Onboarding/ProfileSetup";
-import NotificationsSetup from "../pages/Onboarding/NotificationsSetup";
+// ── Onboarding Pages (no layout) ─────────────────────────────────────────────
+import OnboardingWizardWelcome  from "../pages/Onboarding/OnboardingWizardWelcome";
+import ProfileSetup             from "../pages/Onboarding/ProfileSetup";
+import NotificationsSetup       from "../pages/Onboarding/NotificationsSetup";
 import OnboardingWizardComplete from "../pages/Onboarding/OnboardingWizardComplete";
 
-// Mentorship Pages
-import MentorshipHub from "../pages/Mentoring/MentorshipHub";
+// ── Public Pages (PublicLayout) ───────────────────────────────────────────────
+import Home           from "../pages/Misc/Home";
+import Events         from "../pages/Events";
+import Mentors        from "../pages/Mentors";
+import Members        from "../pages/Members";
+import Societies      from "../pages/Societies";
+import AboutUs        from "../pages/Misc/About";
+import ContactUs      from "../pages/Help/ContactUs";
+import LegalPrivacy   from "../pages/Misc/LegalPrivacy";
+import TermsOfService from "../pages/Misc/TermsOfService";
+
+// ── Dashboard (Unified) ───────────────────────────────────────────────────────
+import UnifiedDashboard from "../pages/Dashboard/index";
+
+// ── Profile Pages (AppShell) ─────────────────────────────────────────────────
+import ViewProfile             from "../pages/Profile/ViewProfile";
+import EditProfile             from "../pages/Profile/EditProfile";
+import AccountSettings         from "../pages/Profile/AccountSettings";
+import PrivacySettings         from "../pages/Profile/PrivacySettings";
+import NotificationPreferences from "../pages/Profile/NotificationPreferences";
+import DeleteAccount           from "../pages/Profile/DeleteAccount";
+
+// ── Society Pages (AppShell) ─────────────────────────────────────────────────
+import SocietiesList    from "../pages/Societies/SocietiesList";
+import SocietyDetail    from "../pages/Societies/SocietyDetail";
+import CreateSociety    from "../pages/Societies/CreateSociety";
+import SocietyManagement from "../pages/Societies/SocietyManagement";
+import MemberRequests   from "../pages/Societies/MemberRequests";
+import SocietyEvents    from "../pages/Societies/SocietyEvents";
+import SocietySettings  from "../pages/Societies/SocietySettings";
+import SocietyAnalytics from "../pages/Societies/SocietyAnalytics";
+import EditSociety      from "../pages/Societies/EditSociety";
+import SocietyProfile   from "../pages/Societies/SocietyProfile";
+
+// ── Event Pages (AppShell) ───────────────────────────────────────────────────
+import EventDetailLayout   from "../pages/events/EventDetailFlow";
+import EditEvent           from "../pages/events/EditEvent";
+import SubmissionPanel     from "../pages/events/SubmissionPanel";
+import JudgingDashboard    from "../pages/events/JudgingDashboard";
+import TeamManagementFlow  from "../pages/events/TeamManagementFlow";
+import EventAdminDashboard from "../pages/events/EventAdminDashboard";
+import QRCheckInPanel      from "../pages/events/CheckIn/QRCheckInPanel";
+
+// ── Study Groups (AppShell) ──────────────────────────────────────────────────
+import StudyGroupsList     from "../pages/StudyGroups/StudyGroupsList";
+import CreateStudyGroup    from "../pages/StudyGroups/CreateStudyGroup";
+import StudyGroupDetail    from "../pages/StudyGroups/StudyGroupDetail";
+import JoinStudyGroup      from "../pages/StudyGroups/JoinStudyGroup";
+import EditStudyGroup      from "../pages/StudyGroups/EditStudyGroup";
+import StudyGroupChat      from "../pages/StudyGroups/StudyGroupChat";
+import StudyGroupResources from "../pages/StudyGroups/StudyGroupResources";
+
+// ── Notes / Academics (AppShell) ─────────────────────────────────────────────
+import NotesList   from "../pages/Academics/NotesList";
+import NoteDetail  from "../pages/Academics/NoteDetail";
+import CreateNote  from "../pages/Academics/CreateNote";
+
+// ── Chat (AppShell) ──────────────────────────────────────────────────────────
+import ChatList    from "../pages/Chat/ChatList";
+import Conversation from "../pages/Chat/Conversation";
+
+// ── Notifications (AppShell) ─────────────────────────────────────────────────
+import NotificationsPage from "../pages/Notifications";
+
+// ── Mentoring Pages (AppShell) ───────────────────────────────────────────────
+import MentorshipHub            from "../pages/Mentoring/MentorshipHub";
+import MentorRegistration       from "../pages/Mentoring/MentorRegistration";
+import MentorProfile            from "../pages/Mentoring/MentorProfile";
+import MentorProfileView        from "../pages/Mentoring/MentorProfileView";
 import MentorSessionsManagement from "../pages/Mentoring/MentorSessionsManagement";
-import MentorRegistration from "../pages/Mentoring/MentorRegistration";
+import MentorSessions           from "../pages/Mentoring/MentorSessions";
+import MentorEarnings           from "../pages/Mentoring/MentorEarnings";
+import MentorMentees            from "../pages/Mentoring/MentorMentees";
+import BookSession              from "../pages/Mentoring/BookSession";
+import FeedbackMentoring        from "../pages/Mentoring/FeedbackMentoring";
 import RequestAcceptedConfirmation from "../pages/Mentoring/RequestAcceptedConfirmation";
-import VerificationPending from "../pages/Mentoring/VerificationPending";
-import ApplicationRejected from "../pages/Mentoring/ApplicationRejected";
-import MentorProfile from "../pages/Mentoring/MentorProfile";
-import MentorSessions from "../pages/Mentoring/MentorSessions";
-import BookSession from "../pages/Mentoring/BookSession";
-import FeedbackMentoring from "../pages/Mentoring/FeedbackMentoring";
+import VerificationPending      from "../pages/Mentoring/VerificationPending";
+import ApplicationRejected      from "../pages/Mentoring/ApplicationRejected";
+import MentorDisplayProfile     from "../pages/Mentoring/MentorDisplayProfile";
 
-// AI Agent Pages
-import StudyAssistantAgent from "../pages/Agent/StudyAssistantAgent";
-import MentorMatchAgent from "../pages/Agent/MentorMatchAgent";
-import WellbeingAgent from "../pages/Agent/WellbeingAgent";
-import FeedbackAgent from "../pages/Agent/FeedbackAgent";
-import MentorApplication from "../pages/Mentoring/MentorApplication";
-import MentorEarnings from "../pages/Mentoring/MentorEarnings";
-import MentorMentees from "../pages/Mentoring/MentorMentees";
-import MentorEvents from "../pages/Mentoring/MentorEvents";
-import MentorProfileView from "../pages/Mentoring/MentorProfileView";
-import MentorNotifications from "../pages/Mentoring/MentorNotifications";
-import MentorDisplayProfile from "../pages/Mentoring/MentorDisplayProfile";
-
-// Admin Pages (New Registration)
-import UserManagement from "../pages/Admin/UserManagement";
-import SocietyApproval from "../pages/Admin/SocietyApproval";
+// ── Admin Pages (AppShell) ───────────────────────────────────────────────────
+import UserManagement    from "../pages/Admin/UserManagement";
+import SocietyApproval   from "../pages/Admin/SocietyApproval";
 import MentorVerification from "../pages/Admin/MentorVerification";
-import AdminAnalytics from "../pages/Admin/Analytics";
+import AdminAnalytics    from "../pages/Admin/Analytics";
 import ContentModeration from "../pages/Admin/ContentModeration";
-import Disputes from "../pages/Admin/Disputes";
-import LogsViewer from "../pages/Admin/LogsViewer";
-import SystemHealth from "../pages/Admin/SystemHealth";
-import ReportsExport from "../pages/Admin/ReportsExport";
-import CampusList from "../pages/Admin/CampusList";
-import CampusDetail from "../pages/Admin/CampusDetail";
+import Disputes          from "../pages/Admin/Disputes";
+import LogsViewer        from "../pages/Admin/LogsViewer";
+import SystemHealth      from "../pages/Admin/SystemHealth";
+import ReportsExport     from "../pages/Admin/ReportsExport";
+import CampusList        from "../pages/Admin/CampusList";
+import CampusDetail      from "../pages/Admin/CampusDetail";
+
+// ── Payment (AppShell) ───────────────────────────────────────────────────────
 import PaymentHistory from "../pages/Payments/PaymentHistory";
 
-// Academics Pages
-import NotesList from "../pages/Academics/NotesList";
-import NoteDetail from "../pages/Academics/NoteDetail";
-import CreateNote from "../pages/Academics/CreateNote";
-import CreateTask from "../pages/Academics/CreateTask";
+// ── AI Agents (AppShell) ─────────────────────────────────────────────────────
+import StudyAssistantAgent from "../pages/Agent/StudyAssistantAgent";
+import MentorMatchAgent    from "../pages/Agent/MentorMatchAgent";
+import WellbeingAgent      from "../pages/Agent/WellbeingAgent";
+import FeedbackAgent       from "../pages/Agent/FeedbackAgent";
 
-// Profile Pages
-import ViewProfile from "../pages/Profile/ViewProfile";
-import EditProfile from "../pages/Profile/EditProfile";
-import AccountSettings from "../pages/Profile/AccountSettings";
-import PrivacySettings from "../pages/Profile/PrivacySettings";
-import NotificationPreferences from "../pages/Profile/NotificationPreferences";
-import DeleteAccount from "../pages/Profile/DeleteAccount";
-
-// Error Pages
-import NotFound from "../pages/NotFound";
-import SessionExpired from "../pages/ErrorPages/SessionExpired";
-import AccessDenied from "../pages/ErrorPages/AccessDenied";
-import Forbidden from "../pages/ErrorPages/Forbidden";
-import NetworkError from "../pages/ErrorPages/NetworkError";
-import ServerError from "../pages/ErrorPages/ServerError";
+// ── Error Pages (no layout) ──────────────────────────────────────────────────
+import NotFound          from "../pages/NotFound";
+import SessionExpired    from "../pages/ErrorPages/SessionExpired";
+import AccessDenied      from "../pages/ErrorPages/AccessDenied";
+import Forbidden         from "../pages/ErrorPages/Forbidden";
+import NetworkError      from "../pages/ErrorPages/NetworkError";
+import ServerError       from "../pages/ErrorPages/ServerError";
 import ServiceUnavailable from "../pages/ErrorPages/ServiceUnavailable";
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* ========== AUTH ROUTES (NO LAYOUT) ========== */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/role-selection" element={<RoleSelection />} />
+
+      {/* ══════════════════════════════════════════════════
+          AUTH ROUTES — No layout wrapper
+      ══════════════════════════════════════════════════ */}
+      <Route path="/login"           element={<Login />} />
+      <Route path="/signup"          element={<Signup />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/logout"          element={<Logout />} />
 
-      {/* ========== ONBOARDING ROUTES - Protected by AuthContext only, no role/onboarding completion required ========== */}
+      {/* ══════════════════════════════════════════════════
+          ONBOARDING — Auth required, onboarding NOT required
+      ══════════════════════════════════════════════════ */}
       <Route element={<ProtectedRoute requireOnboarding={false} />}>
-        <Route path="/onboarding/welcome" element={<OnboardingWizardWelcome />} />
-        <Route path="/onboarding/profile-setup" element={<ProfileSetup />} />
+        <Route path="/onboarding/welcome"            element={<OnboardingWizardWelcome />} />
+        <Route path="/onboarding/profile-setup"      element={<ProfileSetup />} />
         <Route path="/onboarding/notifications-setup" element={<NotificationsSetup />} />
-        <Route path="/onboarding/complete" element={<OnboardingWizardComplete />} />
+        <Route path="/onboarding/complete"           element={<OnboardingWizardComplete />} />
       </Route>
 
-      {/* ========== PUBLIC ROUTES WITH LAYOUT ========== */}
+      {/* ══════════════════════════════════════════════════
+          PUBLIC — PublicLayout (Header + Footer)
+      ══════════════════════════════════════════════════ */}
       <Route element={<Layout />}>
-        <Route path="/" element={<Home />} />
-        <Route path="/events" element={<Events />} />
-        <Route path="/mentors" element={<Mentors />} />
-        <Route path="/members" element={<Members />} />
+        <Route path="/"          element={<Home />} />
+        <Route path="/events"    element={<Events />} />
+        <Route path="/mentors"   element={<Mentors />} />
+        <Route path="/members"   element={<Members />} />
         <Route path="/societies" element={<Societies />} />
-        <Route path="/about-us" element={<AboutUs />} />
+        <Route path="/about-us"  element={<AboutUs />} />
         <Route path="/contact-us" element={<ContactUs />} />
-        <Route path="/privacy" element={<LegalPrivacy />} />
-        <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/privacy"   element={<LegalPrivacy />} />
+        <Route path="/terms"     element={<TermsOfService />} />
+      </Route>
 
-        {/* ========== STUDENT ROUTES - Require 'student' role + onboarding completion ========== */}
-        <Route element={<ProtectedRoute requiredRole="student" requireOnboarding={true} />}>
-          <Route path="/student/dashboard" element={<StudentDashboard />} />
-          <Route path="/student/profile" element={<StudentProfile />} />
-          <Route path="/student/academic-network" element={<AcademicNetwork />} />
-          <Route path="/student/messages" element={<ChatList />} />
-          <Route path="/student/messages/:conversationId" element={<Conversation />} />
-          <Route path="/student/messages/groups/:groupId" element={<GroupChat />} />
-          <Route path="/student/messages/events/:eventId" element={<EventChat />} />
-          <Route path="/student/tasks" element={<StudentTasks />} />
-          <Route path="/student/events" element={<StudentEvents />} />
-          <Route path="/student/societies" element={<StudentSocieties />} />
-          <Route path="/student/book-mentor" element={<StudentBookMentor />} />
-          <Route path="/student/sessions" element={<StudentSessions />} />
-          <Route path="/student/notifications" element={<StudentNotifications />} />
-          <Route path="/student/personal-notes" element={<StudentPersonalNotes />} />
-          <Route path="/student/my-notes" element={<StudentMyNotes />} />
-          <Route path="/student/agents/study" element={<StudyAssistantAgent />} />
-          <Route path="/student/agents/mentor" element={<MentorMatchAgent />} />
-          <Route path="/student/agents/wellbeing" element={<WellbeingAgent />} />
-          <Route path="/student/agents/feedback" element={<FeedbackAgent />} />
-          <Route path="/student/payments/history" element={<PaymentHistory />} />
-        </Route>
+      {/* ══════════════════════════════════════════════════
+          AUTHENTICATED — AppShell (GlobalNavbar + AppSidebar)
+          All routes below require login + onboarding complete
+      ══════════════════════════════════════════════════ */}
+      <Route element={<ProtectedRoute requireOnboarding={true} />}>
+        <Route element={<AppShell />}>
 
-        {/* ========== MENTOR ROUTES - Require 'mentor' role + onboarding completion ========== */}
-        <Route element={<ProtectedRoute requiredRole="mentor" requireOnboarding={true} />}>
-          <Route path="/mentor/dashboard" element={<MentorDashboard />} />
-        </Route>
+          {/* ── Unified Dashboard ──────────────────── */}
+          <Route path="/dashboard" element={<UnifiedDashboard />} />
 
-        {/* ========== SOCIETY ROUTES - Require 'society_head' role + onboarding completion ========== */}
-        <Route element={<ProtectedRoute requiredRole="society_head" requireOnboarding={true} />}>
-          <Route path="/society/dashboard" element={<SocietyDashboard />} />
-          <Route path="/society/manage" element={<SocietyManagement />} />
-          <Route path="/society/events" element={<SocietyEvents />} />
-          <Route path="/society/mentoring" element={<SocietyMentoring />} />
-          <Route path="/society/networking" element={<SocietyNetworking />} />
-          <Route path="/society/settings" element={<SocietySettings />} />
-          <Route path="/society/create" element={<CreateSociety />} />
-          <Route path="/society/member-requests" element={<MemberRequests />} />
-          <Route path="/society/profile" element={<SocietyProfile />} />
-          <Route path="/society/list" element={<SocietiesList />} />
-          <Route path="/society/analytics" element={<SocietyAnalytics />} />
-          <Route path="/society/edit/:id" element={<EditSociety />} />
-        </Route>
+          {/* Legacy dashboard redirects → unified dashboard */}
+          <Route path="/student/dashboard"  element={<Navigate to="/dashboard" replace />} />
+          <Route path="/mentor/dashboard"   element={<Navigate to="/dashboard" replace />} />
+          <Route path="/society/dashboard"  element={<Navigate to="/dashboard" replace />} />
+          <Route path="/admin/dashboard"    element={<Navigate to="/dashboard" replace />} />
+          <Route path="/event/dashboard"    element={<Navigate to="/dashboard" replace />} />
 
-        {/* ========== PUBLIC SOCIETY DETAIL ROUTES ========== */}
-        <Route path="/societies/:id" element={<SocietyDetail />} />
-
-        {/* ========== ADMIN ROUTES - Require 'admin' role + onboarding completion ========== */}
-        <Route element={<ProtectedRoute requiredRole="admin" requireOnboarding={true} />}>
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/users" element={<UserManagement />} />
-          <Route path="/admin/societies/approvals" element={<SocietyApproval />} />
-          <Route path="/admin/mentors/verifications" element={<MentorVerification />} />
-          <Route path="/admin/analytics" element={<AdminAnalytics />} />
-          <Route path="/admin/moderation" element={<ContentModeration />} />
-          <Route path="/admin/disputes" element={<Disputes />} />
-          <Route path="/admin/logs" element={<LogsViewer />} />
-          <Route path="/admin/system" element={<SystemHealth />} />
-          <Route path="/admin/reports" element={<ReportsExport />} />
-          <Route path="/admin/campuses" element={<CampusList />} />
-          <Route path="/admin/campuses/:slug" element={<CampusDetail />} />
-        </Route>
-
-        {/* ========== STUDY GROUPS ROUTES - Require authentication + onboarding completion ========== */}
-        <Route element={<ProtectedRoute requireOnboarding={true} />}>
-          <Route path="/study-groups" element={<StudyGroupsList />} />
-          <Route path="/study-groups/create" element={<CreateStudyGroup />} />
-          <Route path="/study-groups/:id" element={<StudyGroupDetail />} />
-          <Route path="/study-groups/:id/join" element={<JoinStudyGroup />} />
-          <Route path="/study-groups/:id/edit" element={<EditStudyGroup />} />
-          <Route path="/study-groups/:id/chat" element={<StudyGroupChat />} />
-          <Route path="/study-groups/:id/resources" element={<StudyGroupResources />} />
-        </Route>
-
-        {/* ========== ACADEMICS ROUTES - Require authentication + onboarding completion ========== */}
-        <Route element={<ProtectedRoute requireOnboarding={true} />}>
-          <Route path="/academics/notes" element={<NotesList />} />
-          <Route path="/academics/notes/create" element={<CreateNote />} />
-          <Route path="/academics/notes/:id" element={<NoteDetail />} />
-          <Route path="/academics/research" element={<CreateTask />} />
-        </Route>
-
-        {/* ========== PROFILE ROUTES - Require authentication + onboarding completion ========== */}
-        <Route element={<ProtectedRoute requireOnboarding={true} />}>
-          <Route path="/profile/view" element={<ViewProfile />} />
-          <Route path="/profile/edit" element={<EditProfile />} />
-          <Route path="/profile/account-settings" element={<AccountSettings />} />
-          <Route path="/profile/privacy-settings" element={<PrivacySettings />} />
+          {/* ── Profile ────────────────────────────── */}
+          <Route path="/profile/view"                  element={<ViewProfile />} />
+          <Route path="/profile/edit"                  element={<EditProfile />} />
+          <Route path="/profile/account-settings"      element={<AccountSettings />} />
+          <Route path="/profile/privacy-settings"      element={<PrivacySettings />} />
           <Route path="/profile/notification-preferences" element={<NotificationPreferences />} />
-          <Route path="/profile/delete-account" element={<DeleteAccount />} />
-        </Route>
-      </Route>
+          <Route path="/profile/delete-account"        element={<DeleteAccount />} />
 
-      {/* ========== MENTOR/MENTORSHIP ROUTES (NO LAYOUT, AUTH REQUIRED) ========== */}
-      <Route element={<ProtectedRoute requireOnboarding={true} />}>
-        <Route path="/mentorship-hub" element={<MentorshipHub />} />
-        <Route path="/mentor-registration" element={<MentorRegistration />} />
-        <Route path="/request-accepted" element={<RequestAcceptedConfirmation />} />
-        <Route path="/verification-pending" element={<VerificationPending />} />
-        <Route path="/application-rejected" element={<ApplicationRejected />} />
-        <Route path="/mentor-profile/:id" element={<MentorProfile />} />
-        <Route path="/book-session" element={<BookSession />} />
-        <Route path="/feedback" element={<FeedbackMentoring />} />
-        <Route path="/mentor-apply" element={<MentorApplication />} />
-        <Route path="/mentor-profile-view" element={<MentorProfileView />} />
-        <Route path="/mentor/display-profile" element={<MentorDisplayProfile />} />
-      </Route>
+          {/* ── Societies (any auth user) ────────────── */}
+          <Route path="/societies/browse"   element={<SocietiesList />} />
+          <Route path="/societies/:id"      element={<SocietyDetail />} />
+          <Route path="/society/create"     element={<CreateSociety />} />
+          <Route path="/my-societies"       element={<SocietiesList />} />
 
-      {/* ========== MENTOR ONLY ROUTES ========== */}
-      <Route element={<ProtectedRoute requiredRole="mentor" requireOnboarding={true} />}>
-        <Route path="/mentor-sessions" element={<MentorSessionsManagement />} />
-        <Route path="/my-sessions" element={<MentorSessions />} />
-        <Route path="/earnings" element={<MentorEarnings />} />
-        <Route path="/mentor-mentees" element={<MentorMentees />} />
-        <Route path="/mentor-events" element={<MentorEvents />} />
-        <Route path="/mentor-notifications" element={<MentorNotifications />} />
-      </Route>
+          {/* ── Society Head — role gated at component level via RoleGuard ── */}
+          {/* Note: routes are accessible, components internally use RoleGuard */}
+          <Route path="/society/manage"          element={<SocietyManagement />} />
+          <Route path="/society/members"         element={<MemberRequests />} />
+          <Route path="/society/member-requests" element={<MemberRequests />} />
+          <Route path="/society/events"          element={<SocietyEvents />} />
+          <Route path="/society/settings"        element={<SocietySettings />} />
+          <Route path="/society/analytics"       element={<SocietyAnalytics />} />
+          <Route path="/society/profile"         element={<SocietyProfile />} />
+          <Route path="/society/edit/:id"        element={<EditSociety />} />
 
-      {/* ========== EVENT DETAILS (NESTED) ========== */}
-      <Route path="/events/:id/*" element={<EventDetailLayout />} />
-      <Route path="/events/:id/edit" element={<EditEvent />} />
-      <Route element={<ProtectedRoute requireOnboarding={true} />}>
-        <Route path="/events/:id/team" element={<TeamManagementFlow />} />
-        <Route path="/events/:id/submission" element={<SubmissionPanel />} />
-        <Route path="/events/:id/judge" element={<JudgingDashboard />} />
-        <Route path="/events/:id/manage" element={<EventAdminDashboard />} />
-        <Route path="/events/:id/check-in" element={<QRCheckInPanel />} />
-      </Route>
+          {/* ── Events ───────────────────────────────── */}
+          <Route path="/events/:id/*"         element={<EventDetailLayout />} />
+          <Route path="/events/:id/edit"      element={<EditEvent />} />
+          <Route path="/events/:id/team"      element={<TeamManagementFlow />} />
+          <Route path="/events/:id/submission" element={<SubmissionPanel />} />
+          <Route path="/events/:id/judge"     element={<JudgingDashboard />} />
+          <Route path="/events/:id/manage"    element={<EventAdminDashboard />} />
+          <Route path="/events/:id/check-in"  element={<QRCheckInPanel />} />
 
-      {/* ========== EVENT DASHBOARD ROUTE ========== */}
-      <Route path="/event/dashboard" element={<EventDashboard />} />
+          {/* ── Study Groups ─────────────────────────── */}
+          <Route path="/study-groups"           element={<StudyGroupsList />} />
+          <Route path="/study-groups/create"    element={<CreateStudyGroup />} />
+          <Route path="/study-groups/:id"       element={<StudyGroupDetail />} />
+          <Route path="/study-groups/:id/join"  element={<JoinStudyGroup />} />
+          <Route path="/study-groups/:id/edit"  element={<EditStudyGroup />} />
+          <Route path="/study-groups/:id/chat"  element={<StudyGroupChat />} />
+          <Route path="/study-groups/:id/resources" element={<StudyGroupResources />} />
 
-      {/* ========== ERROR ROUTES ========== */}
-      <Route path="/error/session-expired" element={<SessionExpired />} />
-      <Route path="/error/access-denied" element={<AccessDenied />} />
-      <Route path="/error/forbidden" element={<Forbidden />} />
-      <Route path="/error/network-error" element={<NetworkError />} />
-      <Route path="/error/server-error" element={<ServerError />} />
+          {/* ── Notes ────────────────────────────────── */}
+          <Route path="/notes"          element={<NotesList />} />
+          <Route path="/notes/create"   element={<CreateNote />} />
+          <Route path="/notes/:id"      element={<NoteDetail />} />
+          {/* Legacy notes routes */}
+          <Route path="/academics/notes"        element={<Navigate to="/notes" replace />} />
+          <Route path="/academics/notes/create" element={<Navigate to="/notes/create" replace />} />
+          <Route path="/academics/notes/:id"    element={<NoteDetail />} />
+
+          {/* ── Chat ─────────────────────────────────── */}
+          <Route path="/messages"                          element={<ChatList />} />
+          <Route path="/messages/:conversationId"          element={<Conversation />} />
+          {/* Legacy chat routes */}
+          <Route path="/student/messages"                  element={<Navigate to="/messages" replace />} />
+          <Route path="/student/messages/:conversationId"  element={<Conversation />} />
+
+          {/* ── Notifications ────────────────────────── */}
+          <Route path="/notifications" element={<NotificationsPage />} />
+          {/* Legacy notification routes */}
+          <Route path="/student/notifications" element={<Navigate to="/notifications" replace />} />
+          <Route path="/mentor-notifications"  element={<Navigate to="/notifications" replace />} />
+
+          {/* ── Mentoring (any auth user can browse/apply) ── */}
+          <Route path="/mentorship-hub"        element={<MentorshipHub />} />
+          <Route path="/mentor/register"       element={<MentorRegistration />} />
+          <Route path="/mentor-registration"   element={<Navigate to="/mentor/register" replace />} />
+          <Route path="/mentor-apply"          element={<Navigate to="/mentor/register" replace />} />
+          <Route path="/mentors/:mentorId"     element={<MentorProfile />} />
+          <Route path="/mentor-profile/:id"    element={<MentorProfile />} />
+          <Route path="/mentor/display-profile" element={<MentorDisplayProfile />} />
+          <Route path="/book-session"          element={<BookSession />} />
+          <Route path="/mentor/book/:mentorId" element={<BookSession />} />
+          <Route path="/feedback"              element={<FeedbackMentoring />} />
+          <Route path="/request-accepted"      element={<RequestAcceptedConfirmation />} />
+          <Route path="/verification-pending"  element={<VerificationPending />} />
+          <Route path="/application-rejected"  element={<ApplicationRejected />} />
+          <Route path="/my-sessions"           element={<MentorSessions />} />
+          <Route path="/student/sessions"      element={<Navigate to="/my-sessions" replace />} />
+          <Route path="/student/book-mentor"   element={<Navigate to="/mentors" replace />} />
+
+          {/* ── Mentor-role routes (component guards via RoleGuard internally) ── */}
+          <Route path="/mentor/sessions"      element={<MentorSessionsManagement />} />
+          <Route path="/mentor/mentees"       element={<MentorMentees />} />
+          <Route path="/mentor/earnings"      element={<MentorEarnings />} />
+          <Route path="/mentor/profile"       element={<MentorDisplayProfile />} />
+          {/* Legacy mentor routes */}
+          <Route path="/mentor-sessions"      element={<Navigate to="/mentor/sessions" replace />} />
+          <Route path="/mentor-mentees"       element={<Navigate to="/mentor/mentees" replace />} />
+          <Route path="/earnings"             element={<Navigate to="/mentor/earnings" replace />} />
+          <Route path="/mentor-events"        element={<Navigate to="/events" replace />} />
+
+          {/* ── Admin routes (component guards via RoleGuard internally) ──── */}
+          <Route path="/admin/users"                  element={<UserManagement />} />
+          <Route path="/admin/approvals/societies"    element={<SocietyApproval />} />
+          <Route path="/admin/approvals/mentors"      element={<MentorVerification />} />
+          <Route path="/admin/analytics"              element={<AdminAnalytics />} />
+          <Route path="/admin/moderation"             element={<ContentModeration />} />
+          <Route path="/admin/disputes"               element={<Disputes />} />
+          <Route path="/admin/logs"                   element={<LogsViewer />} />
+          <Route path="/admin/system"                 element={<SystemHealth />} />
+          <Route path="/admin/reports"                element={<ReportsExport />} />
+          <Route path="/admin/campuses"               element={<CampusList />} />
+          <Route path="/admin/campuses/:slug"         element={<CampusDetail />} />
+          {/* Legacy admin routes */}
+          <Route path="/admin/societies/approvals"    element={<Navigate to="/admin/approvals/societies" replace />} />
+          <Route path="/admin/mentors/verifications"  element={<Navigate to="/admin/approvals/mentors" replace />} />
+
+          {/* ── AI Agents ────────────────────────────── */}
+          <Route path="/agents/study"    element={<StudyAssistantAgent />} />
+          <Route path="/agents/mentor"   element={<MentorMatchAgent />} />
+          <Route path="/agents/wellbeing" element={<WellbeingAgent />} />
+          <Route path="/agents/feedback" element={<FeedbackAgent />} />
+          {/* Legacy agent routes */}
+          <Route path="/student/agents/study"    element={<Navigate to="/agents/study" replace />} />
+          <Route path="/student/agents/mentor"   element={<Navigate to="/agents/mentor" replace />} />
+          <Route path="/student/agents/wellbeing" element={<Navigate to="/agents/wellbeing" replace />} />
+          <Route path="/student/agents/feedback"  element={<Navigate to="/agents/feedback" replace />} />
+
+          {/* ── Payments ─────────────────────────────── */}
+          <Route path="/payments/history"         element={<PaymentHistory />} />
+          <Route path="/student/payments/history" element={<Navigate to="/payments/history" replace />} />
+
+        </Route>{/* END AppShell */}
+      </Route>{/* END ProtectedRoute */}
+
+      {/* ══════════════════════════════════════════════════
+          ERROR PAGES — No layout
+      ══════════════════════════════════════════════════ */}
+      <Route path="/error/session-expired"    element={<SessionExpired />} />
+      <Route path="/error/access-denied"      element={<AccessDenied />} />
+      <Route path="/error/forbidden"          element={<Forbidden />} />
+      <Route path="/error/network-error"      element={<NetworkError />} />
+      <Route path="/error/server-error"       element={<ServerError />} />
       <Route path="/error/service-unavailable" element={<ServiceUnavailable />} />
 
-      {/* ========== LOGOUT ROUTE ========== */}
-      <Route path="/logout" element={<Logout />} />
+      {/* ══════════════════════════════════════════════════
+          LEGACY ROUTE REDIRECTS (top-level catch-alls)
+      ══════════════════════════════════════════════════ */}
+      <Route path="/student/*"       element={<Navigate to="/dashboard" replace />} />
+      <Route path="/mentor-profile-view" element={<Navigate to="/profile/view" replace />} />
+      <Route path="/academic-network"    element={<Navigate to="/dashboard" replace />} />
 
-      {/* ========== 404 ROUTE ========== */}
+      {/* ══════════════════════════════════════════════════
+          404
+      ══════════════════════════════════════════════════ */}
       <Route path="*" element={<NotFound />} />
+
     </Routes>
   );
 }

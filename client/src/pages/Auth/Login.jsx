@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
-import { loginUser } from "../../redux/slices/authSlice";
-import { validateLoginForm, getDashboardRoute } from "../../utils/authValidator";
+import { useNavigate, Navigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser, selectIsAuthenticated } from "../../redux/slices/authSlice";
+import { validateLoginForm } from "../../utils/authValidator";
 import AuthCard from "../../components/auth/AuthCard";
 import AuthShell from "../../components/auth/AuthShell";
 import FormField from "../../components/common/FormField";
@@ -11,6 +11,12 @@ import FormActions from "../../components/common/FormActions";
 export default function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const isAuthenticated = useSelector(selectIsAuthenticated);
+
+  // ── Already logged in → skip login page ──
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   const [form, setForm] = useState({
     email: "",
@@ -45,10 +51,7 @@ export default function Login() {
       }));
 
       if (loginUser.fulfilled.match(resultAction)) {
-        const role = resultAction.payload.user?.roles?.[0] || resultAction.payload.roles?.[0] || 'student';
-        setTimeout(() => {
-          navigate(getDashboardRoute(role));
-        }, 500);
+        navigate('/dashboard', { replace: true });
       } else {
         setErrors({ email: resultAction.payload || "Login failed" });
       }

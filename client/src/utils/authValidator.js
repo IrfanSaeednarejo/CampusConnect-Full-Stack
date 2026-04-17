@@ -150,17 +150,8 @@ export function getGenericSignupError() {
   return 'Unable to create account. Please try again or contact support.';
 }
 
-export function getDashboardRoute(role) {
-  switch (role) {
-    case VALID_ROLES.ADMIN:
-      return '/admin/dashboard';
-    case VALID_ROLES.MENTOR:
-      return '/mentor/dashboard';
-    case VALID_ROLES.SOCIETY_HEAD:
-      return '/society/dashboard';
-    case VALID_ROLES.STUDENT:
-      return '/student/personal-notes';
-    default:
-      return '/';
-  }
+// All roles share a single unified dashboard.
+// Role-specific widgets are rendered inside /dashboard based on user.roles[].
+export function getDashboardRoute() {
+  return '/dashboard';
 }

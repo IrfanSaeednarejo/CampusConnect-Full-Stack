@@ -3,7 +3,11 @@ import { Outlet } from 'react-router-dom';
 import Header from './layout/Header';
 import Footer from './layout/Footer';
 
-export default function Layout() {
+/**
+ * PublicLayout — used for public-facing pages (Home, About, Events list, etc.)
+ * Renders the public Header + Footer only. No sidebar.
+ */
+export default function PublicLayout() {
   return (
     <div className="flex min-h-screen flex-col bg-[#0d1117]">
       <Header />

@@ -3,11 +3,11 @@ import { useCallback, useEffect } from 'react';
 import {
   loginUser,
   logoutUser,
-  checkAuth,
   clearError,
   selectIsAuthenticated,
   selectUser,
   selectRole,
+  selectUserRoles,
   selectAuthLoading,
   selectAuthError,
   selectOnboardingCompleted,
@@ -19,11 +19,18 @@ export const useAuth = () => {
   const dispatch = useDispatch();
 
   const isAuthenticated = useSelector(selectIsAuthenticated);
-  const user = useSelector(selectUser);
-  const role = useSelector(selectRole);
-  const loading = useSelector(selectAuthLoading);
-  const error = useSelector(selectAuthError);
+  const user            = useSelector(selectUser);
+  const role            = useSelector(selectRole);         // primary role (roles[0])
+  const roles           = useSelector(selectUserRoles);    // full roles[]
+  const loading         = useSelector(selectAuthLoading);
+  const error           = useSelector(selectAuthError);
   const onboardingCompleted = useSelector(selectOnboardingCompleted);
+
+  /** Check if the authenticated user holds a specific role */
+  const hasRole = useCallback(
+    (targetRole) => Array.isArray(roles) && roles.includes(targetRole),
+    [roles]
+  );
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -56,6 +63,8 @@ export const useAuth = () => {
     isAuthenticated,
     user,
     role,
+    roles,
+    hasRole,
     loading,
     error,
     onboardingCompleted,
