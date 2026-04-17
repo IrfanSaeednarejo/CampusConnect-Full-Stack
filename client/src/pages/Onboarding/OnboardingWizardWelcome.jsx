@@ -3,14 +3,21 @@ import { useAuth } from "../../hooks/useAuth.js";
 import Button from "../../components/common/Button";
 import OnboardingShell from "../../components/onboarding/OnboardingShell";
 import OnboardingProgress from "../../components/onboarding/OnboardingProgress";
+import CampusSelector from "../../components/campus/CampusSelector";
+import { useState } from "react";
 
 export default function OnboardingWizardWelcome() {
   const navigate = useNavigate();
   const { completeOnboarding } = useAuth();
+  const [selectedCampus, setSelectedCampus] = useState("");
 
   const handleStart = async () => {
+    if (!selectedCampus) return;
     try {
-      await completeOnboarding({ completedSteps: ['welcome'] });
+      await completeOnboarding({ 
+        completedSteps: ['welcome'],
+        campusId: selectedCampus
+      });
       // Navigate to the next onboarding step (Profile Setup)
       navigate("/onboarding/profile-setup");
     } catch (err) {
@@ -43,12 +50,21 @@ export default function OnboardingWizardWelcome() {
           </p>
         </div>
 
+        {/* Campus Selection */}
+        <div className="w-full max-w-sm mb-8 text-left">
+          <CampusSelector 
+             value={selectedCampus} 
+             onChange={setSelectedCampus} 
+          />
+        </div>
+
         {/* Start Button */}
         <div className="w-full max-w-xs">
           <Button
             onClick={handleStart}
             variant="primary"
             className="w-full h-12 text-base"
+            disabled={!selectedCampus}
           >
             Start
           </Button>

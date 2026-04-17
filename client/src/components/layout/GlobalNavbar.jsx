@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { logoutUser } from '../../redux/slices/authSlice';
 import { selectUnreadCount } from '../../redux/slices/notificationSlice';
+import { selectActiveCampus } from '../../redux/slices/campusSlice';
 
 /**
  * GlobalNavbar — top navigation bar for all authenticated pages.
@@ -14,6 +15,7 @@ export default function GlobalNavbar({ onMenuToggle }) {
   const dispatch = useDispatch();
   const { user } = useAuth();
   const unreadCount = useSelector(selectUnreadCount);
+  const activeCampus = useSelector(selectActiveCampus);
 
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const menuRef = useRef(null);
@@ -63,9 +65,16 @@ export default function GlobalNavbar({ onMenuToggle }) {
         <span className="w-7 h-7 rounded-md bg-[#238636] flex items-center justify-center text-white font-bold text-sm">
           CC
         </span>
-        <span className="hidden sm:block text-[#e6edf3] font-semibold text-sm tracking-tight">
-          CampusConnect
-        </span>
+        <div className="hidden sm:flex items-center">
+          <span className="text-[#e6edf3] font-semibold text-sm tracking-tight">
+            CampusConnect
+          </span>
+          {activeCampus && (
+            <span className="inline-flex items-center px-1.5 py-0.5 ml-2 rounded text-[10px] font-medium bg-[#1f6feb]/20 text-[#58a6ff] uppercase tracking-wider">
+              {activeCampus.slug || 'CAMPUS'}
+            </span>
+          )}
+        </div>
       </Link>
 
       {/* ── Global Search ─────────────────────────── */}

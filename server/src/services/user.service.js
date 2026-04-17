@@ -598,7 +598,7 @@ export const search = async (requestUser, queryParams) => {
 };
 
 export const updateOnboarding = async (userId, onboardingData) => {
-    const { isComplete, completedSteps, roleSelected } = onboardingData;
+    const { isComplete, completedSteps, roleSelected, campusId } = onboardingData;
 
     const updates = {};
     if (isComplete !== undefined) {
@@ -613,6 +613,7 @@ export const updateOnboarding = async (userId, onboardingData) => {
         // Optionally update the roles array if it's empty or needs to be set
         updates["roles"] = [roleSelected];
     }
+    if (campusId !== undefined) updates["campusId"] = campusId;
 
     const updated = await User.findByIdAndUpdate(
         userId,

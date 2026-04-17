@@ -25,6 +25,18 @@ export const fetchCampusBySlug = createAsyncThunk(
   }
 );
 
+export const fetchCampusById = createAsyncThunk(
+  'campus/fetchById',
+  async (id, { rejectWithValue }) => {
+    try {
+      const { data } = await campusApi.getCampusById(id);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
 export const updateCampusThunk = createAsyncThunk(
   'campus/update',
   async ({ slug, data }, { rejectWithValue }) => {
@@ -73,6 +85,16 @@ const campusSlice = createSlice({
         state.loading = false;
       })
       .addCase(fetchCampusBySlug.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      });
+    builder
+      .addCase(fetchCampusById.pending, (state) => { state.loading = true; })
+      .addCase(fetchCampusById.fulfilled, (state, action) => {
+        state.activeCampus = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchCampusById.rejected, (state, action) => {
         state.error = action.payload;
         state.loading = false;
       });
