@@ -23,10 +23,6 @@ export const useAuth = () => {
   const error = useSelector(selectAuthError);
 
   useEffect(() => {
-    dispatch(checkAuth());
-  }, [dispatch]);
-
-  useEffect(() => {
     if (isAuthenticated) {
       connectSocket();
     } else {
