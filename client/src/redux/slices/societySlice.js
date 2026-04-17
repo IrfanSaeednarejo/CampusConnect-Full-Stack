@@ -54,6 +54,7 @@ const initialState = {
   societies: [],
   registeredSocieties: [],
   selectedSociety: null,
+  memberRequests: [],
   loading: false,
   error: null,
 };
@@ -70,6 +71,27 @@ const societySlice = createSlice({
     },
     setRegisteredSocieties: (state, action) => {
       state.registeredSocieties = action.payload;
+    },
+    setSocieties: (state, action) => {
+      state.societies = action.payload;
+    },
+    setSelectedSociety: (state, action) => {
+      state.selectedSociety = action.payload;
+    },
+    updateSociety: (state, action) => {
+      const index = state.societies.findIndex((s) => s.id === action.payload.id || s._id === action.payload._id);
+      if (index !== -1) {
+        state.societies[index] = { ...state.societies[index], ...action.payload };
+      }
+    },
+    setMemberRequests: (state, action) => {
+      state.memberRequests = action.payload;
+    },
+    approveMemberRequest: (state, action) => {
+      state.memberRequests = state.memberRequests.filter(req => req.id !== action.payload);
+    },
+    rejectMemberRequest: (state, action) => {
+      state.memberRequests = state.memberRequests.filter(req => req.id !== action.payload);
     },
   },
   extraReducers: (builder) => {
@@ -97,12 +119,25 @@ const societySlice = createSlice({
   },
 });
 
-export const { clearSelectedSociety, clearError, setRegisteredSocieties } = societySlice.actions;
+export const { 
+  clearSelectedSociety, 
+  clearError, 
+  setRegisteredSocieties, 
+  setSocieties, 
+  setSelectedSociety, 
+  updateSociety,
+  setMemberRequests,
+  approveMemberRequest,
+  rejectMemberRequest
+} = societySlice.actions;
 
 export const selectAllSocieties = (state) => state.societies.societies;
 export const selectRegisteredSocieties = (state) => state.societies.registeredSocieties;
 export const selectSelectedSociety = (state) => state.societies.selectedSociety;
+export const selectMemberRequests = (state) => state.societies.memberRequests;
 export const selectSocietyLoading = (state) => state.societies.loading;
 export const selectSocietyError = (state) => state.societies.error;
+export const selectSocietyById = (id) => (state) => 
+  state.societies.societies.find((s) => s.id === id || s._id === id);
 
 export default societySlice.reducer;
