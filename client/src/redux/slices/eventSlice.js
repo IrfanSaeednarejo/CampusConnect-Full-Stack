@@ -142,6 +142,9 @@ const eventSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setUpcomingEvents: (state, action) => {
+      state.upcomingEvents = action.payload;
+    },
     // Live Socket Payloads
     socketAddAnnouncement: (state, action) => {
       // Prevent duplicates if already fetched via REST implicitly
@@ -275,6 +278,7 @@ const eventSlice = createSlice({
 export const { 
   clearSelectedEvent, 
   clearError,
+  setUpcomingEvents,
   socketAddAnnouncement,
   socketUpdateEventStatus,
   socketUpdateLeaderboard

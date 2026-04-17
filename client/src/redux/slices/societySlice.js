@@ -68,6 +68,9 @@ const societySlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setRegisteredSocieties: (state, action) => {
+      state.registeredSocieties = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -94,7 +97,7 @@ const societySlice = createSlice({
   },
 });
 
-export const { clearSelectedSociety, clearError } = societySlice.actions;
+export const { clearSelectedSociety, clearError, setRegisteredSocieties } = societySlice.actions;
 
 export const selectAllSocieties = (state) => state.societies.societies;
 export const selectRegisteredSocieties = (state) => state.societies.registeredSocieties;
