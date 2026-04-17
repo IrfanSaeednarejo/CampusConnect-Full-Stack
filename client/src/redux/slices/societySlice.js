@@ -84,6 +84,15 @@ const societySlice = createSlice({
         state.societies[index] = { ...state.societies[index], ...action.payload };
       }
     },
+    joinSociety: (state, action) => {
+      const society = state.societies.find(s => s.id === action.payload || s._id === action.payload);
+      if (society && !state.registeredSocieties.some(s => s.id === action.payload || s._id === action.payload)) {
+        state.registeredSocieties.push(society);
+      }
+    },
+    leaveSociety: (state, action) => {
+      state.registeredSocieties = state.registeredSocieties.filter(s => s.id !== action.payload && s._id !== action.payload);
+    },
     setMemberRequests: (state, action) => {
       state.memberRequests = action.payload;
     },
@@ -128,7 +137,9 @@ export const {
   updateSociety,
   setMemberRequests,
   approveMemberRequest,
-  rejectMemberRequest
+  rejectMemberRequest,
+  joinSociety,
+  leaveSociety
 } = societySlice.actions;
 
 export const selectAllSocieties = (state) => state.societies.societies;
