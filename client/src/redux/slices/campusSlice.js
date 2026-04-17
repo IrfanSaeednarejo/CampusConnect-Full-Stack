@@ -25,6 +25,18 @@ export const fetchCampusBySlug = createAsyncThunk(
   }
 );
 
+export const updateCampusThunk = createAsyncThunk(
+  'campus/update',
+  async ({ slug, data }, { rejectWithValue }) => {
+    try {
+      const response = await campusApi.updateCampus(slug, data);
+      return response.data.data;
+    } catch (err) {
+      return rejectWithValue(err.message);
+    }
+  }
+);
+
 const initialState = {
   campuses: [],
   activeCampus: null,
@@ -55,15 +67,37 @@ const campusSlice = createSlice({
         state.loading = false;
       });
     builder
+      .addCase(fetchCampusBySlug.pending, (state) => { state.loading = true; })
       .addCase(fetchCampusBySlug.fulfilled, (state, action) => {
         state.activeCampus = action.payload;
+        state.loading = false;
+      })
+      .addCase(fetchCampusBySlug.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
+      });
+    builder
+      .addCase(updateCampusThunk.pending, (state) => { state.loading = true; })
+      .addCase(updateCampusThunk.fulfilled, (state, action) => {
+        state.activeCampus = action.payload;
+        state.loading = false;
+        // Also update in list if present
+        const index = state.campuses.findIndex(c => c.slug === action.payload.slug);
+        if (index !== -1) state.campuses[index] = action.payload;
+      })
+      .addCase(updateCampusThunk.rejected, (state, action) => {
+        state.error = action.payload;
+        state.loading = false;
       });
   },
 });
 
 export const { setActiveCampus, clearCampusError } = campusSlice.actions;
+
 export const selectCampuses = (state) => state.campus.campuses;
 export const selectActiveCampus = (state) => state.campus.activeCampus;
+export const selectSelectedCampus = selectActiveCampus; // Alias for consistency in components
 export const selectCampusLoading = (state) => state.campus.loading;
+export const selectCampusError = (state) => state.campus.error;
 
 export default campusSlice.reducer;
