@@ -86,6 +86,15 @@ const studyGroupSlice = createSlice({
     leaveGroup: (state, action) => {
       state.myGroups = state.myGroups.filter(g => g.id !== action.payload && String(g._id) !== String(action.payload));
     },
+    setGroupMessages: (state, action) => {
+      const { groupId, messages } = action.payload;
+      state.messages[groupId] = messages;
+    },
+    addMessage: (state, action) => {
+      const { groupId, message } = action.payload;
+      if (!state.messages[groupId]) state.messages[groupId] = [];
+      state.messages[groupId].push(message);
+    },
     clearSelectedGroup: (state) => {
       state.selectedGroup = null;
     },
@@ -136,6 +145,8 @@ export const {
   setGroupMembers,
   setGroupResources,
   setGroupDiscussions,
+  setGroupMessages,
+  addMessage,
   joinGroup,
   leaveGroup,
   clearSelectedGroup, 
