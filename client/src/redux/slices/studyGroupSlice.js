@@ -65,6 +65,27 @@ const studyGroupSlice = createSlice({
     setMyGroups: (state, action) => {
       state.myGroups = action.payload;
     },
+    setGroupMembers: (state, action) => {
+      const { groupId, members } = action.payload;
+      state.members[groupId] = members;
+    },
+    setGroupResources: (state, action) => {
+      const { groupId, resources } = action.payload;
+      state.resources[groupId] = resources;
+    },
+    setGroupDiscussions: (state, action) => {
+      const { groupId, discussions } = action.payload;
+      state.discussions[groupId] = discussions;
+    },
+    joinGroup: (state, action) => {
+      const group = state.groups.find(g => g.id === action.payload || String(g._id) === String(action.payload));
+      if (group && !state.myGroups.some(g => g.id === action.payload || String(g._id) === String(action.payload))) {
+         state.myGroups.push(group);
+      }
+    },
+    leaveGroup: (state, action) => {
+      state.myGroups = state.myGroups.filter(g => g.id !== action.payload && String(g._id) !== String(action.payload));
+    },
     clearSelectedGroup: (state) => {
       state.selectedGroup = null;
     },
@@ -112,6 +133,11 @@ export const {
   removeStudyGroup, 
   setSelectedGroup, 
   setMyGroups, 
+  setGroupMembers,
+  setGroupResources,
+  setGroupDiscussions,
+  joinGroup,
+  leaveGroup,
   clearSelectedGroup, 
   clearError 
 } = studyGroupSlice.actions;
@@ -122,11 +148,14 @@ export const selectSelectedStudyGroup = (state) => state.studyGroups.selectedGro
 export const selectStudyGroupLoading = (state) => state.studyGroups.loading;
 export const selectStudyGroupError = (state) => state.studyGroups.error;
 export const selectStudyGroupById = (id) => (state) => 
-  state.studyGroups.groups.find(g => g.id === id || g._id === id) || 
-  state.studyGroups.myGroups.find(g => g.id === id || g._id === id);
+  state.studyGroups.groups.find(g => g.id === id || String(g._id) === String(id)) || 
+  state.studyGroups.myGroups.find(g => g.id === id || String(g._id) === String(id));
 
 export const selectGroupMessages = (groupId) => (state) =>
   state.studyGroups.messages[groupId] || [];
+
+export const selectGroupResources = (groupId) => (state) =>
+  state.studyGroups.resources[groupId] || [];
 
 export const selectGroupDiscussions = (groupId) => (state) =>
   state.studyGroups.discussions[groupId] || [];
