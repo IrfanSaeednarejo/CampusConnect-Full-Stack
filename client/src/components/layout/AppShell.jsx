@@ -15,10 +15,10 @@ export default function AppShell() {
   const activeCampus = useSelector(selectActiveCampus);
 
   useEffect(() => {
-    if (user?.campusId && !activeCampus) {
+    if (user?.campusId && activeCampus?._id !== user.campusId) {
       dispatch(fetchCampusById(user.campusId));
     }
-  }, [user?.campusId, activeCampus, dispatch]);
+  }, [user?.campusId, activeCampus?._id, dispatch]);
 
   return (
     <div className="flex flex-col h-screen bg-[#0d1117] overflow-hidden">
