@@ -81,9 +81,30 @@ const getPendingSocieties = asyncHandler(async (req, res) => {
     );
 });
 
+const updateSocietyStatus = asyncHandler(async (req, res) => {
+    const { societyId } = req.params;
+    const { status, reason } = req.body;
+
+    if (!["approved", "rejected"].includes(status)) {
+        throw new ApiError(400, "Invalid status");
+    }
+
+    const society = await Society.findById(societyId);
+    if (!society) throw new ApiError(404, "Society not found");
+
+    society.status = status;
+    // Optionally handle reason for rejection in a separate field if it exists
+    await society.save();
+
+    return res.status(200).json(
+        new ApiResponse(200, society, `Society ${status} successfully`)
+    );
+});
+
 export {
     getAllUsers,
     updateUserRole,
     toggleUserSuspension,
-    getPendingSocieties
-};
+    getPendingSocieties,
+    updateSocietyStatus
+};

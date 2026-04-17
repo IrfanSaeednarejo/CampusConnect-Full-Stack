@@ -2,13 +2,10 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   fetchPendingSocietiesThunk,
+  updateSocietyStatusThunk,
   selectPendingSocieties,
   selectAdminLoading,
 } from '../../redux/slices/adminSlice';
-import {
-  approveSocietyThunk,
-  rejectSocietyThunk,
-} from '../../redux/slices/societySlice'; // Assuming these exist or adding them
 import Button from '../../components/common/Button';
 import CircularProgress from '../../components/common/CircularProgress';
 
@@ -21,17 +18,17 @@ export default function SocietyApproval() {
     dispatch(fetchPendingSocietiesThunk());
   }, [dispatch]);
 
-  const handleApprove = async (id) => {
+  const handleApprove = async (societyId) => {
     if (window.confirm("Approve this society registration?")) {
-      await dispatch(approveSocietyThunk(id));
+      await dispatch(updateSocietyStatusThunk({ societyId, status: 'approved' })).unwrap();
       dispatch(fetchPendingSocietiesThunk());
     }
   };
 
-  const handleReject = async (id) => {
+  const handleReject = async (societyId) => {
     const reason = window.prompt("Reason for rejection:");
     if (reason) {
-      await dispatch(rejectSocietyThunk({ id, reason }));
+      await dispatch(updateSocietyStatusThunk({ societyId, status: 'rejected', reason })).unwrap();
       dispatch(fetchPendingSocietiesThunk());
     }
   };

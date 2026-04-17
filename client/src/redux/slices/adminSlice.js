@@ -49,6 +49,18 @@ export const fetchPendingSocietiesThunk = createAsyncThunk(
   }
 );
 
+export const updateSocietyStatusThunk = createAsyncThunk(
+  'admin/updateSocietyStatus',
+  async ({ societyId, status, reason }, { rejectWithValue }) => {
+    try {
+      const response = await adminApi.updateSocietyStatus(societyId, { status, reason });
+      return response.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data || 'Failed to update society status');
+    }
+  }
+);
+
 const adminSlice = createSlice({
   name: 'admin',
   initialState: {

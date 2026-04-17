@@ -18,5 +18,6 @@ router.patch("/users/role", updateUserRole);
 router.patch("/users/:userId/suspend", toggleUserSuspension);
 
 router.get("/societies/pending", getPendingSocieties);
+router.patch("/societies/:societyId/status", updateSocietyStatus);
 
 export default router;

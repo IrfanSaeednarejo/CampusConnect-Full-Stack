@@ -18,7 +18,7 @@ import Members from "../pages/Members";
 import Societies from "../pages/Societies";
 import AboutUs from "../pages/Misc/About";
 import ContactUs from "../pages/Help/ContactUs";
-import PrivacyPolicy from "../pages/Misc/PrivacyPolicy";
+import LegalPrivacy from "../pages/Misc/LegalPrivacy";
 import TermsOfService from "../pages/Misc/TermsOfService";
 
 // Dashboard Pages
@@ -169,7 +169,7 @@ export default function AppRoutes() {
         <Route path="/societies" element={<Societies />} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact-us" element={<ContactUs />} />
-        <Route path="/privacy" element={<PrivacyPolicy />} />
+        <Route path="/privacy" element={<LegalPrivacy />} />
         <Route path="/terms" element={<TermsOfService />} />
 
         {/* ========== STUDENT ROUTES - Require 'student' role + onboarding completion ========== */}

@@ -11,7 +11,6 @@ import {
 } from '../../redux/slices/adminSlice';
 import Button from '../../components/common/Button';
 import CircularProgress from '../../components/common/CircularProgress';
-import UserManagementHeader from '../../components/admin/UserManagementHeader'; // Optional if we want a separate header or just keep it local
 import SearchInput from '../../components/common/SearchInput';
 
 export default function UserManagement() {

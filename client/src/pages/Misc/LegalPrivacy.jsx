@@ -1,4 +1,4 @@
-// src/pages/Misc/PrivacyPolicy.jsx
+// src/pages/Misc/LegalPrivacy.jsx
 import Header from "../../components/layout/Header";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/common/Button";
@@ -6,7 +6,7 @@ import PageContent from "../../components/common/PageContent";
 import LegalIntro from "../../components/misc/LegalIntro";
 import LegalSection from "../../components/misc/LegalSection";
 
-export default function PrivacyPolicy() {
+export default function LegalPrivacy() {
   const navigate = useNavigate();
 
   return (

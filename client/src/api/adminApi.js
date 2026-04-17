@@ -14,6 +14,9 @@ export const toggleUserSuspension = (userId) =>
 export const getPendingSocieties = () =>
   api.get(`${BASE}/societies/pending`);
 
+export const updateSocietyStatus = (societyId, data) =>
+  api.patch(`${BASE}/societies/${societyId}/status`, data);
+
 export const approveSociety = (societyId) =>
   api.patch(`/societies/${societyId}/approve`); // Society controller handles this
 
