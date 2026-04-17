@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+import NotificationDisplay from '../components/common/NotificationDisplay';
 
 const NotificationContext = createContext();
 export const NotificationProvider = ({ children }) => {
@@ -32,6 +33,7 @@ export const NotificationProvider = ({ children }) => {
       showNotification,
       removeNotification
     }}>
+      <NotificationDisplay />
       {children}
     </NotificationContext.Provider>
   );
