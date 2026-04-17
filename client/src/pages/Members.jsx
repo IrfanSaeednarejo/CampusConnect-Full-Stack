@@ -3,6 +3,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { selectFilteredMembers, setMembers } from "../redux/slices/memberSlice";
 import SectionHeader from "../components/common/SectionHeader";
 import MemberCard from "../components/common/MemberCard";
+import Card from "../components/common/Card";
+import Input from "../components/common/Input";
+import Button from "../components/common/Button";
+
+let membersInitialized = false;
+
 export default function Members() {
   const dispatch = useDispatch();
   const members = useSelector(selectFilteredMembers);
@@ -10,7 +16,7 @@ export default function Members() {
   // Initialize mock members data in Redux
   useEffect(() => {
     // Only initialize once, and only if members list is empty
-    if (!membersInitialized && members.length === 0) {
+    if (!membersInitialized && (!members || members.length === 0)) {
       membersInitialized = true;
       dispatch(setMembers([
         {

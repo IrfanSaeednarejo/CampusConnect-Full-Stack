@@ -6,7 +6,7 @@ import { Society } from "../models/society.model.js";
 
 const getAllUsers = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, role, search } = req.query;
-    
+
     const query = {};
     if (role) query.role = role;
     if (search) {
@@ -40,7 +40,7 @@ const getAllUsers = asyncHandler(async (req, res) => {
 
 const updateUserRole = asyncHandler(async (req, res) => {
     const { userId, role } = req.body;
-    
+
     if (!["student", "mentor", "society_head", "admin"].includes(role)) {
         throw new ApiError(400, "Invalid role");
     }
@@ -61,9 +61,9 @@ const updateUserRole = asyncHandler(async (req, res) => {
 const toggleUserSuspension = asyncHandler(async (req, res) => {
     const { userId } = req.params;
     const user = await User.findById(userId);
-    
+
     if (!user) throw new ApiError(404, "User not found");
-    
+
     user.isSuspended = !user.isSuspended;
     await user.save();
 
@@ -75,7 +75,7 @@ const toggleUserSuspension = asyncHandler(async (req, res) => {
 const getPendingSocieties = asyncHandler(async (req, res) => {
     const societies = await Society.find({ status: "pending" })
         .populate("createdBy", "name email");
-    
+
     return res.status(200).json(
         new ApiResponse(200, societies, "Pending societies fetched successfully")
     );

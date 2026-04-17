@@ -6,6 +6,7 @@ import {
     updateUserRole,
     toggleUserSuspension,
     getPendingSocieties,
+    updateSocietyStatus,
 } from "../controllers/admin.controller.js";
 
 const router = Router();
