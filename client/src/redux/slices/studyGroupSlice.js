@@ -87,6 +87,30 @@ export const addResourceThunk = createAsyncThunk(
   }
 );
 
+export const updateStudyGroupThunk = createAsyncThunk(
+  'studyGroups/update',
+  async ({ id, data: updateData }, { rejectWithValue }) => {
+    try {
+      const { data } = await studyGroupApi.updateStudyGroup(id, updateData);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to update study group');
+    }
+  }
+);
+
+export const deleteStudyGroupThunk = createAsyncThunk(
+  'studyGroups/delete',
+  async (id, { rejectWithValue }) => {
+    try {
+      await studyGroupApi.deleteStudyGroup(id);
+      return id;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to delete study group');
+    }
+  }
+);
+
 // ── Initial State ─────────────────────────────────────────────────────────────
 
 const initialState = {
@@ -111,6 +135,10 @@ const studyGroupSlice = createSlice({
     clearError: (state) => { state.error = null; },
     addLocalMessage: (state, action) => {
       state.messages.push(action.payload);
+    },
+    setGroupResources: (state, action) => {
+      const { groupId, resources } = action.payload;
+      state.resources = resources;
     }
   },
   extraReducers: (builder) => {
@@ -175,24 +203,47 @@ const studyGroupSlice = createSlice({
         }
       })
 
-      // addResourceThunk
-      .addCase(addResourceThunk.pending, (state) => { state.actionLoading = true; })
-      .addCase(addResourceThunk.fulfilled, (state, action) => {
+      .addCase(addResourceThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
+
+      // updateStudyGroupThunk
+      .addCase(updateStudyGroupThunk.pending, (state) => { state.actionLoading = true; })
+      .addCase(updateStudyGroupThunk.fulfilled, (state, action) => {
         state.actionLoading = false;
-        if (state.selectedGroup) {
-          if (!state.selectedGroup.groupResources) state.selectedGroup.groupResources = [];
-          state.selectedGroup.groupResources.push(action.payload);
+        const updated = action.payload;
+        const id = updated._id || updated.id;
+        state.groups = state.groups.map(g => (g._id || g.id) === id ? updated : g);
+        state.myGroups = state.myGroups.map(g => (g._id || g.id) === id ? updated : g);
+        if (state.selectedGroup?._id === id || state.selectedGroup?.id === id) {
+          state.selectedGroup = updated;
         }
       })
-      .addCase(addResourceThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
+      .addCase(updateStudyGroupThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
+
+      // deleteStudyGroupThunk
+      .addCase(deleteStudyGroupThunk.pending, (state) => { state.actionLoading = true; })
+      .addCase(deleteStudyGroupThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const id = action.payload;
+        state.groups = state.groups.filter(g => (g._id || g.id) !== id);
+        state.myGroups = state.myGroups.filter(g => (g._id || g.id) !== id);
+        if (state.selectedGroup?._id === id || state.selectedGroup?.id === id) {
+          state.selectedGroup = null;
+        }
+      })
+      .addCase(deleteStudyGroupThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
   },
 });
 
 export const { 
   clearSelectedGroup, 
   clearError,
-  addLocalMessage
+  addLocalMessage,
+  setGroupResources,
 } = studyGroupSlice.actions;
+
+export const joinGroup = joinStudyGroupThunk;
+export const updateStudyGroup = updateStudyGroupThunk;
+export const deleteStudyGroup = deleteStudyGroupThunk;
 
 export const selectAllStudyGroups = (state) => state.studyGroups.groups;
 export const selectMyStudyGroups = (state) => state.studyGroups.myGroups;
@@ -201,5 +252,12 @@ export const selectStudyGroupLoading = (state) => state.studyGroups.loading;
 export const selectStudyGroupActionLoading = (state) => state.studyGroups.actionLoading;
 export const selectStudyGroupError = (state) => state.studyGroups.error;
 export const selectStudyGroupPagination = (state) => state.studyGroups.pagination;
+
+export const selectStudyGroupById = (id) => (state) => 
+  state.studyGroups.groups.find(g => String(g._id || g.id) === String(id)) || 
+  state.studyGroups.myGroups.find(g => String(g._id || g.id) === String(id)) ||
+  (state.studyGroups.selectedGroup?._id === id || state.studyGroups.selectedGroup?.id === id ? state.studyGroups.selectedGroup : null);
+
+export const selectGroupResources = (id) => (state) => state.studyGroups.resources;
 
 export default studyGroupSlice.reducer;

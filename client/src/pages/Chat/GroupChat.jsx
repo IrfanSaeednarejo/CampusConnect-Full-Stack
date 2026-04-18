@@ -28,18 +28,18 @@ export default function GroupChat() {
 	const dispatch = useDispatch();
 	const navigate = useNavigate();
 	const { groupId } = useParams();
-	const parsedId = Number(groupId);
-	const group = useSelector(selectStudyGroupById(parsedId));
+	const group = useSelector(selectStudyGroupById(groupId));
 	const myGroups = useSelector(selectMyStudyGroups);
 	const messagesByConversation = useSelector(selectMessagesByConversation);
 	const chatState = useChatPageState({ allowedTypes: ["group"] });
+	const currentUser = useSelector(state => state.auth.user);
 
 	const isMember = useMemo(
-		() => myGroups.some((item) => item.id === parsedId),
-		[myGroups, parsedId]
+		() => myGroups.some((item) => String(item._id || item.id) === String(groupId)),
+		[myGroups, groupId]
 	);
 
-	const conversationId = group ? `study-group-${group.id}` : null;
+	const conversationId = group ? `study-group-${group._id || group.id}` : null;
 
 	useEffect(() => {
 		if (conversationId) {
@@ -65,11 +65,11 @@ export default function GroupChat() {
 	}
 
 	if (!isMember) {
-		return <Navigate to={`/study-groups/${parsedId}/join`} replace />;
+		return <Navigate to={`/study-groups/${groupId}/join`} replace />;
 	}
 
 	const handleClose = () => {
-		navigate("/student/dashboard");
+		navigate("/dashboard");
 	};
 
 	return (

@@ -24,8 +24,7 @@ export default function EditStudyGroup() {
 
   const handleSubmit = async (values) => {
     try {
-      const updatedGroup = {
-        id: parseInt(id),
+      const updateData = {
         name: values.name,
         course: values.course,
         description: values.description,
@@ -33,11 +32,11 @@ export default function EditStudyGroup() {
         maxMembers: values.maxMembers ? parseInt(values.maxMembers) : null,
       };
 
-      dispatch(updateStudyGroup(updatedGroup));
+      await dispatch(updateStudyGroup({ id, data: updateData })).unwrap();
       showSuccess("Study group updated successfully!");
       goTo(`/study-groups/${id}`);
     } catch (error) {
-      showError("Failed to update study group");
+      showError(error || "Failed to update study group");
       console.error("Update group error:", error);
     }
   };

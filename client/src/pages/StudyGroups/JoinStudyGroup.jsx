@@ -15,13 +15,13 @@ export default function JoinStudyGroup() {
 
   const group = useSelector(selectStudyGroupById(id));
 
-  const handleJoin = () => {
+  const handleJoin = async () => {
     try {
-      dispatch(joinGroup(parseInt(id)));
+      await dispatch(joinGroup(id)).unwrap();
       showSuccess("Successfully joined the study group!");
       goTo(`/study-groups/${id}`);
     } catch (error) {
-      showError("Failed to join the study group");
+      showError(error || "Failed to join the study group");
       console.error("Join group error:", error);
     }
   };
