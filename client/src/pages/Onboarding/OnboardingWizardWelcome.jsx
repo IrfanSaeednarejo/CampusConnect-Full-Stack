@@ -8,7 +8,7 @@ import { useState } from "react";
 
 export default function OnboardingWizardWelcome() {
   const navigate = useNavigate();
-  const { completeOnboarding } = useAuth();
+  const { user, completeOnboarding } = useAuth();
   const [selectedCampus, setSelectedCampus] = useState("");
 
   const handleStart = async () => {
@@ -54,7 +54,7 @@ export default function OnboardingWizardWelcome() {
         {/* Heading */}
         <div className="mb-8">
           <h1 className="text-[#c9d1d9] text-4xl sm:text-5xl font-black leading-tight tracking-[-0.033em]">
-            Nice to meet you!
+            Nice to meet you, <span className="text-[#58a6ff] capitalize">{user?.profile?.firstName || 'there'}!</span>
           </h1>
           <p className="mt-3 text-[#8b949e] text-base font-normal leading-normal">
             Let’s personalize your experience on CampusConnect.

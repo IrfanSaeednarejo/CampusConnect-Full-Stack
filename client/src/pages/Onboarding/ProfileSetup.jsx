@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { updateAccountThunk, updateAcademicThunk, completeOnboardingThunk } from "../../redux/slices/authSlice";
+import { updateAccountThunk, updateAcademicThunk, completeOnboardingThunk, updateAvatarThunk } from "../../redux/slices/authSlice";
+import { useAuth } from "../../hooks/useAuth.js";
 import FormField from "../../components/common/FormField";
 import FormActions from "../../components/common/FormActions";
 import OnboardingShell from "../../components/onboarding/OnboardingShell";
@@ -10,6 +11,7 @@ import OnboardingProgress from "../../components/onboarding/OnboardingProgress";
 
 export default function ProfileSetup() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const dispatch = useDispatch();
 
   const [bio, setBio] = useState("");
@@ -81,25 +83,47 @@ export default function ProfileSetup() {
             </FormField>
 
             {/* Profile Photo */}
-            <div className="flex flex-col gap-2">
-              <h2 className="text-base font-medium text-[#e6edf3]">
-                Profile Photo
-              </h2>
-              <div className="flex flex-col items-center gap-6 rounded-lg border-2 border-dashed border-[#30363d] px-6 py-10 text-center">
-                <span className="material-symbols-outlined text-4xl text-[#8b949e]">
-                  cloud_upload
-                </span>
-                <div className="flex flex-col items-center gap-1">
-                  <p className="text-lg font-bold text-[#e6edf3]">
-                    Drag &amp; drop
-                  </p>
-                  <p className="text-sm text-[#8b949e]">or click to upload</p>
+            {!user?.profile?.avatar && (
+              <div className="flex flex-col gap-2">
+                <h2 className="text-base font-medium text-[#e6edf3]">
+                  Profile Photo
+                </h2>
+                <div className="flex flex-col items-center gap-6 rounded-lg border-2 border-dashed border-[#30363d] px-6 py-10 text-center">
+                  <span className="material-symbols-outlined text-4xl text-[#8b949e]">
+                    cloud_upload
+                  </span>
+                  <div className="flex flex-col items-center gap-1">
+                    <p className="text-lg font-bold text-[#e6edf3]">
+                      Drag &amp; drop
+                    </p>
+                    <p className="text-sm text-[#8b949e]">or click to upload</p>
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => document.getElementById('avatar-input').click()}
+                    className="flex h-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-gray-700 px-4 text-sm font-bold text-[#e6edf3] transition-colors hover:bg-gray-600"
+                  >
+                    <span>Upload Photo</span>
+                  </button>
+                  <input
+                    id="avatar-input"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files[0];
+                      if (file) {
+                        try {
+                          await dispatch(updateAvatarThunk(file)).unwrap();
+                        } catch (err) {
+                          console.error("Avatar upload failed:", err);
+                        }
+                      }
+                    }}
+                  />
                 </div>
-                <button className="flex h-10 cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-gray-700 px-4 text-sm font-bold text-[#e6edf3] transition-colors hover:bg-gray-600">
-                  <span>Upload Photo</span>
-                </button>
               </div>
-            </div>
+            )}
 
             {/* Short Bio */}
             <FormField
