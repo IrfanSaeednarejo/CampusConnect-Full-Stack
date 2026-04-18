@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import {
-  addStudyGroup,
+  createStudyGroupThunk,
   selectAllStudyGroups,
 } from "../../redux/slices/studyGroupSlice";
 import { useFormState, useNavigation } from "../../hooks";
@@ -34,23 +34,19 @@ export default function CreateStudyGroup() {
 
   const handleSubmit = async (values) => {
     try {
-      const newGroup = {
-        id: allGroups.length > 0 ? Math.max(...allGroups.map((g) => g.id)) + 1 : 1,
+      const payload = {
         name: values.name,
         course: values.course,
+        subject: values.course, // Aligning for now
         description: values.description,
-        meetingSchedule: values.meetingSchedule || "TBD",
-        maxMembers: values.maxMembers ? parseInt(values.maxMembers) : null,
-        members: 1,
-        category: getCategoryFromCourse(values.course),
+        maxMembers: values.maxMembers ? parseInt(values.maxMembers) : 20,
       };
 
-      dispatch(addStudyGroup(newGroup));
-      showSuccess("Study group created successfully!");
-      goTo("/study-groups");
+      const result = await dispatch(createStudyGroupThunk(payload)).unwrap();
+      showSuccess(`Study group "${result.name}" created successfully!`);
+      goTo(`/study-groups/${result._id}`);
     } catch (error) {
-      showError("Failed to create study group");
-      console.error("Create group error:", error);
+      showError(error || "Failed to create study group");
     }
   };
 

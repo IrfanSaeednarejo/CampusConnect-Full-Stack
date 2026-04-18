@@ -1,194 +1,205 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import * as agentApi from '../../api/agentApi'; // Assuming study group APIs might be here or in a separate file, but using placeholder to define structure
+import * as studyGroupApi from '../../api/studyGroupApi';
 
-// Mock API calls for now if specific API file not found, but defining thunks
-export const fetchStudyGroups = createAsyncThunk('studyGroups/fetchAll', async (_, { rejectWithValue }) => {
-  try { return []; } catch (err) { return rejectWithValue(err.message); }
-});
+// ── Thunks ────────────────────────────────────────────────────────────────────
 
-export const fetchMyStudyGroups = createAsyncThunk('studyGroups/fetchMy', async (_, { rejectWithValue }) => {
-  try { return []; } catch (err) { return rejectWithValue(err.message); }
-});
+export const fetchStudyGroups = createAsyncThunk(
+  'studyGroups/fetchAll',
+  async (params = {}, { rejectWithValue }) => {
+    try {
+      const { data } = await studyGroupApi.getStudyGroups(params);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to fetch study groups');
+    }
+  }
+);
 
-export const fetchStudyGroupById = createAsyncThunk('studyGroups/fetchById', async (id, { rejectWithValue }) => {
-  try { return null; } catch (err) { return rejectWithValue(err.message); }
-});
+export const fetchMyStudyGroups = createAsyncThunk(
+  'studyGroups/fetchMy',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await studyGroupApi.getMyStudyGroups();
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to fetch your study groups');
+    }
+  }
+);
 
-export const createStudyGroup = createAsyncThunk('studyGroups/create', async (data, { rejectWithValue }) => {
-  try { return data; } catch (err) { return rejectWithValue(err.message); }
-});
+export const fetchStudyGroupById = createAsyncThunk(
+  'studyGroups/fetchById',
+  async (id, { rejectWithValue }) => {
+    try {
+      const { data } = await studyGroupApi.getStudyGroupById(id);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to fetch study group');
+    }
+  }
+);
 
-export const joinStudyGroup = createAsyncThunk('studyGroups/join', async (id, { rejectWithValue }) => {
-  try { return id; } catch (err) { return rejectWithValue(err.message); }
-});
+export const createStudyGroupThunk = createAsyncThunk(
+  'studyGroups/create',
+  async (formData, { rejectWithValue }) => {
+    try {
+      const { data } = await studyGroupApi.createStudyGroup(formData);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to create study group');
+    }
+  }
+);
 
-export const leaveStudyGroup = createAsyncThunk('studyGroups/leave', async (id, { rejectWithValue }) => {
-  try { return id; } catch (err) { return rejectWithValue(err.message); }
-});
+export const joinStudyGroupThunk = createAsyncThunk(
+  'studyGroups/join',
+  async (id, { rejectWithValue }) => {
+    try {
+      const { data } = await studyGroupApi.joinStudyGroup(id);
+      return { id, ...data.data };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to join group');
+    }
+  }
+);
+
+export const leaveStudyGroupThunk = createAsyncThunk(
+  'studyGroups/leave',
+  async (id, { rejectWithValue }) => {
+    try {
+      await studyGroupApi.leaveStudyGroup(id);
+      return id;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to leave group');
+    }
+  }
+);
+
+export const addResourceThunk = createAsyncThunk(
+  'studyGroups/addResource',
+  async ({ id, formData }, { rejectWithValue }) => {
+    try {
+      const { data } = await studyGroupApi.addResource(id, formData);
+      return data.data; // This is the new resource object
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to upload resource');
+    }
+  }
+);
+
+// ── Initial State ─────────────────────────────────────────────────────────────
 
 const initialState = {
   groups: [],
   selectedGroup: null,
   myGroups: [],
-  resources: {},
-  messages: {},
-  discussions: {},
-  members: {},
-  filter: 'all',
-  sortBy: 'course',
+  resources: [],
+  messages: [],
+  pagination: { page: 1, total: 0, pages: 1 },
   loading: false,
+  actionLoading: false,
   error: null,
 };
+
+// ── Slice ─────────────────────────────────────────────────────────────────────
 
 const studyGroupSlice = createSlice({
   name: 'studyGroups',
   initialState,
   reducers: {
-    setStudyGroups: (state, action) => {
-      state.groups = action.payload;
-    },
-    addStudyGroup: (state, action) => {
-      state.groups.push(action.payload);
-    },
-    updateStudyGroup: (state, action) => {
-      const index = state.groups.findIndex((g) => g.id === action.payload.id || g._id === action.payload._id);
-      if (index !== -1) {
-        state.groups[index] = { ...state.groups[index], ...action.payload };
-      }
-    },
-    removeStudyGroup: (state, action) => {
-      state.groups = state.groups.filter((g) => g.id !== action.payload && g._id !== action.payload);
-    },
-    setSelectedGroup: (state, action) => {
-      state.selectedGroup = action.payload;
-    },
-    setMyGroups: (state, action) => {
-      state.myGroups = action.payload;
-    },
-    setGroupMembers: (state, action) => {
-      const { groupId, members } = action.payload;
-      state.members[groupId] = members;
-    },
-    setGroupResources: (state, action) => {
-      const { groupId, resources } = action.payload;
-      state.resources[groupId] = resources;
-    },
-    setGroupDiscussions: (state, action) => {
-      const { groupId, discussions } = action.payload;
-      state.discussions[groupId] = discussions;
-    },
-    joinGroup: (state, action) => {
-      const group = state.groups.find(g => g.id === action.payload || String(g._id) === String(action.payload));
-      if (group && !state.myGroups.some(g => g.id === action.payload || String(g._id) === String(action.payload))) {
-         state.myGroups.push(group);
-      }
-    },
-    leaveGroup: (state, action) => {
-      state.myGroups = state.myGroups.filter(g => g.id !== action.payload && String(g._id) !== String(action.payload));
-    },
-    setGroupMessages: (state, action) => {
-      const { groupId, messages } = action.payload;
-      state.messages[groupId] = messages;
-    },
-    addMessage: (state, action) => {
-      const { groupId, message } = action.payload;
-      if (!state.messages[groupId]) state.messages[groupId] = [];
-      state.messages[groupId].push(message);
-    },
-    clearSelectedGroup: (state) => {
-      state.selectedGroup = null;
-    },
-    clearError: (state) => {
-      state.error = null;
-    },
+    clearSelectedGroup: (state) => { state.selectedGroup = null; state.messages = []; state.resources = []; },
+    clearError: (state) => { state.error = null; },
+    addLocalMessage: (state, action) => {
+      state.messages.push(action.payload);
+    }
   },
   extraReducers: (builder) => {
+    const pending = (state) => { state.loading = true; state.error = null; };
+    const rejected = (state, action) => { state.loading = false; state.error = action.payload; };
+
     builder
-      .addCase(fetchStudyGroups.pending, (state) => { state.loading = true; })
+      // fetchStudyGroups
+      .addCase(fetchStudyGroups.pending, pending)
       .addCase(fetchStudyGroups.fulfilled, (state, action) => {
         state.loading = false;
-        state.groups = action.payload || [];
-      })
-      .addCase(fetchStudyGroups.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload;
-      })
-      .addCase(fetchMyStudyGroups.fulfilled, (state, action) => {
-        state.myGroups = action.payload || [];
-      })
-      .addCase(fetchStudyGroupById.fulfilled, (state, action) => {
-        state.selectedGroup = action.payload;
-      })
-      .addCase(createStudyGroup.fulfilled, (state, action) => {
-        state.groups.push(action.payload);
-        state.myGroups.push(action.payload);
-      })
-      .addCase(joinStudyGroup.fulfilled, (state, action) => {
-        const group = state.groups.find(g => g.id === action.payload || g._id === action.payload);
-        if (group && !state.myGroups.some(g => g.id === action.payload || g._id === action.payload)) {
-           state.myGroups.push(group);
+        if (Array.isArray(action.payload)) {
+          state.groups = action.payload;
+        } else {
+          state.groups = action.payload?.docs ?? action.payload?.groups ?? [];
+          state.pagination = action.payload?.pagination ?? state.pagination;
         }
       })
-      .addCase(leaveStudyGroup.fulfilled, (state, action) => {
-        state.myGroups = state.myGroups.filter(g => g.id !== action.payload && g._id !== action.payload);
-      });
+      .addCase(fetchStudyGroups.rejected, rejected)
+
+      // fetchMyStudyGroups
+      .addCase(fetchMyStudyGroups.fulfilled, (state, action) => {
+        state.myGroups = Array.isArray(action.payload) ? action.payload : (action.payload?.docs || []);
+      })
+
+      // fetchStudyGroupById
+      .addCase(fetchStudyGroupById.pending, pending)
+      .addCase(fetchStudyGroupById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.selectedGroup = action.payload;
+      })
+      .addCase(fetchStudyGroupById.rejected, rejected)
+
+      // createStudyGroupThunk
+      .addCase(createStudyGroupThunk.pending, (state) => { state.actionLoading = true; })
+      .addCase(createStudyGroupThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        state.groups.unshift(action.payload);
+        state.myGroups.unshift(action.payload);
+        state.selectedGroup = action.payload;
+      })
+      .addCase(createStudyGroupThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
+
+      // joinStudyGroupThunk
+      .addCase(joinStudyGroupThunk.fulfilled, (state, action) => {
+        const id = action.payload.id;
+        const group = state.groups.find(g => (g._id || g.id) === id);
+        if (group && !state.myGroups.some(g => (g._id || g.id) === id)) {
+          state.myGroups.push({ ...group, isMember: true });
+        }
+        if (state.selectedGroup?._id === id) {
+          state.selectedGroup = { ...state.selectedGroup, isMember: true };
+        }
+      })
+
+      // leaveStudyGroupThunk
+      .addCase(leaveStudyGroupThunk.fulfilled, (state, action) => {
+        const id = action.payload;
+        state.myGroups = state.myGroups.filter(g => (g._id || g.id) !== id);
+        if (state.selectedGroup?._id === id) {
+          state.selectedGroup = { ...state.selectedGroup, isMember: false };
+        }
+      })
+
+      // addResourceThunk
+      .addCase(addResourceThunk.pending, (state) => { state.actionLoading = true; })
+      .addCase(addResourceThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        if (state.selectedGroup) {
+          if (!state.selectedGroup.groupResources) state.selectedGroup.groupResources = [];
+          state.selectedGroup.groupResources.push(action.payload);
+        }
+      })
+      .addCase(addResourceThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
   },
 });
 
 export const { 
-  setStudyGroups, 
-  addStudyGroup, 
-  updateStudyGroup, 
-  removeStudyGroup, 
-  setSelectedGroup, 
-  setMyGroups, 
-  setGroupMembers,
-  setGroupResources,
-  setGroupDiscussions,
-  setGroupMessages,
-  addMessage,
-  joinGroup,
-  leaveGroup,
   clearSelectedGroup, 
-  clearError 
+  clearError,
+  addLocalMessage
 } = studyGroupSlice.actions;
 
 export const selectAllStudyGroups = (state) => state.studyGroups.groups;
 export const selectMyStudyGroups = (state) => state.studyGroups.myGroups;
 export const selectSelectedStudyGroup = (state) => state.studyGroups.selectedGroup;
 export const selectStudyGroupLoading = (state) => state.studyGroups.loading;
+export const selectStudyGroupActionLoading = (state) => state.studyGroups.actionLoading;
 export const selectStudyGroupError = (state) => state.studyGroups.error;
-export const selectStudyGroupById = (id) => (state) => 
-  state.studyGroups.groups.find(g => g.id === id || String(g._id) === String(id)) || 
-  state.studyGroups.myGroups.find(g => g.id === id || String(g._id) === String(id));
-
-export const selectGroupMessages = (groupId) => (state) =>
-  state.studyGroups.messages[groupId] || [];
-
-export const selectGroupResources = (groupId) => (state) =>
-  state.studyGroups.resources[groupId] || [];
-
-export const selectGroupDiscussions = (groupId) => (state) =>
-  state.studyGroups.discussions[groupId] || [];
-
-export const selectGroupMembers = (groupId) => (state) =>
-  state.studyGroups.members[groupId] || [];
-
-export const selectFilteredStudyGroups = (state) => {
-  const { groups, filter } = state.studyGroups;
-  if (filter === 'all') return groups;
-  return groups.filter((group) => group.category === filter);
-};
-
-export const selectSortedStudyGroups = (state) => {
-  const filtered = selectFilteredStudyGroups(state);
-  const { sortBy } = state.studyGroups;
-
-  return [...filtered].sort((a, b) => {
-    if (sortBy === 'course') return a.course?.localeCompare(b.course || "") || 0;
-    if (sortBy === 'popularity') return (b.members || 0) - (a.members || 0);
-    return 0;
-  });
-};
+export const selectStudyGroupPagination = (state) => state.studyGroups.pagination;
 
 export default studyGroupSlice.reducer;
