@@ -102,6 +102,7 @@ const onboardingSchema = new Schema(
         isComplete: { type: Boolean, default: false },
         completedSteps: { type: [String], default: [] },
         roleSelected: { type: String, default: "" },
+        requestedCampusName: { type: String, default: "" },
         completedAt: { type: Date },
     },
     { _id: false }

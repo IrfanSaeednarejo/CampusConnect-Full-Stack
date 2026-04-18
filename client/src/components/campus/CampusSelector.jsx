@@ -31,7 +31,7 @@ export default function CampusSelector({ value, onChange, disabled }) {
         <option value="" disabled>
           {loading ? "Loading campuses..." : "Choose a campus"}
         </option>
-        {campuses.map((campus) => (
+        {Array.isArray(campuses) && campuses.map((campus) => (
           <option key={campus._id} value={campus._id}>
             {campus.name}
           </option>

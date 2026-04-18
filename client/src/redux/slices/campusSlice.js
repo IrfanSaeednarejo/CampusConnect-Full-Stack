@@ -71,7 +71,7 @@ const campusSlice = createSlice({
     builder
       .addCase(fetchCampuses.pending, (state) => { state.loading = true; })
       .addCase(fetchCampuses.fulfilled, (state, action) => {
-        state.campuses = action.payload?.docs || action.payload || [];
+        state.campuses = action.payload?.campuses || action.payload?.docs || (Array.isArray(action.payload) ? action.payload : []);
         state.loading = false;
       })
       .addCase(fetchCampuses.rejected, (state, action) => {
