@@ -262,11 +262,18 @@ const authSlice = createSlice({
       })
       .addCase(checkAuth.fulfilled, updateUserState)
       .addCase(checkAuth.rejected, (state) => {
+        // RACE CONDITION PROTECTION: Never clear auth state if we've already 
+        // established a session via Register or Login in between!
+        if (state.isAuthenticated && state.user) {
+          state.loading = false;
+          return;
+        }
         state.isAuthenticated = false;
         state.user = null;
         state.roles = [];
         state.role = null;
         state.loading = false;
+        state.onboardingCompleted = false;
       });
 
     builder

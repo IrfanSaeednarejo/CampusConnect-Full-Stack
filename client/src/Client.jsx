@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { checkAuth } from "./redux/slices/authSlice";
 import { useSocket } from "./hooks/useSocket";
 import AppRoutes from "./routes/AppRoutes";
@@ -8,9 +8,13 @@ function AppWithSocket() {
   const dispatch = useDispatch();
   useSocket();
 
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+
   useEffect(() => {
-    dispatch(checkAuth());
-  }, [dispatch]);
+    if (!isAuthenticated) {
+      dispatch(checkAuth());
+    }
+  }, [dispatch, isAuthenticated]);
 
   return <AppRoutes />;
 }

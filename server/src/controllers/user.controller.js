@@ -4,8 +4,8 @@ import * as userService from "../services/user.service.js";
 
 const COOKIE_OPTIONS = {
     httpOnly: true,
-    secure: true, // Required for SameSite=None, browsers allow this on localhost
-    sameSite: "None",
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
 };
 
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
