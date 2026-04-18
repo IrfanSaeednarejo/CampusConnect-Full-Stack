@@ -254,7 +254,12 @@ const authSlice = createSlice({
       .addCase(registerUser.rejected, handleUpdateRejected);
 
     builder
-      .addCase(checkAuth.pending, handleUpdatePending)
+      .addCase(checkAuth.pending, (state) => {
+        if (!state.user) {
+          state.loading = true;
+        }
+        state.error = null;
+      })
       .addCase(checkAuth.fulfilled, updateUserState)
       .addCase(checkAuth.rejected, (state) => {
         state.isAuthenticated = false;

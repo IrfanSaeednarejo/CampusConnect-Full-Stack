@@ -18,6 +18,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Layout          from "../components/Layout";        // PublicLayout (Header+Footer)
 import AppShell        from "../components/layout/AppShell"; // Authenticated shell
 import ProtectedRoute  from "./ProtectedRoute";
+import PublicRoute     from "./PublicRoute";
 
 // ── Auth Pages (no layout) ───────────────────────────────────────────────────
 import Login          from "../pages/Auth/Login";
@@ -153,9 +154,11 @@ export default function AppRoutes() {
       {/* ══════════════════════════════════════════════════
           AUTH ROUTES — No layout wrapper
       ══════════════════════════════════════════════════ */}
-      <Route path="/login"           element={<Login />} />
-      <Route path="/signup"          element={<Signup />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route element={<PublicRoute />}>
+        <Route path="/login"           element={<Login />} />
+        <Route path="/signup"          element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+      </Route>
       <Route path="/reset-password/:token" element={<ResetPassword />} />
       <Route path="/logout"          element={<Logout />} />
 

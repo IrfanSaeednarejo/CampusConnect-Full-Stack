@@ -11,10 +11,14 @@ const COOKIE_OPTIONS = {
 // ─── AUTH ─────────────────────────────────────────────────────────────────────
 
 const registerUser = asyncHandler(async (req, res) => {
-    const created = await userService.register(req.body, req.files);
-    return res.status(201).json(
-        new ApiResponse(201, created, "Account created. Check your email to verify before logging in.")
-    );
+    const { user, accessToken, refreshToken } = await userService.register(req.body, req.files);
+    return res
+        .status(201)
+        .cookie("accessToken", accessToken, COOKIE_OPTIONS)
+        .cookie("refreshToken", refreshToken, COOKIE_OPTIONS)
+        .json(
+            new ApiResponse(201, { user, accessToken, refreshToken }, "Account created and logged in successfully.")
+        );
 });
 
 const sendEmailVerification = asyncHandler(async (req, res) => {

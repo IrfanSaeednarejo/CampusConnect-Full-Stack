@@ -11,12 +11,6 @@ import FormActions from "../../components/common/FormActions";
 export default function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-
-  // ── Already logged in → skip login page ──
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
 
   const [form, setForm] = useState({
     email: "",

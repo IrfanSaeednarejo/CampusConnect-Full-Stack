@@ -16,12 +16,6 @@ export default function Signup() {
   const location = useLocation();
   const dispatch = useDispatch();
   const selectedRole = useSelector(selectRole);
-  const isAuthenticated = useSelector(selectIsAuthenticated);
-
-  // ── Already logged in → skip signup page ──
-  if (isAuthenticated) {
-    return <Navigate to="/dashboard" replace />;
-  }
 
   const initialRole = location.state?.role || selectedRole || VALID_ROLES.STUDENT;
 

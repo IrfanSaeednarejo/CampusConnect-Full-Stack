@@ -109,7 +109,9 @@ export const register = async (data, files) => {
     // });
 
     const created = await User.findById(user._id).select(SAFE_SELECT);
-    return created;
+    const { accessToken, refreshToken } = await issueTokens(user);
+
+    return { user: created, accessToken, refreshToken };
 };
 
 export const sendVerification = async (userId) => {
