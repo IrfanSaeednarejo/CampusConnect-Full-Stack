@@ -1,18 +1,24 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import Avatar from "../../components/common/Avatar";
+import { useDispatch, useSelector } from "react-redux";
+import { registerAsMentorThunk, selectMentoringActionLoading } from "../../redux/slices/mentoringSlice";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function MentorRegistration() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const loading = useSelector(selectMentoringActionLoading);
+  const { user } = useAuth();
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    expertise: [],
     bio: "",
-    availability: "",
+    expertiseStr: "",
+    category: "technical",
+    hourlyRate: 0,
+    currency: "PKR",
   });
+  const [errorText, setErrorText] = useState("");
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -23,352 +29,243 @@ export default function MentorRegistration() {
   };
 
   const handleNext = () => {
-    if (currentStep < 4) {
-      setCurrentStep(currentStep + 1);
+    setErrorText("");
+    if (currentStep === 1 && !formData.bio.trim()) {
+      setErrorText("Bio is required.");
+      return;
     }
+    if (currentStep === 2 && !formData.expertiseStr.trim()) {
+      setErrorText("At least one area of expertise is required.");
+      return;
+    }
+    if (currentStep < 3) setCurrentStep(currentStep + 1);
   };
 
   const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
+    setErrorText("");
+    if (currentStep > 1) setCurrentStep(currentStep - 1);
+  };
+
+  const handleSubmit = async () => {
+    setErrorText("");
+    const expertiseArray = formData.expertiseStr
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean);
+
+    const payload = {
+      bio: formData.bio,
+      expertise: expertiseArray,
+      categories: [formData.category],
+      hourlyRate: Number(formData.hourlyRate),
+      currency: formData.currency,
+    };
+
+    try {
+      await dispatch(registerAsMentorThunk(payload)).unwrap();
+      navigate("/dashboard");
+    } catch (err) {
+      setErrorText(err || "Failed to submit application");
     }
   };
 
-  const progressPercentage = useMemo(
-    () => (currentStep / 4) * 100,
-    [currentStep]
-  );
+  const progressPercentage = useMemo(() => (currentStep / 3) * 100, [currentStep]);
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] bg-[#0d1117] overflow-x-hidden">
-      {/* TopNavBar */}
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-[#30363d] px-10 py-3">
-        <div className="flex items-center gap-4">
-          <div className="size-6 text-[#238636]">
-            <svg
-              fill="none"
-              viewBox="0 0 48 48"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M6 6H42L36 24L42 42H6L12 24L6 6Z"
-                fill="currentColor"
-              ></path>
-            </svg>
-          </div>
-          <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-            CampusConnect
-          </h2>
+    <div className="flex flex-col h-full overflow-y-auto px-4 lg:px-10 py-10">
+      <div className="flex flex-col w-full max-w-4xl mx-auto gap-8">
+        
+        {/* Page Heading */}
+        <div className="flex flex-col gap-2">
+          <p className="text-[#e6edf3] text-3xl font-bold tracking-tight">Become a Mentor</p>
+          <p className="text-[#8b949e] text-base">Share your expertise and guide students towards success.</p>
         </div>
 
-        <div className="flex flex-1 justify-end gap-8">
-          <div className="flex items-center gap-9">
-            <a
-              href="/events"
-              className="text-white text-sm font-medium leading-normal"
-            >
-              Events
-            </a>
-            <a
-              href="#"
-              className="text-white text-sm font-medium leading-normal"
-            >
-              Mentors
-            </a>
-            <a
-              href="#"
-              className="text-white text-sm font-medium leading-normal"
-            >
-              Networking
-            </a>
-            <a
-              href="#"
-              className="text-white text-sm font-medium leading-normal"
-            >
-              Societies
-            </a>
+        {/* Progress Bar */}
+        <div className="flex flex-col gap-3">
+          <div className="flex w-full justify-between px-2 text-sm font-medium">
+            <span className={currentStep >= 1 ? "text-white" : "text-[#8b949e]"}>1. Personal Bio</span>
+            <span className={currentStep >= 2 ? "text-white" : "text-[#8b949e]"}>2. Specialization</span>
+            <span className={currentStep >= 3 ? "text-white" : "text-[#8b949e]"}>3. Pricing & Review</span>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => navigate("/signup")}
-              className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#238636] text-white text-sm font-bold leading-normal tracking-[0.015em]"
-            >
-              <span className="truncate">Sign Up</span>
-            </button>
-            <button
-              onClick={() => navigate("/login")}
-              className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#161b22] text-white text-sm font-bold leading-normal tracking-[0.015em]"
-            >
-              <span className="truncate">Log In</span>
-            </button>
+          <div className="rounded-full bg-[#21262d] h-2 overflow-hidden">
+            <div className="h-full bg-[#3fb950] transition-all duration-300" style={{ width: `${progressPercentage}%` }} />
           </div>
-          <Avatar
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZ7TIKlVGpDEXB29COR5tJCLcIMOmhyaboLy69WfRQwPw_watuTV5XeUvDYTxhHbp8fzqLJxZDUS4cwwWWWYSgrhFIO_UAlqCtSEs766mr_SRn6u4NLQR7dnhRBYsq3_LFlq8xMTDMwlPs9jLeNLd_6p8ARGh3Evf7EVGqdsa3FzsSWeXUGa77evqMsOGzSKnpdpgx3fN8FrYs0s6ocMZocM1ZmH-GRCOGjEgAcYdxzkEiPwSpDBV6VP2inmcWIxgNjs299f1nRCU"
-            size="10"
-          />
         </div>
-      </header>
 
-      <div className="layout-container flex h-full grow flex-col">
-        <main className="px-4 lg:px-10 flex flex-1 justify-center py-10">
-          <div className="layout-content-container flex flex-col w-full max-w-5xl flex-1 gap-8">
-            {/* Page Heading */}
-            <div className="flex flex-wrap justify-between gap-3">
-              <div className="flex min-w-72 flex-col gap-2">
-                <p className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
-                  Mentor Registration
-                </p>
-                <p className="text-[#c9d1d9] text-base font-normal leading-normal">
-                  Share your expertise and help students succeed on campus.
-                </p>
-              </div>
-            </div>
+        {errorText && (
+          <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-md text-red-500 text-sm">
+            {errorText}
+          </div>
+        )}
 
-            {/* Progress Bar */}
-            <div className="flex flex-col gap-3">
-              <div className="flex w-full justify-between px-2 text-sm font-medium text-[#c9d1d9]">
-                <span
-                  className={currentStep >= 1 ? "text-white" : "text-[#8b949e]"}
-                >
-                  1. Personal Info
-                </span>
-                <span
-                  className={currentStep >= 2 ? "text-white" : "text-[#8b949e]"}
-                >
-                  2. Expertise
-                </span>
-                <span
-                  className={currentStep >= 3 ? "text-white" : "text-[#8b949e]"}
-                >
-                  3. Profile Details
-                </span>
-                <span
-                  className={currentStep >= 4 ? "text-white" : "text-[#8b949e]"}
-                >
-                  4. Review
-                </span>
-              </div>
-              <div className="rounded bg-[#161b22] h-2">
-                <div
-                  className="h-2 rounded bg-[#238636]"
-                  style={{ width: `${progressPercentage}%` }}
-                ></div>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Form Container */}
-              <div className="lg:col-span-2 flex flex-col gap-6">
-                <div className="flex flex-col gap-6 rounded-lg border border-[#30363d] bg-[#161b22] p-6">
-                  <h3 className="text-xl font-bold text-white">
-                    {currentStep === 1 && "Step 1: Personal Information"}
-                    {currentStep === 2 && "Step 2: Expertise"}
-                    {currentStep === 3 && "Step 3: Profile Details"}
-                    {currentStep === 4 && "Step 4: Review & Submit"}
-                  </h3>
-
-                  {/* Step 1: Personal Info */}
-                  {currentStep === 1 && (
-                    <div className="flex flex-col gap-4">
-                      <label className="flex flex-col gap-2">
-                        <p className="text-white text-sm font-medium">
-                          Full Name
-                        </p>
-                        <input
-                          type="text"
-                          name="fullName"
-                          value={formData.fullName}
-                          onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#238636]/50 border border-[#30363d] bg-[#0d1117] focus:border-[#238636] h-12 placeholder:text-[#c9d1d9]/50 px-3 text-base font-normal leading-normal"
-                          placeholder="Enter your full name"
-                        />
-                      </label>
-                      <label className="flex flex-col gap-2">
-                        <p className="text-white text-sm font-medium">Email</p>
-                        <input
-                          type="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#238636]/50 border border-[#30363d] bg-[#0d1117] focus:border-[#238636] h-12 placeholder:text-[#c9d1d9]/50 px-3 text-base font-normal leading-normal"
-                          placeholder="Enter your email"
-                        />
-                      </label>
-                      <label className="flex flex-col gap-2">
-                        <p className="text-white text-sm font-medium">
-                          Phone Number
-                        </p>
-                        <input
-                          type="tel"
-                          name="phone"
-                          value={formData.phone}
-                          onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#238636]/50 border border-[#30363d] bg-[#0d1117] focus:border-[#238636] h-12 placeholder:text-[#c9d1d9]/50 px-3 text-base font-normal leading-normal"
-                          placeholder="Enter your phone number"
-                        />
-                      </label>
-                    </div>
-                  )}
-
-                  {/* Step 2: Expertise */}
-                  {currentStep === 2 && (
-                    <div className="flex flex-col gap-4">
-                      <label className="flex flex-col gap-2">
-                        <p className="text-white text-sm font-medium">
-                          Areas of Expertise
-                        </p>
-                        <textarea
-                          name="expertise"
-                          value={formData.expertise}
-                          onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#238636]/50 border border-[#30363d] bg-[#0d1117] focus:border-[#238636] h-32 placeholder:text-[#c9d1d9]/50 px-3 py-3 text-base font-normal leading-normal"
-                          placeholder="List your areas of expertise (e.g., Python, Data Science, Web Development)"
-                        />
-                      </label>
-                      <p className="text-sm text-[#8b949e]">
-                        Separate multiple areas with commas
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Step 3: Profile Details */}
-                  {currentStep === 3 && (
-                    <div className="flex flex-col gap-4">
-                      <label className="flex flex-col gap-2">
-                        <p className="text-white text-sm font-medium">Bio</p>
-                        <textarea
-                          name="bio"
-                          value={formData.bio}
-                          onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#238636]/50 border border-[#30363d] bg-[#0d1117] focus:border-[#238636] h-32 placeholder:text-[#c9d1d9]/50 px-3 py-3 text-base font-normal leading-normal"
-                          placeholder="Write a brief bio about yourself..."
-                        />
-                      </label>
-                      <label className="flex flex-col gap-2">
-                        <p className="text-white text-sm font-medium">
-                          Availability
-                        </p>
-                        <select
-                          name="availability"
-                          value={formData.availability}
-                          onChange={handleInputChange}
-                          className="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-2 focus:ring-[#238636]/50 border border-[#30363d] bg-[#0d1117] focus:border-[#238636] h-12 placeholder:text-[#c9d1d9]/50 px-3 text-base font-normal leading-normal"
-                        >
-                          <option value="">Select your availability</option>
-                          <option value="weekdays">Weekdays</option>
-                          <option value="weekends">Weekends</option>
-                          <option value="flexible">Flexible</option>
-                        </select>
-                      </label>
-                    </div>
-                  )}
-
-                  {/* Step 4: Review */}
-                  {currentStep === 4 && (
-                    <div className="flex flex-col gap-6">
-                      <div className="border border-[#30363d] rounded-lg p-4">
-                        <h4 className="text-white font-bold mb-4">
-                          Review Your Information
-                        </h4>
-                        <div className="space-y-3 text-sm">
-                          <p>
-                            <span className="text-[#8b949e]">Full Name:</span>{" "}
-                            <span className="text-white">
-                              {formData.fullName || "Not provided"}
-                            </span>
-                          </p>
-                          <p>
-                            <span className="text-[#8b949e]">Email:</span>{" "}
-                            <span className="text-white">
-                              {formData.email || "Not provided"}
-                            </span>
-                          </p>
-                          <p>
-                            <span className="text-[#8b949e]">Phone:</span>{" "}
-                            <span className="text-white">
-                              {formData.phone || "Not provided"}
-                            </span>
-                          </p>
-                          <p>
-                            <span className="text-[#8b949e]">Expertise:</span>{" "}
-                            <span className="text-white">
-                              {formData.expertise || "Not provided"}
-                            </span>
-                          </p>
-                          <p>
-                            <span className="text-[#8b949e]">
-                              Availability:
-                            </span>{" "}
-                            <span className="text-white capitalize">
-                              {formData.availability || "Not provided"}
-                            </span>
-                          </p>
-                        </div>
-                      </div>
-                      <p className="text-[#8b949e] text-sm">
-                        By submitting this form, you agree to our mentorship
-                        terms and privacy policy.
-                      </p>
-                    </div>
-                  )}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Form Container */}
+          <div className="lg:col-span-2 flex flex-col gap-6">
+            <div className="flex flex-col gap-6 rounded-xl border border-[#30363d] bg-[#161b22] p-6 lg:p-8">
+              
+              {/* Step 1: Bio */}
+              {currentStep === 1 && (
+                <div className="flex flex-col gap-4 animate-fadeIn">
+                  <h3 className="text-xl font-bold text-white mb-2">Step 1: Introduction</h3>
+                  <label className="flex flex-col gap-2">
+                    <p className="text-[#e6edf3] text-sm font-medium">Professional Bio</p>
+                    <textarea
+                      name="bio"
+                      value={formData.bio}
+                      onChange={handleInputChange}
+                      className="form-input flex w-full min-w-0 resize-none rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-[#3fb950] border border-[#30363d] bg-[#0d1117] h-32 placeholder:text-[#8b949e] px-4 py-3 text-sm"
+                      placeholder="Write a brief bio about yourself, your background, and what you aim to achieve as a mentor..."
+                    />
+                  </label>
+                  <p className="text-xs text-[#8b949e]">Max 500 characters. Make a good first impression!</p>
                 </div>
+              )}
 
-                {/* Navigation Buttons */}
-                <div className="flex justify-between items-center mt-4">
-                  <button
-                    onClick={() => navigate("/")}
-                    className="text-sm font-bold leading-normal tracking-[0.015em] text-white hover:text-[#238636]"
-                  >
-                    Cancel
-                  </button>
-                  <div className="flex gap-4">
-                    <button
-                      onClick={handleBack}
-                      disabled={currentStep === 1}
-                      className={`flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#161b22] border border-[#30363d] text-white text-sm font-bold leading-normal tracking-[0.015em] ${
-                        currentStep === 1
-                          ? "opacity-50 cursor-not-allowed"
-                          : "hover:bg-[#21262d]"
-                      }`}
-                    >
-                      <span className="truncate">Back</span>
-                    </button>
-                    <button
-                      onClick={
-                        currentStep === 4
-                          ? () => navigate("/mentor-dashboard")
-                          : handleNext
-                      }
-                      className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-6 bg-[#238636] text-white text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#2ea043]"
-                    >
-                      <span className="truncate">
-                        {currentStep === 4 ? "Submit" : "Next"}
-                      </span>
-                    </button>
+              {/* Step 2: Expertise */}
+              {currentStep === 2 && (
+                <div className="flex flex-col gap-4 animate-fadeIn">
+                  <h3 className="text-xl font-bold text-white mb-2">Step 2: Areas of Expertise</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label className="flex flex-col gap-2 md:col-span-2">
+                      <p className="text-[#e6edf3] text-sm font-medium">Primary Category</p>
+                      <select
+                        name="category"
+                        value={formData.category}
+                        onChange={handleInputChange}
+                        className="form-input flex w-full rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-[#3fb950] border border-[#30363d] bg-[#0d1117] h-10 px-3 text-sm appearance-none"
+                      >
+                        <option value="academic">Academic</option>
+                        <option value="career">Career Guidance</option>
+                        <option value="technical">Technical / Coding</option>
+                        <option value="wellness">Wellness & Mental Health</option>
+                        <option value="entrepreneurship">Entrepreneurship</option>
+                        <option value="creative">Creative Arts</option>
+                        <option value="professional">Professional Development</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </label>
+                    
+                    <label className="flex flex-col gap-2 md:col-span-2 mt-2">
+                      <p className="text-[#e6edf3] text-sm font-medium">Specific Skills (Comma Separated)</p>
+                      <input
+                        type="text"
+                        name="expertiseStr"
+                        value={formData.expertiseStr}
+                        onChange={handleInputChange}
+                        className="form-input flex w-full rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-[#3fb950] border border-[#30363d] bg-[#0d1117] h-10 px-4 text-sm placeholder:text-[#8b949e]"
+                        placeholder="e.g. React, Node.js, Resume Review, Interview Prep"
+                      />
+                    </label>
                   </div>
                 </div>
-              </div>
+              )}
 
-              {/* Info Box */}
-              <aside className="lg:col-span-1">
-                <div className="flex flex-1 flex-col items-start justify-between gap-4 rounded-lg border border-[#30363d] bg-[#161b22] p-5">
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-white">
-                      info
-                    </span>
-                    <p className="text-white text-base font-bold leading-tight">
-                      Application Review
-                    </p>
+              {/* Step 3: Review & Pricing */}
+              {currentStep === 3 && (
+                <div className="flex flex-col gap-6 animate-fadeIn">
+                  <h3 className="text-xl font-bold text-white mb-2">Step 3: Details & Confirmation</h3>
+                  
+                  <div className="grid grid-cols-2 gap-4 auto-cols-auto mb-2">
+                    <label className="flex flex-col gap-2">
+                      <p className="text-[#e6edf3] text-sm font-medium">Hourly Rate</p>
+                      <input
+                        type="number"
+                        min="0"
+                        name="hourlyRate"
+                        value={formData.hourlyRate}
+                        onChange={handleInputChange}
+                        className="form-input flex w-full rounded-lg text-white focus:outline-none focus:ring-1 focus:ring-[#3fb950] border border-[#30363d] bg-[#0d1117] h-10 px-4 text-sm"
+                      />
+                    </label>
+                    <label className="flex flex-col gap-2">
+                      <p className="text-[#e6edf3] text-sm font-medium">Currency</p>
+                      <input
+                        type="text"
+                        name="currency"
+                        disabled
+                        value={formData.currency}
+                        className="form-input flex w-full rounded-lg text-[#8b949e] border border-[#30363d] bg-[#0d1117]/50 h-10 px-4 text-sm cursor-not-allowed"
+                      />
+                    </label>
                   </div>
-                  <p className="text-[#c9d1d9] text-sm font-normal leading-normal">
-                    All mentor applications are reviewed by campus admins before
-                    approval.
+
+                  <div className="border border-[#30363d] rounded-lg p-5 bg-[#0d1117]/50">
+                    <h4 className="text-white font-semibold mb-3">Application Summary</h4>
+                    <div className="space-y-2 text-sm">
+                      <p><span className="text-[#8b949e]">Name:</span> <span className="text-white ml-2">{user?.profile?.firstName} {user?.profile?.lastName}</span></p>
+                      <p><span className="text-[#8b949e]">Category:</span> <span className="text-white ml-2 capitalize">{formData.category}</span></p>
+                      <p><span className="text-[#8b949e]">Skills:</span> <span className="text-white ml-2">{formData.expertiseStr}</span></p>
+                      <p><span className="text-[#8b949e]">Rate:</span> <span className="text-white ml-2">{formData.hourlyRate == 0 ? 'Free' : `${formData.currency} ${formData.hourlyRate}/hr`}</span></p>
+                    </div>
+                  </div>
+                  <p className="text-[#8b949e] text-xs">
+                    By submitting, your profile will be sent to campus administrators for verification. You will be notified once approved.
                   </p>
                 </div>
-              </aside>
+              )}
+            </div>
+
+            {/* Navigation Buttons */}
+            <div className="flex justify-between items-center mt-2">
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="text-sm font-medium text-[#8b949e] hover:text-[#e6edf3] transition-colors"
+              >
+                Cancel
+              </button>
+              <div className="flex gap-3">
+                <button
+                  onClick={handleBack}
+                  disabled={currentStep === 1 || loading}
+                  className="px-5 py-2 h-10 rounded-lg bg-[#21262d] text-white text-sm font-semibold hover:bg-[#30363d] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Back
+                </button>
+                <button
+                  onClick={currentStep === 3 ? handleSubmit : handleNext}
+                  disabled={loading}
+                  className="px-6 py-2 h-10 rounded-lg bg-[#238636] text-white text-sm font-semibold hover:bg-[#2ea043] transition-colors disabled:opacity-50 flex items-center justify-center min-w-[100px]"
+                >
+                  {loading ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : currentStep === 3 ? (
+                    "Submit Application"
+                  ) : (
+                    "Next Step"
+                  )}
+                </button>
+              </div>
             </div>
           </div>
-        </main>
+
+          {/* Info Aside */}
+          <aside className="lg:col-span-1">
+            <div className="flex flex-col gap-4 rounded-xl border border-[#30363d] bg-[#161b22] p-6 sticky top-6">
+              <div className="w-10 h-10 rounded-lg bg-[#e3b341]/10 flex items-center justify-center mb-2">
+                <span className="material-symbols-outlined text-[#e3b341]">verified</span>
+              </div>
+              <h4 className="text-white text-base font-bold">Verification Process</h4>
+              <p className="text-[#8b949e] text-sm leading-relaxed">
+                To maintain the quality of our mentorship program, all applications are manually reviewed by campus administrators.
+              </p>
+              <ul className="text-[#8b949e] text-sm mt-2 space-y-3">
+                <li className="flex gap-2">
+                  <span className="material-symbols-outlined text-[18px] text-[#3fb950] shrink-0">check_circle</span>
+                  Ensure your bio is professional and detailed.
+                </li>
+                <li className="flex gap-2">
+                  <span className="material-symbols-outlined text-[18px] text-[#3fb950] shrink-0">check_circle</span>
+                  List actionable skills that you can teach others.
+                </li>
+                <li className="flex gap-2">
+                  <span className="material-symbols-outlined text-[18px] text-[#3fb950] shrink-0">check_circle</span>
+                  Applications are typically reviewed within 48 hours.
+                </li>
+              </ul>
+            </div>
+          </aside>
+        </div>
       </div>
     </div>
   );

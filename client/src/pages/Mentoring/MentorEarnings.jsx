@@ -1,241 +1,184 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { selectEarningsData, selectWithdrawalHistory, selectSessionEarnings, setEarningsData, setWithdrawalHistory, setSessionEarnings } from "../../redux/slices/mentoringSlice";
-import MentorTopBar from "../../components/mentoring/MentorTopBar";
+import { 
+  fetchMyMentorProfile, 
+  selectMyMentorProfile, 
+  fetchMyBookings, 
+  selectMyBookings, 
+  selectMentoringLoading 
+} from "../../redux/slices/mentoringSlice";
+import { selectUser } from "../../redux/slices/authSlice";
 
 export default function MentorEarnings() {
-  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const earningsData = useSelector(selectEarningsData);
-  const withdrawalHistory = useSelector(selectWithdrawalHistory);
-  const sessionEarnings = useSelector(selectSessionEarnings);
+  const mentorProfile = useSelector(selectMyMentorProfile);
+  const bookings = useSelector(selectMyBookings) || [];
+  const loading = useSelector(selectMentoringLoading);
+  const currentUser = useSelector(selectUser);
   
   const [activeTab, setActiveTab] = useState("overview");
 
   useEffect(() => {
-    if (earningsData.totalEarnings === 0) {
-      dispatch(setEarningsData({
-        totalEarnings: 2450.5,
-        sessionCompleted: 15,
-        averageRating: 4.8,
-        pendingWithdrawal: 450.5,
-        lastWithdrawal: "2024-01-15",
-      }));
-    }
-  }, [dispatch, earningsData.totalEarnings]);
+    dispatch(fetchMyMentorProfile());
+    // Fetch specifically the past completed sessions where user is mentor
+    dispatch(fetchMyBookings({ sort: '-scheduledAt', status: 'completed,cancelled', limit: 50 }));
+  }, [dispatch]);
 
-  useEffect(() => {
-    if (withdrawalHistory.length === 0) {
-      dispatch(setWithdrawalHistory([
-        {
-          id: 1,
-          amount: 500,
-          date: "2024-01-15",
-          status: "Completed",
-          method: "Bank Transfer",
-        },
-        {
-          id: 2,
-          amount: 750,
-          date: "2024-01-08",
-          status: "Completed",
-          method: "Bank Transfer",
-        },
-        {
-          id: 3,
-          amount: 300,
-          date: "2024-01-01",
-          status: "Completed",
-          method: "PayPal",
-        },
-      ]));
-    }
-  }, [dispatch, withdrawalHistory.length]);
+  // Derive metrics
+  const totalEarnings = mentorProfile?.totalEarnings || 0;
+  const sessionCompleted = mentorProfile?.totalSessions || 0;
+  const averageRating = mentorProfile?.averageRating || 0;
+  const pendingWithdrawal = mentorProfile?.pendingPayout || 0;
+  const currency = mentorProfile?.currency || 'PKR';
 
-  useEffect(() => {
-    if (sessionEarnings.length === 0) {
-      dispatch(setSessionEarnings([
-        {
-          id: 1,
-          mentee: "John Doe",
-          date: "2024-02-10",
-          duration: "1h",
-          amount: 150,
-          status: "Paid",
-        },
-        {
-          id: 2,
-          mentee: "Jane Smith",
-          date: "2024-02-09",
-          duration: "1.5h",
-          amount: 225,
-          status: "Paid",
-        },
-        {
-          id: 3,
-          mentee: "Alex Johnson",
-          date: "2024-02-08",
-          duration: "1h",
-          amount: 150,
-          status: "Pending",
-        },
-      ]));
-    }
-  }, [dispatch, sessionEarnings.length]);
+  // We consider a session an "earning" if its status is completed and the user is the mentor
+  const sessionEarnings = bookings.filter(b => 
+    b.status === 'completed' && b.mentorId?.userId?._id === currentUser?._id
+  );
+
+  // Fallback history since we don't have a payout table right now
+  const withdrawalHistory = [];
+
+  if (loading && !mentorProfile) {
+    return (
+      <div className="flex h-full w-full items-center justify-center p-10">
+        <div className="w-8 h-8 border-4 border-[#3fb950] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] group/design-root overflow-x-hidden bg-[#112118]">
-      <div className="layout-container flex h-full grow flex-col">
-        {/* TopNavBar */}
-        <MentorTopBar backPath="/mentor/dashboard" />
+    <div className="flex flex-col w-full h-full p-4 lg:p-10 overflow-y-auto">
+      <div className="flex w-full max-w-6xl mx-auto flex-col gap-6">
+        
+        {/* Page Heading */}
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold text-[#c9d1d9] tracking-tight">
+            Earnings & Withdrawals
+          </h1>
+          <p className="text-[#8b949e]">Track your earnings from mentoring sessions and manage payouts.</p>
+        </div>
 
-        {/* Main Content */}
-        <main className="px-4 sm:px-6 lg:px-8 xl:px-10 flex flex-1 justify-center py-8">
-          <div className="layout-content-container flex flex-col w-full max-w-6xl flex-1">
-            {/* Page Heading */}
-            <div className="mb-8">
-              <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em] mb-2">
-                Earnings & Withdrawals
-              </h1>
-              <p className="text-[#9eb7a9] text-base font-normal leading-normal">
-                Track your earnings from mentoring sessions and manage
-                withdrawals
-              </p>
-            </div>
-
-            {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <div className="flex flex-col gap-3 p-5 bg-[#161b22] border border-[#30363d] rounded-xl">
-                <p className="text-[#9eb7a9] text-sm font-normal">
-                  Total Earnings
-                </p>
-                <p className="text-white text-3xl font-bold">
-                  ${earningsData.totalEarnings.toFixed(2)}
-                </p>
-              </div>
-              <div className="flex flex-col gap-3 p-5 bg-[#161b22] border border-[#30363d] rounded-xl">
-                <p className="text-[#9eb7a9] text-sm font-normal">
-                  Sessions Completed
-                </p>
-                <p className="text-white text-3xl font-bold">
-                  {earningsData.sessionCompleted}
-                </p>
-              </div>
-              <div className="flex flex-col gap-3 p-5 bg-[#161b22] border border-[#30363d] rounded-xl">
-                <p className="text-[#9eb7a9] text-sm font-normal">
-                  Avg. Rating
-                </p>
-                <p className="text-white text-3xl font-bold">
-                  {earningsData.averageRating}⭐
-                </p>
-              </div>
-              <div className="flex flex-col gap-3 p-5 bg-[#161b22] border border-[#30363d] rounded-xl">
-                <p className="text-[#9eb7a9] text-sm font-normal">
-                  Pending Withdrawal
-                </p>
-                <p className="text-white text-3xl font-bold">
-                  ${earningsData.pendingWithdrawal.toFixed(2)}
-                </p>
-              </div>
-            </div>
-
-            {/* Withdrawal Button */}
-            <div className="mb-8">
-              <button className="flex items-center justify-center gap-2 px-6 py-3 bg-[#1dc964] text-[#112118] font-bold rounded-lg hover:opacity-90 transition-opacity">
-                <span className="material-symbols-outlined">
-                  account_balance_wallet
-                </span>
-                Withdraw Earnings
-              </button>
-            </div>
-
-            {/* Tabs */}
-            <div className="flex gap-4 mb-6 border-b border-[#30363d]">
-              <button
-                onClick={() => setActiveTab("overview")}
-                className={`px-4 py-3 font-medium transition-colors ${
-                  activeTab === "overview"
-                    ? "text-[#1dc964] border-b-2 border-[#1dc964]"
-                    : "text-[#9eb7a9] hover:text-white"
-                }`}
-              >
-                Session Earnings
-              </button>
-              <button
-                onClick={() => setActiveTab("history")}
-                className={`px-4 py-3 font-medium transition-colors ${
-                  activeTab === "history"
-                    ? "text-[#1dc964] border-b-2 border-[#1dc964]"
-                    : "text-[#9eb7a9] hover:text-white"
-                }`}
-              >
-                Withdrawal History
-              </button>
-            </div>
-
-            {/* Tab Content */}
-            {activeTab === "overview" && (
-              <div className="flex flex-col gap-4">
-                {sessionEarnings.map((earning) => (
-                  <div
-                    key={earning.id}
-                    className="flex items-center justify-between p-4 bg-[#161b22] border border-[#30363d] rounded-xl hover:border-[#1dc964] transition-colors"
-                  >
-                    <div className="flex flex-col gap-1">
-                      <p className="text-white font-semibold">
-                        {earning.mentee}
-                      </p>
-                      <p className="text-[#9eb7a9] text-sm">
-                        {earning.date} • {earning.duration}
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-right">
-                        <p className="text-white font-bold">
-                          ${earning.amount.toFixed(2)}
-                        </p>
-                        <p
-                          className={`text-sm ${earning.status === "Paid" ? "text-[#1dc964]" : "text-[#9eb7a9]"}`}
-                        >
-                          {earning.status}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeTab === "history" && (
-              <div className="flex flex-col gap-4">
-                {withdrawalHistory.map((withdrawal) => (
-                  <div
-                    key={withdrawal.id}
-                    className="flex items-center justify-between p-4 bg-[#161b22] border border-[#30363d] rounded-xl"
-                  >
-                    <div className="flex items-center gap-4">
-                      <span className="material-symbols-outlined text-[#1dc964]">
-                        check_circle
-                      </span>
-                      <div className="flex flex-col gap-1">
-                        <p className="text-white font-semibold">
-                          {withdrawal.method}
-                        </p>
-                        <p className="text-[#9eb7a9] text-sm">
-                          {withdrawal.date}
-                        </p>
-                      </div>
-                    </div>
-                    <p className="text-white font-bold">
-                      ${withdrawal.amount.toFixed(2)}
-                    </p>
-                  </div>
-                ))}
-              </div>
-            )}
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-2">
+          <div className="flex flex-col gap-3 p-5 bg-[#161b22] border border-[#30363d] rounded-2xl">
+            <p className="text-[#8b949e] text-sm font-semibold uppercase tracking-wider">Total Earnings</p>
+            <p className="text-white text-3xl font-bold break-words">{currency} {totalEarnings.toFixed(2)}</p>
           </div>
-        </main>
+          <div className="flex flex-col gap-3 p-5 bg-[#161b22] border border-[#30363d] rounded-2xl">
+            <p className="text-[#8b949e] text-sm font-semibold uppercase tracking-wider">Sessions Completed</p>
+            <p className="text-white text-3xl font-bold">{sessionCompleted}</p>
+          </div>
+          <div className="flex flex-col gap-3 p-5 bg-[#161b22] border border-[#30363d] rounded-2xl">
+            <p className="text-[#8b949e] text-sm font-semibold uppercase tracking-wider">Avg. Rating</p>
+            <p className="text-white text-3xl font-bold flex items-center gap-1">
+              {averageRating.toFixed(1)} <span className="material-symbols-outlined text-[#e3b341] text-[24px]">star</span>
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 p-5 bg-[#3fb950]/10 border border-[#3fb950]/30 rounded-2xl">
+            <p className="text-[#3fb950] text-sm font-semibold uppercase tracking-wider">Pending Payout</p>
+            <p className="text-[#3fb950] text-3xl font-bold break-words">{currency} {pendingWithdrawal.toFixed(2)}</p>
+          </div>
+        </div>
+
+        {/* Withdrawal Action */}
+        <div className="mt-2">
+          <button 
+            disabled={pendingWithdrawal <= 0}
+            className="flex items-center justify-center gap-2 px-6 py-3 bg-[#238636] text-white font-bold rounded-xl hover:bg-[#2ea043] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span className="material-symbols-outlined font-normal">account_balance_wallet</span>
+            Request Withdrawal
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex border-b border-[#30363d] gap-8 mt-6">
+          <button
+            onClick={() => setActiveTab("overview")}
+            className={`flex flex-col items-center justify-center border-b-2 py-3 transition-colors ${
+              activeTab === "overview"
+                ? "border-b-[#3fb950] text-white"
+                : "border-b-transparent text-[#8b949e] hover:text-[#c9d1d9]"
+            }`}
+          >
+            <span className="text-sm font-semibold tracking-wide">Session Earnings</span>
+          </button>
+          <button
+            onClick={() => setActiveTab("history")}
+            className={`flex flex-col items-center justify-center border-b-2 py-3 transition-colors ${
+              activeTab === "history"
+                ? "border-b-[#3fb950] text-white"
+                : "border-b-transparent text-[#8b949e] hover:text-[#c9d1d9]"
+            }`}
+          >
+            <span className="text-sm font-semibold tracking-wide">Payout History</span>
+          </button>
+        </div>
+
+        {/* Tab Content */}
+        <div className="flex flex-col gap-4 mt-2">
+          {activeTab === "overview" && (
+            sessionEarnings.length > 0 ? (
+              sessionEarnings.map((session) => {
+                const mentee = session.studentId;
+                const menteeName = mentee?.profile?.displayName || `${mentee?.profile?.firstName} ${mentee?.profile?.lastName}`;
+                const date = new Date(session.scheduledAt);
+                // In future, you might have session duration, for now assume 1h multiplier or base rate
+                const amount = mentorProfile?.hourlyRate || 0;
+
+                return (
+                  <div
+                    key={session._id}
+                    className="flex flex-col md:flex-row items-center justify-between p-5 bg-[#161b22] border border-[#30363d] rounded-xl hover:border-[#8b949e] transition-colors"
+                  >
+                    <div className="flex flex-col gap-1 w-full md:w-auto text-center md:text-left">
+                      <p className="text-white font-bold text-lg">{menteeName}</p>
+                      <p className="text-[#8b949e] text-sm">
+                        {date.toLocaleDateString()} • 1 Hour Session
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4 mt-4 md:mt-0">
+                      <div className="text-center md:text-right">
+                        <p className="text-white font-bold text-xl">{currency} {amount.toFixed(2)}</p>
+                        <p className="text-[#3fb950] text-sm font-bold uppercase tracking-wider">{session.status}</p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-center py-10 bg-[#161b22] border border-[#30363d] rounded-2xl">
+                <p className="text-[#8b949e] font-medium">No completed sessions yet to show earnings.</p>
+              </div>
+            )
+          )}
+
+          {activeTab === "history" && (
+            withdrawalHistory.length > 0 ? (
+              withdrawalHistory.map((withdrawal) => (
+                <div
+                  key={withdrawal.id}
+                  className="flex items-center justify-between p-5 bg-[#161b22] border border-[#30363d] rounded-xl"
+                >
+                  <div className="flex items-center gap-4">
+                    <span className="material-symbols-outlined text-[#3fb950] text-3xl">check_circle</span>
+                    <div className="flex flex-col gap-1">
+                      <p className="text-white font-bold">{withdrawal.method}</p>
+                      <p className="text-[#8b949e] text-sm">{withdrawal.date}</p>
+                    </div>
+                  </div>
+                  <p className="text-white font-bold text-xl">{currency} {withdrawal.amount.toFixed(2)}</p>
+                </div>
+              ))
+            ) : (
+              <div className="text-center py-10 bg-[#161b22] border border-[#30363d] rounded-2xl">
+                <p className="text-[#8b949e] font-medium">No past withdrawals.</p>
+              </div>
+            )
+          )}
+        </div>
+
       </div>
     </div>
   );

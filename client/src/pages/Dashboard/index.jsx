@@ -93,8 +93,8 @@ function MentorWidgets() {
         <EmptyState icon="calendar_month" message="No pending session requests." cta="Set Availability" onClick={() => navigate('/mentor/availability')} />
       </SectionCard>
 
-      <SectionCard title="My Active Mentees">
-        <EmptyState icon="group" message="No active mentees yet." cta="View Mentees" onClick={() => navigate('/mentor/mentees')} />
+      <SectionCard title="My Mentoring Sessions">
+        <EmptyState icon="group" message="No sessions yet." cta="View Sessions" onClick={() => navigate('/mentor/sessions')} />
       </SectionCard>
     </>
   );

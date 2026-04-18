@@ -12,7 +12,7 @@
  *   <ProtectedRoute requiredRole="mentor">  → must have "mentor" in user.roles[]
  */
 
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useParams } from "react-router-dom";
 
 // Layout components
 import Layout          from "../components/Layout";        // PublicLayout (Header+Footer)
@@ -148,6 +148,16 @@ import ServiceUnavailable from "../pages/ErrorPages/ServiceUnavailable";
 
 // ─────────────────────────────────────────────────────────────────────────────
 
+// Helper component for legacy redirects requiring params
+const RouteRedirect = ({ to }) => {
+  const params = useParams();
+  let resolvedTo = to;
+  Object.keys(params).forEach(key => {
+    resolvedTo = resolvedTo.replace(`:${key}`, params[key]);
+  });
+  return <Navigate to={resolvedTo} replace />;
+};
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -200,8 +210,8 @@ export default function AppRoutes() {
         
         {/* Mentors */}
         <Route path="/mentors"   element={<Mentors />} />
-        <Route path="/mentors/:mentorId" element={<MentorProfile />} />
-        <Route path="/mentor-profile/:id" element={<MentorProfile />} />
+        <Route path="/mentors/:mentorId" element={<MentorProfileView />} />
+        <Route path="/mentor-profile/:id" element={<RouteRedirect to="/mentors/:id" />} />
         
         {/* Members */}
         <Route path="/members"   element={<Members />} />
@@ -292,7 +302,7 @@ export default function AppRoutes() {
           <Route path="/mentor-notifications"  element={<Navigate to="/notifications" replace />} />
 
           {/* ── Mentoring (any auth user can browse/apply) ── */}
-          <Route path="/mentorship-hub"        element={<MentorshipHub />} />
+          <Route path="/mentorship-hub"        element={<Navigate to="/mentors" replace />} />
           <Route path="/mentor/register"       element={<MentorRegistration />} />
           <Route path="/mentor-registration"   element={<Navigate to="/mentor/register" replace />} />
           <Route path="/mentor-apply"          element={<Navigate to="/mentor/register" replace />} />
@@ -303,15 +313,16 @@ export default function AppRoutes() {
           <Route path="/request-accepted"      element={<RequestAcceptedConfirmation />} />
           <Route path="/verification-pending"  element={<VerificationPending />} />
           <Route path="/application-rejected"  element={<ApplicationRejected />} />
-          <Route path="/my-sessions"           element={<MentorSessions />} />
+          <Route path="/my-sessions"           element={<MentorSessionsManagement />} />
           <Route path="/student/sessions"      element={<Navigate to="/my-sessions" replace />} />
           <Route path="/student/book-mentor"   element={<Navigate to="/mentors" replace />} />
 
           {/* ── Mentor-role routes (component guards via RoleGuard internally) ── */}
           <Route path="/mentor/sessions"      element={<MentorSessionsManagement />} />
-          <Route path="/mentor/mentees"       element={<MentorMentees />} />
+          <Route path="/mentor/mentees"       element={<Navigate to="/mentor/sessions" replace />} />
           <Route path="/mentor/earnings"      element={<MentorEarnings />} />
           <Route path="/mentor/profile"       element={<MentorDisplayProfile />} />
+          <Route path="/mentor/availability"  element={<MentorProfile />} />
           {/* Legacy mentor routes */}
           <Route path="/mentor-sessions"      element={<Navigate to="/mentor/sessions" replace />} />
           <Route path="/mentor-mentees"       element={<Navigate to="/mentor/mentees" replace />} />
