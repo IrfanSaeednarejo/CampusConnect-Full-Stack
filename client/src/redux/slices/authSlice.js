@@ -9,7 +9,7 @@ export const loginUser = createAsyncThunk(
       const { data } = await authApi.login(credentials);
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Login failed');
+      return rejectWithValue(err.message || 'Login failed');
     }
   }
 );
@@ -21,7 +21,7 @@ export const registerUser = createAsyncThunk(
       const { data } = await authApi.register(userData);
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Registration failed');
+      return rejectWithValue(err.message || 'Registration failed');
     }
   }
 );
@@ -33,7 +33,7 @@ export const checkAuth = createAsyncThunk(
       const { data } = await authApi.checkAuth();
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Not authenticated');
+      return rejectWithValue(err.message || 'Not authenticated');
     }
   }
 );
@@ -44,7 +44,7 @@ export const logoutUser = createAsyncThunk(
     try {
       await authApi.logout();
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Logout failed');
+      return rejectWithValue(err.message || 'Logout failed');
     }
   }
 );
@@ -56,7 +56,7 @@ export const completeOnboardingThunk = createAsyncThunk(
       const { data } = await userApi.updateOnboarding(onboardingData);
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to update onboarding');
+      return rejectWithValue(err.message || 'Failed to update onboarding');
     }
   }
 );
@@ -69,7 +69,7 @@ export const updateAccountThunk = createAsyncThunk(
       const { data } = await userApi.updateAccount(updateData);
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Update failed');
+      return rejectWithValue(err.message || 'Update failed');
     }
   }
 );
@@ -81,7 +81,7 @@ export const updateAcademicThunk = createAsyncThunk(
       const { data } = await userApi.updateAcademic(updateData);
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Update failed');
+      return rejectWithValue(err.message || 'Update failed');
     }
   }
 );
@@ -93,7 +93,7 @@ export const updatePreferencesThunk = createAsyncThunk(
       const { data } = await userApi.updatePreferences(updateData);
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Update failed');
+      return rejectWithValue(err.message || 'Update failed');
     }
   }
 );
@@ -105,7 +105,7 @@ export const updateSocialLinksThunk = createAsyncThunk(
       const { data } = await userApi.updateSocialLinks(links);
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Update failed');
+      return rejectWithValue(err.message || 'Update failed');
     }
   }
 );
@@ -117,7 +117,7 @@ export const updateInterestsThunk = createAsyncThunk(
       const { data } = await userApi.updateInterests(interests);
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Update failed');
+      return rejectWithValue(err.message || 'Update failed');
     }
   }
 );
@@ -129,7 +129,7 @@ export const updateAvatarThunk = createAsyncThunk(
       const { data } = await userApi.updateAvatar(file);
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Update failed');
+      return rejectWithValue(err.message || 'Update failed');
     }
   }
 );
@@ -141,7 +141,7 @@ export const updateCoverThunk = createAsyncThunk(
       const { data } = await userApi.updateCoverImage(file);
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Update failed');
+      return rejectWithValue(err.message || 'Update failed');
     }
   }
 );
@@ -153,7 +153,7 @@ export const sendVerificationEmailThunk = createAsyncThunk(
       const { data } = await userApi.sendVerificationEmail();
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to send email');
+      return rejectWithValue(err.message || 'Failed to send email');
     }
   }
 );
@@ -166,7 +166,7 @@ export const changePasswordThunk = createAsyncThunk(
       dispatch(logout()); // backend clears cookies
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to change password');
+      return rejectWithValue(err.message || 'Failed to change password');
     }
   }
 );
@@ -179,7 +179,7 @@ export const deleteAccountThunk = createAsyncThunk(
       dispatch(logout()); // backend clears cookies
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to delete account');
+      return rejectWithValue(err.message || 'Failed to delete account');
     }
   }
 );
