@@ -616,6 +616,9 @@ export const updateOnboarding = async (userId, onboardingData) => {
         updates["roles"] = [roleSelected];
     }
     if (campusId !== undefined) updates["campusId"] = campusId;
+    if (onboardingData.requestedCampusName !== undefined) {
+        updates["onboarding.requestedCampusName"] = onboardingData.requestedCampusName;
+    }
 
     const updated = await User.findByIdAndUpdate(
         userId,

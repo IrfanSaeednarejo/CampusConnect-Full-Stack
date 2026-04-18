@@ -12,12 +12,23 @@ export default function OnboardingWizardWelcome() {
   const [selectedCampus, setSelectedCampus] = useState("");
 
   const handleStart = async () => {
-    if (!selectedCampus) return;
+    if (!selectedCampus || selectedCampus === "REQUEST_NEW") return;
+
+    // Detect if the value is a MongoDB ObjectId (exists in DB) or a custom name (request)
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(selectedCampus);
+
     try {
-      await completeOnboarding({ 
-        completedSteps: ['welcome'],
-        campusId: selectedCampus
-      });
+      const payload = { 
+        completedSteps: ['welcome']
+      };
+
+      if (isObjectId) {
+        payload.campusId = selectedCampus;
+      } else {
+        payload.requestedCampusName = selectedCampus;
+      }
+
+      await completeOnboarding(payload);
       // Navigate to the next onboarding step (Profile Setup)
       navigate("/onboarding/profile-setup");
     } catch (err) {
