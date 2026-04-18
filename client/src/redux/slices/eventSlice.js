@@ -166,7 +166,7 @@ const eventSlice = createSlice({
         if (Array.isArray(payload)) {
           state.events = payload;
         } else {
-          state.events = payload?.items ?? payload?.events ?? payload ?? [];
+          state.events = payload?.docs ?? payload?.items ?? payload?.events ?? [];
           state.pagination = payload?.pagination ?? state.pagination;
         }
       })

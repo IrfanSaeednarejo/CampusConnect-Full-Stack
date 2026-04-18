@@ -211,11 +211,11 @@ const societySlice = createSlice({
       .addCase(fetchSocieties.pending, pending)
       .addCase(fetchSocieties.fulfilled, (state, action) => {
         state.loading = false;
-        // Backend may return array or { societies, pagination }
+        // Paginated results come as { docs, pagination }
         if (Array.isArray(action.payload)) {
           state.societies = action.payload;
         } else {
-          state.societies = action.payload?.societies ?? action.payload ?? [];
+          state.societies = action.payload?.docs ?? action.payload?.societies ?? [];
           state.pagination = action.payload?.pagination ?? state.pagination;
         }
       })

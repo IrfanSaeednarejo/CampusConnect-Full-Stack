@@ -14,7 +14,6 @@ const Header = () => {
     { label: "Societies", path: "/societies" },
     { label: "About Us", path: "/about-us" },
     { label: "Contact Us", path: "/contact-us" },
-    { label: "Dashboard", path: "/student/dashboard" },
   ];
 
   const authButtons = [

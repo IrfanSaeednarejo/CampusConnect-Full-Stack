@@ -193,6 +193,7 @@ const initialState = {
   loading: true,
   error: null,
   onboardingCompleted: false,
+  authModalOpen: false,
 };
 
 const updateUserState = (state, action) => {
@@ -234,6 +235,12 @@ const authSlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    openAuthModal: (state) => {
+      state.authModalOpen = true;
+    },
+    closeAuthModal: (state) => {
+      state.authModalOpen = false;
     },
   },
   extraReducers: (builder) => {
@@ -325,10 +332,13 @@ export const {
   logout,
   setRole,
   clearError,
+  openAuthModal,
+  closeAuthModal,
 } = authSlice.actions;
 
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
 export const selectUser = (state) => state.auth.user;
+export const selectAuthModalOpen = (state) => state.auth.authModalOpen;
 export const selectRole = (state) => state.auth.role;            // primary role (roles[0])
 export const selectUserRoles = (state) => state.auth.roles ?? []; // full roles array
 export const selectHasRole = (role) => (state) => (state.auth.roles ?? []).includes(role);

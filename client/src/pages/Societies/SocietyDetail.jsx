@@ -19,6 +19,7 @@ import Button from "../../components/common/Button";
 import Card from "../../components/common/Card";
 import EmptyState from "../../components/common/EmptyState";
 import { useNotification } from "../../contexts/NotificationContext.jsx";
+import { useAuth } from "../../hooks/useAuth";
 
 const TABS = ["overview", "members", "events"];
 
@@ -27,6 +28,7 @@ export default function SocietyDetail() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showSuccess, showError } = useNotification();
+  const { isAuthenticated, openAuth } = useAuth();
 
   const society        = useSelector(selectCurrentSociety);
   const members        = useSelector(selectSocietyMembers);
@@ -55,6 +57,10 @@ export default function SocietyDetail() {
     society?.adminId === user?._id;
 
   const handleJoinLeave = async () => {
+    if (!isAuthenticated) {
+      openAuth();
+      return;
+    }
     setActionBusy(true);
     try {
       if (isMember) {

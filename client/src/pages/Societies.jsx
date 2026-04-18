@@ -9,7 +9,8 @@ import CTACard from "../components/common/CTACard";
 export default function Societies() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const societies = useSelector(selectAllSocieties);
+  const societiesData = useSelector(selectAllSocieties);
+  const societies = Array.isArray(societiesData) ? societiesData : [];
 
   useEffect(() => {
     dispatch(fetchSocieties());

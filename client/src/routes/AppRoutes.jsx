@@ -19,6 +19,7 @@ import Layout          from "../components/Layout";        // PublicLayout (Head
 import AppShell        from "../components/layout/AppShell"; // Authenticated shell
 import ProtectedRoute  from "./ProtectedRoute";
 import PublicRoute     from "./PublicRoute";
+import ModularLayout from "../components/ModularLayout";
 
 // ── Auth Pages (no layout) ───────────────────────────────────────────────────
 import Login          from "../pages/Auth/Login";
@@ -173,18 +174,38 @@ export default function AppRoutes() {
       </Route>
 
       {/* ══════════════════════════════════════════════════
-          PUBLIC — PublicLayout (Header + Footer)
+          PUBLIC LANDING — Layout (Header + Footer)
       ══════════════════════════════════════════════════ */}
       <Route element={<Layout />}>
         <Route path="/"          element={<Home />} />
-        <Route path="/events"    element={<Events />} />
-        <Route path="/mentors"   element={<Mentors />} />
-        <Route path="/members"   element={<Members />} />
-        <Route path="/societies" element={<Societies />} />
         <Route path="/about-us"  element={<AboutUs />} />
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/privacy"   element={<LegalPrivacy />} />
         <Route path="/terms"     element={<TermsOfService />} />
+      </Route>
+
+      {/* ══════════════════════════════════════════════════
+          HYBRID MODULES — ModularLayout (AppShell or PublicLayout)
+          These routes work for both guests and logged-in users.
+      ══════════════════════════════════════════════════ */}
+      <Route element={<ModularLayout />}>
+        {/* Events */}
+        <Route path="/events" element={<Events />} />
+        <Route path="/events/:id/*" element={<EventDetailLayout />} />
+        
+        {/* Societies */}
+        <Route path="/societies" element={<Societies />} />
+        <Route path="/societies/browse" element={<SocietiesList />} />
+        <Route path="/societies/:id" element={<SocietyDetail />} />
+        
+        {/* Mentors */}
+        <Route path="/mentors"   element={<Mentors />} />
+        <Route path="/mentors/:mentorId" element={<MentorProfile />} />
+        <Route path="/mentor-profile/:id" element={<MentorProfile />} />
+        
+        {/* Members */}
+        <Route path="/members"   element={<Members />} />
+        <Route path="/users/:id" element={<PublicUserProfile />} />
       </Route>
 
       {/* ══════════════════════════════════════════════════
@@ -213,11 +234,9 @@ export default function AppRoutes() {
           <Route path="/profile/delete-account"        element={<DeleteAccount />} />
           
           {/* ── Other Users ──────────────────────────── */}
-          <Route path="/users/:id"                     element={<PublicUserProfile />} />
+          {/* Handled by HYBRID section */}
 
           {/* ── Societies (any auth user) ────────────── */}
-          <Route path="/societies/browse"   element={<SocietiesList />} />
-          <Route path="/societies/:id"      element={<SocietyDetail />} />
           <Route path="/society/create"     element={<CreateSociety />} />
           <Route path="/my-societies"       element={<SocietiesList />} />
 
@@ -233,7 +252,7 @@ export default function AppRoutes() {
           <Route path="/society/edit/:id"        element={<EditSociety />} />
 
           {/* ── Events ───────────────────────────────── */}
-          <Route path="/events/:id/*"         element={<EventDetailLayout />} />
+          {/* Handled by HYBRID section */}
           <Route path="/events/:id/edit"      element={<EditEvent />} />
           <Route path="/events/:id/team"      element={<TeamManagementFlow />} />
           <Route path="/events/:id/submission" element={<SubmissionPanel />} />
@@ -277,8 +296,6 @@ export default function AppRoutes() {
           <Route path="/mentor/register"       element={<MentorRegistration />} />
           <Route path="/mentor-registration"   element={<Navigate to="/mentor/register" replace />} />
           <Route path="/mentor-apply"          element={<Navigate to="/mentor/register" replace />} />
-          <Route path="/mentors/:mentorId"     element={<MentorProfile />} />
-          <Route path="/mentor-profile/:id"    element={<MentorProfile />} />
           <Route path="/mentor/display-profile" element={<MentorDisplayProfile />} />
           <Route path="/book-session"          element={<BookSession />} />
           <Route path="/mentor/book/:mentorId" element={<BookSession />} />

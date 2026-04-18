@@ -12,6 +12,9 @@ import {
   selectAuthError,
   selectOnboardingCompleted,
   completeOnboardingThunk,
+  openAuthModal,
+  closeAuthModal,
+  selectAuthModalOpen,
 } from '../redux/slices/authSlice';
 import { connectSocket, disconnectSocket } from '../socket/socket';
 
@@ -25,6 +28,8 @@ export const useAuth = () => {
   const loading         = useSelector(selectAuthLoading);
   const error           = useSelector(selectAuthError);
   const onboardingCompleted = useSelector(selectOnboardingCompleted);
+
+  const isAuthModalOpen = useSelector(selectAuthModalOpen);
 
   /** Check if the authenticated user holds a specific role */
   const hasRole = useCallback(
@@ -55,12 +60,16 @@ export const useAuth = () => {
     [dispatch]
   );
 
+  const openAuth = useCallback(() => dispatch(openAuthModal()), [dispatch]);
+  const closeAuth = useCallback(() => dispatch(closeAuthModal()), [dispatch]);
+
   const dismissError = useCallback(() => {
     dispatch(clearError());
   }, [dispatch]);
 
   return {
     isAuthenticated,
+    isAuthModalOpen,
     user,
     role,
     roles,
@@ -70,6 +79,8 @@ export const useAuth = () => {
     onboardingCompleted,
     login,
     logout,
+    openAuth,
+    closeAuth,
     completeOnboarding,
     dismissError,
   };
