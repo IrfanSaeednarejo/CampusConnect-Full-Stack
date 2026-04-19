@@ -115,18 +115,20 @@ import ApplicationRejected      from "../pages/Mentoring/ApplicationRejected";
 import MentorDisplayProfile     from "../pages/Mentoring/MentorDisplayProfile";
 import SessionWorkspace        from "../pages/Mentoring/SessionWorkspace";
 
-// ── Admin Pages (AppShell) ───────────────────────────────────────────────────
-import UserManagement    from "../pages/Admin/UserManagement";
-import SocietyApproval   from "../pages/Admin/SocietyApproval";
-import MentorVerification from "../pages/Admin/MentorVerification";
-import AdminAnalytics    from "../pages/Admin/Analytics";
-import ContentModeration from "../pages/Admin/ContentModeration";
-import Disputes          from "../pages/Admin/Disputes";
-import LogsViewer        from "../pages/Admin/LogsViewer";
-import SystemHealth      from "../pages/Admin/SystemHealth";
-import ReportsExport     from "../pages/Admin/ReportsExport";
-import CampusList        from "../pages/Admin/CampusList";
-import CampusDetail      from "../pages/Admin/CampusDetail";
+// ── Admin Portal Pages (Standalone shell) ────────────────────────────────────
+import AdminRoute          from "../admin/guards/AdminRoute";
+import AdminApp            from "../admin/AdminApp";
+import AdminDashboard      from "../admin/pages/AdminDashboard";
+import AdminUsers          from "../admin/pages/AdminUsers";
+import AdminMentors        from "../admin/pages/AdminMentors";
+import AdminSocieties      from "../admin/pages/AdminSocieties";
+import AdminEvents         from "../admin/pages/AdminEvents";
+import AdminStudyGroups    from "../admin/pages/AdminStudyGroups";
+import AdminNotifications  from "../admin/pages/AdminNotifications";
+import AdminAuditLogs      from "../admin/pages/AdminAuditLogs";
+import AdminSystem         from "../admin/pages/AdminSystem";
+import AdminUserDetail     from "../admin/pages/AdminUserDetail";
+import AdminAnalytics      from "../admin/pages/AdminAnalytics";
 
 // ── Payment (AppShell) ───────────────────────────────────────────────────────
 import PaymentHistory from "../pages/Payments/PaymentHistory";
@@ -332,21 +334,7 @@ export default function AppRoutes() {
           <Route path="/earnings"             element={<Navigate to="/mentor/earnings" replace />} />
           <Route path="/mentor-events"        element={<Navigate to="/events" replace />} />
 
-          {/* ── Admin routes (component guards via RoleGuard internally) ──── */}
-          <Route path="/admin/users"                  element={<UserManagement />} />
-          <Route path="/admin/approvals/societies"    element={<SocietyApproval />} />
-          <Route path="/admin/approvals/mentors"      element={<MentorVerification />} />
-          <Route path="/admin/analytics"              element={<AdminAnalytics />} />
-          <Route path="/admin/moderation"             element={<ContentModeration />} />
-          <Route path="/admin/disputes"               element={<Disputes />} />
-          <Route path="/admin/logs"                   element={<LogsViewer />} />
-          <Route path="/admin/system"                 element={<SystemHealth />} />
-          <Route path="/admin/reports"                element={<ReportsExport />} />
-          <Route path="/admin/campuses"               element={<CampusList />} />
-          <Route path="/admin/campuses/:slug"         element={<CampusDetail />} />
-          {/* Legacy admin routes */}
-          <Route path="/admin/societies/approvals"    element={<Navigate to="/admin/approvals/societies" replace />} />
-          <Route path="/admin/mentors/verifications"  element={<Navigate to="/admin/approvals/mentors" replace />} />
+          {/* Admin routes migrated out of AppShell to their own AdminApp layout */}
 
           {/* ── AI Agents ────────────────────────────── */}
           <Route path="/agents/study"    element={<StudyAssistantAgent />} />
@@ -364,6 +352,28 @@ export default function AppRoutes() {
           <Route path="/student/payments/history" element={<Navigate to="/payments/history" replace />} />
 
         </Route>{/* END AppShell */}
+
+        {/* ══════════════════════════════════════════════════
+            ADMIN PORTAL — Standalone Layout (AdminApp)
+            Protected by ProtectedRoute AND AdminRoute logic
+        ══════════════════════════════════════════════════ */}
+        <Route element={<AdminRoute requiredRole="any_admin" />}>
+          <Route path="/admin" element={<AdminApp />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="users" element={<AdminUsers />} />
+            <Route path="users/:userId" element={<AdminUserDetail />} />
+            <Route path="mentors" element={<AdminMentors />} />
+            <Route path="societies" element={<AdminSocieties />} />
+            <Route path="events" element={<AdminEvents />} />
+            <Route path="study-groups" element={<AdminStudyGroups />} />
+            <Route path="notifications" element={<AdminNotifications />} />
+            <Route path="analytics" element={<AdminAnalytics />} />
+            <Route path="audit-logs" element={<AdminAuditLogs />} />
+            <Route path="system" element={<AdminSystem />} />
+          </Route>
+        </Route>
+
       </Route>{/* END ProtectedRoute */}
 
       {/* ══════════════════════════════════════════════════
