@@ -56,5 +56,5 @@ export const respondToReview = (mentorId, reviewId, data) =>
 export const verifyMentor = (mentorId) =>
   api.patch(`${BASE}/${mentorId}/verify`);
 
-export const suspendMentor = (mentorId) =>
-  api.patch(`${BASE}/${mentorId}/suspend`);
+export const suspendMentor = (mentorId, data = {}) =>
+  api.patch(`${BASE}/${mentorId}/suspend`, data);

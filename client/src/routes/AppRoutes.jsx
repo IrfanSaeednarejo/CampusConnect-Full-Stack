@@ -105,7 +105,6 @@ import MentorRegistration       from "../pages/Mentoring/MentorRegistration";
 import MentorProfile            from "../pages/Mentoring/MentorProfile";
 import MentorProfileView        from "../pages/Mentoring/MentorProfileView";
 import MentorSessionsManagement from "../pages/Mentoring/MentorSessionsManagement";
-import MentorSessions           from "../pages/Mentoring/MentorSessions";
 import MentorEarnings           from "../pages/Mentoring/MentorEarnings";
 import MentorMentees            from "../pages/Mentoring/MentorMentees";
 import BookSession              from "../pages/Mentoring/BookSession";

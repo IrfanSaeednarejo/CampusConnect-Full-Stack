@@ -74,7 +74,7 @@ const getDashboardTimeline = asyncHandler(async (req, res) => {
     const now = new Date();
     const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
 
-    const [upcomingEvents, upcomingBookings] = await Promise.all([
+    const [upcomingEvents, upcomingMenteesSessions, upcomingMentorSessions] = await Promise.all([
         Event.find({
             startAt: { $gte: now, $lte: sevenDaysLater },
             status: { $ne: "draft" }
@@ -84,11 +84,20 @@ const getDashboardTimeline = asyncHandler(async (req, res) => {
         .limit(5),
         
         MentorBooking.find({
-            userId: userId, // Sessions I booked as a mentee
+            menteeId: userId, // Sessions I booked as a mentee
             startAt: { $gte: now, $lte: sevenDaysLater },
             status: { $in: ["pending", "confirmed"] }
         })
         .populate("mentorUserId", "profile.displayName profile.avatar")
+        .sort({ startAt: 1 })
+        .limit(5),
+
+        MentorBooking.find({
+            mentorUserId: userId, // Sessions I am hosting as a mentor
+            startAt: { $gte: now, $lte: sevenDaysLater },
+            status: { $in: ["pending", "confirmed"] }
+        })
+        .populate("menteeId", "profile.displayName profile.avatar")
         .sort({ startAt: 1 })
         .limit(5)
     ]);
@@ -104,13 +113,23 @@ const getDashboardTimeline = asyncHandler(async (req, res) => {
             status: e.status,
             coverImage: e.coverImage
         })),
-        ...upcomingBookings.map(b => ({
+        ...upcomingMenteesSessions.map(b => ({
             id: b._id,
             type: "mentor_session",
             title: `Session with ${b.mentorUserId?.profile?.displayName || 'Mentor'}`,
             time: b.startAt,
             category: b.topic,
-            status: b.status
+            status: b.status,
+            role: "mentee"
+        })),
+        ...upcomingMentorSessions.map(b => ({
+            id: b._id,
+            type: "mentor_session",
+            title: `Hosting: ${b.menteeId?.profile?.displayName || 'Student'}`,
+            time: b.startAt,
+            category: b.topic,
+            status: b.status,
+            role: "mentor"
         }))
     ].sort((a, b) => new Date(a.time) - new Date(b.time));
 

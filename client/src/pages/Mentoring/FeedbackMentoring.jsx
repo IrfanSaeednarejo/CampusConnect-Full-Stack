@@ -1,52 +1,45 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
-import { selectPendingFeedback, setPendingFeedback, removePendingFeedback } from "../../redux/slices/mentoringSlice";
+// TODO Phase 4: Replace with actual booking review logic
 import MentorTopBar from "../../components/mentoring/MentorTopBar";
 
 export default function FeedbackMentoring() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const pendingFeedback = useSelector(selectPendingFeedback);
   
   const [selectedSession, setSelectedSession] = useState(null);
   const [rating, setRating] = useState(5);
   const [feedback, setFeedback] = useState("");
 
-  useEffect(() => {
-    if (pendingFeedback.length === 0) {
-      dispatch(setPendingFeedback([
-        {
-          id: 1,
-          mentee: "John Doe",
-          menteeImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-          sessionDate: "2024-02-10",
-          topic: "Web Development Basics",
-          duration: "1 hour",
-        },
-        {
-          id: 2,
-          mentee: "Jane Smith",
-          menteeImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
-          sessionDate: "2024-02-08",
-          topic: "React Advanced Patterns",
-          duration: "1.5 hours",
-        },
-        {
-          id: 3,
-          mentee: "Sarah Williams",
-          menteeImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
-          sessionDate: "2024-02-05",
-          topic: "Database Design",
-          duration: "1 hour",
-        },
-      ]));
-    }
-  }, [dispatch, pendingFeedback.length]);
+  const [pendingFeedback, setPendingFeedback] = useState([
+    {
+      id: 1,
+      mentee: "John Doe",
+      menteeImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+      sessionDate: "2024-02-10",
+      topic: "Web Development Basics",
+      duration: "1 hour",
+    },
+    {
+      id: 2,
+      mentee: "Jane Smith",
+      menteeImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
+      sessionDate: "2024-02-08",
+      topic: "React Advanced Patterns",
+      duration: "1.5 hours",
+    },
+    {
+      id: 3,
+      mentee: "Sarah Williams",
+      menteeImage: "https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah",
+      sessionDate: "2024-02-05",
+      topic: "Database Design",
+      duration: "1 hour",
+    },
+  ]);
 
   const handleSubmitFeedback = () => {
     if (selectedSession) {
-      dispatch(removePendingFeedback(selectedSession.id));
+      setPendingFeedback(prev => prev.filter(f => f.id !== selectedSession.id));
       alert("Feedback submitted successfully!");
       setFeedback("");
       setRating(5);

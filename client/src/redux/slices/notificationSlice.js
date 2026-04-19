@@ -20,6 +20,20 @@ export const fetchNotifications = createAsyncThunk(
   }
 );
 
+export const fetchUnreadCountThunk = createAsyncThunk(
+  "notifications/fetchUnreadCount",
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_URL}/notifications/unread-count`, {
+        withCredentials: true,
+      });
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || "Failed to fetch unread count");
+    }
+  }
+);
+
 export const markReadThunk = createAsyncThunk(
   "notifications/markRead",
   async (notificationId, { rejectWithValue }) => {
@@ -38,7 +52,7 @@ export const markAllReadThunk = createAsyncThunk(
   "notifications/markAllRead",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.patch(`${API_URL}/notifications/mark-all-read`, {}, {
+      const response = await axios.patch(`${API_URL}/notifications/read-all`, {}, {
         withCredentials: true,
       });
       return response.data.data;
@@ -115,6 +129,11 @@ const notificationSlice = createSlice({
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      // Fetch Unread Count
+      .addCase(fetchUnreadCountThunk.fulfilled, (state, action) => {
+        state.unreadCount = action.payload.unreadCount;
       })
 
       // Mark Read

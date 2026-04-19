@@ -1,15 +1,27 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { registerAsMentorThunk, selectMentoringActionLoading } from "../../redux/slices/mentoringSlice";
+import { registerAsMentorThunk, selectMentoringActionLoading, selectMyMentorProfile, fetchMyMentorProfile } from "../../redux/slices/mentoringSlice";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function MentorRegistration() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const loading = useSelector(selectMentoringActionLoading);
+  const myMentorProfile = useSelector(selectMyMentorProfile);
   const { user } = useAuth();
   
+  // Redirect if user already has a mentor profile (pending or verified)
+  useEffect(() => {
+    dispatch(fetchMyMentorProfile());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (myMentorProfile) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [myMentorProfile, navigate]);
+
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     bio: "",

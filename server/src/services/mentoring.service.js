@@ -86,6 +86,21 @@ export const registerAsMentor = async (data, requestUser) => {
         $addToSet: { roles: "mentor" },
     });
 
+    // Notify all campus admins about the new mentor application
+    const adminUsers = await User.find({ roles: { $in: ["admin"] }, status: "active" }).select("_id");
+    adminUsers.forEach((admin) => {
+        systemEvents.emit("notification:create", {
+            userId: admin._id,
+            type: "admin",
+            title: "New Mentor Application",
+            body: `${requestUser.profile.displayName} has submitted a mentor application and is awaiting verification.`,
+            ref: mentor._id,
+            refModel: "User",
+            actorId: requestUser._id,
+            priority: "high",
+        });
+    });
+
     return await Mentor.findById(mentor._id).populate("userId", "profile.displayName profile.avatar profile.firstName profile.lastName");
 };
 
@@ -119,8 +134,13 @@ export const updateMentorProfile = async (data, requestUser) => {
 };
 
 export const getMentors = async (queryParams) => {
-    const { page = 1, limit = 12, campusId, category, expertise, tier, minRating, q } = queryParams;
-    const filter = { isActive: true, verified: true };
+    const { page = 1, limit = 12, campusId, category, expertise, tier, minRating, q, verified } = queryParams;
+    
+    // Default: only show active & verified mentors (public API)
+    // Admin bypass: when verified=false is explicitly requested, show unverified (pending) mentors
+    const filter = verified === "false" || verified === false
+        ? { isActive: true, verified: false } // Pending applications
+        : { isActive: true, verified: true };  // Default public filter
 
     if (campusId) {
         if (!mongoose.isValidObjectId(campusId)) throw new ApiError(400, "Invalid campusId format");
@@ -187,6 +207,7 @@ export const setAvailability = async (data, requestUser) => {
 
     const mentor = await Mentor.findOne({ userId: requestUser._id });
     if (!mentor) throw new ApiError(404, "Mentor profile not found. Register as a mentor first.");
+    if (!mentor.verified) throw new ApiError(403, "Your mentor profile must be verified by an admin before you can set availability.");
 
     return await Mentor.findByIdAndUpdate(mentor._id, { $set: { availability } }, { new: true, runValidators: true }).select("_id availability");
 };
@@ -446,14 +467,41 @@ export const verifyMentor = async (mentorId, requestUser) => {
     await User.findByIdAndUpdate(mentor.userId, {
         $set: { "mentorVerification.isVerified": true, "mentorVerification.verifiedAt": new Date(), "mentorVerification.verifiedBy": requestUser._id },
     });
+
+    // Notify the mentor that they have been verified
+    systemEvents.emit("notification:create", {
+        userId: mentor.userId,
+        type: "admin",
+        title: "🎉 Mentor Profile Verified!",
+        body: "Congratulations! Your mentor profile has been approved. You can now set your availability and start accepting sessions.",
+        ref: mentor._id,
+        refModel: "User",
+        actorId: requestUser._id,
+        priority: "high",
+    });
+
     return updated;
 };
 
 export const suspendMentor = async (mentorId, data, requestUser) => {
     if (!requestUser.roles?.includes("admin")) throw new ApiError(403, "Only admins can suspend mentor profiles");
-    const mentor = await findMentorById(mentorId, "isActive");
+    const mentor = await findMentorById(mentorId, "isActive userId");
     if (!mentor.isActive) throw new ApiError(400, "Mentor is already suspended");
-    return await Mentor.findByIdAndUpdate(mentor._id, {
+    const result = await Mentor.findByIdAndUpdate(mentor._id, {
         $set: { isActive: false, suspendedAt: new Date(), suspendReason: data.reason?.trim() || "" },
     }, { new: true }).select("-pendingPayout -totalEarnings");
+
+    // Notify the mentor about the suspension
+    systemEvents.emit("notification:create", {
+        userId: mentor.userId,
+        type: "admin",
+        title: "Mentor Profile Suspended",
+        body: `Your mentor profile has been suspended${data.reason ? `: ${data.reason.trim()}` : ". Please contact admin for more information."} `,
+        ref: mentor._id,
+        refModel: "User",
+        actorId: requestUser._id,
+        priority: "high",
+    });
+
+    return result;
 };

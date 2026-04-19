@@ -98,6 +98,42 @@ export const initNotificationService = (app) => {
 
     systemEvents.on("notification:create", async (data) => {
         try {
+            const { userId, type, ref, actorId, title, body, refModel, priority } = data;
+            
+            // Deduplication Check
+            if (ref) {
+                // If the exact same unread notification exists for this user/ref/type within the last 15 minutes, skip it or update it.
+                // Note: For chat messages, we skip dedup here because Chat handles its own idempotency and we want every message notifying generally if they are truly distinct, 
+                // but actually for chat messages we might want to just update the existing unread "New Message" notification instead of blasting 50.
+                
+                const timeLimit = new Date(Date.now() - 15 * 60 * 1000); // 15 mins
+                const query = {
+                    userId,
+                    type,
+                    ref,
+                    read: false,
+                    createdAt: { $gte: timeLimit }
+                };
+                
+                if (actorId) query.actorId = actorId;
+
+                const existingNotification = await Notification.findOne(query);
+
+                if (existingNotification) {
+                    // Update timestamp and body of existing instead of creating new
+                    existingNotification.body = body || existingNotification.body;
+                    existingNotification.createdAt = new Date();
+                    await existingNotification.save();
+                    
+                    // We still emit the updated notification so the frontend bumps it to the top
+                    const io = app.get("io");
+                    if (io) {
+                        emitNotification(io, existingNotification.userId, existingNotification);
+                    }
+                    return;
+                }
+            }
+
             const n = await Notification.create(data);
             const io = app.get("io");
             if (io) {

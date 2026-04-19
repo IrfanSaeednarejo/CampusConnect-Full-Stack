@@ -96,6 +96,29 @@ export default function MentorProfile() {
     }
   };
 
+  // ── Access Guard ──────────────────────────────────────────────────────
+  // If the mentor profile exists but is NOT yet verified, block this page.
+  if (mentorProfile !== null && !mentorProfile?.verified) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full min-h-[400px] p-8 text-center">
+        <div className="w-16 h-16 rounded-2xl bg-[#e3b341]/10 flex items-center justify-center mb-4">
+          <span className="material-symbols-outlined text-[#e3b341] text-4xl">lock_clock</span>
+        </div>
+        <h2 className="text-white text-xl font-bold mb-2">Pending Verification</h2>
+        <p className="text-[#8b949e] text-sm max-w-sm leading-relaxed">
+          Your mentor profile is under review. Availability management will be unlocked once an admin approves your application.
+        </p>
+        <button
+          onClick={() => navigate("/dashboard")}
+          className="mt-6 px-5 py-2 rounded-lg bg-[#238636] text-white text-sm font-semibold hover:bg-[#2ea043] transition-colors"
+        >
+          Back to Dashboard
+        </button>
+      </div>
+    );
+  }
+
+
   return (
     <div className="flex flex-col w-full h-full p-4 lg:p-10 overflow-y-auto">
       <div className="flex w-full max-w-4xl mx-auto flex-col gap-6">

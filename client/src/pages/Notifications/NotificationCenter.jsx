@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectNotifications, selectUnreadCount, markAsRead, markAllAsRead, removeNotification } from '../../redux/slices/notificationSlice';
+import { selectNotifications, selectUnreadCount, markReadThunk, markAllReadThunk } from '../../redux/slices/notificationSlice';
 import PageHeader from '../../components/common/PageHeader';
 import Button from '../../components/common/Button';
 import Tabs from '../../components/common/Tabs';
@@ -39,10 +39,10 @@ export default function NotificationCenter() {
                tabs={tabs} 
              />
              <button 
-               onClick={() => dispatch(markAllAsRead())}
+               onClick={() => dispatch(markAllReadThunk())}
                className="text-[10px] font-black uppercase text-[#58a6ff] hover:text-white transition-colors"
              >
-                Archice All
+                Archive All
              </button>
           </div>
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import RoleGuard from '../../routes/RoleGuard.jsx';
+import { useAuth } from '../../contexts/AuthContext';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
   fetchDashboardSummary, 
@@ -10,6 +11,7 @@ import {
   selectDashboardLoading 
 } from '../../redux/slices/dashboardSlice';
 import { useEffect } from 'react';
+import { fetchMyMentorProfile, selectMyMentorProfile } from '../../redux/slices/mentoringSlice';
 
 /* ─── Shared utility components ─────────────────────────────────────── */
 
@@ -131,15 +133,57 @@ function StudentWidgets({ timeline = [] }) {
   );
 }
 
-function MentorWidgets({ pendingCount = 0 }) {
+function MentorWidgets({ pendingCount = 0, myMentorProfile }) {
   const navigate = useNavigate();
+
+  // Suspended state
+  if (myMentorProfile && !myMentorProfile.isActive) {
+    return (
+      <SectionCard title="Mentor Status">
+        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-center">
+          <span className="material-symbols-outlined text-3xl text-red-400 mb-2 block">block</span>
+          <p className="text-red-400 font-bold">Profile Suspended</p>
+          <p className="text-[#8b949e] text-sm mt-1">Your mentor profile has been suspended. Please contact an administrator for details.</p>
+        </div>
+      </SectionCard>
+    );
+  }
+
+  // Pending verification state
+  if (myMentorProfile && !myMentorProfile.verified) {
+    return (
+      <SectionCard title="Mentor Verification">
+        <div className="p-4 rounded-xl bg-[#e3b341]/10 border border-[#e3b341]/30">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-9 h-9 rounded-lg bg-[#e3b341]/20 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[#e3b341] text-lg">hourglass_top</span>
+            </div>
+            <div>
+              <p className="text-[#e3b341] font-bold text-sm">Application Pending</p>
+              <p className="text-[#8b949e] text-xs">Awaiting admin review — typically 1-3 business days</p>
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-2 text-center mt-3">
+            {['Submitted', 'Under Review', 'Approved'].map((step, i) => (
+              <div key={step} className={`p-2 rounded-lg text-xs font-medium ${
+                i === 0 ? 'bg-[#e3b341]/20 text-[#e3b341]' :
+                i === 1 ? 'bg-[#e3b341]/10 text-[#e3b341]/60' : 'bg-[#21262d] text-[#3d444d]'
+              }`}>{step}</div>
+            ))}
+          </div>
+        </div>
+      </SectionCard>
+    );
+  }
+
+  // Verified mentor
   return (
     <>
       <SectionCard title="Mentor Dashboard">
         {pendingCount > 0 ? (
           <div 
-            onClick={() => navigate('/mentor/requests')}
-            className="p-4 rounded-xl bg-[#3fb950]10 border border-[#3fb950]30 flex items-center justify-between cursor-pointer hover:bg-[#3fb950]20 transition-all"
+            onClick={() => navigate('/mentor/sessions')}
+            className="p-4 rounded-xl bg-[#3fb950]/10 border border-[#3fb950]/30 flex items-center justify-between cursor-pointer hover:bg-[#3fb950]/20 transition-all"
           >
             <div>
               <p className="text-[#3fb950] text-sm font-bold">New Session Requests</p>
@@ -152,6 +196,28 @@ function MentorWidgets({ pendingCount = 0 }) {
         )}
       </SectionCard>
     </>
+  );
+}
+
+// CTA for users who haven't applied to be a mentor yet
+function BecomeMentorCTA() {
+  const navigate = useNavigate();
+  return (
+    <SectionCard title="Mentorship">
+      <div className="text-center py-4">
+        <div className="w-12 h-12 rounded-xl bg-[#3fb950]/10 flex items-center justify-center mx-auto mb-3">
+          <span className="material-symbols-outlined text-[#3fb950] text-2xl">school</span>
+        </div>
+        <p className="text-[#e6edf3] font-semibold text-sm">Share Your Knowledge</p>
+        <p className="text-[#8b949e] text-xs mt-1 mb-4">Apply to become a mentor and guide students on campus.</p>
+        <button
+          onClick={() => navigate('/mentor/register')}
+          className="px-4 py-2 rounded-lg bg-[#238636] hover:bg-[#2ea043] text-white text-sm font-medium transition-colors"
+        >
+          Become a Mentor
+        </button>
+      </div>
+    </SectionCard>
   );
 }
 
@@ -224,11 +290,17 @@ export default function UnifiedDashboard() {
   const summary = useSelector(selectDashboardSummary);
   const timeline = useSelector(selectDashboardTimeline);
   const loading = useSelector(selectDashboardLoading);
+  const myMentorProfile = useSelector(selectMyMentorProfile);
+
+  const isMentor = roles?.includes('mentor');
 
   useEffect(() => {
     dispatch(fetchDashboardSummary());
     dispatch(fetchDashboardTimeline());
-  }, [dispatch]);
+    if (isMentor) {
+      dispatch(fetchMyMentorProfile());
+    }
+  }, [dispatch, isMentor]);
 
   const displayName = user?.profile?.firstName
     ? user.profile.firstName.charAt(0).toUpperCase() + user.profile.firstName.slice(1)
@@ -282,9 +354,16 @@ export default function UnifiedDashboard() {
 
         {/* Extra column: mentor or society head widgets */}
         <div className="flex flex-col gap-6">
+          {/* Mentor: show lifecycle state widget */}
           <RoleGuard role="mentor">
-            <MentorWidgets pendingCount={summary.pendingSessionsCount} />
+            <MentorWidgets 
+              pendingCount={summary.pendingSessionsCount} 
+              myMentorProfile={myMentorProfile}
+            />
           </RoleGuard>
+
+          {/* Non-mentor: show Become a Mentor CTA */}
+          {!isMentor && <BecomeMentorCTA />}
 
           <RoleGuard role="society_head">
             <SocietyHeadWidgets />

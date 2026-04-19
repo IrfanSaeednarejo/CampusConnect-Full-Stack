@@ -204,11 +204,6 @@ const initialState = {
   loading: false,        // For data fetching
   actionLoading: false,  // For mutations (create, update, delete)
   error: null,
-  // Legacy mock state
-  scheduledSessions: [],
-  completedSessions: [],
-  mentees: [],
-  pendingFeedback: [],
 };
 
 // ── Slice ───────────────────────────────────────────────────────────────────
@@ -228,24 +223,6 @@ const mentoringSlice = createSlice({
     clearCurrentBooking: (state) => {
       state.currentBooking = null;
     },
-    setMentors: (state, action) => {
-      state.mentors = action.payload;
-    },
-    setScheduledSessions: (state, action) => {
-      state.scheduledSessions = action.payload;
-    },
-    setCompletedSessions: (state, action) => {
-      state.completedSessions = action.payload;
-    },
-    setMentees: (state, action) => {
-      state.mentees = action.payload;
-    },
-    setPendingFeedback: (state, action) => {
-      state.pendingFeedback = action.payload;
-    },
-    removePendingFeedback: (state, action) => {
-      state.pendingFeedback = state.pendingFeedback.filter(f => f.id !== action.payload);
-    }
   },
   extraReducers: (builder) => {
     builder
@@ -375,13 +352,7 @@ const mentoringSlice = createSlice({
 export const { 
   clearMentoringError, 
   clearCurrentMentor, 
-  clearCurrentBooking, 
-  setMentors,
-  setScheduledSessions,
-  setCompletedSessions,
-  setMentees,
-  setPendingFeedback,
-  removePendingFeedback
+  clearCurrentBooking,
 } = mentoringSlice.actions;
 
 // Selectors
@@ -395,11 +366,5 @@ export const selectCurrentBooking = (state) => state.mentoring.currentBooking;
 export const selectMentoringLoading = (state) => state.mentoring.loading;
 export const selectMentoringActionLoading = (state) => state.mentoring.actionLoading;
 export const selectMentoringError = (state) => state.mentoring.error;
-
-// Legacy selectors
-export const selectScheduledSessions = (state) => state.mentoring.scheduledSessions;
-export const selectCompletedSessions = (state) => state.mentoring.completedSessions;
-export const selectMentees = (state) => state.mentoring.mentees;
-export const selectPendingFeedback = (state) => state.mentoring.pendingFeedback;
 
 export default mentoringSlice.reducer;

@@ -1,48 +1,43 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { selectMentees, setMentees } from "../../redux/slices/mentoringSlice";
+// TODO Phase 4: Replace with fetchMyBookings + selectMyBookings
+
 import MentorTopBar from "../../components/mentoring/MentorTopBar";
 
 export default function MentorMentees() {
-  const dispatch = useDispatch();
-  const mentees = useSelector(selectMentees);
-
-  useEffect(() => {
-    if (mentees.length === 0) {
-      dispatch(setMentees([
-        {
-          id: 1,
-          name: "John Doe",
-          email: "john@university.edu",
-          image: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-          specialization: "Web Development",
-          sessionsCompleted: 5,
-          rating: 4.9,
-          status: "Active",
-        },
-        {
-          id: 2,
-          name: "Jane Smith",
-          email: "jane@university.edu",
-          image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
-          specialization: "React Development",
-          sessionsCompleted: 3,
-          rating: 4.8,
-          status: "Active",
-        },
-        {
-          id: 3,
-          name: "Alex Johnson",
-          email: "alex@university.edu",
-          image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
-          specialization: "JavaScript",
-          sessionsCompleted: 2,
-          rating: 4.7,
-          status: "Inactive",
-        },
-      ]));
-    }
-  }, [dispatch, mentees.length]);
+  // TODO Phase 4: Replace with useDispatch/useSelector and fetchMyBookings
+  const [mentees] = useState([
+    {
+      id: 1,
+      name: "John Doe",
+      email: "john@university.edu",
+      image: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+      specialization: "Web Development",
+      sessionsCompleted: 5,
+      rating: 4.9,
+      status: "Active",
+    },
+    {
+      id: 2,
+      name: "Jane Smith",
+      email: "jane@university.edu",
+      image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
+      specialization: "React Development",
+      sessionsCompleted: 3,
+      rating: 4.8,
+      status: "Active",
+    },
+    {
+      id: 3,
+      name: "Alex Johnson",
+      email: "alex@university.edu",
+      image: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
+      specialization: "JavaScript",
+      sessionsCompleted: 2,
+      rating: 4.7,
+      status: "Inactive",
+    },
+  ]);
 
   return (
     <div className="relative flex h-auto min-h-screen w-full flex-col font-display text-[#c9d1d9] group/design-root overflow-x-hidden bg-[#112118]">

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { selectAllMentors, setMentors } from "../../redux/slices/mentoringSlice";
+import { selectAllMentors, fetchMentors } from "../../redux/slices/mentoringSlice";
 import Avatar from "../../components/common/Avatar";
 
 export default function MentorshipHub() {
@@ -13,44 +13,8 @@ export default function MentorshipHub() {
   const [userRole] = useState("student"); // Assuming student accessing mentorship hub
 
   useEffect(() => {
-    if (mentors.length === 0) {
-      dispatch(setMentors([
-        {
-          id: 1,
-          name: "Dr. Evelyn Reed",
-          title: "PhD in Machine Learning",
-          image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuA0jTMkVZrHrZTVmla4S4Je5c1D36iLLgtz5zB_oZrMcSJbuNexEisrvhdc-NMzmPBIa7YxLyXuCuyYIX6afgK26REr07GOIgtlWbvXQEBDFOkDEf6y7ay5EX9vStNbglIRnSDaNlE5sb1cDVFk0k-s8S_ZBpv3x5kDjuzUdCrCdZzCeCHwFaF1iWAc6nGD6f7KZNT4FSU6gJZtUzrM8VmaGMg_txG_BcWS1kfGr9qfhEKDxs-qmTPWTH-lYRZdpswsDEVNysWfygI",
-          skills: ["AI", "Python", "Research"],
-          rating: 4.9,
-          reviews: 32,
-          availability: "Weekdays",
-        },
-        {
-          id: 2,
-          name: "Ben Carter",
-          title: "Senior Software Engineer",
-          image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuBE6tGmIelYR9Lgm-1pwjDVUA6-iB_nfG9VMQ-ziaxjkGxBhDazaCIJClQxvs0cIBqjYNIRgbAcDinkwDssSVNFnTKkpv2Wt6nXs24NWZVgE3q588PfVxEvcSE1g7ur4WMA43VNQVxcmMW9SI37Y9u6C8fz27mk9Iuo2hAbDp4jcrnrLB3f-UNr4_qhf5m0LJj6BbvR9oct4apHAS9DP7jDXJt2LJxsj5gOnJSb6OXZshL1SKL3_2RWaTcGGRlp9fSbU17T9l7-5Ek",
-          skills: ["JavaScript", "React", "Node.js"],
-          rating: 5.0,
-          reviews: 45,
-          availability: "Weekends",
-        },
-        {
-          id: 3,
-          name: "Dr. Anya Sharma",
-          title: "Professor of Economics",
-          image:
-            "https://lh3.googleusercontent.com/aida-public/AB6AXuD-xTMQV6m4x9u1aHS5QXnuoSyrcNcGtWqZyoqLVAtEs6PjGobk3G90rW-RFKGaMELavxqw3fzNVLNTPojJGzLJJ8RGxgrDUQAX2FArL_DAVd8n0yDsqIs9rHzUEHj0m8j_TtncwNtkZZVuao8mMa_IH87XxSjAUiLrMesI0trc8lLd-qaBRGQZhOj8_t8Z31SptB2XL1Wutq9Jcfmlr_7rsHb03YDxy-e9hcZZ7Ro2Hi_LicZHT1WfmHCQ5n6xIuruddxq52WuUp4",
-          skills: ["Finance", "Academia", "Policy"],
-          rating: 4.8,
-          reviews: 21,
-          availability: "Flexible",
-        },
-      ]));
-    }
-  }, [dispatch, mentors.length]);
+    dispatch(fetchMentors());
+  }, [dispatch]);
 
   return (
     <div className="flex min-h-screen w-full bg-[#111814] font-display">
