@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { useAuth } from '../../contexts/AuthContext.jsx';
+import { useAuth } from '../../hooks/useAuth';
 import { logoutUser } from '../../redux/slices/authSlice';
 import { selectUnreadCount } from '../../redux/slices/notificationSlice';
 import { selectActiveCampus } from '../../redux/slices/campusSlice';
+import NotificationDropdown from './NotificationDropdown';
 
 /**
  * GlobalNavbar — top navigation bar for all authenticated pages.
@@ -18,6 +19,7 @@ export default function GlobalNavbar({ onMenuToggle }) {
   const activeCampus = useSelector(selectActiveCampus);
 
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
   const menuRef = useRef(null);
 
   // Close dropdown on outside click
@@ -98,21 +100,28 @@ export default function GlobalNavbar({ onMenuToggle }) {
       <div className="ml-auto flex items-center gap-2">
 
         {/* Notification Bell */}
-        <Link
-          to="/notifications"
-          id="notification-bell"
-          aria-label="Notifications"
-          className="relative p-2 rounded-md text-[#8b949e] hover:text-white hover:bg-[#21262d] transition-colors"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 1 0-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9" />
-          </svg>
-          {unreadCount > 0 && (
-            <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 bg-[#da3633] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
-              {unreadCount > 99 ? '99+' : unreadCount}
-            </span>
-          )}
-        </Link>
+        <div className="relative">
+          <button
+            id="notification-bell"
+            onClick={() => setNotifOpen(!notifOpen)}
+            aria-label="Notifications"
+            className={`relative p-2 rounded-md text-[#8b949e] hover:text-white hover:bg-[#21262d] transition-colors ${notifOpen ? 'bg-[#21262d] text-white' : ''}`}
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0 1 18 14.158V11a6 6 0 1 0-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 1 1-6 0v-1m6 0H9" />
+            </svg>
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 min-w-[16px] h-4 px-1 bg-[#da3633] text-white text-[10px] font-bold rounded-full flex items-center justify-center leading-none">
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </button>
+          
+          <NotificationDropdown 
+            isOpen={notifOpen} 
+            onClose={() => setNotifOpen(false)} 
+          />
+        </div>
 
         {/* User Avatar Dropdown */}
         <div className="relative" ref={menuRef}>

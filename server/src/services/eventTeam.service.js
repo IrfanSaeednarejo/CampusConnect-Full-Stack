@@ -5,6 +5,7 @@ import { EventTeam } from "../models/eventTeam.model.js";
 import { Chat } from "../models/chat.model.js";
 import { paginate } from "../utils/paginate.js";
 import { emitTeamUpdate } from "../sockets/event.socket.js";
+import { systemEvents } from "../utils/events.js";
 
 const findCompetitionById = async (eventId) => {
     if (!mongoose.isValidObjectId(eventId)) throw new ApiError(400, "Invalid event ID");
@@ -208,6 +209,16 @@ export const joinTeam = async (eventId, teamId, data, io, requestUser) => {
 
     if (io) emitTeamUpdate(io, eventId.toString(), { action: "member_joined", teamId, userId: requestUser._id });
 
+    systemEvents.emit("notification:create", {
+        userId: team.leader,
+        type: "event_update",
+        title: "New Team Member",
+        body: `${requestUser.profile.displayName} has joined your team "${team.teamName}"`,
+        ref: event._id,
+        refModel: "Event",
+        actorId: requestUser._id
+    });
+
     return updated;
 };
 
@@ -267,6 +278,16 @@ export const kickMember = async (eventId, teamId, targetUserId, requestUser) => 
         Chat.findByIdAndUpdate(team.chatId, { $pull: { members: { userId: new mongoose.Types.ObjectId(targetUserId) } } }).catch(console.error);
     }
 
+    systemEvents.emit("notification:create", {
+        userId: targetUserId,
+        type: "event_update",
+        title: "Team Update",
+        body: `You have been removed from the team "${team.teamName}" for ${event.title}`,
+        ref: event._id,
+        refModel: "Event",
+        actorId: requestUser._id
+    });
+
     return targetUserId;
 };
 
@@ -283,11 +304,26 @@ export const disqualifyTeam = async (eventId, teamId, data, requestUser) => {
     if (team.eventId.toString() !== event._id.toString()) throw new ApiError(404, "Team not found in this competition");
     if (team.status === "disqualified") throw new ApiError(400, "Team is already disqualified");
 
-    return await EventTeam.findByIdAndUpdate(
+    const updatedTeam = await EventTeam.findByIdAndUpdate(
         teamId,
         { $set: { status: "disqualified", disqualifiedAt: new Date(), disqualifiedBy: requestUser._id, disqualifiedReason: reason?.trim() || "" } },
         { new: true }
     );
+
+    const memberIds = updatedTeam.members.map(m => m.userId.toString());
+    memberIds.forEach(mId => {
+        systemEvents.emit("notification:create", {
+            userId: mId,
+            type: "event_update",
+            title: "Team Disqualified",
+            body: `Your team "${updatedTeam.teamName}" has been disqualified from ${event.title}. Reason: ${reason || "Policy violation"}`,
+            ref: event._id,
+            refModel: "Event",
+            actorId: requestUser._id
+        });
+    });
+
+    return updatedTeam;
 };
 
 export const transferLeadership = async (eventId, teamId, data, requestUser) => {

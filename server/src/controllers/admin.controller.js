@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../models/user.model.js";
 import { Society } from "../models/society.model.js";
+import { systemEvents } from "../utils/events.js";
 
 const getAllUsers = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10, role, search } = req.query;
@@ -95,6 +96,16 @@ const updateSocietyStatus = asyncHandler(async (req, res) => {
     society.status = status;
     // Optionally handle reason for rejection in a separate field if it exists
     await society.save();
+
+    systemEvents.emit("notification:create", {
+        userId: society.createdBy,
+        type: "society_update",
+        title: `Society ${status === 'approved' ? 'Approved' : 'Rejected'}`,
+        body: `Your request to create "${society.name}" has been ${status} by the admin.${reason ? ` Reason: ${reason}` : ""}`,
+        ref: society._id,
+        refModel: "Society",
+        actorId: req.user._id
+    });
 
     return res.status(200).json(
         new ApiResponse(200, society, `Society ${status} successfully`)

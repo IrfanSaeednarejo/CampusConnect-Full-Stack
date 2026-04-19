@@ -6,6 +6,7 @@ import { User } from "../models/user.model.js";
 import { Event } from "../models/event.model.js";
 import { paginate } from "../utils/paginate.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
+import { systemEvents } from "../utils/events.js";
 
 const uploadFile = async (localPath) => {
     if (!localPath) return null;
@@ -235,6 +236,18 @@ export const joinSociety = async (societyId, requestUser) => {
     society.members.push({ memberId: requestUser._id, role: "student", status: memberStatus, joinedAt: new Date() });
     await society.save();
 
+    if (society.requireApproval) {
+        systemEvents.emit("notification:create", {
+            userId: society.createdBy,
+            type: "society_update",
+            title: "New Join Request",
+            body: `${requestUser.profile.displayName} wants to join ${society.name}`,
+            ref: society._id,
+            refModel: "Society",
+            actorId: requestUser._id
+        });
+    }
+
     return { status: memberStatus, message: society.requireApproval ? "Join request submitted — awaiting approval from the society head" : "You have successfully joined the society", isNew: true };
 };
 
@@ -337,6 +350,17 @@ export const approveMember = async (societyId, memberId, requestUser) => {
     member.status = "approved";
     member.joinedAt = new Date();
     await society.save();
+
+    systemEvents.emit("notification:create", {
+        userId: memberId,
+        type: "society_update",
+        title: "Welcome to the Society!",
+        body: `Your join request for ${society.name} has been approved.`,
+        ref: society._id,
+        refModel: "Society",
+        actorId: requestUser._id
+    });
+
     return { memberId, status: "approved" };
 };
 
@@ -351,5 +375,16 @@ export const rejectMember = async (societyId, memberId, requestUser) => {
 
     member.status = "rejected";
     await society.save();
+
+    systemEvents.emit("notification:create", {
+        userId: memberId,
+        type: "society_update",
+        title: "Request Declined",
+        body: `Your join request for ${society.name} was not approved.`,
+        ref: society._id,
+        refModel: "Society",
+        actorId: requestUser._id
+    });
+
     return { memberId, status: "rejected" };
 };
