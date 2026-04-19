@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { 
   fetchMyBookings, 
@@ -14,6 +15,7 @@ import { toast } from "react-hot-toast";
 
 export default function MentorSessionsManagement() {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const bookings = useSelector(selectMyBookings) || [];
   const loading = useSelector(selectMentoringLoading);
   const currentUser = useSelector(selectUser);
@@ -161,14 +163,23 @@ export default function MentorSessionsManagement() {
                     </button>
                   )}
                   {session.status === 'confirmed' && (
-                    <button 
-                      onClick={() => handleStatusChange(session._id, 'complete')}
-                      disabled={actionLoading === session._id}
-                      className="flex items-center gap-2 px-4 py-2 bg-[#238636] text-white text-sm font-semibold rounded-lg hover:bg-[#2ea043] transition-colors disabled:opacity-50"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">done_all</span>
-                      Mark Completed
-                    </button>
+                    <>
+                      <button 
+                        onClick={() => navigate(`/workspace/session/${session._id}`)}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#388bfd] text-white text-sm font-semibold rounded-lg hover:bg-[#1f6feb] transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">rocket_launch</span>
+                        Go to Workspace
+                      </button>
+                      <button 
+                        onClick={() => handleStatusChange(session._id, 'complete')}
+                        disabled={actionLoading === session._id}
+                        className="flex items-center gap-2 px-4 py-2 bg-[#238636] text-white text-sm font-semibold rounded-lg hover:bg-[#2ea043] transition-colors disabled:opacity-50"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">done_all</span>
+                        Mark Completed
+                      </button>
+                    </>
                   )}
                   <button 
                     onClick={() => handleStatusChange(session._id, 'cancel')}

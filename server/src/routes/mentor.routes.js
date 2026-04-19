@@ -23,6 +23,8 @@ import {
     respondToReview,
     verifyMentor,
     suspendMentor,
+    getSessionByBookingId,
+    getSessionMessages,
 } from "../controllers/mentor.controller.js";
 
 const router = Router();
@@ -132,5 +134,14 @@ router
         authorize("admin"),
         suspendMentor
     );
+
+// Session Routes
+router
+    .route("/sessions/:bookingId")
+    .get(verifyJWT, getSessionByBookingId);
+
+router
+    .route("/sessions/room/:roomId/messages")
+    .get(verifyJWT, getSessionMessages);
 
 export default router;

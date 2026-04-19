@@ -113,6 +113,7 @@ import RequestAcceptedConfirmation from "../pages/Mentoring/RequestAcceptedConfi
 import VerificationPending      from "../pages/Mentoring/VerificationPending";
 import ApplicationRejected      from "../pages/Mentoring/ApplicationRejected";
 import MentorDisplayProfile     from "../pages/Mentoring/MentorDisplayProfile";
+import SessionWorkspace        from "../pages/Mentoring/SessionWorkspace";
 
 // ── Admin Pages (AppShell) ───────────────────────────────────────────────────
 import UserManagement    from "../pages/Admin/UserManagement";
@@ -315,6 +316,7 @@ export default function AppRoutes() {
           <Route path="/verification-pending"  element={<VerificationPending />} />
           <Route path="/application-rejected"  element={<ApplicationRejected />} />
           <Route path="/my-sessions"           element={<MentorSessionsManagement />} />
+          <Route path="/workspace/session/:bookingId" element={<SessionWorkspace />} />
           <Route path="/student/sessions"      element={<Navigate to="/my-sessions" replace />} />
           <Route path="/student/book-mentor"   element={<Navigate to="/mentors" replace />} />
 

@@ -3,7 +3,10 @@ import { ApiError } from "../utils/ApiError.js";
 import { Mentor } from "../models/mentor.model.js";
 import { MentorBooking } from "../models/mentorBooking.model.js";
 import { MentorReview } from "../models/mentorReview.model.js";
+import { MentorSession } from "../models/mentorSession.model.js";
+import { ChatMessage } from "../models/chatMessage.model.js";
 import { systemEvents } from "../utils/events.js";
+import crypto from "crypto";
 import { User } from "../models/user.model.js";
 import { paginate } from "../utils/paginate.js";
 
@@ -291,10 +294,25 @@ export const confirmBooking = async (bookingId, requestUser) => {
     const updated = await MentorBooking.findByIdAndUpdate(bookingId, { $set: { status: "confirmed", confirmedAt: new Date() } }, { new: true })
         .populate("mentorId", "userId tier averageRating").populate("menteeId", "profile.displayName profile.avatar");
 
+    const session = await MentorSession.create({
+        bookingId: updated._id,
+        mentorId: booking.mentorId,
+        menteeId: booking.menteeId._id || booking.menteeId,
+        roomId: crypto.randomUUID()
+    });
+
     systemEvents.emit("notification:create", {
         userId: booking.menteeId._id || booking.menteeId, type: "mentor_booking", title: "Session Confirmed",
         body: `Your mentoring session on ${booking.startAt.toDateString()} has been confirmed!`, ref: booking._id, refModel: "MentorBooking", actorId: requestUser._id,
     });
+
+    systemEvents.emit("mentor_session:started", {
+        roomId: session.roomId,
+        bookingId: updated._id,
+        menteeId: session.menteeId,
+        mentorId: booking.mentorUserId
+    });
+
     return updated;
 };
 
@@ -318,6 +336,15 @@ export const cancelBooking = async (bookingId, reason, requestUser) => {
         $set: { status: "cancelled", cancelledAt: new Date(), cancelledBy: requestUser._id, cancellationReason: reason?.trim() || "" },
     }, { new: true });
 
+    if (booking.status === "confirmed") {
+        const session = await MentorSession.findOneAndUpdate(
+            { bookingId },
+            { $set: { status: "ended", endedAt: new Date() } },
+            { new: true }
+        );
+        if (session) systemEvents.emit("mentor_session:ended", { roomId: session.roomId });
+    }
+
     const otherUserId = isMentor ? (booking.menteeId._id || booking.menteeId) : booking.mentorUserId;
     systemEvents.emit("notification:create", {
         userId: otherUserId, type: "mentor_booking", title: "Session Cancelled",
@@ -334,6 +361,13 @@ export const completeBooking = async (bookingId, requestUser) => {
     if (booking.startAt > new Date()) throw new ApiError(400, "Cannot complete a session that has not started yet");
 
     const updated = await MentorBooking.findByIdAndUpdate(bookingId, { $set: { status: "completed", completedAt: new Date() } }, { new: true });
+
+    const session = await MentorSession.findOneAndUpdate(
+        { bookingId },
+        { $set: { status: "ended", endedAt: new Date() } },
+        { new: true }
+    );
+    if (session) systemEvents.emit("mentor_session:ended", { roomId: session.roomId });
 
     await Mentor.findByIdAndUpdate(booking.mentorId, { $inc: { pendingPayout: booking.mentorPayout } });
     Mentor.syncStats(booking.mentorId).catch((err) => console.error("[Mentor] Failed to sync stats after session complete:", err.message));
@@ -504,4 +538,56 @@ export const suspendMentor = async (mentorId, data, requestUser) => {
     });
 
     return result;
+};
+
+// --- SESSION & REAL-TIME SERVICES ---
+
+export const getSessionByBookingId = async (bookingId, requestUser) => {
+    if (!mongoose.isValidObjectId(bookingId)) throw new ApiError(400, "Invalid booking ID format");
+    
+    const session = await MentorSession.findOne({ bookingId })
+        .populate("mentorId", "userId hourlyRate currency tier averageRating")
+        .populate("menteeId", "profile.displayName profile.avatar")
+        .populate({
+            path: "bookingId",
+            select: "status topic scheduledAt startAt duration notes"
+        });
+
+    if (!session) throw new ApiError(404, "Session not found for this booking");
+
+    // Authorization
+    const userId = requestUser._id.toString();
+    const isMentor = session.mentorId.userId.toString() === userId;
+    const isMentee = session.menteeId._id.toString() === userId;
+    const isAdmin = requestUser.roles?.includes("admin");
+
+    if (!isMentor && !isMentee && !isAdmin) {
+        throw new ApiError(403, "You do not have access to this session");
+    }
+
+    return session;
+};
+
+export const getSessionMessages = async (roomId, queryParams, requestUser) => {
+    const { page = 1, limit = 50 } = queryParams;
+    
+    const session = await MentorSession.findOne({ roomId }).populate("mentorId", "userId");
+    if (!session) throw new ApiError(404, "Session not found");
+
+    // Authorization
+    const userId = requestUser._id.toString();
+    const isMentor = session.mentorId.userId.toString() === userId;
+    const isMentee = session.menteeId.toString() === userId;
+    const isAdmin = requestUser.roles?.includes("admin");
+
+    if (!isMentor && !isMentee && !isAdmin) {
+        throw new ApiError(403, "You do not have access to this session history");
+    }
+
+    return await paginate(ChatMessage, { roomId }, {
+        page,
+        limit,
+        sort: { createdAt: 1 }, // Order by time ascending for chat history
+        populate: [{ path: "senderId", select: "profile.displayName profile.avatar" }]
+    });
 };

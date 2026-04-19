@@ -58,3 +58,9 @@ export const verifyMentor = (mentorId) =>
 
 export const suspendMentor = (mentorId, data = {}) =>
   api.patch(`${BASE}/${mentorId}/suspend`, data);
+
+export const getSessionByBookingId = (bookingId) =>
+  api.get(`${BASE}/sessions/${bookingId}`);
+
+export const getSessionMessages = (roomId, params = {}) =>
+  api.get(`${BASE}/sessions/room/${roomId}/messages`, { params });

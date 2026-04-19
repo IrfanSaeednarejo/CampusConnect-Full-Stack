@@ -6,6 +6,7 @@ import { registerChatHandlers } from "./chat.socket.js";
 import { registerPresenceHandlers } from "./presence.socket.js";
 import { registerNotificationHandlers } from "./notification.socket.js";
 import { registerEventHandlers } from "./event.socket.js";
+import { registerMentorHandlers } from "./mentor.socket.js";
 
 
 const onlineUsers = new Map();
@@ -102,6 +103,7 @@ export const initializeSocket = (httpServer) => {
         registerChatHandlers(io, socket);
         registerNotificationHandlers(io, socket);
         registerEventHandlers(io, socket);
+        registerMentorHandlers(io, socket);
 
         socket.on("disconnect", () => {
             clearTimeout(socket.authTimeout);

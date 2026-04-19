@@ -15,6 +15,7 @@ import campusReducer from './slices/campusSlice';
 import notesReducer from './slices/notesSlice';
 import agentReducer from './slices/agentSlice';
 import paymentReducer from './slices/paymentSlice';
+import sessionReducer from './slices/sessionSlice';
 
 // Event Sub-System Slices
 import teamReducer from './slices/teamSlice';
@@ -37,6 +38,7 @@ const rootReducer = combineReducers({
   notes: notesReducer,
   agent: agentReducer,
   payments: paymentReducer,
+  session: sessionReducer,
   
   // Event Engine Modules
   teams: teamReducer,

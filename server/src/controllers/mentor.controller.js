@@ -97,9 +97,20 @@ const suspendMentor = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, updated, "Mentor suspended successfully"));
 });
 
+const getSessionByBookingId = asyncHandler(async (req, res) => {
+    const session = await mentoringService.getSessionByBookingId(req.params.bookingId, req.user);
+    return res.status(200).json(new ApiResponse(200, session, "Session fetched successfully"));
+});
+
+const getSessionMessages = asyncHandler(async (req, res) => {
+    const data = await mentoringService.getSessionMessages(req.params.roomId, req.query, req.user);
+    return res.status(200).json(new ApiResponse(200, data, "Messages fetched successfully"));
+});
+
 export {
     registerAsMentor, updateMentorProfile, getMentors, getMyMentorProfile, getMentorById,
     setAvailability, getMentorAvailability, bookSession, confirmBooking, cancelBooking,
     completeBooking, markNoShow, getMyBookings, getBookingById, submitReview,
     getMentorReviews, respondToReview, verifyMentor, suspendMentor,
+    getSessionByBookingId, getSessionMessages
 };
