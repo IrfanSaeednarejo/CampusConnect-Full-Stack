@@ -40,13 +40,13 @@ const hasBookingConflict = async (mentorId, startAt, endAt, excludeBookingId = n
 
 const isWithinAvailability = (availability, startAt, endAt) => {
     if (!availability || availability.length === 0) return true;
-    const dayOfWeek = startAt.getUTCDay();
+    const dayOfWeek = startAt.getDay();
     const toMinutes = (hhmm) => {
         const [h, m] = hhmm.split(":").map(Number);
         return h * 60 + m;
     };
-    const requestStart = startAt.getUTCHours() * 60 + startAt.getUTCMinutes();
-    const requestEnd = endAt.getUTCHours() * 60 + endAt.getUTCMinutes();
+    const requestStart = startAt.getHours() * 60 + startAt.getMinutes();
+    const requestEnd = endAt.getHours() * 60 + endAt.getMinutes();
     return availability.some((slot) => {
         if (slot.day !== dayOfWeek) return false;
         const slotStart = toMinutes(slot.startTime);

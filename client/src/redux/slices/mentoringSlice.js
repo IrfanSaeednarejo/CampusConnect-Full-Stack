@@ -77,9 +77,9 @@ export const setMentorAvailability = createAsyncThunk(
 
 export const fetchMentorAvailability = createAsyncThunk(
   'mentoring/getAvailability',
-  async (id, { rejectWithValue }) => {
+  async ({ id, params = {} }, { rejectWithValue }) => {
     try {
-      const { data } = await mentoringApi.getMentorAvailability(id);
+      const { data } = await mentoringApi.getMentorAvailability(id, params);
       return data.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message || 'Failed to fetch availability');
@@ -310,7 +310,7 @@ const mentoringSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchMentorAvailability.fulfilled, (state, action) => {
-        state.availability = action.payload?.availability?.weeklySchedule || [];
+        state.availability = action.payload || { availability: [], bookedSlots: [] };
       })
       .addCase(fetchMentorAvailability.rejected, (state, action) => {
         state.error = action.payload;

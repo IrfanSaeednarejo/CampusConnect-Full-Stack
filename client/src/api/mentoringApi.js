@@ -20,8 +20,8 @@ export const updateMentorProfile = (data) =>
 export const setAvailability = (data) =>
   api.put(`${BASE}/availability`, data);
 
-export const getMentorAvailability = (mentorId) =>
-  api.get(`${BASE}/${mentorId}/availability`);
+export const getMentorAvailability = (mentorId, params = {}) =>
+  api.get(`${BASE}/${mentorId}/availability`, { params });
 
 export const bookSession = (mentorId, data) =>
   api.post(`${BASE}/${mentorId}/book`, data);
