@@ -10,9 +10,9 @@ import { useNotification } from "../../contexts/NotificationContext.jsx";
 import PageHeader from "../../components/common/PageHeader";
 import FormField from "../../components/common/FormField";
 import FormActions from "../../components/common/FormActions";
-import Sidebar from "../../components/layout/Sidebar";
 import Card from "../../components/common/Card";
 import PageContent from "../../components/common/PageContent";
+import SchedulePicker from "../../components/studyGroups/SchedulePicker";
 
 export default function EditStudyGroup() {
   const { goTo } = useNavigation();
@@ -27,8 +27,9 @@ export default function EditStudyGroup() {
       const updateData = {
         name: values.name,
         course: values.course,
+        subject: values.course, // Aligning fields
         description: values.description,
-        meetingSchedule: values.meetingSchedule || "TBD",
+        schedule: values.schedule,
         maxMembers: values.maxMembers ? parseInt(values.maxMembers) : null,
       };
 
@@ -41,12 +42,12 @@ export default function EditStudyGroup() {
     }
   };
 
-  const { values, setFormValues, handleChange, handleSubmit: onSubmit } = useFormState(
+  const { values, setFormValues, handleChange, handleSubmit: onSubmit, setValue } = useFormState(
     {
       name: "",
       course: "",
       description: "",
-      meetingSchedule: "",
+      schedule: [],
       maxMembers: "",
     },
     handleSubmit
@@ -58,19 +59,15 @@ export default function EditStudyGroup() {
         name: group.name || "",
         course: group.course || "",
         description: group.description || "",
-        meetingSchedule: group.meetingSchedule || "",
+        schedule: group.schedule || [],
         maxMembers: group.maxMembers ? group.maxMembers.toString() : "",
       });
     }
   }, [group, setFormValues]);
 
   return (
-    <div className="flex h-screen bg-[#0d1117]">
-      {/* Unified Sidebar */}
-      <Sidebar />
-
-      <div className="flex-1 flex flex-col min-h-screen overflow-y-auto">
-        {/* Header */}
+    <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
+      {/* Header */}
         <PageHeader
           title="Edit Study Group"
           subtitle="Update your study group details"
@@ -112,11 +109,9 @@ export default function EditStudyGroup() {
               />
 
               {/* Meeting Schedule */}
-              <FormField
-                label="Meeting Schedule"
-                name="meetingSchedule"
-                value={values.meetingSchedule}
-                onChange={handleChange}
+              <SchedulePicker
+                value={values.schedule}
+                onChange={(newSchedule) => setValue('schedule', newSchedule)}
               />
 
               {/* Max Members */}
@@ -138,7 +133,6 @@ export default function EditStudyGroup() {
             </form>
           </Card>
         </PageContent>
-      </div>
     </div>
   );
 }

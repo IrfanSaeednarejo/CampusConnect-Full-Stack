@@ -1,7 +1,9 @@
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../hooks/useAuth";
 
 export default function GroupCard({ group }) {
   const navigate = useNavigate();
+  const { isAuthenticated, openAuth, savePendingAction } = useAuth();
 
   return (
     <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 hover:border-[#238636]/50 transition-colors flex flex-col h-full">
@@ -28,7 +30,13 @@ export default function GroupCard({ group }) {
           View Group
         </button>
         <button
-          onClick={() => navigate(`/study-groups/${group._id || group.id}/join`)}
+          onClick={() => {
+            if (!isAuthenticated) {
+              savePendingAction({ type: 'JOIN_STUDY_GROUP', payload: group._id || group.id, returnPath: `/study-groups/${group._id || group.id}` });
+              return openAuth();
+            }
+            navigate(`/study-groups/${group._id || group.id}/join`);
+          }}
           className="flex-1 px-4 py-2 rounded-lg bg-[#238636] text-white text-sm font-semibold hover:bg-[#2ea043] transition-colors"
         >
           Join Group

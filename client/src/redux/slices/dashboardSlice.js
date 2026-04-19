@@ -1,13 +1,41 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import * as dashboardApi from '../../api/dashboardApi';
+
+export const fetchDashboardSummary = createAsyncThunk(
+  'dashboard/fetchSummary',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await dashboardApi.getSummary();
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch dashboard summary');
+    }
+  }
+);
+
+export const fetchDashboardTimeline = createAsyncThunk(
+  'dashboard/fetchTimeline',
+  async (_, { rejectWithValue }) => {
+    try {
+      const { data } = await dashboardApi.getTimeline();
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || 'Failed to fetch dashboard timeline');
+    }
+  }
+);
 
 const initialState = {
-  recentActivity: [],
-  stats: {
-    eventsAttended: 0,
-    mentoringSessions: 0,
-    societiesMember: 0,
-    connectionsCount: 0,
+  summary: {
+    activeEventsCount: 0,
+    mySocietiesCount: 0,
+    unreadMessagesCount: 0,
+    availableMentorsCount: 0,
+    myStudyGroupsCount: 0,
+    pendingSessionsCount: 0,
+    pendingApprovalsCount: 0
   },
+  timeline: [],
   loading: false,
   error: null,
 };
@@ -16,49 +44,43 @@ const dashboardSlice = createSlice({
   name: 'dashboard',
   initialState,
   reducers: {
-    setRecentActivity: (state, action) => {
-      state.recentActivity = action.payload;
-    },
-    addActivity: (state, action) => {
-      state.recentActivity.unshift(action.payload);
-    },
-    clearActivity: (state) => {
-      state.recentActivity = [];
-    },
-    setStats: (state, action) => {
-      state.stats = { ...state.stats, ...action.payload };
-    },
-    incrementStat: (state, action) => {
-      const { stat } = action.payload;
-      if (state.stats[stat] !== undefined) {
-        state.stats[stat] += 1;
-      }
-    },
-    setDashboardLoading: (state, action) => {
-      state.loading = action.payload;
-    },
-    setDashboardError: (state, action) => {
-      state.error = action.payload;
-    },
     clearDashboardError: (state) => {
       state.error = null;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchDashboardSummary.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDashboardSummary.fulfilled, (state, action) => {
+        state.loading = false;
+        state.summary = { ...state.summary, ...action.payload };
+      })
+      .addCase(fetchDashboardSummary.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(fetchDashboardTimeline.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchDashboardTimeline.fulfilled, (state, action) => {
+        state.loading = false;
+        state.timeline = action.payload;
+      })
+      .addCase(fetchDashboardTimeline.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
+  },
 });
 
-export const {
-  setRecentActivity,
-  addActivity,
-  clearActivity,
-  setStats,
-  incrementStat,
-  setDashboardLoading,
-  setDashboardError,
-  clearDashboardError,
-} = dashboardSlice.actions;
+export const { clearDashboardError } = dashboardSlice.actions;
 
-export const selectRecentActivity = (state) => state.dashboard.recentActivity;
-export const selectDashboardStats = (state) => state.dashboard.stats;
+export const selectDashboardSummary = (state) => state.dashboard.summary;
+export const selectDashboardTimeline = (state) => state.dashboard.timeline;
 export const selectDashboardLoading = (state) => state.dashboard.loading;
 export const selectDashboardError = (state) => state.dashboard.error;
 

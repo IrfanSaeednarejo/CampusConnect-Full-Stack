@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
+import { verifyJWT, optionalAuth } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
 import { upload } from "../middlewares/multer.middleware.js";
 
@@ -23,59 +23,56 @@ import {
 
 const router = Router();
 
-router.use(verifyJWT);
-
-
 router
     .route("/")
-    .get(getStudyGroups)
-    .post(createStudyGroup);
+    .get(optionalAuth, getStudyGroups)
+    .post(verifyJWT, createStudyGroup);
 
 router
     .route("/my")
-    .get(getMyStudyGroups);
+    .get(verifyJWT, getMyStudyGroups);
 
 router
     .route("/:id")
-    .get(getStudyGroupById)
-    .patch(updateStudyGroup)
-    .delete(deleteStudyGroup);
+    .get(optionalAuth, getStudyGroupById)
+    .patch(verifyJWT, updateStudyGroup)
+    .delete(verifyJWT, deleteStudyGroup);
 
 
 router
     .route("/:id/archive")
-    .patch(authorize("admin"), archiveStudyGroup);
+    .patch(verifyJWT, authorize("admin"), archiveStudyGroup);
 
 
 router
     .route("/:id/schedule")
-    .put(updateSchedule);
+    .put(verifyJWT, updateSchedule);
 
 
 router
     .route("/:id/join")
-    .post(joinStudyGroup);
+    .post(verifyJWT, joinStudyGroup);
 
 router
     .route("/:id/leave")
-    .post(leaveStudyGroup);
+    .post(verifyJWT, leaveStudyGroup);
 
 
 router
     .route("/:id/members/:memberId")
-    .delete(removeMember);
+    .delete(verifyJWT, removeMember);
 
 router
     .route("/:id/members/:memberId/role")
-    .patch(updateMemberRole);
+    .patch(verifyJWT, updateMemberRole);
 
 router
     .route("/:id/resources")
-    .get(getResources)
-    .post(upload.single("file"), addResource);
+    .get(verifyJWT, getResources)
+    .post(verifyJWT, upload.single("file"), addResource);
 
 router
     .route("/:id/resources/:resourceId")
-    .delete(removeResource);
+    .delete(verifyJWT, removeResource);
 
 export default router;

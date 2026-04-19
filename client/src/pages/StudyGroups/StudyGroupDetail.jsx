@@ -25,7 +25,7 @@ export default function StudyGroupDetail() {
   const dispatch = useDispatch();
   const { id } = useParams();
   const { activeTab, setActiveTab } = useTabs(TABS, "overview");
-  const { isAuthenticated, openAuth, user } = useAuth();
+  const { isAuthenticated, openAuth, user, savePendingAction } = useAuth();
   const { showSuccess, showError } = useNotification();
 
   const group = useSelector(selectSelectedStudyGroup);
@@ -43,7 +43,10 @@ export default function StudyGroupDetail() {
   const isMember = group?.groupMembers?.some(m => (m.memberId._id || m.memberId) === user?._id) || group?.isMember;
 
   const handleJoinLeave = async () => {
-    if (!isAuthenticated) return openAuth();
+    if (!isAuthenticated) {
+      savePendingAction({ type: 'JOIN_STUDY_GROUP', payload: id, returnPath: `/study-groups/${id}` });
+      return openAuth();
+    }
     
     try {
       if (isMember) {

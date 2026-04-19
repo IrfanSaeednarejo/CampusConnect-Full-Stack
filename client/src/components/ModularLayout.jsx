@@ -3,6 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import AppShell from './layout/AppShell';
 import Layout from './Layout';
 import AuthModal from './common/AuthModal';
+import AuthActionExecutor from './common/AuthActionExecutor';
 
 /**
  * ModularLayout — Hybrid layout that selects between AppShell (authenticated)
@@ -15,6 +16,7 @@ export default function ModularLayout() {
   return (
     <>
       {isAuthenticated ? <AppShell /> : <Layout />}
+      <AuthActionExecutor />
       <AuthModal />
     </>
   );

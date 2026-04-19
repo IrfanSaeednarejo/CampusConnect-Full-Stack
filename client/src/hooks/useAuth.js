@@ -12,9 +12,10 @@ import {
   selectAuthError,
   selectOnboardingCompleted,
   completeOnboardingThunk,
-  openAuthModal,
-  closeAuthModal,
   selectAuthModalOpen,
+  setPendingAction,
+  clearPendingAction,
+  selectPendingAction,
 } from '../redux/slices/authSlice';
 import { connectSocket, disconnectSocket } from '../socket/socket';
 
@@ -30,6 +31,7 @@ export const useAuth = () => {
   const onboardingCompleted = useSelector(selectOnboardingCompleted);
 
   const isAuthModalOpen = useSelector(selectAuthModalOpen);
+  const pendingAction = useSelector(selectPendingAction);
 
   /** Check if the authenticated user holds a specific role */
   const hasRole = useCallback(
@@ -63,6 +65,14 @@ export const useAuth = () => {
   const openAuth = useCallback(() => dispatch(openAuthModal()), [dispatch]);
   const closeAuth = useCallback(() => dispatch(closeAuthModal()), [dispatch]);
 
+  const savePendingAction = useCallback((action) => {
+    dispatch(setPendingAction(action));
+  }, [dispatch]);
+
+  const clearPending = useCallback(() => {
+    dispatch(clearPendingAction());
+  }, [dispatch]);
+
   const dismissError = useCallback(() => {
     dispatch(clearError());
   }, [dispatch]);
@@ -83,6 +93,9 @@ export const useAuth = () => {
     closeAuth,
     completeOnboarding,
     dismissError,
+    savePendingAction,
+    clearPending,
+    pendingAction,
   };
 };
 

@@ -11,6 +11,7 @@ import PageHeader from "../../components/common/PageHeader";
 import Card from "../../components/common/Card";
 import PageContent from "../../components/common/PageContent";
 import InfoBox from "../../components/common/InfoBox";
+import SchedulePicker from "../../components/studyGroups/SchedulePicker";
 
 const CATEGORY_MAP = {
   COMP: "Computer Science",
@@ -37,8 +38,9 @@ export default function CreateStudyGroup() {
       const payload = {
         name: values.name,
         course: values.course,
-        subject: values.course, // Aligning for now
+        subject: values.course,
         description: values.description,
+        schedule: values.schedule,
         maxMembers: values.maxMembers ? parseInt(values.maxMembers) : 20,
       };
 
@@ -50,12 +52,12 @@ export default function CreateStudyGroup() {
     }
   };
 
-  const { values, handleChange, handleSubmit: onSubmit } = useFormState(
+  const { values, handleChange, handleSubmit: onSubmit, setValue } = useFormState(
     {
       name: "",
       course: "",
       description: "",
-      meetingSchedule: "",
+      schedule: [],
       maxMembers: "",
     },
     handleSubmit
@@ -108,12 +110,9 @@ export default function CreateStudyGroup() {
             />
 
             {/* Meeting Schedule */}
-            <FormField
-              label="Meeting Schedule"
-              name="meetingSchedule"
-              value={values.meetingSchedule}
-              onChange={handleChange}
-              placeholder="e.g., Thursdays at 6 PM in Library Room 203"
+            <SchedulePicker
+              value={values.schedule}
+              onChange={(newSchedule) => setValue('schedule', newSchedule)}
             />
 
             {/* Max Members */}

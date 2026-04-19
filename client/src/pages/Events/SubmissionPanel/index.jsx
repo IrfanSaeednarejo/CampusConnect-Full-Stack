@@ -15,6 +15,8 @@ import CircularProgress from "../../../components/common/CircularProgress";
 import FormField from "../../../components/common/FormField";
 import Button from "../../../components/common/Button";
 import FileDropzone from "../../../components/events/Submissions/FileDropzone";
+import PageHeader from "../../../components/common/PageHeader";
+import PageContent from "../../../components/common/PageContent";
 
 export default function SubmissionPanel() {
   const { id: eventId } = useParams();
@@ -52,22 +54,40 @@ export default function SubmissionPanel() {
   }, [submission]);
 
   const handleSaveDraft = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (!eventId) return;
+
+    const links = [];
+    if (formData.repositoryUrl) links.push({ label: 'Repository', url: formData.repositoryUrl });
+    if (formData.liveDemoUrl) links.push({ label: 'Live Demo', url: formData.liveDemoUrl });
 
     // Send the draft payload
     await dispatch(submitWorkThunk({
       eventId,
-      data: { ...formData, isFinalized: false } // custom flag if supported by backend
+      data: { 
+        title: formData.title, 
+        description: formData.description,
+        links: links,
+        isFinalized: false 
+      }
     }));
   };
 
   const handleFinalSubmit = async () => {
     if (!window.confirm("Are you sure you want to finalize your submission? You cannot alter files afterward.")) return;
     
+    const links = [];
+    if (formData.repositoryUrl) links.push({ label: 'Repository', url: formData.repositoryUrl });
+    if (formData.liveDemoUrl) links.push({ label: 'Live Demo', url: formData.liveDemoUrl });
+
     await dispatch(submitWorkThunk({
       eventId,
-      data: { ...formData, status: "submitted" } 
+      data: { 
+        title: formData.title, 
+        description: formData.description,
+        links: links,
+        status: "submitted" 
+      } 
     }));
   };
 
@@ -93,37 +113,33 @@ export default function SubmissionPanel() {
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#e6edf3] pb-20">
-      {/* Header */}
-      <div className="bg-[#161b22] border-b border-[#30363d] py-6 px-4 sm:px-10 lg:px-20 relative">
-        <button onClick={() => navigate(`/events/${eventId}`)} className="flex items-center text-[#8b949e] hover:text-white transition-colors mb-4">
-          <span className="material-symbols-outlined mr-2">arrow_back</span> Back to Event
-        </button>
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-black text-white">Submission Panel</h1>
-            <p className="text-[#8b949e] mt-1">{event.title}</p>
-          </div>
-          <div className="bg-[#0d1117] border border-[#30363d] p-3 rounded-lg flex gap-4 text-center items-center">
-            <span className="material-symbols-outlined text-2xl text-[#1f6feb]">upload_file</span>
+      <PageHeader
+        title="Submission Panel"
+        subtitle={event.title}
+        icon="upload_file"
+        backPath={`/events/${eventId}`}
+        action={
+          <div className="bg-[#161b22] border border-[#30363d] px-4 py-2 rounded-lg flex gap-3 items-center">
+            <span className="material-symbols-outlined text-xl text-[#1f6feb]">info</span>
             <div className="text-left">
-              <p className="text-xs text-[#8b949e] uppercase font-bold tracking-wider">Status</p>
-              <p className={`font-semibold capitalize ${submission?.status === 'submitted' ? 'text-[#1dc964]' : 'text-[#e3b341]'}`}>
+              <p className="text-[10px] text-[#8b949e] uppercase font-bold tracking-wider leading-none">Status</p>
+              <p className={`text-sm font-semibold capitalize leading-tight ${submission?.status === 'submitted' ? 'text-[#3fb950]' : 'text-[#e3b341]'}`}>
                 {submission?.status || 'Draft'}
               </p>
             </div>
           </div>
-        </div>
-      </div>
+        }
+      />
 
-      {(!submissionsOpen && submission?.status !== 'submitted') && (
-         <div className="max-w-4xl mx-auto mt-8 bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-lg flex items-center gap-3 mx-4 lg:mx-auto">
-            <span className="material-symbols-outlined">error</span>
-            <p className="font-semibold">Submissions are currently closed for this event.</p>
-         </div>
-      )}
+      <PageContent>
+        {(!submissionsOpen && submission?.status !== 'submitted') && (
+           <div className="mb-8 bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-lg flex items-center gap-3">
+              <span className="material-symbols-outlined">error</span>
+              <p className="font-semibold">Submissions are currently closed for this event.</p>
+           </div>
+        )}
 
-      {/* Main Grid */}
-      <div className="max-w-4xl mx-auto px-4 mt-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         
         {/* Form Area */}
         <div className="md:col-span-2 space-y-6">
@@ -257,7 +273,9 @@ export default function SubmissionPanel() {
           </div>
         </div>
 
-      </div>
+        </div>
+
+      </PageContent>
     </div>
   );
 }

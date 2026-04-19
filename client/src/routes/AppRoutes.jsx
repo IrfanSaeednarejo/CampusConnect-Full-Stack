@@ -216,6 +216,10 @@ export default function AppRoutes() {
         {/* Members */}
         <Route path="/members"   element={<Members />} />
         <Route path="/users/:id" element={<PublicUserProfile />} />
+
+        {/* Study Groups */}
+        <Route path="/study-groups"           element={<StudyGroupsList />} />
+        <Route path="/study-groups/:id"       element={<StudyGroupDetail />} />
       </Route>
 
       {/* ══════════════════════════════════════════════════
@@ -271,9 +275,7 @@ export default function AppRoutes() {
           <Route path="/events/:id/check-in"  element={<QRCheckInPanel />} />
 
           {/* ── Study Groups ─────────────────────────── */}
-          <Route path="/study-groups"           element={<StudyGroupsList />} />
           <Route path="/study-groups/create"    element={<CreateStudyGroup />} />
-          <Route path="/study-groups/:id"       element={<StudyGroupDetail />} />
           <Route path="/study-groups/:id/join"  element={<JoinStudyGroup />} />
           <Route path="/study-groups/:id/edit"  element={<EditStudyGroup />} />
           <Route path="/study-groups/:id/chat"  element={<StudyGroupChat />} />

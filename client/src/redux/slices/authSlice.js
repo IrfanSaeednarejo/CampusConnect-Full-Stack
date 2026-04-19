@@ -194,6 +194,7 @@ const initialState = {
   error: null,
   onboardingCompleted: false,
   authModalOpen: false,
+  pendingAction: null,
 };
 
 const updateUserState = (state, action) => {
@@ -241,6 +242,12 @@ const authSlice = createSlice({
     },
     closeAuthModal: (state) => {
       state.authModalOpen = false;
+    },
+    setPendingAction: (state, action) => {
+      state.pendingAction = action.payload;
+    },
+    clearPendingAction: (state) => {
+      state.pendingAction = null;
     },
   },
   extraReducers: (builder) => {
@@ -334,6 +341,8 @@ export const {
   clearError,
   openAuthModal,
   closeAuthModal,
+  setPendingAction,
+  clearPendingAction,
 } = authSlice.actions;
 
 export const selectIsAuthenticated = (state) => state.auth.isAuthenticated;
@@ -345,5 +354,6 @@ export const selectHasRole = (role) => (state) => (state.auth.roles ?? []).inclu
 export const selectAuthLoading = (state) => state.auth.loading;
 export const selectAuthError = (state) => state.auth.error;
 export const selectOnboardingCompleted = (state) => state.auth.onboardingCompleted;
+export const selectPendingAction = (state) => state.auth.pendingAction;
 
 export default authSlice.reducer;

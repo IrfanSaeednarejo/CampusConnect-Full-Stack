@@ -1,7 +1,15 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext.jsx';
 import RoleGuard from '../../routes/RoleGuard.jsx';
+import { useDispatch, useSelector } from 'react-redux';
+import { 
+  fetchDashboardSummary, 
+  fetchDashboardTimeline, 
+  selectDashboardSummary, 
+  selectDashboardTimeline, 
+  selectDashboardLoading 
+} from '../../redux/slices/dashboardSlice';
+import { useEffect } from 'react';
 
 /* ─── Shared utility components ─────────────────────────────────────── */
 
@@ -70,31 +78,78 @@ function QuickActionPill({ icon, label, to, color }) {
 
 /* ─── Role-specific widget panels ───────────────────────────────────── */
 
-function StudentWidgets() {
+function TimelineItem({ item }) {
+  const navigate = useNavigate();
+  const isEvent = item.type === 'event';
+  const icon = isEvent ? 'event' : 'calendar_month';
+  const color = isEvent ? '#e3b341' : '#3fb950';
+
+  return (
+    <div 
+      onClick={() => navigate(isEvent ? `/events/${item.id}` : `/mentor/sessions/${item.id}`)}
+      className="flex items-center gap-4 p-3 rounded-lg hover:bg-white/5 cursor-pointer transition-colors border border-transparent hover:border-[#30363d]"
+    >
+      <div 
+        className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+        style={{ background: `${color}18` }}
+      >
+        <span className="material-symbols-outlined text-lg" style={{ color }}>{icon}</span>
+      </div>
+      <div className="flex-1 min-w-0">
+        <h4 className="text-[#e6edf3] text-sm font-medium truncate">{item.title}</h4>
+        <div className="flex items-center gap-2 mt-0.5">
+          <span className="text-[#8b949e] text-xs">
+            {new Date(item.time).toLocaleDateString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+          </span>
+          {item.category && (
+            <>
+              <span className="w-1 h-1 rounded-full bg-[#30363d]" />
+              <span className="text-[#8b949e] text-xs truncate">{item.category}</span>
+            </>
+          )}
+        </div>
+      </div>
+      <span className="material-symbols-outlined text-[#3d444d] text-lg">chevron_right</span>
+    </div>
+  );
+}
+
+function StudentWidgets({ timeline = [] }) {
   const navigate = useNavigate();
   return (
     <>
-      <SectionCard title="Upcoming Events" action="View all" actionTo="/events">
-        <EmptyState icon="event" message="No upcoming events. Explore what's happening on campus." cta="Browse Events" onClick={() => navigate('/events')} />
-      </SectionCard>
-
-      <SectionCard title="My Societies" action="View all" actionTo="/societies">
-        <EmptyState icon="diversity_3" message="You haven't joined any societies yet." cta="Explore Societies" onClick={() => navigate('/societies')} />
+      <SectionCard title="Upcoming Timeline" action="View Events" actionTo="/events">
+        {timeline.length > 0 ? (
+          <div className="space-y-1">
+            {timeline.map(item => <TimelineItem key={item.id} item={item} />)}
+          </div>
+        ) : (
+          <EmptyState icon="event" message="No upcoming events or sessions. Explore what's happening on campus." cta="Browse Events" onClick={() => navigate('/events')} />
+        )}
       </SectionCard>
     </>
   );
 }
 
-function MentorWidgets() {
+function MentorWidgets({ pendingCount = 0 }) {
   const navigate = useNavigate();
   return (
     <>
-      <SectionCard title="Pending Session Requests">
-        <EmptyState icon="calendar_month" message="No pending session requests." cta="Set Availability" onClick={() => navigate('/mentor/availability')} />
-      </SectionCard>
-
-      <SectionCard title="My Mentoring Sessions">
-        <EmptyState icon="group" message="No sessions yet." cta="View Sessions" onClick={() => navigate('/mentor/sessions')} />
+      <SectionCard title="Mentor Dashboard">
+        {pendingCount > 0 ? (
+          <div 
+            onClick={() => navigate('/mentor/requests')}
+            className="p-4 rounded-xl bg-[#3fb950]10 border border-[#3fb950]30 flex items-center justify-between cursor-pointer hover:bg-[#3fb950]20 transition-all"
+          >
+            <div>
+              <p className="text-[#3fb950] text-sm font-bold">New Session Requests</p>
+              <p className="text-[#e6edf3] text-xl font-black">{pendingCount}</p>
+            </div>
+            <span className="material-symbols-outlined text-[#3fb950] text-2xl">arrow_circle_right</span>
+          </div>
+        ) : (
+          <EmptyState icon="calendar_month" message="No pending session requests." cta="Set Availability" onClick={() => navigate('/mentor/availability')} />
+        )}
       </SectionCard>
     </>
   );
@@ -115,14 +170,14 @@ function SocietyHeadWidgets() {
   );
 }
 
-function AdminWidgets() {
+function AdminWidgets({ pendingApprovals = 0 }) {
   const navigate = useNavigate();
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard icon="pending_actions" label="Society Approvals" value="—" color="#e3b341" to="/admin/approvals/societies" />
-        <StatCard icon="fact_check"     label="Mentor Reviews"    value="—" color="#388bfd" to="/admin/approvals/mentors" />
-        <StatCard icon="group"          label="Total Users"       value="—" color="#3fb950" to="/admin/users" />
+        <StatCard icon="pending_actions" label="Pending Approvals" value={pendingApprovals} color="#e3b341" to="/admin/approvals" />
+        <StatCard icon="fact_check"     label="Health Check"      value="Optimal"     color="#388bfd" to="/admin/system" />
+        <StatCard icon="group"          label="Total Users"       value="Live"        color="#3fb950" to="/admin/users" />
       </div>
       <div className="mt-4">
         <SectionCard title="Quick Admin Actions">
@@ -164,6 +219,16 @@ function RoleBadge({ role }) {
 export default function UnifiedDashboard() {
   const { user, roles } = useAuth();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  const summary = useSelector(selectDashboardSummary);
+  const timeline = useSelector(selectDashboardTimeline);
+  const loading = useSelector(selectDashboardLoading);
+
+  useEffect(() => {
+    dispatch(fetchDashboardSummary());
+    dispatch(fetchDashboardTimeline());
+  }, [dispatch]);
 
   const displayName = user?.profile?.firstName
     ? user.profile.firstName.charAt(0).toUpperCase() + user.profile.firstName.slice(1)
@@ -205,23 +270,20 @@ export default function UnifiedDashboard() {
 
       {/* ── Global Stats Row ──────────────────────── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-        <StatCard icon="event"        label="Active Events"    value="—" color="#e3b341" to="/events" />
-        <StatCard icon="diversity_3"  label="My Societies"     value="—" color="#388bfd" to="/societies" />
-        <StatCard icon="chat_bubble"  label="Unread Messages"  value="—" color="#3fb950" to="/messages" />
-        <StatCard icon="school"       label="Available Mentors" value="—" color="#f0883e" to="/mentors" />
+        <StatCard icon="event"        label="Active Events"    value={summary.activeEventsCount} color="#e3b341" to="/events" />
+        <StatCard icon="diversity_3"  label="My Societies"     value={summary.mySocietiesCount} color="#388bfd" to="/societies" />
+        <StatCard icon="chat_bubble"  label="Unread Messages"  value={summary.unreadMessagesCount} color="#3fb950" to="/messages" />
+        <StatCard icon="school"       label="Available Mentors" value={summary.availableMentorsCount} color="#f0883e" to="/mentors" />
       </div>
 
       {/* ── Role-specific widget columns ─────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        {/* Always show student widgets for all users (student features are universal) */}
-        <StudentWidgets />
+        <StudentWidgets timeline={timeline} />
 
         {/* Extra column: mentor or society head widgets */}
         <div className="flex flex-col gap-6">
-
           <RoleGuard role="mentor">
-            <MentorWidgets />
+            <MentorWidgets pendingCount={summary.pendingSessionsCount} />
           </RoleGuard>
 
           <RoleGuard role="society_head">
@@ -247,7 +309,7 @@ export default function UnifiedDashboard() {
             <span className="material-symbols-outlined text-[#f0883e]">admin_panel_settings</span>
             Admin Overview
           </h2>
-          <AdminWidgets />
+          <AdminWidgets pendingApprovals={summary.pendingApprovalsCount} />
         </div>
       </RoleGuard>
 

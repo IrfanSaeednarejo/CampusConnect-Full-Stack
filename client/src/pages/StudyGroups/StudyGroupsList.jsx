@@ -7,10 +7,13 @@ import {
   selectStudyGroupError,
 } from "../../redux/slices/studyGroupSlice";
 import { useNavigation, useFilterSort } from "../../hooks";
+import { useAuth } from "../../hooks/useAuth";
 import GroupCard from "../../components/studyGroups/GroupCard";
 import SortControls from "../../components/studyGroups/SortControls";
 import CategoryFilter from "../../components/studyGroups/CategoryFilter";
 import StatsCard from "../../components/studyGroups/StatsCard";
+import PageHeader from "../../components/common/PageHeader";
+import PageContent from "../../components/common/PageContent";
 
 const CATEGORIES = [
   "all",
@@ -25,6 +28,7 @@ const CATEGORIES = [
 export default function StudyGroupsList() {
   const { goTo } = useNavigation();
   const dispatch = useDispatch();
+  const { isAuthenticated, openAuth } = useAuth();
 
   const allGroups = useSelector(selectAllStudyGroups);
   const loading = useSelector(selectStudyGroupLoading);
@@ -58,48 +62,27 @@ export default function StudyGroupsList() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
-      {/* Header */}
-      <header className="bg-[#161b22] border-b border-[#30363d] sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => goTo("/student/dashboard")}
-                className="flex items-center gap-2 text-[#8b949e] hover:text-[#c9d1d9] transition-colors"
-              >
-                <span className="material-symbols-outlined text-xl">
-                  arrow_back
-                </span>
-                <span className="text-sm font-medium">Back</span>
-              </button>
-              <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-4xl text-[#238636]">
-                  groups
-                </span>
-                <div>
-                  <h1 className="text-2xl font-bold text-[#c9d1d9]">
-                    Find a Study Group
-                  </h1>
-                  <p className="text-sm text-[#8b949e]">
-                    Team up with peers in your courses or interests
-                  </p>
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={() => goTo("/study-groups/create")}
-              className="px-4 py-2 rounded-lg bg-[#238636] text-white text-sm font-bold hover:bg-[#2ea043] transition-colors flex items-center gap-2"
-            >
-              <span className="material-symbols-outlined text-xl">add</span>
-              Create Study Group
-            </button>
-          </div>
-        </div>
-      </header>
+    <div className="flex flex-col min-h-screen">
+      <PageHeader
+        title="Find a Study Group"
+        subtitle="Team up with peers in your courses or interests"
+        icon="groups"
+        backPath="/dashboard"
+        action={
+          <button
+            onClick={() => {
+              if (!isAuthenticated) return openAuth();
+              goTo("/study-groups/create");
+            }}
+            className="px-4 py-2 rounded-lg bg-[#238636] text-white text-sm font-bold hover:bg-[#2ea043] transition-colors flex items-center gap-2"
+          >
+            <span className="material-symbols-outlined text-xl">add</span>
+            Create Study Group
+          </button>
+        }
+      />
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <PageContent>
         {/* Filter & Sort Controls */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 pb-4 border-b border-[#30363d]">
           <SortControls sortBy={sortBy} onSortChange={setSortBy} />
@@ -147,7 +130,7 @@ export default function StudyGroupsList() {
             label="Avg Members/Group"
           />
         </div>
-      </main>
+      </PageContent>
     </div>
   );
 }

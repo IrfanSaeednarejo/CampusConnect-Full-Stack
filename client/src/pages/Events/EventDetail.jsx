@@ -14,7 +14,8 @@ import {
   selectEventActionLoading,
   clearCurrentEvent,
 } from '../../redux/slices/eventSlice';
-import { selectUser, selectHasRole } from '../../redux/slices/authSlice';
+import { selectHasRole } from '../../redux/slices/authSlice';
+import { useAuth } from '../../hooks/useAuth';
 import { useNotification } from '../../contexts/NotificationContext.jsx';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
@@ -50,7 +51,7 @@ function formatDate(str) {
 }
 
 // ── State-aware CTA ───────────────────────────────────────────────────────────
-function EventCTA({ event, user, navigate }) {
+function EventCTA({ event, user, navigate, isAuthenticated, openAuth, savePendingAction }) {
   const status = event?.status;
   if (!event) return null;
 
@@ -60,7 +61,13 @@ function EventCTA({ event, user, navigate }) {
         id="event-register-btn"
         variant="primary"
         className="w-full"
-        onClick={() => navigate(`/events/${event._id}/register`)}
+        onClick={() => {
+          if (!isAuthenticated) {
+            savePendingAction({ type: 'REGISTER_EVENT', payload: event._id });
+            return openAuth();
+          }
+          navigate(`/events/${event._id}/register`);
+        }}
       >
         Register Now
       </Button>
@@ -117,7 +124,7 @@ export default function EventDetail() {
   const announcements = useSelector(selectEventAnnouncements);
   const leaderboard   = useSelector(selectLeaderboard);
   const actionLoading = useSelector(selectEventActionLoading);
-  const user          = useSelector(selectUser);
+  const { user, isAuthenticated, openAuth, savePendingAction } = useAuth();
   const isHead        = useSelector(selectHasRole('society_head'));
   const isAdmin       = useSelector(selectHasRole('admin'));
 
@@ -373,7 +380,14 @@ export default function EventDetail() {
               <h3 className="text-sm font-bold text-white mb-4">
                 {event.status === 'registration_open' ? 'Registration Open' : 'Event Status'}
               </h3>
-              <EventCTA event={event} user={user} navigate={navigate} />
+              <EventCTA 
+                event={event} 
+                user={user} 
+                navigate={navigate} 
+                isAuthenticated={isAuthenticated}
+                openAuth={openAuth}
+                savePendingAction={savePendingAction}
+              />
             </Card>
 
             {/* Stats */}

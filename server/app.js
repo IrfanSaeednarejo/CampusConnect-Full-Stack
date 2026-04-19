@@ -33,6 +33,7 @@ import notificationRouter from "./src/routes/notification.routes.js";
 import noteRouter from "./src/routes/note.routes.js";
 import aiRouter from "./src/routes/ai.routes.js";
 import paymentRouter from "./src/routes/payment.routes.js";
+import dashboardRouter from "./src/routes/dashboard.routes.js";
 
 app.get("/", (_req, res) => res.json({ status: "ok", service: "CampusConnect API" }));
 app.get("/api/v1", (_req, res) => res.json({ status: "ok", version: "1.0.0" }));
@@ -50,6 +51,7 @@ app.use("/api/v1/notifications", notificationRouter);
 app.use("/api/v1/notes", noteRouter);
 app.use("/api/v1/ai", aiRouter);
 app.use("/api/v1/payments", paymentRouter);
+app.use("/api/v1/dashboard", dashboardRouter);
 
 app.use((err, _req, _res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && "body" in err) {

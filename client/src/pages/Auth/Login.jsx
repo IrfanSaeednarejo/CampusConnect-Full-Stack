@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { loginUser, selectIsAuthenticated } from "../../redux/slices/authSlice";
+import { loginUser, selectIsAuthenticated, selectPendingAction } from "../../redux/slices/authSlice";
 import { validateLoginForm } from "../../utils/authValidator";
 import AuthCard from "../../components/auth/AuthCard";
 import AuthShell from "../../components/auth/AuthShell";
@@ -11,6 +11,7 @@ import FormActions from "../../components/common/FormActions";
 export default function Login() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const pendingAction = useSelector(selectPendingAction);
 
   const [form, setForm] = useState({
     email: "",
@@ -45,7 +46,9 @@ export default function Login() {
       }));
 
       if (loginUser.fulfilled.match(resultAction)) {
-        navigate('/dashboard', { replace: true });
+        if (!pendingAction) {
+          navigate('/dashboard', { replace: true });
+        }
       } else {
         setErrors({ email: resultAction.payload || "Login failed" });
       }
