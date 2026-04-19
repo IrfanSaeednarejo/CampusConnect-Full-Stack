@@ -5,7 +5,7 @@ import { MentorBooking } from "../models/mentorBooking.model.js";
 import { MentorReview } from "../models/mentorReview.model.js";
 import { MentorSession } from "../models/mentorSession.model.js";
 import { ChatMessage } from "../models/chatMessage.model.js";
-import { systemEvents } from "../utils/events.js";
+import { emitEvent, EventTypes } from "../utils/eventBus.js";
 import crypto from "crypto";
 import { User } from "../models/user.model.js";
 import { paginate } from "../utils/paginate.js";
@@ -277,10 +277,14 @@ export const bookSession = async (mentorId, data, requestUser) => {
         .populate("mentorId", "userId hourlyRate currency tier averageRating")
         .populate("menteeId", "profile.displayName profile.avatar");
 
-    systemEvents.emit("notification:create", {
-        userId: mentor.userId, type: "mentor_booking", title: "New Mentorship Request",
-        body: `${requestUser.profile.displayName} has requested a mentoring session with you on ${start.toDateString()}.`,
-        ref: booking._id, refModel: "MentorBooking", actorId: requestUser._id,
+    emitEvent(EventTypes.BOOKING_CREATED, {
+        actorId: requestUser._id,
+        targetId: mentor.userId,
+        payload: {
+            bookingId: booking._id,
+            actorName: requestUser.profile.displayName,
+            date: start.toDateString()
+        }
     });
     return created;
 };
@@ -301,16 +305,22 @@ export const confirmBooking = async (bookingId, requestUser) => {
         roomId: crypto.randomUUID()
     });
 
-    systemEvents.emit("notification:create", {
-        userId: booking.menteeId._id || booking.menteeId, type: "mentor_booking", title: "Session Confirmed",
-        body: `Your mentoring session on ${booking.startAt.toDateString()} has been confirmed!`, ref: booking._id, refModel: "MentorBooking", actorId: requestUser._id,
+    emitEvent(EventTypes.BOOKING_CONFIRMED, {
+        actorId: requestUser._id,
+        targetId: booking.menteeId._id || booking.menteeId,
+        payload: {
+            bookingId: updated._id,
+            date: booking.startAt.toDateString()
+        }
     });
 
-    systemEvents.emit("mentor_session:started", {
-        roomId: session.roomId,
-        bookingId: updated._id,
-        menteeId: session.menteeId,
-        mentorId: booking.mentorUserId
+    emitEvent(EventTypes.SESSION_STARTED, {
+        actorId: requestUser._id,
+        targetId: session.menteeId,
+        payload: {
+            roomId: session.roomId,
+            bookingId: updated._id
+        }
     });
 
     return updated;
@@ -342,14 +352,23 @@ export const cancelBooking = async (bookingId, reason, requestUser) => {
             { $set: { status: "ended", endedAt: new Date() } },
             { new: true }
         );
-        if (session) systemEvents.emit("mentor_session:ended", { roomId: session.roomId });
+        if (session) {
+            emitEvent(EventTypes.SESSION_ENDED, {
+                actorId: requestUser._id,
+                payload: { roomId: session.roomId, bookingId }
+            });
+        }
     }
 
     const otherUserId = isMentor ? (booking.menteeId._id || booking.menteeId) : booking.mentorUserId;
-    systemEvents.emit("notification:create", {
-        userId: otherUserId, type: "mentor_booking", title: "Session Cancelled",
-        body: `${requestUser.profile.displayName} has cancelled the session scheduled for ${booking.startAt.toDateString()}.`,
-        ref: booking._id, refModel: "MentorBooking", actorId: requestUser._id, priority: "high"
+    emitEvent(EventTypes.BOOKING_CANCELLED, {
+        actorId: requestUser._id,
+        targetId: otherUserId,
+        payload: {
+            bookingId: updated._id,
+            actorName: requestUser.profile.displayName,
+            date: booking.startAt.toDateString()
+        }
     });
     return updated;
 };
@@ -367,14 +386,22 @@ export const completeBooking = async (bookingId, requestUser) => {
         { $set: { status: "ended", endedAt: new Date() } },
         { new: true }
     );
-    if (session) systemEvents.emit("mentor_session:ended", { roomId: session.roomId });
+    if (session) {
+        emitEvent(EventTypes.SESSION_ENDED, {
+            actorId: requestUser._id,
+            payload: { roomId: session.roomId, bookingId }
+        });
+    }
 
     await Mentor.findByIdAndUpdate(booking.mentorId, { $inc: { pendingPayout: booking.mentorPayout } });
     Mentor.syncStats(booking.mentorId).catch((err) => console.error("[Mentor] Failed to sync stats after session complete:", err.message));
 
-    systemEvents.emit("notification:create", {
-        userId: booking.menteeId._id || booking.menteeId, type: "mentor_booking", title: "Session Completed",
-        body: `Your mentoring session is complete! Please leave a review.`, ref: booking._id, refModel: "MentorBooking", actorId: requestUser._id
+    emitEvent(EventTypes.BOOKING_COMPLETED, {
+        actorId: requestUser._id,
+        targetId: booking.menteeId._id || booking.menteeId,
+        payload: {
+            bookingId: updated._id
+        }
     });
     return updated;
 };
@@ -502,16 +529,10 @@ export const verifyMentor = async (mentorId, requestUser) => {
         $set: { "mentorVerification.isVerified": true, "mentorVerification.verifiedAt": new Date(), "mentorVerification.verifiedBy": requestUser._id },
     });
 
-    // Notify the mentor that they have been verified
-    systemEvents.emit("notification:create", {
-        userId: mentor.userId,
-        type: "admin",
-        title: "🎉 Mentor Profile Verified!",
-        body: "Congratulations! Your mentor profile has been approved. You can now set your availability and start accepting sessions.",
-        ref: mentor._id,
-        refModel: "User",
+    emitEvent(EventTypes.MENTOR_APPROVED, {
         actorId: requestUser._id,
-        priority: "high",
+        targetId: mentor.userId,
+        payload: { mentorId: mentor._id }
     });
 
     return updated;
@@ -525,16 +546,13 @@ export const suspendMentor = async (mentorId, data, requestUser) => {
         $set: { isActive: false, suspendedAt: new Date(), suspendReason: data.reason?.trim() || "" },
     }, { new: true }).select("-pendingPayout -totalEarnings");
 
-    // Notify the mentor about the suspension
-    systemEvents.emit("notification:create", {
-        userId: mentor.userId,
-        type: "admin",
-        title: "Mentor Profile Suspended",
-        body: `Your mentor profile has been suspended${data.reason ? `: ${data.reason.trim()}` : ". Please contact admin for more information."} `,
-        ref: mentor._id,
-        refModel: "User",
+    emitEvent(EventTypes.MENTOR_SUSPENDED, {
         actorId: requestUser._id,
-        priority: "high",
+        targetId: mentor.userId,
+        payload: { 
+            mentorId: mentor._id,
+            reason: data.reason
+        }
     });
 
     return result;

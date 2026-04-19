@@ -1,5 +1,6 @@
 import { MentorSession } from "../models/mentorSession.model.js";
 import { ChatMessage } from "../models/chatMessage.model.js";
+import { emitEvent, EventTypes } from "../utils/eventBus.js";
 
 const logSocket = (level, event, userId, msg, err = null) => {
     const timestamp = new Date().toISOString();
@@ -85,8 +86,14 @@ export const registerMentorHandlers = (io, socket) => {
 
             const populatedMessage = await ChatMessage.findById(chatMessage._id).populate("senderId", "profile.displayName profile.avatar");
 
-            // Broadcast
-            io.to(roomId).emit("mentor:message_received", populatedMessage);
+            // Broadcast via Event Bus
+            emitEvent(EventTypes.MESSAGE_SENT, {
+                actorId: userId,
+                payload: {
+                    roomId,
+                    message: populatedMessage
+                }
+            });
             
             if (typeof callback === "function") callback({ success: true, message: populatedMessage });
         } catch (err) {

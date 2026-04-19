@@ -91,6 +91,12 @@ const notificationSchema = new Schema(
             push: { type: Boolean, default: false },
             inApp: { type: Boolean, default: true },
         },
+        eventId: {
+            type: String,
+            unique: true,
+            sparse: true,
+            index: true
+        }
     },
     {
         timestamps: true,
