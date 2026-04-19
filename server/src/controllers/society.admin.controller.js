@@ -1,8 +1,8 @@
-import { asyncHandler } from "../../utils/asyncHandler.js";
-import { ApiError } from "../../utils/ApiError.js";
-import { ApiResponse } from "../../utils/ApiResponse.js";
-import { scopeQuery } from "../../middlewares/adminAuth.middleware.js";
-import * as societyService from "../../services/society.admin.service.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { scopeQuery } from "../middlewares/adminAuth.middleware.js";
+import * as societyService from "../services/society.admin.service.js";
 
 /**
  * GET /admin/societies

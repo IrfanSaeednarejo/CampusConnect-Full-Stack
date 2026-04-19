@@ -1,7 +1,7 @@
-import { asyncHandler } from "../../utils/asyncHandler.js";
-import { ApiResponse } from "../../utils/ApiResponse.js";
-import { getEffectiveCampusId } from "../../middlewares/adminAuth.middleware.js";
-import * as analyticsService from "../../services/analytics.admin.service.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { getEffectiveCampusId } from "../middlewares/adminAuth.middleware.js";
+import * as analyticsService from "../services/analytics.admin.service.js";
 
 /**
  * GET /admin/analytics/overview

@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import { asyncHandler } from "../../utils/asyncHandler.js";
-import { ApiResponse } from "../../utils/ApiResponse.js";
-import { scopeQuery } from "../../middlewares/adminAuth.middleware.js";
-import * as eventService from "../../services/event.admin.service.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { scopeQuery } from "../middlewares/adminAuth.middleware.js";
+import * as eventService from "../services/event.admin.service.js";
 
 /**
  * GET /admin/events

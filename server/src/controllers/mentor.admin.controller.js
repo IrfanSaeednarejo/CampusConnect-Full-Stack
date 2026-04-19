@@ -1,7 +1,7 @@
-import { asyncHandler } from "../../utils/asyncHandler.js";
-import { ApiResponse } from "../../utils/ApiResponse.js";
-import { scopeQuery } from "../../middlewares/adminAuth.middleware.js";
-import * as mentorService from "../../services/mentor.admin.service.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { scopeQuery } from "../middlewares/adminAuth.middleware.js";
+import * as mentorService from "../services/mentor.admin.service.js";
 
 /**
  * GET /admin/mentors
