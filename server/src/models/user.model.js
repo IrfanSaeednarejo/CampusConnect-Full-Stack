@@ -176,7 +176,15 @@ const userSchema = new Schema(
         roles: {
             type: [String],
             enum: {
-                values: ["student", "mentor", "society_head", "admin"],
+                values: [
+                    "student",
+                    "mentor",
+                    "society_head",
+                    "admin",
+                    "super_admin",
+                    "campus_admin",
+                    "read_only_admin",
+                ],
                 message: "{VALUE} is not a valid role",
             },
             default: ["student"],
