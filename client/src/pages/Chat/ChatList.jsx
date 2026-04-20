@@ -92,16 +92,22 @@ const buildTimestamp = (value) => {
 	return parsed.toISOString();
 };
 
+const getMessageText = (msg) => {
+	if (!msg) return "";
+	if (typeof msg === "string") return msg;
+	return msg.content || msg.text || "";
+};
+
 const getLastMessageMeta = (messages, fallbackMessage, fallbackTimestamp) => {
 	if (messages && messages.length > 0) {
 		const last = messages[messages.length - 1];
 		return {
-			lastMessage: last.text || fallbackMessage || "",
+			lastMessage: getMessageText(last) || getMessageText(fallbackMessage) || "",
 			timestamp: buildTimestamp(last.timestamp || fallbackTimestamp),
 		};
 	}
 	return {
-		lastMessage: fallbackMessage || "",
+		lastMessage: getMessageText(fallbackMessage) || "",
 		timestamp: buildTimestamp(fallbackTimestamp),
 	};
 };

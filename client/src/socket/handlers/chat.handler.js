@@ -96,10 +96,17 @@ export const registerChatHandlers = (socket, dispatch) => {
 
   // ─── typing indicators ───────────────────────────────────────────────────
   socket.on('typing:start', (data) => {
+    const currentState = getState?.();
+    const currentUserId = currentState?.auth?.user?._id?.toString();
+    
+    // Ignore if it's from the current user (other tabs/devices)
+    if (data.userId?.toString() === currentUserId) return;
+
     dispatch(setTypingStatus({
       conversationId: data.chatId,
       isTyping: true,
-      userName: data.displayName || data.userId,
+      userId: data.userId,
+      userName: data.displayName || 'Someone',
     }));
   });
 
@@ -107,6 +114,7 @@ export const registerChatHandlers = (socket, dispatch) => {
     dispatch(setTypingStatus({
       conversationId: data.chatId,
       isTyping: false,
+      userId: data.userId,
       userName: null,
     }));
   });

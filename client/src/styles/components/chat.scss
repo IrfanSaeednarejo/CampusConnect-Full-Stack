@@ -21,14 +21,38 @@ html, body {
 /* Main container */
 .messaging-container {
   display: flex;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
   overflow: hidden;
+  position: relative;
 }
 
-/* Hide navigation sidebar */
-.nav-sidebar {
-  display: none;
+.circular-avatar {
+  border-radius: 50% !important;
+  overflow: hidden;
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.typing-indicator-floating {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 1.5rem;
+  background: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(4px);
+  border-top: 1px solid #1f2937;
+  color: #9ca3af;
+  font-size: 0.8rem;
+  animation: slideUp 0.2s ease-out;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(5px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 /* Chat container layout */
@@ -36,18 +60,19 @@ html, body {
   display: flex;
   flex: 1;
   overflow: hidden;
+  position: relative;
 }
 
 /* Left sidebar with conversations */
 .chat-sidebar {
-  flex-basis: 40%;
-  min-width: 300px;
-  max-width: 480px;
+  flex: 0 0 350px;
   display: flex;
   flex-direction: column;
   background-color: #111827;
   border-right: 1px solid #1f2937;
   overflow-y: auto;
+  transition: all 0.3s ease;
+  z-index: 10;
 }
 
 /* Main chat area */
@@ -58,6 +83,46 @@ html, body {
   background-color: #1f2937;
   min-width: 0;
   overflow: hidden;
+  position: relative;
+}
+
+/* Message max-width */
+.bubble {
+  max-width: 85%;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.message-bubble.sent .bubble {
+  background: linear-gradient(135deg, #059669, #047857);
+}
+
+.message-bubble.received .bubble {
+  background: #374151;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .chat-sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 280px;
+    transform: translateX(-100%);
+    box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+  }
+  
+  .chat-sidebar.active {
+    transform: translateX(0);
+  }
+  
+  .bubble {
+    max-width: 90%;
+  }
 }
 
 /* ========================================

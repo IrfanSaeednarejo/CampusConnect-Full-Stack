@@ -1,20 +1,29 @@
 import { useRef, useEffect } from 'react';
+
+/**
+ * useAutoScroll Hook
+ * Smarter scrolling for chat windows
+ * Only scrolls to bottom if user was already near the bottom
+ * Prevents jarring scroll shifts when loading history
+ */
 export const useAutoScroll = (dependency, options = {}) => {
-  const { behavior = 'smooth', enabled = true } = options;
-  const ref = useRef(null);
+  const { behavior = 'smooth', threshold = 150 } = options;
+  const scrollRef = useRef(null);
 
   useEffect(() => {
-    if (enabled && ref.current) {
-      const element = ref.current;
-      const top = element.scrollHeight;
+    if (scrollRef.current) {
+      const el = scrollRef.current;
+      const isAtBottom = el.scrollHeight - el.scrollTop <= el.clientHeight + threshold;
 
-      if (typeof element.scrollTo === 'function') {
-        element.scrollTo({ top, behavior });
-      } else {
-        element.scrollTop = top;
+      // Auto scroll if we are already at the bottom or if it's the first render
+      if (isAtBottom) {
+        el.scrollTo({
+          top: el.scrollHeight,
+          behavior: behavior
+        });
       }
     }
-  }, [dependency, behavior, enabled]);
+  }, [dependency, behavior, threshold]);
 
-  return ref;
+  return scrollRef;
 };

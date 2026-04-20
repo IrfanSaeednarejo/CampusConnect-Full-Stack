@@ -317,15 +317,16 @@ export default function ChatShell({
 									message={entry.message}
 									isCurrentUser={
 										entry.message.senderId === "current" ||
-										entry.message.sender?.toString() === currentUser?._id?.toString() ||
-										entry.message.senderId?.toString() === currentUser?._id?.toString() ||
-										entry.message.sender?._id?.toString() === currentUser?._id?.toString()
+										entry.message.sender === currentUser?._id?.toString() ||
+										entry.message.sender?._id?.toString() === currentUser?._id?.toString() ||
+                                        entry.message.sender?._id === currentUser?._id
 									}
 									userColor={selectedConversation.avatarColor}
+                                    currentUser={currentUser}
 									quickReactions={quickReactions}
 									replyMessage={
 										entry.message.replyToId
-											? visibleMessages.find((msg) => msg.id === entry.message.replyToId)
+											? visibleMessages.find((msg) => (msg._id || msg.id) === entry.message.replyToId)
 											: null
 									}
 									onReply={() => handleReply(entry.message)}
@@ -343,18 +344,17 @@ export default function ChatShell({
 								/>
 							)
 						)}
-
-						{typingStatus?.isTyping && (
-							<div className="typing-indicator">
-								<div className="typing-bubble">
-									<span className="dot"></span>
-									<span className="dot"></span>
-									<span className="dot"></span>
-								</div>
-								<span className="typing-label">typing...</span>
-							</div>
-						)}
 					</div>
+					{typingStatus?.isTyping && (
+						<div className="typing-indicator-floating">
+							<div className="typing-bubble">
+								<span className="dot"></span>
+								<span className="dot"></span>
+								<span className="dot"></span>
+							</div>
+							<span className="typing-label">{typingStatus.userName || 'Someone'} is typing...</span>
+						</div>
+					)}
 					{canSend && (
 						<ChatInput
 							value={draft.text}
@@ -362,7 +362,7 @@ export default function ChatShell({
 							onSend={handleSend}
 							replyMessage={
 								draft.replyToId
-									? visibleMessages.find((msg) => msg.id === draft.replyToId)
+									? visibleMessages.find((msg) => (msg._id || msg.id) === draft.replyToId)
 									: null
 							}
 							onCancelReply={() =>

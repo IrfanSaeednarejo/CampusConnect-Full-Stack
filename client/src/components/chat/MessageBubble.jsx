@@ -80,18 +80,19 @@ const MessageBubble = ({
   onRetry,
   isSearchMatch
 }) => {
-  // Safely generate initials for avatar
-  const initials = message.senderName
-    ? message.senderName
-        .split(' ')
-        .map(n => n[0])
-        .join('')
-        .toUpperCase()
-        .slice(0, 2)
-    : '??';
+  const senderProfile = message.sender?.profile || {};
+  const senderAvatar = senderProfile.avatar;
+  const senderDisplayName = senderProfile.displayName || message.senderName || 'Unknown';
+
+  const initials = senderDisplayName
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
 
   const reactionEntries = Object.entries(message.reactions || {});
-  const isDeleted = message.deleted;
+  const isDeleted = message.isDeleted || message.deleted;
 
   return (
     <div
@@ -99,44 +100,47 @@ const MessageBubble = ({
         isSearchMatch ? 'match' : ''
       }`}
     >
-      <div className="message-actions">
-        <button onClick={onReply} title="Reply">
-          <Reply size={14} />
-        </button>
-        <button onClick={onForward} title="Forward">
-          <Forward size={14} />
-        </button>
-        {isCurrentUser && !isDeleted && (
-          <button onClick={onEdit} title="Edit">
-            <Pencil size={14} />
+      {!isCurrentUser && (
+        <div className="message-actions">
+          <button onClick={onReply} title="Reply">
+            <Reply size={14} />
           </button>
-        )}
-        <button onClick={() => onDelete?.(false)} title="Delete for me">
-          <Trash2 size={14} />
-        </button>
-        {isCurrentUser && (
+          <button onClick={onForward} title="Forward">
+            <Forward size={14} />
+          </button>
+          <button onClick={() => onDelete?.(false)} title="Delete for me">
+            <Trash2 size={14} />
+          </button>
+          <button onClick={() => onReact?.('👍')} title="React">
+            <Smile size={14} />
+          </button>
+        </div>
+      )}
+      
+      {isCurrentUser && (
+        <div className="message-actions">
+          <button onClick={onReply} title="Reply">
+            <Reply size={14} />
+          </button>
+          {!isDeleted && (
+            <button onClick={onEdit} title="Edit">
+              <Pencil size={14} />
+            </button>
+          )}
           <button onClick={() => onDelete?.(true)} title="Delete for everyone">
             <Trash size={14} />
           </button>
-        )}
-        {quickReactions.length > 0 && (
-          <div className="quick-reactions">
-            {quickReactions.map((emoji) => (
-              <button key={emoji} onClick={() => onReact?.(emoji)} title={emoji}>
-                {emoji}
-              </button>
-            ))}
-          </div>
-        )}
-        <button onClick={() => onReact?.('👍')} title="React">
-          <Smile size={14} />
-        </button>
-      </div>
+        </div>
+      )}
 
       <div className={`bubble-content ${isCurrentUser ? 'reverse' : ''}`}>
         {!isCurrentUser && (
-          <div className={`avatar ${userColor || 'blue'}`}>
-            {initials}
+          <div className={`avatar ${userColor || 'blue'} circular-avatar`}>
+            {senderAvatar ? (
+              <img src={senderAvatar} alt={senderDisplayName} />
+            ) : (
+              initials
+            )}
           </div>
         )}
 
