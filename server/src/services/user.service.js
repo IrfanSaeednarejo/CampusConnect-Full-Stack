@@ -559,30 +559,43 @@ export const getSocieties = async (targetId) => {
 };
 
 export const search = async (requestUser, queryParams) => {
-    const { q, page = 1, limit = 20 } = queryParams;
-
-    if (!q || q.trim().length < 2) {
-        throw new ApiError(400, "Search query must be at least 2 characters");
-    }
+    const { q, page = 1, limit = 20, campusId } = queryParams;
 
     const pageNum = Math.max(1, parseInt(page, 10));
     const limitNum = Math.min(50, parseInt(limit, 10));
     const skip = (pageNum - 1) * limitNum;
-    const escapedQ = q.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     const filter = {
-        campusId: requestUser.campusId,
         status: "active",
-        $or: [
+        roles: { $nin: ["super_admin"] },
+    };
+
+    if (q && q.trim().length > 0) {
+        const escapedQ = q.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        filter.$or = [
             { "profile.displayName": { $regex: escapedQ, $options: "i" } },
             { "profile.firstName": { $regex: escapedQ, $options: "i" } },
             { "profile.lastName": { $regex: escapedQ, $options: "i" } },
-        ],
-    };
+            { interests: { $regex: escapedQ, $options: "i" } },
+        ];
+    }
+
+    // Determine campus restriction
+    const requestingUserRoles = requestUser.roles || [];
+    const isAdmin = requestingUserRoles.some(r => ["super_admin", "admin", "campus_admin"].includes(r));
+
+    if (campusId) {
+        filter.campusId = campusId;
+    } else if (!isAdmin && !q && requestUser.campusId) {
+        // Only restrict to same campus for browsing (no query)
+        // Global search is allowed when typing a specific name/query
+        filter.campusId = requestUser.campusId;
+    }
 
     const [users, total] = await Promise.all([
         User.find(filter)
-            .select("profile.displayName profile.firstName profile.lastName profile.avatar roles campusId")
+            .select("profile.displayName profile.firstName profile.lastName profile.avatar roles campusId interests")
+            .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limitNum)
             .lean(),

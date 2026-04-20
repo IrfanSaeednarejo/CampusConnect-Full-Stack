@@ -10,8 +10,15 @@ import { registerMentorHandlers } from "./mentor.socket.js";
 
 
 const onlineUsers = new Map();
+let ioInstance = null;
 
 export const getOnlineUsers = () => onlineUsers;
+
+export const emitToUser = (userId, event, payload) => {
+    if (ioInstance && userId) {
+        ioInstance.to(`user:${userId.toString()}`).emit(event, payload);
+    }
+};
 
 export const initializeSocket = (httpServer) => {
     const io = new Server(httpServer, {
@@ -25,6 +32,9 @@ export const initializeSocket = (httpServer) => {
         pingTimeout: 60000,
         pingInterval: 25000,
     });
+    
+    ioInstance = io;
+
     io.use(async (socket, next) => {
         try {
             let token = null;

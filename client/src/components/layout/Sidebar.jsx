@@ -46,6 +46,15 @@ export default function Sidebar() {
           </Link>
           <Link
             className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#21262d] transition-colors"
+            to="/members"
+          >
+            <span className="material-symbols-outlined text-xl text-[#8b949e]">
+              search
+            </span>
+            <span className="text-sm font-medium">Members</span>
+          </Link>
+          <Link
+            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#21262d] transition-colors"
             to="/mentors"
           >
             <span className="material-symbols-outlined text-xl text-[#8b949e]">

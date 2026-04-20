@@ -166,7 +166,6 @@ const mentorSchema = new Schema(
         toObject: { virtuals: true },
     }
 );
-mentorSchema.index({ userId: 1 }, { unique: true });
 mentorSchema.index({ isActive: 1, averageRating: -1 });
 mentorSchema.index({ campusId: 1, isActive: 1 });
 mentorSchema.index({ categories: 1 });

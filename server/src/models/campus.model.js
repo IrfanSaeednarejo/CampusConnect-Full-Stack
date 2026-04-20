@@ -234,7 +234,6 @@ const campusSchema = new Schema(
 );
 
 
-campusSchema.index({ slug: 1 }, { unique: true });
 campusSchema.index({ code: 1 }, { unique: true, sparse: true });
 
 campusSchema.index({ status: 1, "location.country": 1 });

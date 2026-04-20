@@ -10,6 +10,7 @@ const CORE_NAV = [
   { label: 'Societies',    to: '/societies',      icon: 'diversity_3' },
   { label: 'Study Groups', to: '/study-groups',   icon: 'groups' },
   { label: 'Mentors',      to: '/mentors',        icon: 'school' },
+  { label: 'Members',      to: '/members',        icon: 'person_search' },
   { label: 'Notes',        to: '/notes',          icon: 'sticky_note_2' },
   { label: 'Messages',     to: '/messages',       icon: 'chat_bubble' },
   { label: 'Notifications',to: '/notifications',  icon: 'notifications' },

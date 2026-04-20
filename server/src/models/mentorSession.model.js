@@ -6,8 +6,7 @@ const mentorSessionSchema = new Schema(
             type: Schema.Types.ObjectId,
             ref: "MentorBooking",
             required: true,
-            unique: true,
-            index: true
+            unique: true
         },
         mentorId: {
             type: Schema.Types.ObjectId,
@@ -28,8 +27,7 @@ const mentorSessionSchema = new Schema(
         roomId: {
             type: String,
             required: true,
-            unique: true,
-            index: true
+            unique: true
         },
         startedAt: {
             type: Date,

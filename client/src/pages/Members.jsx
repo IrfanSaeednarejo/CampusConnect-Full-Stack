@@ -22,8 +22,8 @@ export default function Members() {
   const loadMembers = async (searchQuery = "") => {
     setLoading(true);
     try {
-      const response = await searchUsers(searchQuery || "a", 1, 50); // Search with 'a' to get some initial users
-      setMembers(response.data.users || []);
+      const response = await searchUsers(searchQuery, 1, 50); 
+      setMembers(response.data.data.users || []);
     } catch (err) {
       console.error(err);
     } finally {

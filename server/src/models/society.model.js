@@ -157,7 +157,6 @@ const societySchema = new Schema(
 );
 
 
-societySchema.index({ slug: 1 }, { unique: true });
 societySchema.index({ campusId: 1, category: 1 });
 societySchema.index({ campusId: 1, status: 1 });
 societySchema.index({ tag: 1 }, { unique: true });
