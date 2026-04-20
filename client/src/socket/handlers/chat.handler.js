@@ -89,6 +89,11 @@ export const registerChatHandlers = (socket, dispatch) => {
     }
   });
 
+  // ─── chat:read (unread count sync) ────────────────────────────────────────
+  socket.on('chat:read', (data) => {
+    dispatch(setChatRead({ conversationId: data.chatId }));
+  });
+
   // ─── typing indicators ───────────────────────────────────────────────────
   socket.on('typing:start', (data) => {
     dispatch(setTypingStatus({

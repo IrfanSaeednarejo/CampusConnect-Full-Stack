@@ -33,9 +33,31 @@ const ChatSidebar = ({
     );
   }, [conversations, searchQuery]);
 
-  // Format timestamp to show date like "Nov 22"
-  const formatTimestampAbsolute = (date) => {
+  // Format timestamp to show date like "9:30 AM", "Yesterday", or "Nov 22"
+  const formatSidebarTime = (date) => {
+    if (!date) return '';
     const timestamp = new Date(date);
+    if (isNaN(timestamp.getTime())) return '';
+    
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    const messageDate = new Date(timestamp.getFullYear(), timestamp.getMonth(), timestamp.getDate());
+
+    if (messageDate.getTime() === today.getTime()) {
+      return timestamp.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      });
+    }
+    
+    if (messageDate.getTime() === yesterday.getTime()) {
+      return 'Yesterday';
+    }
+    
     return timestamp.toLocaleDateString('en-US', { 
       month: 'short', 
       day: 'numeric' 
@@ -45,31 +67,7 @@ const ChatSidebar = ({
   // Get avatar color based on user ID or group type
   const getAvatarColor = (conversation) => {
     if (conversation.avatarColor) return conversation.avatarColor;
-    const { id, type } = conversation;
-    if (type === 'group') {
-      return 'group'; // Purple for groups
-    }
-    
-    // Color map for different users
-    const colorMap = {
-      'user-1': 'blue',
-      'user-2': 'teal',
-      'user-3': 'pink',
-      'user-4': 'indigo',
-      'user-5': 'cyan',
-      'user-6': 'emerald',
-      'user-7': 'rose',
-      'user-8': 'violet',
-      'user-9': 'amber',
-      'user-10': 'lime',
-      'user-11': 'fuchsia',
-      'user-12': 'sky',
-      'user-13': 'red',
-      'user-14': 'green',
-      'user-15': 'purple'
-    };
-    
-    return colorMap[id] || 'blue'; // Default to blue
+    return 'blue'; // Default
   };
 
   // Handle search input changes
@@ -135,7 +133,7 @@ const ChatSidebar = ({
                 </div>
 
                 {/* Show status only for users, not groups */}
-                {conversation.type === 'user' && (
+                {conversation.type === 'user' && conversation.status && (
                   <span className={`status-indicator ${conversation.status}`}></span>
                 )}
               </div>
@@ -145,11 +143,11 @@ const ChatSidebar = ({
                 <div className="conversation-header">
                   <h3>{conversation.name}</h3>
                   <span className="timestamp">
-                    {formatTimestampAbsolute(conversation.timestamp)}
+                    {formatSidebarTime(conversation.timestamp)}
                   </span>
                 </div>
                 <div className="conversation-footer">
-                  <p className="last-message">{conversation.lastMessage}</p>
+                  <p className="last-message">{conversation.lastMessage || 'No messages yet'}</p>
                   <div className="conversation-badges">
                     {conversation.isPinned && <Pin size={14} />}
                     {conversation.isMuted && <BellOff size={14} />}
@@ -176,79 +174,3 @@ const ChatSidebar = ({
 };
 
 export default ChatSidebar;
-
-
-// /**
-//  * Navigation Sidebar Component
-//  * Left-most vertical navigation bar with icon buttons
-//  * Provides navigation between different app sections (Home, Messages, Groups, Calendar)
-//  */
-
-
-
-// const NavSidebar = () => {
-//   // State to track which navigation tab is currently active
-//   const [activeTab, setActiveTab] = useState('messages');
-
-//   return (
-
-//     // <div className="nav-sidebar">
-//     //   {/* User Avatar with Initials at Top */}
-//     //   <div className="user-avatar">
-//     //     ME
-//     //   </div>
-
-//     //   {/* Main Navigation Icons - Top Section */}
-//     //   <nav>
-//     //     {/* Home Button */}
-//     //     <button 
-//     //       className={`nav-button ${activeTab === 'home' ? 'active' : ''}`}
-//     //       onClick={() => setActiveTab('home')}
-//     //       title="Home"
-//     //     >
-//     //       <Home size={24} />
-//     //     </button>
-
-//     //     {/* Messages Button - Active by default */}
-//     //     <button 
-//     //       className={`nav-button ${activeTab === 'messages' ? 'active' : ''}`}
-//     //       onClick={() => setActiveTab('messages')}
-//     //       title="Messages"
-//     //     >
-//     //       <MessageSquare size={24} />
-//     //     </button>
-
-//     //     {/* Groups Button */}
-//     //     <button 
-//     //       className={`nav-button ${activeTab === 'groups' ? 'active' : ''}`}
-//     //       onClick={() => setActiveTab('groups')}
-//     //       title="Groups"
-//     //     >
-//     //       <Users size={24} />
-//     //     </button>
-
-//     //     {/* Calendar/Schedule Button */}
-//     //     <button 
-//     //       className={`nav-button ${activeTab === 'calendar' ? 'active' : ''}`}
-//     //       onClick={() => setActiveTab('calendar')}
-//     //       title="Calendar"
-//     //     >
-//     //       <Calendar size={24} />
-//     //     </button>
-//     //   </nav>
-
-//     //   {/* Bottom Navigation Icons - Footer Section */}
-//     //   <div className="nav-footer">
-//     //     {/* Settings Button */}
-//     //     <button className="nav-button" title="Settings">
-//     //       <Settings size={24} />
-//     //     </button>
-
-//     //     {/* Logout Button */}
-//     //     <button className="nav-button" title="Logout">
-//     //       <LogOut size={24} />
-//     //     </button>
-//     //   </div>
-//     // </div>
-//   );
-// };
