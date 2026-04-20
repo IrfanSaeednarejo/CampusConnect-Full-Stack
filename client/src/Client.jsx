@@ -5,6 +5,8 @@ import { fetchUnreadCountThunk } from "./redux/slices/notificationSlice";
 import { useSocket } from "./hooks/useSocket";
 import AppRoutes from "./routes/AppRoutes";
 
+import { Toaster } from "react-hot-toast";
+
 function AppWithSocket() {
   const dispatch = useDispatch();
   useSocket();
@@ -20,7 +22,12 @@ function AppWithSocket() {
     }
   }, [dispatch, isAuthenticated]);
 
-  return <AppRoutes />;
+  return (
+    <>
+      <Toaster position="top-right" reverseOrder={false} />
+      <AppRoutes />
+    </>
+  );
 }
 
 export default AppWithSocket;

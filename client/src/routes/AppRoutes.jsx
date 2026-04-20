@@ -128,6 +128,7 @@ import AdminNotifications  from "../admin/pages/AdminNotifications";
 import AdminAuditLogs      from "../admin/pages/AdminAuditLogs";
 import AdminSystem         from "../admin/pages/AdminSystem";
 import AdminUserDetail     from "../admin/pages/AdminUserDetail";
+import AdminSocietyDetail  from "../admin/pages/AdminSocietyDetail";
 import AdminAnalytics      from "../admin/pages/AdminAnalytics";
 import AdminRequests       from "../admin/pages/AdminRequests";
 
@@ -148,6 +149,7 @@ import Forbidden         from "../pages/ErrorPages/Forbidden";
 import NetworkError      from "../pages/ErrorPages/NetworkError";
 import ServerError       from "../pages/ErrorPages/ServerError";
 import ServiceUnavailable from "../pages/ErrorPages/ServiceUnavailable";
+import SuspendedPage      from "../pages/ErrorPages/SuspendedPage";
 
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -371,6 +373,7 @@ export default function AppRoutes() {
           <Route path="requests" element={<AdminRequests />} />
           <Route path="mentors" element={<AdminMentors />} />
           <Route path="societies" element={<AdminSocieties />} />
+          <Route path="societies/:id" element={<AdminSocietyDetail />} />
           <Route path="events" element={<AdminEvents />} />
           <Route path="study-groups" element={<AdminStudyGroups />} />
           <Route path="notifications" element={<AdminNotifications />} />
@@ -390,6 +393,7 @@ export default function AppRoutes() {
       <Route path="/error/network-error"      element={<NetworkError />} />
       <Route path="/error/server-error"       element={<ServerError />} />
       <Route path="/error/service-unavailable" element={<ServiceUnavailable />} />
+      <Route path="/suspended"                element={<SuspendedPage />} />
 
       {/* ══════════════════════════════════════════════════
           LEGACY ROUTE REDIRECTS (top-level catch-alls)

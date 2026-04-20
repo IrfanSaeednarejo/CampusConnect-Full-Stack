@@ -13,7 +13,7 @@ import {
 } from "../redux/slices/adminSlice";
 import { getDashboardStats } from "../api/adminApi";
 
-const SOCKET_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || "http://localhost:8000";
 
 const NAV_GROUPS = [
     {
@@ -75,13 +75,26 @@ const AdminApp = () => {
 
     useEffect(() => {
         const token = localStorage.getItem("accessToken") || "";
+        
         const socket = socketIO(`${SOCKET_URL}/admin`, {
             auth: { token },
+            withCredentials: true,
             reconnection: true,
+            transports: ['websocket', 'polling']
         });
 
-        socket.on("connect", () => dispatch(setSystemStatus({ connected: true })));
-        socket.on("disconnect", () => dispatch(setSystemStatus({ connected: false })));
+        socket.on("connect", () => {
+            console.info("[AdminSocket] Connected to /admin namespace");
+            dispatch(setSystemStatus({ connected: true }));
+        });
+        
+        socket.on("disconnect", () => {
+            dispatch(setSystemStatus({ connected: false }));
+        });
+
+        socket.on("connect_error", (err) => {
+            console.error("[AdminSocket] Connection error:", err.message);
+        });
 
         socket.on("admin:refresh_counts", () => {
              getDashboardStats().then(({ data }) => {
@@ -89,7 +102,9 @@ const AdminApp = () => {
              });
         });
 
-        return () => socket.disconnect();
+        return () => {
+            socket.disconnect();
+        };
     }, [dispatch]);
 
     const pendingTotal = (pendingCounts.mentors || 0) + (pendingCounts.societies || 0) + (pendingCounts.events || 0) + (pendingCounts.studyGroups || 0);

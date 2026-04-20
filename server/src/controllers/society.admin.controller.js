@@ -5,6 +5,14 @@ import { scopeQuery } from "../middlewares/adminAuth.middleware.js";
 import * as societyService from "../services/society.admin.service.js";
 
 /**
+ * POST /admin/societies
+ */
+export const createSociety = asyncHandler(async (req, res) => {
+    const society = await societyService.adminCreateSociety(req.body, req.user, req);
+    return res.status(201).json(new ApiResponse(201, society, "Society created successfully"));
+});
+
+/**
  * GET /admin/societies
  */
 export const listSocieties = asyncHandler(async (req, res) => {
@@ -18,6 +26,14 @@ export const listSocieties = asyncHandler(async (req, res) => {
 
     const result = await societyService.listSocieties(filter, { page, limit });
     return res.status(200).json(new ApiResponse(200, result, "Societies fetched successfully"));
+});
+
+/**
+ * GET /admin/societies/:id
+ */
+export const getSocietyDetail = asyncHandler(async (req, res) => {
+    const society = await societyService.getSocietyDetail(req.params.id, req.user);
+    return res.status(200).json(new ApiResponse(200, society, "Society details fetched successfully"));
 });
 
 /**
@@ -64,4 +80,30 @@ export const reassignSocietyHead = asyncHandler(async (req, res) => {
     const { newHeadUserId } = req.body;
     await societyService.reassignSocietyHead(req.params.id, newHeadUserId, req.user, req);
     return res.status(200).json(new ApiResponse(200, null, "Society head reassigned successfully"));
+});
+
+/**
+ * POST /admin/societies/:id/members
+ */
+export const adminAddSocietyMember = asyncHandler(async (req, res) => {
+    const { userId, role } = req.body;
+    await societyService.adminAddSocietyMember(req.params.id, userId, role, req.user, req);
+    return res.status(201).json(new ApiResponse(201, null, "Member added successfully"));
+});
+
+/**
+ * PATCH /admin/societies/:id/members/:userId
+ */
+export const adminUpdateSocietyMember = asyncHandler(async (req, res) => {
+    const { role } = req.body;
+    await societyService.adminUpdateSocietyMember(req.params.id, req.params.userId, role, req.user, req);
+    return res.status(200).json(new ApiResponse(200, null, "Member role updated successfully"));
+});
+
+/**
+ * DELETE /admin/societies/:id/members/:userId
+ */
+export const adminRemoveSocietyMember = asyncHandler(async (req, res) => {
+    await societyService.adminRemoveSocietyMember(req.params.id, req.params.userId, req.user, req);
+    return res.status(200).json(new ApiResponse(200, null, "Member removed successfully"));
 });

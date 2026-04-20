@@ -13,6 +13,7 @@ import AdminTable from "../components/AdminTable";
 import AdminBadge from "../components/AdminBadge";
 import ConfirmModal from "../components/ConfirmModal";
 import ReasonModal from "../components/ReasonModal";
+import CreateSocietyModal from "../components/CreateSocietyModal";
 
 // ─── Pending Tab ──────────────────────────────────────────────────────────────
 
@@ -192,6 +193,7 @@ const SocietyListTab = ({ filterParams }) => {
 
 const AdminSocieties = () => {
     const [activeTab, setActiveTab] = useState("pending");
+    const [showCreateModal, setShowCreateModal] = useState(false);
 
     const TABS = [
         { key: "pending", label: "Pending Requests", params: { status: "pending" } },
@@ -203,9 +205,22 @@ const AdminSocieties = () => {
 
     return (
         <div style={{ animation: "fadeIn 0.5s ease-out" }}>
-            <div style={{ marginBottom: 32 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", margin: 0 }}>Society Governance</h1>
-                <p style={{ color: "#64748b", marginTop: 4 }}>Moderate organizational nodes, manage leadership transitions, and audit activity.</p>
+            <div style={{ marginBottom: 32, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                <div>
+                    <h1 style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", margin: 0 }}>Society Governance</h1>
+                    <p style={{ color: "#64748b", marginTop: 4 }}>Moderate organizational nodes, manage leadership transitions, and audit activity.</p>
+                </div>
+                <button 
+                    onClick={() => setShowCreateModal(true)}
+                    style={{ 
+                        background: "#6366f1", color: "#fff", border: "none", 
+                        padding: "12px 24px", borderRadius: 12, fontWeight: 700, 
+                        fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+                        boxShadow: "0 10px 15px -3px rgba(99, 102, 241, 0.3)"
+                    }}
+                >
+                    <span style={{ fontSize: 18 }}>+</span> CREATE SOCIETY
+                </button>
             </div>
 
             {/* Tabs & Navigation */}
@@ -233,6 +248,16 @@ const AdminSocieties = () => {
                     : <SocietyListTab filterParams={current.params} />
                 }
             </div>
+
+            {showCreateModal && (
+                <CreateSocietyModal 
+                    onClose={() => setShowCreateModal(false)}
+                    onSuccess={() => {
+                        setActiveTab("active");
+                        // The actual refresh is handled by the SocietyListTab's useEffect
+                    }}
+                />
+            )}
         </div>
     );
 };

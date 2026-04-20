@@ -6,6 +6,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { paginate } from "../utils/paginate.js";
 import { writeAuditLog } from "../utils/auditLog.js";
 import { emitEvent } from "../utils/eventBus.js";
+import { emitToUser } from "../sockets/index.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -128,6 +129,11 @@ export const updateUserStatus = async (userId, status, reason, adminUser, req) =
         payload: { status, reason: reason?.trim() || "" }
     });
 
+    // Real-time Socket Trigger
+    if (status === "suspended") {
+        emitToUser(target._id, "user:suspension", { reason: reason?.trim() || "Administrative suspension" });
+    }
+
     return updated;
 };
 
@@ -191,6 +197,9 @@ export const forceLogout = async (userId, adminUser, req) => {
         actorId: adminUser._id,
         targetId: target._id
     });
+
+    // Real-time Socket Trigger
+    emitToUser(target._id, "user:logout", { message: "Your session has been terminated by an administrator." });
 };
 
 export const bulkSuspend = async (userIds, reason, adminUser, req) => {

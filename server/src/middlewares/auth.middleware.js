@@ -22,12 +22,24 @@ export const verifyJWT = asyncHandler(async (req, _res, next) => {
         throw new ApiError(401, "Invalid access token");
     }
 
-    const user = await User.findById(decoded._id).select(
-        "-password -refreshToken"
+    const user = await User.findById(decoded?._id).select(
+        "-password -refreshToken -lastLoginIp"
     );
-
+    
     if (!user) {
-        throw new ApiError(401, "Invalid access token");
+        throw new ApiError(401, "Invalid access token: user record deleted or missing");
+    }
+
+    // CRITICAL: Block suspended users immediately
+    if (user.status === "suspended") {
+        throw new ApiError(403, user.suspendReason || "Your account has been suspended by an administrator.");
+    }
+
+    // CRITICAL: Force Logout Check (Session Versioning)
+    if (decoded.tokenVersion !== undefined && user.tokenVersion !== undefined) {
+        if (decoded.tokenVersion !== user.tokenVersion) {
+            throw new ApiError(401, "Session expired: Your access has been invalidated by a system administrator.");
+        }
     }
 
     req.user = user;

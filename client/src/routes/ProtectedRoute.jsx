@@ -21,7 +21,7 @@ export default function ProtectedRoute({
   requireOnboarding = true,
   disallowAdmin = false,
 }) {
-  const { isAuthenticated, roles, loading, onboardingCompleted } = useAuth();
+  const { isAuthenticated, user, roles, loading, onboardingCompleted } = useAuth();
   const isAdmin = roles.some(role => ["super_admin", "campus_admin", "admin"].includes(role));
 
 
@@ -40,6 +40,11 @@ export default function ProtectedRoute({
   /* ── 2. Not authenticated ───────────────────────── */
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  /* ── 2b. Suspension Gate ───────────────────────── */
+  if (user?.status === "suspended") {
+    return <Navigate to="/suspended" replace />;
   }
 
   /* ── 3. Onboarding gate ─────────────────────────── */

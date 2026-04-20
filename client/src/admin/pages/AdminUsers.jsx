@@ -1,9 +1,11 @@
 import { useState, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAdminUsers, updateUserStatus, forceLogoutUser } from "../../api/adminApi";
+import { toast } from "react-hot-toast";
 import AdminTable from "../components/AdminTable";
 import AdminBadge from "../components/AdminBadge";
 import ReasonModal from "../components/ReasonModal";
+import ConfirmModal from "../components/ConfirmModal";
 
 export const AdminUsers = () => {
     const navigate = useNavigate();
@@ -13,6 +15,7 @@ export const AdminUsers = () => {
     const [filters, setFilters] = useState({ page: 1, limit: 20, status: "all", q: "" });
     const [searchQuery, setSearchQuery] = useState("");
     const [reasonModal, setReasonModal] = useState(null); // { userId, action }
+    const [confirmModal, setConfirmModal] = useState(null); // { userId, action, title, description, confirmWord, danger }
 
     // Fetch users with filters
     const fetchUsers = useCallback(async (f = filters) => {
@@ -48,10 +51,32 @@ export const AdminUsers = () => {
         }
         try {
             await updateUserStatus(reasonModal.userId, { status: "suspended", reason });
+            toast.success("User suspended! Access restricted immediately.");
             setReasonModal(null);
             fetchUsers();
         } catch (err) {
-            alert("Action failed. Please try again.");
+            toast.error(err.message || "Action failed. Please try again.");
+        }
+    };
+
+    const handleConfirmation = async ({ confirmed }) => {
+        if (!confirmed || !confirmModal) {
+            setConfirmModal(null);
+            return;
+        }
+        const { userId, action } = confirmModal;
+        try {
+            if (action === "kill_sessions") {
+                await forceLogoutUser(userId);
+                toast.success("All sessions terminated. User will be forced to login.");
+            } else if (action === "restore") {
+                await updateUserStatus(userId, { status: "active" });
+                toast.success("User access restored!");
+            }
+            setConfirmModal(null);
+            fetchUsers();
+        } catch (err) {
+            toast.error(err.message || "Action failed. Please try again.");
         }
     };
 
@@ -100,9 +125,29 @@ export const AdminUsers = () => {
         { label: "Full Audit Profile", onClick: () => navigate(`/admin/users/${user._id}`) },
         ...(user.status === "active" 
             ? [{ label: "Suspend Account", onClick: () => setReasonModal({ userId: user._id, action: "suspend" }), danger: true }]
-            : [{ label: "Restore Access", onClick: () => updateUserStatus(user._id, { status: "active" }).then(() => fetchUsers()) }]
+            : [{ 
+                label: "Restore Access", 
+                onClick: () => setConfirmModal({ 
+                    userId: user._id, 
+                    action: "restore", 
+                    title: "Restore User Access?", 
+                    description: `Are you sure you want to restore system access for ${user.profile?.displayName}? They will be able to log in and interact with the platform immediately.`,
+                    confirmWord: "RESTORE"
+                }) 
+              }]
         ),
-        { label: "Kill All Sessions", onClick: () => forceLogoutUser(user._id).then(() => fetchUsers()), danger: true },
+        { 
+            label: "Kill All Sessions", 
+            onClick: () => setConfirmModal({ 
+                userId: user._id, 
+                action: "kill_sessions", 
+                title: "Terminate User Sessions?", 
+                description: `This will immediately invalidate all active JWT tokens and clear socket connections for ${user.profile?.displayName}. The user will be forced to re-authenticate.`,
+                confirmWord: "KILL SESSIONS",
+                danger: true
+            }), 
+            danger: true 
+        },
     ];
 
     return (
@@ -183,6 +228,16 @@ export const AdminUsers = () => {
                     title="Administrative Restriction"
                     prompt={`Provide a justification for suspending access to this account. This will be recorded in the system audit logs.`}
                     onClose={handleSuspend}
+                />
+            )}
+
+            {confirmModal && (
+                <ConfirmModal
+                    title={confirmModal.title}
+                    description={confirmModal.description}
+                    confirmWord={confirmModal.confirmWord}
+                    danger={confirmModal.danger}
+                    onClose={handleConfirmation}
                 />
             )}
         </div>

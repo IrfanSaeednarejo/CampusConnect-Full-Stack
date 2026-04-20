@@ -3,7 +3,7 @@ import { useDispatch, useSelector, useStore } from 'react-redux';
 import { getSocket } from '../socket/socket';
 import { registerChatHandlers, unregisterChatHandlers, injectGetState } from '../socket/handlers/chat.handler';
 import { registerNotificationHandlers, unregisterNotificationHandlers } from '../socket/handlers/notification.handler';
-import { selectIsAuthenticated } from '../redux/slices/authSlice';
+import { selectIsAuthenticated, logout } from '../redux/slices/authSlice';
 
 export const useSocket = () => {
   const dispatch = useDispatch();
@@ -28,9 +28,31 @@ export const useSocket = () => {
     const onDisconnect = () => setIsConnected(false);
     const onConnectError = (err) => setError(err.message);
 
+    const onForceLogout = (data) => {
+      console.warn("[Socket] Session terminated by admin:", data?.message);
+      // 1. Clear Redux State
+      dispatch(logout());
+      // 2. Clear Socket
+      const s = getSocket();
+      if (s) s.disconnect();
+      // 3. Force Redirect
+      setTimeout(() => {
+        window.location.replace("/login?reason=terminated");
+      }, 100);
+    };
+
+    const onSuspension = (data) => {
+      console.error("[Socket] Account suspended by admin:", data?.reason);
+      // We don't necessarily logout, just force a location change so 
+      // the ProtectedRoute can handle the status check on next render
+      window.location.replace("/suspended");
+    };
+
     socket.on('connect', onConnect);
     socket.on('disconnect', onDisconnect);
     socket.on('connect_error', onConnectError);
+    socket.on('user:logout', onForceLogout);
+    socket.on('user:suspension', onSuspension);
 
     injectGetState(store.getState);
     registerChatHandlers(socket, dispatch);
@@ -43,12 +65,14 @@ export const useSocket = () => {
         socket.off('connect', onConnect);
         socket.off('disconnect', onDisconnect);
         socket.off('connect_error', onConnectError);
+        socket.off('user:logout', onForceLogout);
+        socket.off('user:suspension', onSuspension);
         unregisterChatHandlers(socket);
         unregisterNotificationHandlers(socket);
         registeredRef.current = false;
       }
     };
-  }, [isAuthenticated, dispatch]);
+  }, [isAuthenticated, dispatch, store]);
 
   const emit = (event, data) => {
     const socket = getSocket();

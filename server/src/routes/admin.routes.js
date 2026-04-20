@@ -48,9 +48,14 @@ import {
 import {
     listSocieties,
     listPendingSocieties,
+    createSociety,
+    getSocietyDetail,
     updateSocietyStatus,
     deleteSociety,
     reassignSocietyHead,
+    adminAddSocietyMember,
+    adminUpdateSocietyMember,
+    adminRemoveSocietyMember
 } from "../controllers/society.admin.controller.js";
 
 // ── Event admin ───────────────────────────────────────────────────────────────
@@ -123,9 +128,14 @@ router.patch("/mentors/:mentorId/tier", requireSuperAdmin, overrideMentorTier);
 
 // ─── Societies ────────────────────────────────────────────────────────────────
 router.get("/societies", listSocieties);
+router.post("/societies", requireWriteAdmin, requireCampusAdmin(), createSociety);
 router.get("/societies/pending", listPendingSocieties);
+router.get("/societies/:id", getSocietyDetail);
 router.patch("/societies/:id/status", requireWriteAdmin, requireCampusAdmin(), updateSocietyStatus);
 router.patch("/societies/:id/head", requireWriteAdmin, requireCampusAdmin(), reassignSocietyHead);
+router.post("/societies/:id/members", requireWriteAdmin, requireCampusAdmin(), adminAddSocietyMember);
+router.patch("/societies/:id/members/:userId", requireWriteAdmin, requireCampusAdmin(), adminUpdateSocietyMember);
+router.delete("/societies/:id/members/:userId", requireWriteAdmin, requireCampusAdmin(), adminRemoveSocietyMember);
 router.delete("/societies/:id", requireSuperAdmin, deleteSociety);
 
 // ─── Events ───────────────────────────────────────────────────────────────────

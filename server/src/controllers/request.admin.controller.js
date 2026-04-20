@@ -38,16 +38,13 @@ export const getUnifiedRequests = ah(async (req, res) => {
             .sort({ createdAt: -1 });
     }
 
-    // Flatten for a unified feed if type is "all"
-    let unified = [];
-    if (type === "all") {
-        unified = [
-            ...(results.mentors || []).map(m => ({ ...m.toObject(), requestType: "mentor" })),
-            ...(results.societies || []).map(s => ({ ...s.toObject(), requestType: "society" })),
-            ...(results.events || []).map(e => ({ ...e.toObject(), requestType: "event" })),
-            ...(results.studyGroups || []).map(g => ({ ...g.toObject(), requestType: "study_group" })),
-        ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }
+    // Flatten for a unified feed regardless of whether it's 'all' or filtered
+    const unified = [
+        ...(results.mentors || []).map(m => ({ ...m.toObject(), requestType: "mentor" })),
+        ...(results.societies || []).map(s => ({ ...s.toObject(), requestType: "society" })),
+        ...(results.events || []).map(e => ({ ...e.toObject(), requestType: "event" })),
+        ...(results.studyGroups || []).map(g => ({ ...g.toObject(), requestType: "study_group" })),
+    ].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-    return res.status(200).json(new ApiResponse(200, type === "all" ? unified : results, "Requests fetched"));
+    return res.status(200).json(new ApiResponse(200, unified, "Requests fetched"));
 });

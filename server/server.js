@@ -7,6 +7,8 @@ import { startEventTransitionJob } from "./src/jobs/eventTransitions.job.js";
 import { initNotificationService } from "./src/services/notification.service.js";
 import { initMentoringHandlers } from "./src/eventHandlers/mentoring.handler.js";
 import { initChatHandlers } from "./src/eventHandlers/chat.handler.js";
+import { initAdminSocket, wireAdminFeedHooks } from "./src/sockets/admin.socket.js";
+import { systemEvents } from "./src/utils/events.js";
 
 dotenv.config({
     path: ".env",
@@ -23,6 +25,10 @@ connectDB()
 
         const io = initializeSocket(httpServer);
         app.set("io", io);
+
+        // Dedicated /admin namespace
+        initAdminSocket(io);
+        wireAdminFeedHooks(io, systemEvents);
 
         initNotificationService(app);
         initMentoringHandlers(app);

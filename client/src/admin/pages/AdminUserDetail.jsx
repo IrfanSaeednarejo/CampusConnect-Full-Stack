@@ -8,6 +8,7 @@ import {
     forceLogoutUser 
 } from "../../api/adminApi";
 import { useSelector } from "react-redux";
+import { toast } from "react-hot-toast";
 import AdminBadge from "../components/AdminBadge";
 import ReasonModal from "../components/ReasonModal";
 import ConfirmModal from "../components/ConfirmModal";
@@ -24,6 +25,7 @@ export const AdminUserDetail = () => {
     const [activeSection, setActiveSection] = useState("profile");
     const [suspendModal, setSuspendModal] = useState(false);
     const [logoutModal, setLogoutModal] = useState(false);
+    const [roleConfirmModal, setRoleConfirmModal] = useState(false);
     const [newRoles, setNewRoles] = useState([]);
 
     const ALL_ROLES = ["student", "mentor", "society_head", "admin", "super_admin", "campus_admin"];
@@ -44,19 +46,24 @@ export const AdminUserDetail = () => {
         try {
             await updateUserStatus(userId, { status: newStatus, reason });
             setUser((u) => ({ ...u, status: newStatus }));
+            toast.success(`User set to ${newStatus} successfully!`);
         } catch (err) {
-            alert("Status update failed");
+            toast.error(err.message || "Status update failed");
         } finally {
             setSuspendModal(false);
         }
     };
 
-    const handleRoleUpdate = async () => {
+    const handleRoleUpdate = async ({ confirmed }) => {
+        if (!confirmed) return setRoleConfirmModal(false);
         try {
             await updateUserRole(userId, { roles: newRoles });
             setUser((u) => ({ ...u, roles: newRoles }));
+            toast.success("User permissions updated!");
         } catch (err) {
-            alert("Role update failed");
+            toast.error(err.message || "Role update failed");
+        } finally {
+            setRoleConfirmModal(false);
         }
     };
 
@@ -64,8 +71,9 @@ export const AdminUserDetail = () => {
         if (!confirmed) return setLogoutModal(false);
         try {
             await forceLogoutUser(userId);
+            toast.success("All sessions terminated for this identity.");
         } catch (err) {
-            alert("Force logout failed");
+            toast.error(err.message || "Force logout failed");
         } finally {
             setLogoutModal(false);
         }
@@ -192,7 +200,7 @@ export const AdminUserDetail = () => {
                                 </div>
                                 <button
                                     disabled={JSON.stringify(newRoles) === JSON.stringify(user.roles)}
-                                    onClick={handleRoleUpdate}
+                                    onClick={() => setRoleConfirmModal(true)}
                                     style={{ 
                                         width: "100%", padding: "12px", background: "#6366f1", color: "#fff", 
                                         border: "none", borderRadius: 10, fontWeight: 700, cursor: "pointer", 
@@ -273,7 +281,18 @@ export const AdminUserDetail = () => {
             {logoutModal && (
                 <ConfirmModal
                     title="Terminate Identity Sessions?"
+                    description={`This will force ${user.profile?.displayName} to re-authenticate by invalidating all active login tokens across all devices.`}
+                    confirmWord="TERMINATE SESSIONS"
+                    danger={true}
                     onClose={handleForceLogout}
+                />
+            )}
+            {roleConfirmModal && (
+                <ConfirmModal
+                    title="Commit Role Changes?"
+                    description={`You are about to modify the system-wide permissions for ${user.profile?.displayName}. The new role set will be: ${newRoles.map(r => r.toUpperCase()).join(", ")}.`}
+                    confirmWord="UPDATE PERMISSIONS"
+                    onClose={handleRoleUpdate}
                 />
             )}
         </div>

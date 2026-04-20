@@ -79,6 +79,7 @@ export const verifyMentor = async (mentorId, adminUser, req) => {
             "mentorVerification.verifiedAt": new Date(),
             "mentorVerification.verifiedBy": adminUser._id,
         },
+        $addToSet: { roles: "mentor" }
     });
 
     systemEvents.emit("notification:create", {
@@ -136,6 +137,9 @@ export const rejectMentor = async (mentorId, reason, adminUser, req) => {
         targetId: mentor._id,
         payload: { reason: reason?.trim() || "", userId: mentor.userId }
     });
+
+    // Delete the application so the user can reapply and it's removed from pending queues
+    await Mentor.findByIdAndDelete(mentor._id);
 };
 
 export const suspendMentor = async (mentorId, reason, adminUser, req) => {

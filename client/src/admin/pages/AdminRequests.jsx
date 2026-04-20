@@ -38,13 +38,18 @@ const AdminRequests = () => {
                 payload = action === "reject" ? { reason } : {};
             } else if (type === "society") {
                 endpoint = `/admin/societies/${requestId}/status`;
-                payload = { status: action === "approve" ? "active" : "rejected", reason };
+                payload = { status: action === "approve" ? "approved" : "rejected", reason };
             } else if (type === "event") {
                 endpoint = `/admin/events/${requestId}/status`;
-                payload = { status: action === "approve" ? "approved" : "cancelled", reason };
+                payload = { status: action === "approve" ? "published" : "cancelled", reason };
             } else if (type === "study_group") {
-                endpoint = `/admin/study-groups/${requestId}/status`;
-                payload = { status: action === "approve" ? "active" : "archived", reason };
+                if (action === "approve") {
+                    endpoint = `/admin/study-groups/${requestId}/status`;
+                    payload = { status: "active", reason };
+                } else {
+                    method = "DELETE";
+                    endpoint = `/admin/study-groups/${requestId}`;
+                }
             }
 
             await axios({ method, url: endpoint, data: payload });
