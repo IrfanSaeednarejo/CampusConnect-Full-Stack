@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import ChatPageShell from "../../components/chat/ChatPageShell";
-import { useSocket, useSocketListener } from "../../hooks";
+import { useSocket } from "../../hooks";
 import { useAuth } from "../../contexts/AuthContext.jsx";
 import {
 	selectDirectConversations,
@@ -20,7 +20,9 @@ import {
 	selectLastSeenByConversation,
 	fetchMessages,
 	sendMessage,
-	newMessage,
+	addOptimisticMessage,
+	replaceOptimisticMessage,
+	setChatRead,
 	setSelectedConversation,
 	setConversationMessages,
 	setDraft,
@@ -111,6 +113,8 @@ export const useChatPageState = ({ allowedTypes }) => {
 	const navigate = useNavigate();
 	const { user } = useAuth();
 	const { emit, isConnected, error } = useSocket();
+	const [searchParams] = useSearchParams();
+	const queryChatId = searchParams.get("chatId");
 
 	const directConversations = useSelector(selectDirectConversations);
 	const messagesByConversation = useSelector(selectMessagesByConversation);
@@ -281,55 +285,48 @@ export const useChatPageState = ({ allowedTypes }) => {
 		if (!conversationId || !text?.trim()) return;
 		const messageId = options.messageId || `msg-${Date.now()}`;
 		const message = {
-			id: messageId,
+			_id: messageId,
 			content: text.trim(),
 			timestamp: new Date().toISOString(),
-			senderId: "current",
+			senderId: user?._id || "current",
 			senderName: user?.name || "You",
 			status: isConnected ? "sent" : "sending",
 			replyToId: options.replyToId || null,
 			forwarded: options.forwarded || false,
 		};
-		dispatch(sendMessage({ chatId: conversationId, messageData: message }));
-		emit("message", { conversationId, ...message });
 
 		if (!isConnected) {
+			dispatch(sendMessage({ chatId: conversationId, messageData: message }));
 			setTimeout(() => {
 				dispatch(markMessageFailed({ conversationId, messageId }));
 			}, 4000);
 			return;
 		}
 
-		setTimeout(() => {
-			dispatch(updateMessageStatus({
-				conversationId,
-				messageId,
-				status: "delivered",
-			}));
-		}, 700);
-		setTimeout(() => {
-			dispatch(updateMessageStatus({
-				conversationId,
-				messageId,
-				status: "read",
-			}));
-		}, 1400);
-	}, [dispatch, emit, isConnected, user]);
+		dispatch(addOptimisticMessage({ conversationId, message }));
 
-	const handleIncomingMessage = useCallback((data) => {
-		if (!data || !data.conversationId || !data.text) return;
-		const message = {
-			id: data.id || `msg-${Date.now()}`,
-			text: data.text,
-			timestamp: data.timestamp || new Date().toISOString(),
-			senderId: data.senderId || "unknown",
-			senderName: data.senderName || "Unknown",
-			status: data.status,
-		};
-		dispatch(newMessage({ conversationId: data.conversationId, message }));
-	}, [dispatch]);
-
-	useSocketListener("message", handleIncomingMessage, [handleIncomingMessage]);
+		emit(
+			"message:send",
+			{
+				chatId: conversationId,
+				content: message.content,
+				type: "text",
+				replyToId: message.replyToId,
+				idempotencyKey: messageId,
+			},
+			(ack) => {
+				if (ack?.success && ack.message) {
+					dispatch(replaceOptimisticMessage({
+						conversationId,
+						tempId: messageId,
+						realMessage: ack.message,
+					}));
+				} else {
+					dispatch(markMessageFailed({ conversationId, messageId }));
+				}
+			}
+		);
+	}, [addOptimisticMessage, dispatch, emit, isConnected, markMessageFailed, replaceOptimisticMessage, sendMessage, user]);
 
 	useEffect(() => {
 		dispatch(setConnectionStatus({ isConnected, error }));
@@ -337,6 +334,30 @@ export const useChatPageState = ({ allowedTypes }) => {
 			dispatch(syncPendingMessages());
 		}
 	}, [dispatch, isConnected, error]);
+
+	useEffect(() => {
+		if (!queryChatId || selectedConversationId === queryChatId || combined.length === 0) return;
+		const targetConversation = combined.find(
+			(item) => item.id === queryChatId || item._id === queryChatId
+		);
+		if (targetConversation) {
+			dispatch(setSelectedConversation(queryChatId));
+		}
+	}, [combined, dispatch, queryChatId, selectedConversationId]);
+
+	useEffect(() => {
+		if (!selectedConversationId || !isConnected) return;
+		const messageIds = (messagesByConversation[selectedConversationId] || [])
+			.filter((msg) => {
+				const senderId = msg.senderId || msg.sender?._id || msg.sender;
+				return senderId?.toString() !== user?._id?.toString();
+			})
+			.map((msg) => msg._id || msg.id)
+			.filter(Boolean);
+		if (messageIds.length === 0) return;
+		emit("message:seen", { chatId: selectedConversationId, messageIds });
+		dispatch(setChatRead({ conversationId: selectedConversationId }));
+	}, [dispatch, emit, isConnected, messagesByConversation, selectedConversationId, user?._id]);
 
 	// Fetch messages when conversation changes
 	useEffect(() => {

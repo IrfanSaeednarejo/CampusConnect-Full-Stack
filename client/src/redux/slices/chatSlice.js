@@ -403,6 +403,7 @@ const chatSlice = createSlice({
 
 export const {
 	setSelectedConversation,
+	setChatRead,
 	closeConversation,
 	newMessage,
 	setConversationMessages,

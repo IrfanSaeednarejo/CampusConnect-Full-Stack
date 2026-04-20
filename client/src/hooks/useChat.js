@@ -52,7 +52,8 @@ export const useChat = () => {
     [dispatch]
   );
   const sendMessage = useCallback(
-    async (chatId, content, type = 'text') => {
+    async (chatId, content, options = {}) => {
+      const { type = 'text', replyToId, attachmentId, mentions = [] } = options;
       const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2)}`;
       const tempMessage = {
         _id: tempId,
@@ -60,7 +61,10 @@ export const useChat = () => {
         chat: chatId,
         content,
         type,
+        replyTo: replyToId || undefined,
+        attachment: attachmentId || undefined,
         status: 'sending',
+        timestamp: new Date().toISOString(),
         createdAt: new Date().toISOString(),
         sender: { _id: 'self' },
       };
@@ -72,6 +76,9 @@ export const useChat = () => {
           chatId,
           content,
           type,
+          replyToId,
+          attachmentId,
+          mentions,
           idempotencyKey: tempId,
         }, (ack) => {
           if (ack?.success) {
@@ -86,7 +93,7 @@ export const useChat = () => {
         });
       } else {
         try {
-          const { data } = await chatApi.sendMessage(chatId, { content, type });
+          const { data } = await chatApi.sendMessage(chatId, { content, type, replyToId, attachmentId, mentions });
           dispatch(replaceOptimisticMessage({
             conversationId: chatId,
             tempId,

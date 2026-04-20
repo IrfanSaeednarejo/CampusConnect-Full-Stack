@@ -47,7 +47,7 @@ export default function NotificationDropdown({ isOpen, onClose }) {
     // Resolve navigation path
     let path = '/notifications';
     switch (notif.refModel) {
-      case 'Chat': path = `/messages/${notif.ref}`; break;
+      case 'Chat': path = `/messages?chatId=${notif.ref}`; break;
       case 'Event': path = `/events/${notif.ref}`; break;
       case 'Society': path = `/societies/${notif.ref}`; break;
       case 'StudyGroup': path = `/study-groups/${notif.ref}`; break;
