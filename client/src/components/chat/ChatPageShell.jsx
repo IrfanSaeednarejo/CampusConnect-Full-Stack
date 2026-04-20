@@ -46,6 +46,7 @@ export default function ChatPageShell({
 			onRetryMessage={chatState.retryMessage}
 			onHandleTyping={chatState.handleTyping}
 			canSend={canSend}
+			currentUser={chatState.currentUser}
 		/>
 	);
 }
