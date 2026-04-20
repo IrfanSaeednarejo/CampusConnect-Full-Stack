@@ -44,6 +44,8 @@ export const forceEventStatus = (id, data) => axiosInstance.patch(`/admin/events
 
 // ── Study Group Management ───────────────────────────────────────────────────
 export const getAdminStudyGroups = (params) => axiosInstance.get("/admin/study-groups", { params });
+export const getAdminStudyGroupDetail = (id) => axiosInstance.get(`/admin/study-groups/${id}`);
+export const adminCreateStudyGroup = (data) => axiosInstance.post("/admin/study-groups", data);
 export const adminDeleteGroup = (id) => axiosInstance.delete(`/admin/study-groups/${id}`);
 export const adminUpdateGroupStatus = (id, data) => axiosInstance.patch(`/admin/study-groups/${id}/status`, data);
 

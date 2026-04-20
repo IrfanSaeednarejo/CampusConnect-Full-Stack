@@ -66,11 +66,17 @@ import {
     getEventRegistrations,
 } from "../controllers/event.admin.controller.js";
 
-// ── StudyGroup + Notification + AuditLog (combined file) ─────────────────────
+// ── StudyGroup admin ──────────────────────────────────────────────────────────
 import {
     listStudyGroups,
-    adminDeleteStudyGroup,
-    adminUpdateStudyGroupStatus,
+    getStudyGroupDetail,
+    createStudyGroup,
+    updateStatus as updateStudyGroupStatus,
+    deleteStudyGroup,
+} from "../controllers/studyGroup.admin.controller.js";
+
+// ── Notification + AuditLog (combined file) ─────────────────────
+import {
     broadcastNotification,
     targetedNotification,
     getNotificationLogs,
@@ -146,8 +152,10 @@ router.patch("/events/:eventId/status", requireSuperAdmin, forceEventStatus);
 
 // ─── Study Groups ─────────────────────────────────────────────────────────────
 router.get("/study-groups", listStudyGroups);
-router.patch("/study-groups/:id/status", requireWriteAdmin, requireCampusAdmin(), adminUpdateStudyGroupStatus);
-router.delete("/study-groups/:id", requireWriteAdmin, requireCampusAdmin(), adminDeleteStudyGroup);
+router.post("/study-groups", requireWriteAdmin, requireCampusAdmin(), createStudyGroup);
+router.get("/study-groups/:id", getStudyGroupDetail);
+router.patch("/study-groups/:id/status", requireWriteAdmin, requireCampusAdmin(), updateStudyGroupStatus);
+router.delete("/study-groups/:id", requireWriteAdmin, requireCampusAdmin(), deleteStudyGroup);
 
 // ─── Notifications ────────────────────────────────────────────────────────────
 router.post("/notifications/broadcast", requireSuperAdmin, broadcastNotification);

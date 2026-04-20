@@ -8,29 +8,7 @@ import { scopeQuery } from "../middlewares/adminAuth.middleware.js";
 
 // ─── StudyGroups ──────────────────────────────────────────────────────────────
 
-export const listStudyGroups = ah(async (req, res) => {
-    const { page = 1, limit = 20, status, subject, q } = req.query;
-    
-    let filter = scopeQuery(req, {});
 
-    if (status && status !== "all") filter.status = status;
-    if (subject) filter.subject = { $regex: subject.trim(), $options: "i" };
-    if (q?.trim()) filter.$text = { $search: q.trim() };
-
-    const result = await combinedService.listStudyGroups(filter, { page, limit });
-    return res.status(200).json(new ApiResponse(200, result, "Study groups fetched"));
-});
-
-export const adminDeleteStudyGroup = ah(async (req, res) => {
-    await combinedService.deleteStudyGroup(req.params.id, req.user, req);
-    return res.status(200).json(new ApiResponse(200, null, "Study group deleted successfully"));
-});
-
-export const adminUpdateStudyGroupStatus = ah(async (req, res) => {
-    const { status } = req.body;
-    const group = await combinedService.updateStudyGroupStatus(req.params.id, status, req.user, req);
-    return res.status(200).json(new ApiResponse(200, group, `Study group ${status}`));
-});
 
 // ─── Notifications ────────────────────────────────────────────────────────────
 
