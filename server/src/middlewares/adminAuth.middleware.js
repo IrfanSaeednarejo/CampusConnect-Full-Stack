@@ -128,7 +128,7 @@ export const scopeQuery = (req, baseFilter = {}) => {
     const isSuperAdmin = roles.includes(SUPER_ADMIN);
 
     // Super-admin with explicit campus filter from query param
-    const overrideCampusId = req.query.campusId || req.body.campusId;
+    const overrideCampusId = req.query?.campusId || req.body?.campusId;
     if (isSuperAdmin) {
         if (overrideCampusId) {
             return { ...baseFilter, campusId: overrideCampusId };
