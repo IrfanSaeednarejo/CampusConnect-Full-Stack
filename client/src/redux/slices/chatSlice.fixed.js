@@ -96,6 +96,7 @@ export const createOrGetDMThunk = createAsyncThunk(
 		}
 	}
 );
+
 const initialState = {
 	conversations: [],
 	messagesByConversation: {},
@@ -128,7 +129,20 @@ const chatSlice = createSlice({
 			const conversationId = action.payload;
 			state.selectedConversationId = conversationId;
 			if (conversationId) {
-						state.unreadByConversation[conversationId] = 0;
+				state.unreadByConversation[conversationId] = 0;
+				const conversation = state.conversations.find(
+					(c) => c.id === conversationId || c._id === conversationId
+				);
+				if (conversation) {
+					conversation.unreadCount = 0;
+					conversation.myUnreadCount = 0;
+				}
+			}
+		},
+		setChatRead: (state, action) => {
+			const conversationId = action.payload?.conversationId || action.payload;
+			if (!conversationId) return;
+			state.unreadByConversation[conversationId] = 0;
 			const conversation = state.conversations.find(
 				(c) => c.id === conversationId || c._id === conversationId
 			);
@@ -136,21 +150,8 @@ const chatSlice = createSlice({
 				conversation.unreadCount = 0;
 				conversation.myUnreadCount = 0;
 			}
-		}
 		},
-		setChatRead: (state, action) => {
-		const conversationId = action.payload?.conversationId || action.payload;
-		if (!conversationId) return;
-		state.unreadByConversation[conversationId] = 0;
-		const conversation = state.conversations.find(
-			(c) => c.id === conversationId || c._id === conversationId
-		);
-		if (conversation) {
-			conversation.unreadCount = 0;
-			conversation.myUnreadCount = 0;
-		}
-	},
-	closeConversation: (state) => {
+		closeConversation: (state) => {
 			state.selectedConversationId = null;
 		},
 		newMessage: (state, action) => {
@@ -160,14 +161,29 @@ const chatSlice = createSlice({
 				state.messagesByConversation[conversationId] = [];
 			}
 			const exists = state.messagesByConversation[conversationId].some(
-				(m) => m._id === message._id
+				(m) => m._id === message._id || m.id === message.id
 			);
 			if (!exists) {
 				state.messagesByConversation[conversationId].push(message);
 			}
+			const lastMessageText = message.content || message.text || "";
+			const lastTimestamp = message.timestamp || message.createdAt || new Date().toISOString();
+			const conversation = state.conversations.find(
+				(c) => c.id === conversationId || c._id === conversationId
+			);
+			if (conversation) {
+				conversation.lastMessage = lastMessageText;
+				conversation.timestamp = lastTimestamp;
+				if (conversation.unreadCount == null) conversation.unreadCount = 0;
+				if (conversation.myUnreadCount == null) conversation.myUnreadCount = 0;
+			}
 			if (conversationId !== state.selectedConversationId) {
 				state.unreadByConversation[conversationId] =
 					(state.unreadByConversation[conversationId] || 0) + 1;
+				if (conversation) {
+					conversation.unreadCount = (conversation.unreadCount || 0) + 1;
+					conversation.myUnreadCount = (conversation.myUnreadCount || 0) + 1;
+				}
 			}
 		},
 		setConversationMessages: (state, action) => {
@@ -219,7 +235,6 @@ const chatSlice = createSlice({
 				if (msg) msg.reactions = reactions;
 			}
 		},
-
 		updateMessageStatus: (state, action) => {
 			const { conversationId, messageId, status } = action.payload;
 			const msgs = state.messagesByConversation[conversationId] || [];
@@ -232,14 +247,12 @@ const chatSlice = createSlice({
 			const msg = msgs.find((m) => m._id === messageId || m.id === messageId);
 			if (msg) msg.status = "failed";
 		},
-
 		setTypingStatus: (state, action) => {
 			const { conversationId, isTyping, userName } = action.payload;
 			if (conversationId) {
 				state.typingByConversation[conversationId] = { isTyping, userName };
 			}
 		},
-
 		setDraft: (state, action) => {
 			const { conversationId, text } = action.payload;
 			if (!conversationId) return;
@@ -248,7 +261,6 @@ const chatSlice = createSlice({
 				text,
 			};
 		},
-
 		togglePinConversation: (state, action) => {
 			const id = action.payload.conversationId;
 			if (state.pinnedConversations.includes(id)) {
@@ -265,7 +277,6 @@ const chatSlice = createSlice({
 				state.mutedConversations.push(id);
 			}
 		},
-
 		setForwardingMessage: (state, action) => {
 			state.forwardingMessage = action.payload;
 		},
@@ -314,7 +325,6 @@ const chatSlice = createSlice({
 			state.searchQuery = action.payload;
 		},
 		forwardMessageToConversation: (state, action) => {
-			// This would usually trigger a thunk, but we can set the state here
 			state.forwardingMessage = action.payload.message;
 		},
 		syncPendingMessages: (state) => {

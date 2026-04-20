@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import ChatPageShell from "../../components/chat/ChatPageShell";
@@ -115,6 +115,8 @@ export const useChatPageState = ({ allowedTypes }) => {
 	const { emit, isConnected, error } = useSocket();
 	const [searchParams] = useSearchParams();
 	const queryChatId = searchParams.get("chatId");
+	const typingTimeoutRef = useRef(null);
+	const isTypingRef = useRef(false);
 
 	const directConversations = useSelector(selectDirectConversations);
 	const messagesByConversation = useSelector(selectMessagesByConversation);
@@ -359,6 +361,14 @@ export const useChatPageState = ({ allowedTypes }) => {
 		dispatch(setChatRead({ conversationId: selectedConversationId }));
 	}, [dispatch, emit, isConnected, messagesByConversation, selectedConversationId, user?._id]);
 
+	useEffect(() => {
+		if (!selectedConversationId || !isConnected) return;
+		emit("chat:join", { chatId: selectedConversationId });
+		return () => {
+			emit("chat:leave", { chatId: selectedConversationId });
+		};
+	}, [selectedConversationId, isConnected, emit]);
+
 	// Fetch messages when conversation changes
 	useEffect(() => {
 		if (selectedConversationId) {
@@ -387,6 +397,21 @@ export const useChatPageState = ({ allowedTypes }) => {
 	const dispatchClearForwardingMessage = useCallback(() => dispatch(clearForwardingMessage()), [dispatch]);
 	const dispatchRetryMessage = useCallback((payload) => dispatch(retryMessage(payload)), [dispatch]);
 
+	const handleTyping = useCallback(() => {
+		if (!selectedConversationId || !isConnected) return;
+		if (!isTypingRef.current) {
+			isTypingRef.current = true;
+			emit("typing:start", { chatId: selectedConversationId });
+		}
+		if (typingTimeoutRef.current) {
+			clearTimeout(typingTimeoutRef.current);
+		}
+		typingTimeoutRef.current = setTimeout(() => {
+			isTypingRef.current = false;
+			emit("typing:stop", { chatId: selectedConversationId });
+		}, 2000);
+	}, [selectedConversationId, isConnected, emit]);
+
 	return {
 		conversations: combined,
 		selectedConversationId,
@@ -401,6 +426,7 @@ export const useChatPageState = ({ allowedTypes }) => {
 		forwardingMessage,
 		handleSelectConversation,
 		handleSendMessage,
+		handleTyping,
 		setDraft: dispatchSetDraft,
 		setReplyTo: dispatchSetReplyTo,
 		clearReplyTo: dispatchClearReplyTo,

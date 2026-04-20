@@ -62,6 +62,7 @@ export default function ChatShell({
 	onSetForwardingMessage = noop,
 	onClearForwardingMessage = noop,
 	onRetryMessage = noop,
+	onHandleTyping = noop,
 	canSend = true,
 }) {
 	const navigate = useNavigate();
@@ -181,6 +182,7 @@ export default function ChatShell({
 			isTyping: value.length > 0,
 			userName: "You",
 		});
+		onHandleTyping();
 	};
 
 	const handleReply = (message) => {

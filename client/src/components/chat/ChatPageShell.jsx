@@ -44,6 +44,7 @@ export default function ChatPageShell({
 			onSetForwardingMessage={chatState.setForwardingMessage}
 			onClearForwardingMessage={chatState.clearForwardingMessage}
 			onRetryMessage={chatState.retryMessage}
+			onHandleTyping={chatState.handleTyping}
 			canSend={canSend}
 		/>
 	);
