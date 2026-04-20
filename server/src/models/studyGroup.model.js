@@ -195,6 +195,14 @@ const studyGroupSchema = new Schema(
             type: String,
             trim: true,
         },
+        reports: [
+            {
+                reportedBy: { type: Schema.Types.ObjectId, ref: "User" },
+                reason: { type: String, required: true },
+                type: { type: String, enum: ["false_behavior", "spam", "harassment", "other"], default: "false_behavior" },
+                createdAt: { type: Date, default: Date.now }
+            }
+        ],
     },
     {
         timestamps: true,

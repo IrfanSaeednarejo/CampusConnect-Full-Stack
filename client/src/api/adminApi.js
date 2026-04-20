@@ -48,6 +48,9 @@ export const getAdminStudyGroupDetail = (id) => axiosInstance.get(`/admin/study-
 export const adminCreateStudyGroup = (data) => axiosInstance.post("/admin/study-groups", data);
 export const adminDeleteGroup = (id) => axiosInstance.delete(`/admin/study-groups/${id}`);
 export const adminUpdateGroupStatus = (id, data) => axiosInstance.patch(`/admin/study-groups/${id}/status`, data);
+export const adminAddStudyMember = (id, data) => axiosInstance.post(`/admin/study-groups/${id}/members`, data);
+export const adminUpdateStudyMember = (id, userId, data) => axiosInstance.patch(`/admin/study-groups/${id}/members/${userId}`, data);
+export const adminRemoveStudyMember = (id, userId) => axiosInstance.delete(`/admin/study-groups/${id}/members/${userId}`);
 
 // ── Notifications ────────────────────────────────────────────────────────────
 export const broadcastNotification = (data) => axiosInstance.post("/admin/notifications/broadcast", data);

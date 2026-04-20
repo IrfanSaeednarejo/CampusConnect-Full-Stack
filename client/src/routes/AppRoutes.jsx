@@ -131,6 +131,7 @@ import AdminUserDetail     from "../admin/pages/AdminUserDetail";
 import AdminSocietyDetail  from "../admin/pages/AdminSocietyDetail";
 import AdminAnalytics      from "../admin/pages/AdminAnalytics";
 import AdminRequests       from "../admin/pages/AdminRequests";
+import AdminStudyGroupDetail from "../admin/pages/AdminStudyGroupDetail";
 
 // ── Payment (AppShell) ───────────────────────────────────────────────────────
 import PaymentHistory from "../pages/Payments/PaymentHistory";
@@ -376,6 +377,7 @@ export default function AppRoutes() {
           <Route path="societies/:id" element={<AdminSocietyDetail />} />
           <Route path="events" element={<AdminEvents />} />
           <Route path="study-groups" element={<AdminStudyGroups />} />
+          <Route path="study-groups/:id" element={<AdminStudyGroupDetail />} />
           <Route path="notifications" element={<AdminNotifications />} />
           <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="audit-logs" element={<AdminAuditLogs />} />

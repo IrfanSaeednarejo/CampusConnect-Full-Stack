@@ -62,3 +62,21 @@ export const deleteStudyGroup = asyncHandler(async (req, res) => {
     await studyGroupService.deleteStudyGroup(req.params.id, req.user, req);
     return res.status(200).json(new ApiResponse(200, null, "Study group deleted successfully"));
 });
+
+/**
+ * Member Management
+ */
+export const addMember = asyncHandler(async (req, res) => {
+    const group = await studyGroupService.addMember(req.params.id, req.body);
+    return res.status(200).json(new ApiResponse(200, group, "Member added successfully"));
+});
+
+export const updateMemberRole = asyncHandler(async (req, res) => {
+    const group = await studyGroupService.updateMemberRole(req.params.id, req.params.userId, req.body.role);
+    return res.status(200).json(new ApiResponse(200, group, "Member role updated successfully"));
+});
+
+export const removeMember = asyncHandler(async (req, res) => {
+    const group = await studyGroupService.removeMember(req.params.id, req.params.userId);
+    return res.status(200).json(new ApiResponse(200, group, "Member removed successfully"));
+});

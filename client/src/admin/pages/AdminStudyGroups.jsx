@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
     getAdminStudyGroups, 
     adminUpdateGroupStatus, 
@@ -12,8 +13,9 @@ import CreateStudyGroupModal from "../components/CreateStudyGroupModal";
 import { toast } from "react-hot-toast";
 
 const AdminStudyGroups = () => {
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState("active");
-    const [q, setQ] = useState("");
+    const [searchQ, setSearchQ] = useState("");
     const [groups, setGroups] = useState([]);
     const [pagination, setPagination] = useState({});
     const [loading, setLoading] = useState(true);
@@ -26,17 +28,17 @@ const AdminStudyGroups = () => {
     const TABS = [
         { key: "pending", label: "Pending Requests" },
         { key: "active", label: "Active Groups" },
-        { key: "archived", label: "Archived" },
+        { key: "archived", label: "Frozen / Archived" },
     ];
 
-    const fetchGroups = useCallback(async (p = 1, searchQuery = q) => {
+    const fetchGroups = useCallback(async (p = 1, q = searchQ) => {
         setLoading(true);
         try {
             const { data } = await getAdminStudyGroups({ 
                 status: activeTab === "active" ? "active" : (activeTab === "pending" ? "pending" : "archived"), 
                 page: p, 
-                limit: 10,
-                q: searchQuery.trim()
+                limit: 20,
+                q: q.trim()
             });
             setGroups(data.data?.docs || []);
             setPagination(data.data?.pagination || {});
@@ -45,7 +47,7 @@ const AdminStudyGroups = () => {
         } finally {
             setLoading(false);
         }
-    }, [activeTab, q]);
+    }, [activeTab, searchQ]);
 
     useEffect(() => {
         fetchGroups(1);
@@ -85,12 +87,9 @@ const AdminStudyGroups = () => {
             key: "name",
             label: "Study Group",
             render: (g) => (
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-500/10 flex items-center justify-center text-xl">📚</div>
-                    <div>
-                        <div className="text-white font-bold text-sm tracking-tight">{g.name}</div>
-                        <div className="text-[10px] font-black text-indigo-500 uppercase tracking-widest">{g.subject}</div>
-                    </div>
+                <div>
+                    <div style={{ color: "#f8fafc", fontWeight: 500 }}>{g.name}</div>
+                    <div style={{ color: "#64748b", fontSize: 11 }}>{g.subject} · {g.course || "General"}</div>
                 </div>
             )
         },
@@ -98,8 +97,8 @@ const AdminStudyGroups = () => {
             key: "leader",
             label: "Group Leader",
             render: (g) => (
-                <div className="flex items-center gap-2">
-                    <div className="text-slate-300 text-xs font-semibold">{g.coordinatorId?.profile?.displayName}</div>
+                <div style={{ color: "#94a3b8", fontSize: 13 }}>
+                    {g.coordinatorId?.profile?.displayName || "Unknown"}
                 </div>
             )
         },
@@ -107,16 +106,15 @@ const AdminStudyGroups = () => {
             key: "members",
             label: "Members",
             render: (g) => (
-                <div className="flex items-center gap-2">
-                    <span className="text-white font-bold text-xs">{g.memberCount || 0}</span>
-                    <span className="text-slate-500 text-[10px]">/ {g.maxMembers}</span>
+                <div style={{ color: "#94a3b8", fontSize: 13 }}>
+                    {g.memberCount || 0} <span style={{ color: "#475569" }}>/ {g.maxMembers}</span>
                 </div>
             )
         },
         {
             key: "campus",
             label: "Campus",
-            render: (g) => <span className="text-slate-400 text-xs">{g.campusId?.name || "Global"}</span>
+            render: (g) => <span style={{ color: "#64748b", fontSize: 13 }}>{g.campusId?.name || "—"}</span>
         },
         {
             key: "status",
@@ -126,7 +124,7 @@ const AdminStudyGroups = () => {
     ];
 
     const rowActions = (g) => [
-        { label: "View Details", onClick: () => {} }, // TODO: Group Detail page
+        { label: "View Detail", onClick: () => navigate(`/admin/study-groups/${g._id}`) },
         ...(g.status === "pending" ? [
             { label: "Approve", onClick: () => handleStatusUpdate(g._id, "active") },
             { label: "Reject", onClick: () => setArchiveModal(g._id), danger: true }
@@ -137,67 +135,107 @@ const AdminStudyGroups = () => {
         ...(g.status === "archived" ? [
             { label: "Reactivate", onClick: () => handleStatusUpdate(g._id, "active") }
         ] : []),
-        { label: "Delete Permanently", onClick: () => setDeleteModal(g._id), danger: true }
+        { label: "Delete", onClick: () => setDeleteModal(g._id), danger: true }
     ];
 
+    const PendingGroupsTab = () => {
+        if (loading) return <div style={{ color: "#64748b", padding: 32 }}>Loading...</div>;
+        if (groups.length === 0)
+            return <div style={{ color: "#64748b", padding: 32, textAlign: "center" }}>No pending study group requests ✓</div>;
+
+        return (
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: 16 }}>
+                {groups.map((g) => (
+                    <div 
+                        key={g._id} 
+                        onClick={() => navigate(`/admin/study-groups/${g._id}`)}
+                        style={{ background: "#0f172a", borderRadius: 12, padding: 20, border: "1px solid #334155", cursor: "pointer", transition: "border-color 0.2s" }}
+                        onMouseEnter={(e) => e.currentTarget.style.borderColor = "#6366f1"}
+                        onMouseLeave={(e) => e.currentTarget.style.borderColor = "#334155"}
+                    >
+                        <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+                            <div style={{ width: 44, height: 44, borderRadius: 8, background: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20 }}>📚</div>
+                            <div>
+                                <div style={{ color: "#f8fafc", fontWeight: 600 }}>{g.name}</div>
+                                <div style={{ color: "#64748b", fontSize: 12 }}>{g.subject} · {g.course || "General"}</div>
+                            </div>
+                        </div>
+
+                        {g.description && (
+                            <p style={{ color: "#94a3b8", fontSize: 13, marginBottom: 12, lineHeight: 1.5 }}>
+                                {g.description.length > 100 ? g.description.substring(0, 100) + "…" : g.description}
+                            </p>
+                        )}
+
+                        <div style={{ color: "#64748b", fontSize: 12, marginBottom: 12 }}>
+                            Coordinator:{" "}
+                            <span style={{ color: "#94a3b8" }}>{g.coordinatorId?.profile?.displayName || g.coordinatorId?.email}</span>
+                            {g.campusId && <span> · {g.campusId.name}</span>}
+                        </div>
+
+                        <div style={{ display: "flex", gap: 8 }} onClick={e => e.stopPropagation()}>
+                            <button onClick={() => handleStatusUpdate(g._id, "active")} style={approveBtn}>✓ Approve</button>
+                            <button onClick={() => setArchiveModal(g._id)} style={rejectBtn}>✗ Reject</button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+        );
+    };
+
     return (
-        <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Header Area */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+        <div style={{ animation: "fadeIn 0.5s ease-out" }}>
+            <div style={{ marginBottom: 32, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
                 <div>
-                    <h1 className="text-3xl font-black text-white tracking-tight">Study Groups</h1>
-                    <p className="text-slate-500 mt-2 font-medium max-w-xl">
-                        Oversee collaborative academic hubs. Moderate group leader assignments, monitor participation metrics, and govern the system-wide study network.
-                    </p>
+                    <h1 style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", margin: 0 }}>Study Group Governance</h1>
+                    <p style={{ color: "#64748b", marginTop: 4 }}>Moderate collaborative labs, manage group leadership, and audit participation metrics.</p>
                 </div>
                 <button 
                     onClick={() => setShowCreateModal(true)}
-                    className="bg-indigo-600 hover:bg-indigo-500 text-white font-black px-8 py-4 rounded-2xl shadow-xl shadow-indigo-500/20 transition-all flex items-center gap-3 group active:scale-95"
+                    style={createBtnStyle}
                 >
-                    <span className="text-xl group-hover:rotate-90 transition-transform duration-300">＋</span>
-                    <span className="text-xs tracking-widest uppercase">Create Study Group</span>
+                    <span style={{ fontSize: 18 }}>+</span> CREATE STUDY GROUP
                 </button>
             </div>
 
-            {/* Navigation & Search */}
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-8 gap-4">
-                <div className="flex p-1 bg-slate-900/50 border border-slate-800 rounded-2xl w-fit">
-                    {TABS.map((t) => (
-                        <button
-                            key={t.key}
-                            onClick={() => setActiveTab(t.key)}
-                            className={`px-6 py-3 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all ${
-                                activeTab === t.key 
-                                ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" 
-                                : "text-slate-500 hover:text-slate-300"
-                            }`}
-                        >
-                            {t.label}
-                        </button>
-                    ))}
-                </div>
-
-                <div className="relative flex-1 max-w-sm">
-                    <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-lg">🔍</div>
-                    <input 
-                        placeholder="Search by name, subject, or course..."
-                        value={q}
-                        onChange={(e) => { setQ(e.target.value); fetchGroups(1, e.target.value); }}
-                        className="w-full bg-slate-900/50 border border-slate-800 rounded-2xl pl-12 pr-6 py-4 text-white text-xs outline-none focus:border-indigo-500 transition-all placeholder:text-slate-600"
-                    />
-                </div>
+            {/* Tabs */}
+            <div style={tabContainerStyle}>
+                {TABS.map((t) => (
+                    <button
+                        key={t.key}
+                        onClick={() => setActiveTab(t.key)}
+                        style={{
+                            ...tabButtonStyle,
+                            background: activeTab === t.key ? "#6366f1" : "transparent",
+                            color: activeTab === t.key ? "#fff" : "#64748b",
+                        }}
+                    >
+                        {t.label.toUpperCase()}
+                    </button>
+                ))}
             </div>
 
-            {/* Table Area */}
-            <div className="bg-slate-900/30 border border-slate-800 rounded-3xl overflow-hidden backdrop-blur-sm">
-                <AdminTable 
-                    columns={columns}
-                    data={groups}
-                    loading={loading}
-                    rowActions={rowActions}
-                    pagination={pagination}
-                    onPageChange={(p) => { setPage(p); fetchGroups(p); }}
+            <div style={{ minHeight: "400px" }}>
+                <input
+                    placeholder="Search study groups..."
+                    value={searchQ}
+                    onChange={(e) => { setSearchQ(e.target.value); fetchGroups(1, e.target.value); }}
+                    style={inputStyle}
                 />
+
+                {activeTab === "pending" ? (
+                    <PendingGroupsTab />
+                ) : (
+                    <AdminTable 
+                        columns={columns}
+                        data={groups}
+                        loading={loading}
+                        rowActions={rowActions}
+                        pagination={pagination}
+                        onPageChange={(p) => { setPage(p); fetchGroups(p); }}
+                        onRowClick={(g) => navigate(`/admin/study-groups/${g._id}`)}
+                    />
+                )}
             </div>
 
             {/* Modals */}
@@ -211,15 +249,15 @@ const AdminStudyGroups = () => {
             {archiveModal && (
                 <ReasonModal 
                     title={activeTab === "pending" ? "Reject Group Request" : "Archive Study Group"} 
-                    prompt="Enter a reason to be sent to the group leader:" 
+                    prompt="Reason for this action (sent to the group leader):" 
                     onClose={handleArchive} 
                 />
             )}
 
             {deleteModal && (
                 <ConfirmModal 
-                    title="Delete Permanently"
-                    description="This action will remove the study group, archive its associated chats, and clear all member records. This action IS NOT reversible."
+                    title="Delete Study Group"
+                    description="This will permanently delete the group and archive its chats. This action cannot be undone."
                     confirmWord="DELETE"
                     danger
                     onClose={handleDelete}
@@ -227,6 +265,45 @@ const AdminStudyGroups = () => {
             )}
         </div>
     );
+};
+
+// ── Styles ──────────────────────────────────────────────────────────────────
+
+const createBtnStyle = { 
+    background: "#6366f1", color: "#fff", border: "none", 
+    padding: "12px 24px", borderRadius: 12, fontWeight: 700, 
+    fontSize: 14, cursor: "pointer", display: "flex", alignItems: "center", gap: 8,
+    boxShadow: "0 10px 15px -3px rgba(99, 102, 241, 0.3)"
+};
+
+const tabContainerStyle = { 
+    display: "flex", gap: 6, padding: 4, background: "#0f172a", 
+    borderRadius: 12, marginBottom: 32, maxWidth: "fit-content", 
+    border: "1px solid #1e293b" 
+};
+
+const tabButtonStyle = {
+    padding: "10px 24px", border: "none", borderRadius: 8,
+    cursor: "pointer", fontSize: 12, fontWeight: 700,
+    transition: "all 0.2s"
+};
+
+const inputStyle = { 
+    width: "100%", padding: "12px 16px", background: "#1e293b", 
+    border: "1px solid #334155", borderRadius: 12, color: "#f8fafc", 
+    fontSize: 14, outline: "none", transition: "border-color 0.2s",
+    marginBottom: 16
+};
+
+const approveBtn = {
+    padding: "6px 16px", background: "#6366f1", color: "#fff",
+    border: "none", borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 700,
+    boxShadow: "0 4px 6px -1px rgba(99, 102, 241, 0.4)"
+};
+
+const rejectBtn = {
+    padding: "6px 16px", background: "transparent", color: "#94a3b8",
+    border: "1px solid #334155", borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600
 };
 
 export default AdminStudyGroups;

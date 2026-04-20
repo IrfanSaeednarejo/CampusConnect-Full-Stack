@@ -73,6 +73,9 @@ import {
     createStudyGroup,
     updateStatus as updateStudyGroupStatus,
     deleteStudyGroup,
+    addMember as adminAddStudyMember,
+    updateMemberRole as adminUpdateStudyMember,
+    removeMember as adminRemoveStudyMember
 } from "../controllers/studyGroup.admin.controller.js";
 
 // ── Notification + AuditLog (combined file) ─────────────────────
@@ -156,6 +159,11 @@ router.post("/study-groups", requireWriteAdmin, requireCampusAdmin(), createStud
 router.get("/study-groups/:id", getStudyGroupDetail);
 router.patch("/study-groups/:id/status", requireWriteAdmin, requireCampusAdmin(), updateStudyGroupStatus);
 router.delete("/study-groups/:id", requireWriteAdmin, requireCampusAdmin(), deleteStudyGroup);
+
+// Member management
+router.post("/study-groups/:id/members",           requireWriteAdmin, requireCampusAdmin(), adminAddStudyMember);
+router.patch("/study-groups/:id/members/:userId", requireWriteAdmin, requireCampusAdmin(), adminUpdateStudyMember);
+router.delete("/study-groups/:id/members/:userId", requireWriteAdmin, requireCampusAdmin(), adminRemoveStudyMember);
 
 // ─── Notifications ────────────────────────────────────────────────────────────
 router.post("/notifications/broadcast", requireSuperAdmin, broadcastNotification);

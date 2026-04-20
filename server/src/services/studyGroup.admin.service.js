@@ -97,9 +97,72 @@ export const getStudyGroupDetail = async (id) => {
         .populate("coordinatorId", "profile.displayName profile.avatar email status")
         .populate("campusId", "name code")
         .populate("groupMembers.memberId", "profile.displayName profile.avatar email status")
+        .populate("reports.reportedBy", "profile.displayName email")
         .lean();
 
     if (!group) throw new ApiError(404, "Study group not found");
+    return group;
+};
+
+/**
+ * Add Member to Study Group
+ */
+export const addMember = async (groupId, { userId, role }) => {
+    const group = await StudyGroup.findById(groupId);
+    if (!group) throw new ApiError(404, "Group not found");
+
+    if (group.memberCount >= group.maxMembers) {
+        throw new ApiError(400, "Group capacity reached");
+    }
+
+    const isMember = group.groupMembers.some(m => m.memberId.toString() === userId);
+    if (isMember) throw new ApiError(400, "User is already a member of this group");
+
+    group.groupMembers.push({ memberId: userId, role: role || "member", joinedAt: new Date() });
+    await group.save();
+
+    return group;
+};
+
+/**
+ * Update Member Role
+ */
+export const updateMemberRole = async (groupId, userId, role) => {
+    const group = await StudyGroup.findById(groupId);
+    if (!group) throw new ApiError(404, "Group not found");
+
+    const member = group.groupMembers.find(m => m.memberId.toString() === userId);
+    if (!member) throw new ApiError(404, "Member not found in this group");
+
+    member.role = role;
+    
+    // If updating to coordinator, also update the main coordinatorId
+    if (role === "coordinator") {
+        group.coordinatorId = userId;
+    }
+
+    await group.save();
+    return group;
+};
+
+/**
+ * Remove Member from Study Group
+ */
+export const removeMember = async (groupId, userId) => {
+    const group = await StudyGroup.findById(groupId);
+    if (!group) throw new ApiError(404, "Group not found");
+
+    const memberIndex = group.groupMembers.findIndex(m => m.memberId.toString() === userId);
+    if (memberIndex === -1) throw new ApiError(404, "Member not found in this group");
+
+    const member = group.groupMembers[memberIndex];
+    if (member.role === "coordinator") {
+        throw new ApiError(400, "Cannot remove the Group Leader. Reassign leadership first.");
+    }
+
+    group.groupMembers.splice(memberIndex, 1);
+    await group.save();
+
     return group;
 };
 
