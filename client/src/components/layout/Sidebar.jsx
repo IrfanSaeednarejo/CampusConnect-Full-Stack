@@ -34,9 +34,15 @@ export default function Sidebar() {
               </span>
               <span className="text-sm font-medium">Notifications</span>
             </div>
-            <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-semibold text-white bg-[#238636] rounded-full">
-              3
+          </Link>
+          <Link
+            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#21262d] transition-colors"
+            to="/network"
+          >
+            <span className="material-symbols-outlined text-xl text-[#8b949e]">
+              hub
             </span>
+            <span className="text-sm font-medium">Network</span>
           </Link>
           <Link
             className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#21262d] transition-colors"

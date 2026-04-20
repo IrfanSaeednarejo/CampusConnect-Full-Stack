@@ -60,6 +60,41 @@ function setupSocketListeners(store, socket) {
       payload: error,
     });
   });
+
+  socket.on('CONNECTION_REQUEST_RECEIVED', (data) => {
+    store.dispatch({
+      type: 'network/addPendingReceived',
+      payload: data.connection,
+    });
+  });
+
+  socket.on('CONNECTION_ACCEPTED', (data) => {
+    store.dispatch({
+      type: 'network/acceptRequestSuccess',
+      payload: data.connection,
+    });
+  });
+
+  socket.on('CONNECTION_REJECTED', (data) => {
+    store.dispatch({
+      type: 'network/removePendingSent',
+      payload: data,
+    });
+  });
+
+  socket.on('CONNECTION_CANCELLED', (data) => {
+    store.dispatch({
+      type: 'network/removePendingReceived',
+      payload: data,
+    });
+  });
+
+  socket.on('CONNECTION_REMOVED', (data) => {
+    store.dispatch({
+      type: 'network/removeConnectionState',
+      payload: data,
+    });
+  });
   socket.on('disconnected', () => {
     store.dispatch({
       type: 'socket/disconnected',

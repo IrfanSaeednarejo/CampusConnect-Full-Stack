@@ -1,80 +1,53 @@
-import { useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
-import { selectFilteredMembers, setMembers } from "../redux/slices/memberSlice";
+import { useEffect, useState, useCallback, useRef } from "react";
 import SectionHeader from "../components/common/SectionHeader";
 import MemberCard from "../components/common/MemberCard";
 import Card from "../components/common/Card";
 import Input from "../components/common/Input";
 import Button from "../components/common/Button";
-
-let membersInitialized = false;
+import { searchUsers } from "../api/userApi";
+import { useDispatch } from "react-redux";
+import { fetchNetworkState } from "../redux/slices/networkSlice";
 
 export default function Members() {
   const dispatch = useDispatch();
-  const members = useSelector(selectFilteredMembers);
+  const [members, setMembers] = useState([]);
+  const [query, setQuery] = useState("");
+  const [loading, setLoading] = useState(false);
+  const debounceTimer = useRef(null);
 
-  // Initialize mock members data in Redux
   useEffect(() => {
-    // Only initialize once, and only if members list is empty
-    if (!membersInitialized && (!members || members.length === 0)) {
-      membersInitialized = true;
-      dispatch(setMembers([
-        {
-          id: 1,
-          name: "John Smith",
-          role: "Computer Science Student",
-          interests: ["AI/ML", "Web Dev", "Open Source"],
-          joinDate: "Jan 2024",
-          followers: 234,
-        },
-        {
-          id: 2,
-          name: "Priya Patel",
-          role: "Data Science Enthusiast",
-          interests: ["Data Science", "Analytics", "Research"],
-          joinDate: "Feb 2024",
-          followers: 156,
-        },
-        {
-          id: 3,
-          name: "David Lee",
-          role: "Aspiring Entrepreneur",
-          interests: ["Startups", "Entrepreneurship", "Tech"],
-          joinDate: "Dec 2023",
-          followers: 289,
-        },
-        {
-          id: 4,
-          name: "Sophie Martin",
-          role: "UX/UI Designer",
-          interests: ["Design", "UX Research", "Product"],
-          joinDate: "Jan 2024",
-          followers: 178,
-        },
-        {
-          id: 5,
-          name: "Hassan Ali",
-          role: "Full Stack Developer",
-          interests: ["Web Dev", "DevOps", "Cloud"],
-          joinDate: "Mar 2024",
-          followers: 145,
-        },
-        {
-          id: 6,
-          name: "Emma Wilson",
-          role: "Business Student",
-          interests: ["Business", "Finance", "Leadership"],
-          joinDate: "Feb 2024",
-          followers: 167,
-        },
-      ]));
+    dispatch(fetchNetworkState());
+  }, [dispatch]);
+
+  const loadMembers = async (searchQuery = "") => {
+    setLoading(true);
+    try {
+      const response = await searchUsers(searchQuery || "a", 1, 50); // Search with 'a' to get some initial users
+      setMembers(response.data.users || []);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-  }, [dispatch, members.length]);
+  };
+
+  useEffect(() => {
+    loadMembers();
+  }, []);
+
+  const handleSearchChange = (e) => {
+    const val = e.target.value;
+    setQuery(val);
+    
+    if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    debounceTimer.current = setTimeout(() => {
+      loadMembers(val);
+    }, 500);
+  };
 
   return (
     <div className="w-full bg-[#0d1117] text-[#e6edf3] min-h-screen py-10 px-4 sm:px-10 md:px-20 lg:px-40">
       <div className="max-w-[960px] mx-auto">
-        {/* Header */}
         <div className="mb-10">
           <SectionHeader
             title="Community Members"
@@ -83,37 +56,38 @@ export default function Members() {
           />
         </div>
 
-        {/* Members Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {members.map((member) => (
-            <MemberCard
-              key={member.id}
-              name={member.name}
-              role={member.role}
-              interests={member.interests}
-              joinDate={member.joinDate}
-              followers={member.followers}
-            />
-          ))}
-        </div>
-
-        {/* Search/Filter Section */}
-        <Card className="mt-12 text-center">
-          <h2 className="text-[#e6edf3] text-2xl font-bold mb-3">
+        <Card className="mb-12">
+          <h2 className="text-[#e6edf3] text-xl font-bold mb-3">
             Find Your People
           </h2>
-          <p className="text-[#8b949e] text-sm mb-6">
-            Search for members by interests, skills, or field of study.
-          </p>
-          <div className="flex gap-2 max-w-md mx-auto">
+          <div className="flex gap-2 w-full max-w-lg">
             <Input
               type="text"
-              placeholder="Search members..."
+              placeholder="Search members by name..."
               className="flex-1"
+              value={query}
+              onChange={handleSearchChange}
             />
-            <Button variant="primary">Search</Button>
           </div>
         </Card>
+
+        {loading ? (
+          <div className="text-center text-slate-400 py-10">Searching...</div>
+        ) : members.length === 0 ? (
+          <div className="text-center text-slate-400 py-10">No members found.</div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {members.map((member) => (
+              <MemberCard
+                key={member._id}
+                userId={member._id}
+                name={member.profile?.displayName || member.profile?.firstName + " " + member.profile?.lastName}
+                role={member.roles?.[0]}
+                interests={member.interests}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

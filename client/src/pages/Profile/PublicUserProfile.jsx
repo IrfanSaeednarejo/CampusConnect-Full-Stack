@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchUserProfile, selectViewedProfile, selectUserViewLoading, selectUserViewError, clearViewedProfile } from "../../redux/slices/userSlice";
 import ProfilePageHeader from "../../components/profile/ProfilePageHeader";
 import Card from "../../components/common/Card";
+import ConnectionButton from "../../components/network/ConnectionButton";
 
 export default function PublicUserProfile() {
   const { id } = useParams();
@@ -87,6 +88,9 @@ export default function PublicUserProfile() {
                      {profile.academic.department}
                    </span>
                  )}
+               </div>
+               <div className="mt-4">
+                 <ConnectionButton targetUserId={id} />
                </div>
              </div>
           </div>

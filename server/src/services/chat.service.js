@@ -63,6 +63,19 @@ export const createOrGetDM = async (data, requestUser) => {
         throw new ApiError(403, "You can only message users on the same campus");
     }
 
+    const { Connection } = await import("../models/connection.model.js");
+    const connection = await Connection.findOne({
+        $or: [
+            { requester: requestUser._id, recipient: targetUserId },
+            { requester: targetUserId, recipient: requestUser._id },
+        ],
+        status: "accepted"
+    });
+
+    if (!connection) {
+        throw new ApiError(403, "You must be connected with this user to send a message. Please send a connection request first.");
+    }
+
     const { chat, created } = await Chat.findOrCreateDM(
         requestUser._id,
         targetUserId,

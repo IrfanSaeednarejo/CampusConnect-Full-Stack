@@ -6,6 +6,7 @@ import eventReducer from './slices/eventSlice';
 import societyReducer from './slices/societySlice';
 import notificationReducer from './slices/notificationSlice';
 import memberReducer from './slices/memberSlice';
+import networkReducer from './slices/networkSlice';
 import mentoringReducer from './slices/mentoringSlice';
 import dashboardReducer from './slices/dashboardSlice';
 import studyGroupReducer from './slices/studyGroupSlice';
@@ -29,7 +30,9 @@ const rootReducer = combineReducers({
   societies: societyReducer,
   notifications: notificationReducer,
   members: memberReducer,
+  network: networkReducer,
   mentoring: mentoringReducer,
+
   dashboard: dashboardReducer,
   studyGroups: studyGroupReducer,
   tasks: taskReducer,
