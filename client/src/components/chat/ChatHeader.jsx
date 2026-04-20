@@ -9,6 +9,7 @@ import {
   MoreVertical
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import MutualConnectionsPreview from '../network/MutualConnectionsPreview';
 
 /**
  * Chat Header Component
@@ -91,6 +92,11 @@ const ChatHeader = ({
         <div className="user-details">
           <h3>{conversation.name}</h3>
           <p>{statusLine()}</p>
+          {conversation.type === 'user' && (
+            <div className="mt-[-4px] scale-[0.85] origin-left opacity-80">
+              <MutualConnectionsPreview targetUserId={conversation.id} initialMutualCount={1} />
+            </div>
+          )}
         </div>
       </div>
       <div className="header-actions">

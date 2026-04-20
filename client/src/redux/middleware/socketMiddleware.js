@@ -73,6 +73,8 @@ function setupSocketListeners(store, socket) {
       type: 'network/acceptRequestSuccess',
       payload: data.connection,
     });
+    // Intelligent refresh: Update recommendations when the social graph changes
+    store.dispatch({ type: 'network/fetchSuggested', payload: 10 });
   });
 
   socket.on('CONNECTION_REJECTED', (data) => {

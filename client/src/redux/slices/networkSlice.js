@@ -25,11 +25,24 @@ export const fetchSuggestedMembers = createAsyncThunk(
     }
 );
 
+export const fetchMutualConnections = createAsyncThunk(
+    "network/fetchMutual",
+    async (targetUserId, { rejectWithValue }) => {
+        try {
+            const response = await networkApi.getMutualConnections(targetUserId);
+            return { targetUserId, data: response.data.data };
+        } catch (error) {
+            return rejectWithValue(error.message || "Failed to fetch mutual connections");
+        }
+    }
+);
+
 const initialState = {
     connected: [],
     pendingSent: [],
     pendingReceived: [],
     suggested: [],
+    mutualMap: {}, // Mapping of userId -> { mutualCount, mutualUsers }
     loading: false,
     error: null,
 };
@@ -96,6 +109,10 @@ const networkSlice = createSlice({
             })
             .addCase(fetchSuggestedMembers.fulfilled, (state, action) => {
                 state.suggested = action.payload.data || [];
+            })
+            .addCase(fetchMutualConnections.fulfilled, (state, action) => {
+                const { targetUserId, data } = action.payload;
+                state.mutualMap[targetUserId] = data;
             });
     },
 });

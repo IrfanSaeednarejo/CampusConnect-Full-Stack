@@ -6,7 +6,9 @@ import {
     respondToConnectionRequest,
     cancelConnectionRequest,
     removeConnection,
-    getSuggestedMembers
+    getSuggestedMembers,
+    getMutualConnections,
+    getConnectionStatus
 } from "../controllers/network.controller.js";
 
 const router = Router();
@@ -15,6 +17,8 @@ router.use(verifyJWT);
 
 router.route("/state").get(getNetworkState);
 router.route("/suggested").get(getSuggestedMembers);
+router.route("/mutual/:targetUserId").get(getMutualConnections);
+router.route("/status/:targetUserId").get(getConnectionStatus);
 
 router.route("/request").post(sendConnectionRequest);
 router.route("/request/:connectionId/respond").patch(respondToConnectionRequest);

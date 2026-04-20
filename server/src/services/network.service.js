@@ -3,7 +3,7 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { emitToUser } from "../sockets/index.js";
 
-const SAFE_SELECT = "profile.displayName profile.avatar profile.firstName profile.lastName roles campusId interests";
+const SAFE_SELECT = "profile.displayName profile.avatar profile.firstName profile.lastName profile.bio roles campusId interests";
 
 export const getNetworkState = async (userId) => {
     const connections = await Connection.find({
@@ -142,28 +142,127 @@ export const getSuggestedMembers = async (userId, limit = 5) => {
     const me = await User.findById(userId).lean();
     if (!me) throw new ApiError(404, "User not found");
     
+    // Get all my existing connections (any status) to exclude them
     const connections = await Connection.find({
         $or: [{ requester: userId }, { recipient: userId }]
     }).lean();
     
     const excludeIds = connections.map(c => 
-        c.requester.toString() === userId.toString() ? c.recipient : c.requester
+        c.requester.toString() === userId.toString() ? c.recipient.toString() : c.requester.toString()
     );
-    excludeIds.push(userId);
+    excludeIds.push(userId.toString());
     
-    const suggested = await User.find({
+    // Get candidates
+    const candidates = await User.find({
         _id: { $nin: excludeIds },
-        campusId: me.campusId,
-        status: "active"
-    }).select(SAFE_SELECT).limit(limit).lean();
+        status: "active",
+        roles: { $nin: ["super_admin"] }
+    }).select(SAFE_SELECT).lean();
     
-    if (suggested.length < limit) {
-        const more = await User.find({
-           _id: { $nin: [...excludeIds, ...suggested.map(s => s._id)] },
-           status: "active"
-        }).select(SAFE_SELECT).limit(limit - suggested.length).lean();
-        return [...suggested, ...more];
-    }
+    const myAcceptedSet = new Set(connections.filter(c => c.status === "accepted").map(c => 
+        c.requester.toString() === userId.toString() ? c.recipient.toString() : c.requester.toString()
+    ));
+
+    const mutualConns = await Connection.find({
+        $or: [
+            { requester: { $in: Array.from(myAcceptedSet) } },
+            { recipient: { $in: Array.from(myAcceptedSet) } }
+        ],
+        status: "accepted"
+    }).lean();
+
+    const mutualCountMap = {};
+    mutualConns.forEach(c => {
+        const reqStr = c.requester.toString();
+        const recStr = c.recipient.toString();
+        if (myAcceptedSet.has(reqStr) && !myAcceptedSet.has(recStr)) {
+            mutualCountMap[recStr] = (mutualCountMap[recStr] || 0) + 1;
+        } else if (myAcceptedSet.has(recStr) && !myAcceptedSet.has(reqStr)) {
+            mutualCountMap[reqStr] = (mutualCountMap[reqStr] || 0) + 1;
+        }
+    });
+
+    const myInterests = me.interests || [];
+
+    const scored = candidates.map(c => {
+        let score = 0;
+        
+        if (c.campusId?.toString() === me.campusId?.toString()) score += 5;
+        
+        const commonInterests = (c.interests || []).filter(i => myInterests.includes(i));
+        score += commonInterests.length * 2;
+        
+        const mCount = mutualCountMap[c._id.toString()] || 0;
+        score += mCount * 3;
+        
+        let matchType = "New";
+        if (score >= 15) matchType = "Strong match";
+        else if (score >= 5) matchType = "Moderate match";
+
+        return {
+            ...c,
+            score,
+            mutualCount: mCount,
+            sharedInterests: commonInterests,
+            matchType
+        };
+    });
     
-    return suggested;
+    scored.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return 0; // fallback can be adding recent or random
+    });
+    
+    return scored.slice(0, limit);
+};
+
+export const getMutualConnections = async (userId, targetId, limit = 3) => {
+    const myConns = await Connection.find({
+        $or: [{ requester: userId }, { recipient: userId }],
+        status: "accepted"
+    }).lean();
+    
+    const targetConns = await Connection.find({
+        $or: [{ requester: targetId }, { recipient: targetId }],
+        status: "accepted"
+    }).lean();
+    
+    const mySet = new Set(myConns.map(c => 
+        c.requester.toString() === userId.toString() ? c.recipient.toString() : c.requester.toString()
+    ));
+    
+    const mutualIds = targetConns.reduce((acc, c) => {
+        const peerId = c.requester.toString() === targetId.toString() ? c.recipient.toString() : c.requester.toString();
+        if (mySet.has(peerId) && peerId !== userId.toString()) {
+            acc.push(peerId);
+        }
+        return acc;
+    }, []);
+    
+    const mutualCount = mutualIds.length;
+    const previewIds = mutualIds.slice(0, limit);
+    
+    const mutualUsers = await User.find({ _id: { $in: previewIds } })
+        .select(SAFE_SELECT).lean();
+        
+    return {
+        mutualCount,
+        mutualUsers
+    };
+};
+
+export const getConnectionStatus = async (userId, targetId) => {
+    const connection = await Connection.findOne({
+        $or: [
+            { requester: userId, recipient: targetId },
+            { requester: targetId, recipient: userId }
+        ]
+    }).lean();
+
+    if (!connection) return { status: 'none', connectionId: null };
+    return {
+        status: connection.status,          // 'pending' | 'accepted' | 'rejected'
+        connectionId: connection._id,
+        isRequester: connection.requester.toString() === userId.toString()
+    };
 };

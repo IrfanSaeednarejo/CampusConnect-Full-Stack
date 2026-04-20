@@ -34,3 +34,14 @@ export const getSuggestedMembers = asyncHandler(async (req, res) => {
     const suggested = await networkService.getSuggestedMembers(req.user._id, limit);
     return res.status(200).json(new ApiResponse(200, suggested, "Suggested members fetched"));
 });
+
+export const getMutualConnections = asyncHandler(async (req, res) => {
+    const limit = parseInt(req.query.limit) || 3;
+    const mutuals = await networkService.getMutualConnections(req.user._id, req.params.targetUserId, limit);
+    return res.status(200).json(new ApiResponse(200, mutuals, "Mutual connections fetched"));
+});
+
+export const getConnectionStatus = asyncHandler(async (req, res) => {
+    const status = await networkService.getConnectionStatus(req.user._id, req.params.targetUserId);
+    return res.status(200).json(new ApiResponse(200, status, "Connection status fetched"));
+});

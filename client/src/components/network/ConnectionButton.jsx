@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { sendConnectionRequest, respondToConnectionRequest, cancelConnectionRequest, removeConnection } from '../../api/networkApi';
 import { fetchNetworkState } from '../../redux/slices/networkSlice';
+import { createOrGetDMThunk } from '../../redux/slices/chatSlice';
 import Button from '../common/Button';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
-export default function ConnectionButton({ targetUserId }) {
+export default function ConnectionButton({ targetUserId, fullWidth = false }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -71,17 +72,31 @@ export default function ConnectionButton({ targetUserId }) {
     }
   };
 
+  const handleMessage = async () => {
+    setLoading(true);
+    try {
+      const result = await dispatch(createOrGetDMThunk(targetUserId)).unwrap();
+      navigate(`/messages/${result._id}`);
+    } catch (err) {
+      toast.error('Could not open chat. You must be connected first.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const btnClass = fullWidth ? 'w-full justify-center' : '';
+
   if (isConnected) {
     return (
-      <Button variant="secondary" onClick={() => navigate('/messages')}>
-        Message
+      <Button variant="secondary" onClick={handleMessage} disabled={loading} className={btnClass}>
+        {loading ? 'Opening...' : '💬 Message'}
       </Button>
     );
   }
 
   if (isPendingSent) {
     return (
-      <Button variant="secondary" disabled={loading} onClick={handleCancel}>
+      <Button variant="secondary" disabled={loading} onClick={handleCancel} className={btnClass}>
         {loading ? 'Cancelling...' : 'Cancel Request'}
       </Button>
     );
@@ -89,11 +104,11 @@ export default function ConnectionButton({ targetUserId }) {
 
   if (isPendingReceived) {
     return (
-      <div className="flex gap-2">
-        <Button variant="primary" disabled={loading} onClick={handleAccept}>
+      <div className={`flex gap-2 ${fullWidth ? 'w-full' : ''}`}>
+        <Button variant="primary" disabled={loading} onClick={handleAccept} className="flex-1 justify-center">
           Accept
         </Button>
-        <Button variant="secondary" disabled={loading} onClick={handleReject}>
+        <Button variant="secondary" disabled={loading} onClick={handleReject} className="flex-1 justify-center">
           Reject
         </Button>
       </div>
@@ -101,8 +116,8 @@ export default function ConnectionButton({ targetUserId }) {
   }
 
   return (
-    <Button variant="primary" disabled={loading} onClick={handleConnect}>
-      {loading ? 'Connecting...' : 'Connect'}
+    <Button variant="primary" disabled={loading} onClick={handleConnect} className={btnClass}>
+      {loading ? 'Connecting...' : '+ Connect'}
     </Button>
   );
 }

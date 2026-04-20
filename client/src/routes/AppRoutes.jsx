@@ -38,7 +38,6 @@ import OnboardingWizardComplete from "../pages/Onboarding/OnboardingWizardComple
 import Home           from "../pages/Misc/Home";
 import Events         from "../pages/Events";
 import Mentors        from "../pages/Mentors";
-import Members        from "../pages/Members";
 import Societies      from "../pages/Societies";
 import AboutUs        from "../pages/Misc/About";
 import ContactUs      from "../pages/Help/ContactUs";
@@ -216,9 +215,9 @@ export default function AppRoutes() {
         <Route path="/mentors/:mentorId" element={<MentorProfileView />} />
         <Route path="/mentor-profile/:id" element={<RouteRedirect to="/mentors/:id" />} />
         
-        {/* Members */}
-        <Route path="/members"   element={<Members />} />
-        <Route path="/users/:id" element={<PublicUserProfile />} />
+        <Route path="/members"        element={<Navigate to="/network" replace />} />
+        <Route path="/users/:id"      element={<PublicUserProfile />} />
+        <Route path="/members/:id"    element={<PublicUserProfile />} />
 
         {/* Study Groups */}
         <Route path="/study-groups"           element={<StudyGroupsList />} />
@@ -251,6 +250,7 @@ export default function AppRoutes() {
           <Route path="/profile/delete-account"        element={<DeleteAccount />} />
           
           {/* ── Network ────────────────────────────── */}
+          {/* ── Network & Discovery (Unified) ────── */}
           <Route path="/network"                       element={<Network />} />
 
           

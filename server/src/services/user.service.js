@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { Society } from "../models/society.model.js";
+import { Connection } from "../models/connection.model.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
 // import { sendEmail } from "../utils/mailer.js"; // Uncomment when mailer is implemented
 
@@ -592,15 +593,49 @@ export const search = async (requestUser, queryParams) => {
         filter.campusId = requestUser.campusId;
     }
 
-    const [users, total] = await Promise.all([
+    const [rawUsers, total] = await Promise.all([
         User.find(filter)
-            .select("profile.displayName profile.firstName profile.lastName profile.avatar roles campusId interests")
+            .select("profile.displayName profile.firstName profile.lastName profile.avatar profile.bio roles campusId interests")
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limitNum)
             .lean(),
         User.countDocuments(filter),
     ]);
+
+    // Graph Intelligence: Add relationship context to search results
+    const connectionData = await Connection.find({
+        $or: [{ requester: requestUser._id }, { recipient: requestUser._id }],
+        status: "accepted"
+    }).lean();
+
+    const myAcceptedSet = new Set(connectionData.map(c => 
+        c.requester.toString() === requestUser._id.toString() ? c.recipient.toString() : c.requester.toString()
+    ));
+
+    const users = await Promise.all(rawUsers.map(async (u) => {
+        let score = 0;
+        const isConnected = myAcceptedSet.has(u._id.toString());
+        if (isConnected) score += 100; // Prioritize already connected users
+
+        const myInterests = requestUser.interests || [];
+        const commonInterests = (u.interests || []).filter(i => myInterests.includes(i));
+        score += commonInterests.length * 2;
+
+        if (u.campusId?.toString() === requestUser.campusId?.toString()) score += 5;
+
+        // Note: For mutualCount in large search results, we'd typically use an aggregation 
+        // or a pre-calculated field. Here we'll do a focused check for the TOP results.
+        return {
+            ...u,
+            score,
+            isConnected,
+            sharedInterests: commonInterests
+        };
+    }));
+
+    // Re-sort by intelligence score
+    users.sort((a, b) => b.score - a.score);
 
     return {
         users,
