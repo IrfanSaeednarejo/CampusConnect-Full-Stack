@@ -68,49 +68,76 @@ export const AdminStudyGroups = () => {
     };
 
     return (
-        <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 20 }}>Study Groups</h1>
-
-            <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
-                <input
-                    placeholder="Search by name or subject..."
-                    onChange={(e) => setFilter("q", e.target.value)}
-                    style={{ flex: 1, padding: "8px 12px", background: "#1e293b", border: "1px solid #334155", borderRadius: 6, color: "#f8fafc", fontSize: 14 }}
-                />
-                {["all", "active", "archived", "deleted"].map((s) => (
-                    <button
-                        key={s}
-                        onClick={() => setFilter("status", s)}
-                        style={{
-                            padding: "8px 14px", border: "none", borderRadius: 6, cursor: "pointer", fontSize: 13,
-                            background: filters.status === s ? "#6366f1" : "#1e293b", color: "#f8fafc",
-                        }}
-                    >
-                        {s.charAt(0).toUpperCase() + s.slice(1)}
-                    </button>
-                ))}
+        <div style={{ animation: "fadeIn 0.5s ease-out" }}>
+            <div style={{ marginBottom: 32 }}>
+                <h1 style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", margin: 0 }}>Study Group Governance</h1>
+                <p style={{ color: "#64748b", marginTop: 4 }}>Monitor academic nodes, manage coordination status, and audit member engagement.</p>
             </div>
 
-            <AdminTable
-                columns={columns}
-                data={groups}
-                loading={loading}
-                rowActions={rowActions}
-                pagination={pagination}
-                onPageChange={(p) => { const f = { ...filters, page: p }; setFilters(f); fetchGroups(f); }}
-            />
+            {/* ── Search & Filter Bar ────────────────────────── */}
+            <div style={{ 
+                background: "#0f172a", border: "1px solid #1e293b", borderRadius: 16, 
+                padding: "16px 20px", marginBottom: 24, display: "flex", gap: 16, alignItems: "center" 
+            }}>
+                <div style={{ position: "relative", flex: 1 }}>
+                    <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#475569" }}>🔍</span>
+                    <input
+                        placeholder="Search by name or academic subject..."
+                        onChange={(e) => setFilter("q", e.target.value)}
+                        style={inputStyle}
+                    />
+                </div>
+                
+                <div style={{ display: "flex", gap: 6, background: "#1e293b", padding: 4, borderRadius: 10 }}>
+                    {["all", "active", "archived", "deleted"].map((s) => (
+                        <button
+                            key={s}
+                            onClick={() => setFilter("status", s)}
+                            style={{ 
+                                ...filterPill, 
+                                background: filters.status === s ? "#6366f1" : "transparent",
+                                color: filters.status === s ? "#fff" : "#94a3b8",
+                                fontWeight: filters.status === s ? 700 : 500,
+                            }}
+                        >
+                            {s.charAt(0).toUpperCase() + s.slice(1)}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 16, overflow: "hidden" }}>
+                <AdminTable
+                    columns={columns}
+                    data={groups}
+                    loading={loading}
+                    rowActions={rowActions}
+                    pagination={pagination}
+                    onPageChange={(p) => { const f = { ...filters, page: p }; setFilters(f); fetchGroups(f); }}
+                />
+            </div>
 
             {deleteModal && (
                 <ConfirmModal
-                    title="Delete Study Group"
-                    description="This will soft-delete the group and archive its chat. The coordinator will be notified."
-                    confirmWord="DELETE"
+                    title="Administrative Deletion"
+                    description="This node will be soft-deleted. The coordinator will be notified via system pulse. This action is tracked in the audit log."
+                    confirmWord="DELETE GROUP"
                     danger
                     onClose={handleDelete}
                 />
             )}
         </div>
     );
+};
+
+const inputStyle = {
+    width: "100%", padding: "12px 14px 12px 42px", background: "#1e293b", border: "1px solid #334155",
+    borderRadius: 12, color: "#f8fafc", fontSize: 13, outline: "none"
+};
+
+const filterPill = {
+    padding: "8px 16px", border: "none", borderRadius: 8,
+    cursor: "pointer", fontSize: 12, transition: "all 0.2s"
 };
 
 export default AdminStudyGroups;

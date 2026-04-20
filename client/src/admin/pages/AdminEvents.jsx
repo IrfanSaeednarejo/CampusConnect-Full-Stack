@@ -89,79 +89,144 @@ const AdminEvents = () => {
     };
 
     return (
-        <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 20 }}>Events</h1>
-
-            {/* ── Filter bar ──────────────────────────────── */}
-            <div style={{ display: "flex", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
-                <input
-                    placeholder="Search events..."
-                    onChange={(e) => setFilter("q", e.target.value)}
-                    style={{ flex: 1, padding: "8px 12px", background: "#1e293b", border: "1px solid #334155", borderRadius: 6, color: "#f8fafc", fontSize: 14, minWidth: 200 }}
-                />
-                <select
-                    value={filters.status}
-                    onChange={(e) => setFilter("status", e.target.value)}
-                    style={{ padding: "8px 12px", background: "#1e293b", border: "1px solid #334155", borderRadius: 6, color: "#f8fafc", fontSize: 13 }}
-                >
-                    {STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s}>{s === "all" ? "All Statuses" : s.replace(/_/g, " ")}</option>
-                    ))}
-                </select>
-                <select
-                    onChange={(e) => setFilter("upcoming", e.target.value)}
-                    style={{ padding: "8px 12px", background: "#1e293b", border: "1px solid #334155", borderRadius: 6, color: "#f8fafc", fontSize: 13 }}
-                >
-                    <option value="">All Time</option>
-                    <option value="true">Upcoming Only</option>
-                </select>
+        <div style={{ animation: "fadeIn 0.5s ease-out" }}>
+            <div style={{ marginBottom: 32 }}>
+                <h1 style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", margin: 0 }}>Event Governance</h1>
+                <p style={{ color: "#64748b", marginTop: 4 }}>Audit system-wide events, manage lifecycle status, and oversee registration telemetry.</p>
             </div>
 
-            <AdminTable
-                columns={columns}
-                data={events}
-                loading={loading}
-                rowActions={rowActions}
-                pagination={pagination}
-                onPageChange={(p) => { const f = { ...filters, page: p }; setFilters(f); fetchEvents(f); }}
-            />
+            {/* ── Filters & Metrics ────────────────────────── */}
+            <div style={{ 
+                background: "#0f172a", border: "1px solid #1e293b", borderRadius: 16, 
+                padding: "20px", marginBottom: 24, display: "flex", gap: 16, alignItems: "center", flexWrap: "wrap" 
+            }}>
+                <div style={{ position: "relative", flex: 1, minWidth: "240px" }}>
+                    <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#475569" }}>🔍</span>
+                    <input
+                        placeholder="Search event registry..."
+                        onChange={(e) => setFilter("q", e.target.value)}
+                        style={inputStyle}
+                    />
+                </div>
+                
+                <div style={{ display: "flex", gap: 12 }}>
+                    <select
+                        value={filters.status}
+                        onChange={(e) => setFilter("status", e.target.value)}
+                        style={selectStyle}
+                    >
+                        {STATUS_OPTIONS.map((s) => (
+                            <option key={s} value={s}>{s === "all" ? "ALL STATUSES" : s.replace(/_/g, " ").toUpperCase()}</option>
+                        ))}
+                    </select>
+
+                    <select
+                        onChange={(e) => setFilter("upcoming", e.target.value)}
+                        style={selectStyle}
+                    >
+                        <option value="">ALL TIMES</option>
+                        <option value="true">UPCOMING ONLY</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 16, overflow: "hidden" }}>
+                <AdminTable
+                    columns={columns}
+                    data={events}
+                    loading={loading}
+                    rowActions={rowActions}
+                    pagination={pagination}
+                    onPageChange={(p) => { const f = { ...filters, page: p }; setFilters(f); fetchEvents(f); }}
+                />
+            </div>
 
             {/* ── Cancel Modal ─────────────────────────────── */}
             {cancelModal && (
                 <ReasonModal
-                    title="Force Cancel Event"
-                    prompt="All registrants will be notified. Enter a reason:"
+                    title="Administrative Cancellation"
+                    prompt="Warning: This action will notify all registrants and revoke event access. Provide a mandatory reason."
                     onClose={handleCancelEvent}
                 />
             )}
 
-            {/* ── Registrants Modal ─────────────────────────── */}
+            {/* ── Registrants Modal (Premium) ────────────────── */}
             {registrantsModal && (
-                <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
-                    <div style={{ background: "#1e293b", borderRadius: 12, padding: 28, width: 520, maxHeight: "80vh", display: "flex", flexDirection: "column", border: "1px solid #334155" }}>
-                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 16 }}>
-                            <h3 style={{ fontWeight: 700 }}>Registrants — {registrantsModal.title}</h3>
-                            <button onClick={() => setRegistrantsModal(null)} style={{ background: "transparent", border: "none", color: "#64748b", cursor: "pointer", fontSize: 18 }}>✕</button>
+                <div style={overlayStyle}>
+                    <div style={modalStyle}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24, paddingBottom: 20, borderBottom: "1px solid #1e293b" }}>
+                            <div>
+                                <h3 style={{ fontWeight: 800, fontSize: 18, color: "#f8fafc", margin: 0 }}>Attendee Registry</h3>
+                                <div style={{ color: "#64748b", fontSize: 12, marginTop: 4 }}>{registrantsModal.title}</div>
+                            </div>
+                            <button 
+                                onClick={() => setRegistrantsModal(null)} 
+                                style={{ background: "rgba(30, 41, 59, 0.5)", border: "none", color: "#64748b", cursor: "pointer", width: 32, height: 32, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}
+                            >
+                                ✕
+                            </button>
                         </div>
-                        <div style={{ overflowY: "auto" }}>
-                            {registrants.length === 0
-                                ? <div style={{ color: "#64748b", textAlign: "center", padding: 32 }}>No registrants</div>
-                                : registrants.map((r) => (
-                                    <div key={r._id} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #334155" }}>
-                                        <div>
-                                            <div style={{ color: "#f8fafc", fontSize: 14 }}>{r.userId?.profile?.displayName}</div>
-                                            <div style={{ color: "#64748b", fontSize: 12 }}>{r.userId?.email}</div>
+
+                        <div style={{ overflowY: "auto", maxHeight: "400px", paddingRight: 8 }}>
+                            {registrants.length === 0 ? (
+                                <div style={{ textAlign: "center", padding: "40px 0", color: "#475569" }}>
+                                    <div style={{ fontSize: 32, marginBottom: 12 }}>👥</div>
+                                    <div style={{ fontWeight: 600 }}>Registry Empty</div>
+                                    <div style={{ fontSize: 12 }}>No successful registrations found for this node.</div>
+                                </div>
+                            ) : (
+                                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                                    {registrants.map((r) => (
+                                        <div key={r._id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: "rgba(30, 41, 59, 0.3)", borderRadius: 12, border: "1px solid transparent" }}>
+                                            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                                <div style={{ width: 36, height: 36, borderRadius: 10, background: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center", color: "#6366f1", fontWeight: 700, fontSize: 13 }}>
+                                                    {r.userId?.profile?.displayName?.[0] || "?"}
+                                                </div>
+                                                <div>
+                                                    <div style={{ color: "#f8fafc", fontSize: 13, fontWeight: 700 }}>{r.userId?.profile?.displayName}</div>
+                                                    <div style={{ color: "#64748b", fontSize: 11 }}>{r.userId?.email}</div>
+                                                </div>
+                                            </div>
+                                            <AdminBadge type="status" value={r.status} />
                                         </div>
-                                        <AdminBadge type="status" value={r.status} />
-                                    </div>
-                                ))
-                            }
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+
+                        <div style={{ marginTop: 24, paddingTop: 20, borderTop: "1px solid #1e293b", display: "flex", justifyContent: "flex-end" }}>
+                            <button 
+                                onClick={() => setRegistrantsModal(null)}
+                                style={{ padding: "10px 24px", background: "#6366f1", color: "#fff", border: "none", borderRadius: 10, fontWeight: 700, fontSize: 13, cursor: "pointer" }}
+                            >
+                                CLOSE REGISTRY
+                            </button>
                         </div>
                     </div>
                 </div>
             )}
         </div>
     );
+};
+
+const inputStyle = {
+    width: "100%", padding: "12px 14px 12px 42px", background: "#1e293b", border: "1px solid #334155",
+    borderRadius: 12, color: "#f8fafc", fontSize: 13, outline: "none"
+};
+
+const selectStyle = {
+    padding: "12px 16px", background: "#1e293b", border: "1px solid #334155",
+    borderRadius: 12, color: "#f8fafc", fontSize: 12, fontWeight: 700, outline: "none", cursor: "pointer"
+};
+
+const overlayStyle = {
+    position: "fixed", inset: 0, background: "rgba(10, 15, 30, 0.8)",
+    backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200,
+};
+
+const modalStyle = {
+    background: "#0f172a", borderRadius: 20, padding: 32, width: 500,
+    border: "1px solid #1e293b", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)"
 };
 
 export default AdminEvents;

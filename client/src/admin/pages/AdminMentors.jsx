@@ -289,33 +289,105 @@ const AdminMentors = () => {
     };
 
     return (
-        <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 20 }}>Mentors</h1>
+        <div style={{ animation: "fadeIn 0.5s ease-out" }}>
+            <div style={{ marginBottom: 32 }}>
+                <h1 style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", margin: 0 }}>Mentor Governance</h1>
+                <p style={{ color: "#64748b", marginTop: 4 }}>Manage verification lifecycle, tier assignments, and performance monitoring.</p>
+            </div>
 
-            {/* Tabs */}
-            <div style={{ display: "flex", gap: 4, borderBottom: "1px solid #334155", marginBottom: 24 }}>
+            {/* Tabs & Navigation */}
+            <div style={{ display: "flex", gap: 6, padding: 4, background: "#0f172a", borderRadius: 12, marginBottom: 32, maxWidth: "fit-content", border: "1px solid #1e293b" }}>
                 {TABS.map((t) => (
-                    <button key={t.key} onClick={() => setActiveTab(t.key)} style={tabBtn(activeTab === t.key)}>
-                        {t.label}
+                    <button
+                        key={t.key}
+                        onClick={() => setActiveTab(t.key)}
+                        style={{
+                            padding: "10px 24px", border: "none", borderRadius: 8,
+                            background: activeTab === t.key ? "#6366f1" : "transparent",
+                            color: activeTab === t.key ? "#fff" : "#64748b",
+                            cursor: "pointer", fontSize: 12, fontWeight: 700,
+                            transition: "all 0.2s"
+                        }}
+                    >
+                        {t.label.toUpperCase()}
                     </button>
                 ))}
             </div>
 
-            {activeTab === "pending" && <PendingMentorsTab />}
-            {activeTab !== "pending" && <MentorListTab filterParams={tabFilterMap[activeTab]} />}
+            <div style={{ minHeight: "400px" }}>
+                {activeTab === "pending" && <PendingMentorsTab />}
+                {activeTab !== "pending" && <MentorListTab filterParams={tabFilterMap[activeTab]} />}
+            </div>
         </div>
     );
 };
 
-// ─── Shared modal styles ──────────────────────────────────────────────────────
+// ── Shared UI Styles ─────────────────────────────────────────────────────────
+
+const ActionButton = ({ label, color, onClick, variant = "solid" }) => (
+    <button
+        onClick={onClick}
+        style={{
+            flex: 1,
+            padding: "10px",
+            background: variant === "solid" ? color : "transparent",
+            color: variant === "solid" ? "#fff" : color,
+            border: variant === "solid" ? "none" : `1px solid ${color}`,
+            borderRadius: 10,
+            cursor: "pointer",
+            fontSize: 12,
+            fontWeight: 700,
+            transition: "all 0.2s",
+            boxShadow: variant === "solid" ? `0 4px 8px ${color}33` : "none"
+        }}
+    >
+        {label.toUpperCase()}
+    </button>
+);
+
+const MentorCard = ({ mentor, onVerify, onReject }) => (
+    <div style={{ background: "#0f172a", borderRadius: 20, padding: 24, border: "1px solid #1e293b", display: "flex", flexDirection: "column", gap: 20, transition: "transform 0.2s, border-color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.borderColor = "#6366f1"}>
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+            <img src={mentor.userId?.profile?.avatar || "/default-avatar.png"} alt="" style={{ width: 56, height: 56, borderRadius: 16, background: "#1e293b", objectFit: "cover" }} />
+            <div style={{ flex: 1 }}>
+                <div style={{ color: "#f8fafc", fontWeight: 800, fontSize: 16, marginBottom: 2 }}>{mentor.userId?.profile?.displayName}</div>
+                <div style={{ color: "#64748b", fontSize: 13 }}>{mentor.userId?.email}</div>
+            </div>
+        </div>
+
+        <div style={{ background: "#1e293b", borderRadius: 12, padding: 12, fontSize: 13, color: "#94a3b8", lineHeight: 1.6, minHeight: 60 }}>
+            {mentor.bio || "No professional overview provided."}
+        </div>
+
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+            {(mentor.expertise || []).map(e => (
+                <span key={e} style={{ padding: "4px 10px", borderRadius: 6, background: "rgba(99, 102, 241, 0.1)", color: "#818cf8", fontSize: 11, fontWeight: 700 }}>{e.toUpperCase()}</span>
+            ))}
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 12, borderTop: "1px solid #1e293b" }}>
+            <div style={{ color: "#64748b", fontSize: 12, fontWeight: 600 }}>
+                {mentor.hourlyRate > 0 ? `${mentor.currency || "PKR"} ${mentor.hourlyRate}/hr` : "Free Service"}
+            </div>
+            <div style={{ color: "#64748b", fontSize: 12 }}>{mentor.userId?.campusId?.name || "Global Node"}</div>
+        </div>
+
+        <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
+            <ActionButton label="Approve" color="#6366f1" onClick={onVerify} />
+            <ActionButton label="Reject" color="#f43f5e" onClick={onReject} variant="outline" />
+        </div>
+    </div>
+);
+
+// ─── Modal Styles ─────────────────────────────────────────────────────────────
 
 const overlayStyle = {
-    position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)",
-    display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200,
+    position: "fixed", inset: 0, background: "rgba(10, 15, 30, 0.8)",
+    backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200,
 };
 const modalStyle = {
-    background: "#1e293b", borderRadius: 12, padding: 28, width: 360,
-    border: "1px solid #334155",
+    background: "#0f172a", borderRadius: 20, padding: 32, width: 400,
+    border: "1px solid #1e293b", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)"
 };
 
 export default AdminMentors;

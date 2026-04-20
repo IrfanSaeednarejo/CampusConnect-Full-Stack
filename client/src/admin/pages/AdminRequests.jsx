@@ -30,22 +30,27 @@ const AdminRequests = () => {
     const handleAction = async (requestId, type, action, reason = "") => {
         try {
             let endpoint = "";
-            if (type === "mentor") endpoint = `/admin/mentors/${requestId}/${action}`;
-            else if (type === "society") endpoint = `/admin/societies/${requestId}/status`;
-            else if (type === "event") endpoint = `/admin/events/${requestId}/status`;
-            else if (type === "study_group") endpoint = `/admin/study-groups/${requestId}/status`;
+            let method = "PATCH";
+            let payload = {};
 
-            const payload = action === "reject" ? { reason, status: "rejected" } : { status: "approved" };
-            
-            // Special cases for endpoints that don't take status in body
             if (type === "mentor") {
-                 await axios.patch(endpoint, action === "reject" ? { reason } : {});
-            } else {
-                 await axios.patch(endpoint, payload);
+                endpoint = `/admin/mentors/${requestId}/${action === "approve" ? "verify" : "reject"}`;
+                payload = action === "reject" ? { reason } : {};
+            } else if (type === "society") {
+                endpoint = `/admin/societies/${requestId}/status`;
+                payload = { status: action === "approve" ? "active" : "rejected", reason };
+            } else if (type === "event") {
+                endpoint = `/admin/events/${requestId}/status`;
+                payload = { status: action === "approve" ? "approved" : "cancelled", reason };
+            } else if (type === "study_group") {
+                endpoint = `/admin/study-groups/${requestId}/status`;
+                payload = { status: action === "approve" ? "active" : "archived", reason };
             }
 
+            await axios({ method, url: endpoint, data: payload });
             fetchRequests();
         } catch (err) {
+            console.error("Action error", err);
             alert("Action failed: " + (err.response?.data?.message || err.message));
         }
     };

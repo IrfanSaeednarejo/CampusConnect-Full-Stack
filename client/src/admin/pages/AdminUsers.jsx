@@ -53,46 +53,71 @@ export const AdminUsers = () => {
     ];
 
     return (
-        <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24 }}>Users</h1>
-
-            {/* ── Filters ──────────────────────────────────────── */}
-            <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
-                <input
-                    placeholder="Search name or email..."
-                    onChange={(e) => { const f = { ...filters, q: e.target.value, page: 1 }; setFilters(f); fetchUsers(f); }}
-                    style={inputStyle}
-                />
-                {["all", "active", "suspended"].map((s) => (
-                    <button
-                        key={s}
-                        onClick={() => { const f = { ...filters, status: s, page: 1 }; setFilters(f); fetchUsers(f); }}
-                        style={{ ...pillBtn, background: filters.status === s ? "#6366f1" : "#1e293b" }}
-                    >
-                        {s.charAt(0).toUpperCase() + s.slice(1)}
-                    </button>
-                ))}
+        <div style={{ animation: "fadeIn 0.5s ease-out" }}>
+            <div style={{ marginBottom: 32, display: "flex", justifyContent: "space-between", alignItems: "flex-end" }}>
+                <div>
+                    <h1 style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", margin: 0 }}>User Management</h1>
+                    <p style={{ color: "#64748b", marginTop: 4 }}>Audit, moderate, and manage system access across all roles.</p>
+                </div>
                 {selectedIds.length > 0 && (
-                    <button style={{ ...pillBtn, background: "#dc2626" }}>
-                        Bulk Suspend ({selectedIds.length})
+                    <button style={{ 
+                        padding: "10px 20px", background: "#f43f5e", color: "#fff", 
+                        border: "none", borderRadius: 10, cursor: "pointer", fontSize: 13, fontWeight: 700,
+                        boxShadow: "0 4px 6px -1px rgba(244, 63, 94, 0.4)"
+                    }}>
+                        BULK SUSPEND ({selectedIds.length})
                     </button>
                 )}
             </div>
 
-            <AdminTable
-                columns={columns}
-                data={users}
-                loading={loading}
-                rowActions={rowActions}
-                onRowClick={(u) => navigate(`/admin/users/${u._id}`)}
-                pagination={pagination}
-                onPageChange={(p) => { const f = { ...filters, page: p }; setFilters(f); fetchUsers(f); }}
-            />
+            {/* ── Filters & Search ────────────────────────────── */}
+            <div style={{ 
+                background: "#0f172a", border: "1px solid #1e293b", borderRadius: 16, 
+                padding: "16px 20px", marginBottom: 24, display: "flex", gap: 16, alignItems: "center" 
+            }}>
+                <div style={{ position: "relative", flex: 1 }}>
+                    <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#475569" }}>🔍</span>
+                    <input
+                        placeholder="Search by identity or email..."
+                        onChange={(e) => { const f = { ...filters, q: e.target.value, page: 1 }; setFilters(f); fetchUsers(f); }}
+                        style={inputStyle}
+                    />
+                </div>
+                
+                <div style={{ display: "flex", gap: 6, background: "#1e293b", padding: 4, borderRadius: 10 }}>
+                    {["all", "active", "suspended"].map((s) => (
+                        <button
+                            key={s}
+                            onClick={() => { const f = { ...filters, status: s, page: 1 }; setFilters(f); fetchUsers(f); }}
+                            style={{ 
+                                ...filterPill, 
+                                background: filters.status === s ? "#6366f1" : "transparent",
+                                color: filters.status === s ? "#fff" : "#94a3b8",
+                                fontWeight: filters.status === s ? 700 : 500,
+                            }}
+                        >
+                            {s.charAt(0).toUpperCase() + s.slice(1)}
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 16, overflow: "hidden" }}>
+                <AdminTable
+                    columns={columns}
+                    data={users}
+                    loading={loading}
+                    rowActions={rowActions}
+                    onRowClick={(u) => navigate(`/admin/users/${u._id}`)}
+                    pagination={pagination}
+                    onPageChange={(p) => { const f = { ...filters, page: p }; setFilters(f); fetchUsers(f); }}
+                />
+            </div>
 
             {reasonModal && (
                 <ReasonModal
-                    title="Suspend User"
-                    prompt="Provide a reason for suspension:"
+                    title="Administrative Suspension"
+                    prompt={`You are about to suspend user access. This action will be logged in the audit trail.`}
                     onClose={(result) => handleSuspend(result)}
                 />
             )}
@@ -101,12 +126,12 @@ export const AdminUsers = () => {
 };
 
 const inputStyle = {
-    flex: 1, padding: "8px 12px", background: "#1e293b", border: "1px solid #334155",
-    borderRadius: 6, color: "#f8fafc", fontSize: 14,
+    width: "100%", padding: "12px 14px 12px 42px", background: "#1e293b", border: "1px solid #334155",
+    borderRadius: 12, color: "#f8fafc", fontSize: 14, outline: "none", transition: "border-color 0.2s"
 };
-const pillBtn = {
-    padding: "8px 14px", border: "none", borderRadius: 6,
-    color: "#f8fafc", cursor: "pointer", fontSize: 13,
+const filterPill = {
+    padding: "8px 16px", border: "none", borderRadius: 8,
+    cursor: "pointer", fontSize: 13, transition: "all 0.2s"
 };
 
 export default AdminUsers;

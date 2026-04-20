@@ -19,8 +19,11 @@ import { useAuth } from '../contexts/AuthContext.jsx';
 export default function ProtectedRoute({
   requiredRole = null,
   requireOnboarding = true,
+  disallowAdmin = false,
 }) {
   const { isAuthenticated, roles, loading, onboardingCompleted } = useAuth();
+  const isAdmin = roles.some(role => ["super_admin", "campus_admin", "admin"].includes(role));
+
 
   /* ── 1. Loading ─────────────────────────────────── */
   if (loading) {
@@ -44,11 +47,17 @@ export default function ProtectedRoute({
     return <Navigate to="/onboarding/welcome" replace />;
   }
 
-  /* ── 4. Role gate ───────────────────────────────── */
+  /* ── 4. Admin rejection (Student routes) ────────── */
+  if (disallowAdmin && isAdmin) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+  
+  /* ── 5. Role gate ───────────────────────────────── */
   if (requiredRole && !roles.includes(requiredRole)) {
     return <Navigate to="/error/access-denied" replace />;
   }
+  
+  /* ── 6. Pass ───────────────────────────────────── */
 
-  /* ── 5. Pass ───────────────────────────────────── */
   return <Outlet />;
 }

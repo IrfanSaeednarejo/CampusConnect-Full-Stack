@@ -47,54 +47,87 @@ export const AdminAnalytics = () => {
     };
 
     return (
-        <div>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 700 }}>Analytics</h1>
-                <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ animation: "fadeIn 0.5s ease-out" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 32 }}>
+                <div>
+                    <h1 style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", margin: 0 }}>System Intelligence</h1>
+                    <p style={{ color: "#64748b", marginTop: 4 }}>Deep telemetry insights, engagement metrics, and growth forecasting.</p>
+                </div>
+                <div style={{ display: "flex", gap: 6, padding: 4, background: "#0f172a", borderRadius: 12, border: "1px solid #1e293b" }}>
                     {["7d", "30d", "90d", "1y"].map((p) => (
-                        <button key={p} onClick={() => setPeriod(p)}
-                            style={{ ...pillBtn, background: period === p ? "#6366f1" : "#1e293b" }}>
-                            {p}
+                        <button 
+                            key={p} 
+                            onClick={() => setPeriod(p)}
+                            style={{ 
+                                padding: "8px 16px", border: "none", borderRadius: 8,
+                                background: period === p ? "#6366f1" : "transparent",
+                                color: period === p ? "#fff" : "#64748b",
+                                cursor: "pointer", fontSize: 12, fontWeight: 700, transition: "all 0.2s"
+                            }}
+                        >
+                            {p.toUpperCase()}
                         </button>
                     ))}
                 </div>
             </div>
 
-            {chart("User Growth", (
-                <ResponsiveContainer width="100%" height={220}>
-                    <LineChart data={growth}>
-                        <XAxis dataKey="date" tick={{ fill: "#94a3b8", fontSize: 11 }} />
-                        <YAxis tick={{ fill: "#94a3b8", fontSize: 11 }} />
-                        <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
-                        <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={2} dot={false} />
-                    </LineChart>
-                </ResponsiveContainer>
-            ))}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24 }}>
+                <div style={{ gridColumn: "1 / -1" }}>
+                    {chart("Identity Propagation (User Growth)", (
+                        <ResponsiveContainer width="100%" height={300}>
+                            <LineChart data={growth}>
+                                <defs>
+                                    <linearGradient id="growthGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                                        <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
+                                    </linearGradient>
+                                </defs>
+                                <XAxis dataKey="date" tick={{ fill: "#475569", fontSize: 11, fontWeight: 600 }} axisLine={false} tickLine={false} />
+                                <YAxis tick={{ fill: "#475569", fontSize: 11, fontWeight: 600 }} axisLine={false} tickLine={false} />
+                                <Tooltip 
+                                    contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12, boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.5)" }} 
+                                    itemStyle={{ color: "#f8fafc", fontSize: 12, fontWeight: 700 }}
+                                />
+                                <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={4} dot={{ r: 4, fill: "#6366f1", strokeWidth: 2, stroke: "#0f172a" }} activeDot={{ r: 8 }} />
+                            </LineChart>
+                        </ResponsiveContainer>
+                    ))}
+                </div>
 
-            {chart("Top Mentors by Sessions", (
-                <ResponsiveContainer width="100%" height={220}>
-                    <BarChart data={mentors} layout="vertical">
-                        <XAxis type="number" tick={{ fill: "#94a3b8", fontSize: 11 }} />
-                        <YAxis dataKey="displayName" type="category" tick={{ fill: "#94a3b8", fontSize: 11 }} width={100} />
-                        <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
-                        <Bar dataKey="completedSessions" fill="#6366f1" radius={[0, 4, 4, 0]} />
-                    </BarChart>
-                </ResponsiveContainer>
-            ))}
+                {chart("Service Node Performance (Top Mentors)", (
+                    <ResponsiveContainer width="100%" height={260}>
+                        <BarChart data={mentors} layout="vertical">
+                            <XAxis type="number" hide />
+                            <YAxis dataKey="displayName" type="category" tick={{ fill: "#94a3b8", fontSize: 11, fontWeight: 600 }} width={120} axisLine={false} tickLine={false} />
+                            <Tooltip cursor={{ fill: "rgba(99, 102, 241, 0.05)" }} contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12 }} />
+                            <Bar dataKey="completedSessions" fill="#6366f1" radius={[0, 8, 8, 0]} barSize={24} />
+                        </BarChart>
+                    </ResponsiveContainer>
+                ))}
 
-            {chart("Session Status Breakdown", (
-                <ResponsiveContainer width="100%" height={220}>
-                    <PieChart>
-                        <Pie data={sessions.breakdown} dataKey="count" nameKey="status" cx="50%" cy="50%" outerRadius={80}>
-                            {sessions.breakdown.map((_, i) => (
-                                <Cell key={i} fill={COLORS[i % COLORS.length]} />
-                            ))}
-                        </Pie>
-                        <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #334155" }} />
-                        <Legend />
-                    </PieChart>
-                </ResponsiveContainer>
-            ))}
+                {chart("Session Lifecycle Distribution", (
+                    <ResponsiveContainer width="100%" height={260}>
+                        <PieChart>
+                            <Pie 
+                                data={sessions.breakdown} 
+                                dataKey="count" 
+                                nameKey="status" 
+                                cx="50%" 
+                                cy="50%" 
+                                innerRadius={60} 
+                                outerRadius={90} 
+                                paddingAngle={8}
+                            >
+                                {sessions.breakdown.map((_, i) => (
+                                    <Cell key={i} fill={COLORS[i % COLORS.length]} cornerRadius={4} />
+                                ))}
+                            </Pie>
+                            <Tooltip contentStyle={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 12 }} />
+                            <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "#64748b" }} />
+                        </PieChart>
+                    </ResponsiveContainer>
+                ))}
+            </div>
         </div>
     );
 };

@@ -30,86 +30,144 @@ export const AdminDashboard = () => {
         }).finally(() => setLoading(false));
     }, [dispatch]);
 
-    const handleVerifyMentor = async (mentorId) => {
-        await verifyMentor(mentorId);
-        setPendingMentors((prev) => prev.filter((m) => m._id !== mentorId));
-        dispatch(decrementPending({ key: "mentors" }));
+    const handleAction = async (requestId, type, action, reason = "") => {
+        try {
+            let endpoint = "";
+            let payload = {};
+
+            if (type === "mentor") {
+                endpoint = `/admin/mentors/${requestId}/${action === "approve" ? "verify" : "reject"}`;
+                payload = action === "reject" ? { reason } : {};
+            } else if (type === "society") {
+                endpoint = `/admin/societies/${requestId}/status`;
+                payload = { status: action === "approve" ? "active" : "rejected", reason };
+            }
+
+            await axios.patch(endpoint, payload);
+            
+            // Local state updates
+            if (type === "mentor") {
+                setPendingMentors((prev) => prev.filter((m) => m._id !== requestId));
+                dispatch(decrementPending({ key: "mentors" }));
+            } else {
+                setPendingSocieties((prev) => prev.filter((s) => s._id !== requestId));
+                dispatch(decrementPending({ key: "societies" }));
+            }
+        } catch (err) {
+            alert("Action failed: " + (err.response?.data?.message || err.message));
+        }
     };
 
-    const handleApproveSociety = async (id) => {
-        await updateSocietyStatus(id, { status: "approved" });
-        setPendingSocieties((prev) => prev.filter((s) => s._id !== id));
-        dispatch(decrementPending({ key: "societies" }));
-    };
-
-    if (loading) return <div style={{ color: "#94a3b8" }}>Loading dashboard...</div>;
+    if (loading) return (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh", color: "#64748b" }}>
+            <div style={{ textAlign: "center" }}>
+                <div style={{ width: 40, height: 40, border: "3px solid #1e293b", borderTopColor: "#6366f1", borderRadius: "50%", animate: "spin 1s linear infinite", margin: "0 auto 16px" }} />
+                <p style={{ fontWeight: 600 }}>Synchronizing System Stats...</p>
+            </div>
+        </div>
+    );
 
     return (
-        <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 24 }}>Dashboard</h1>
-
-            {/* ── Stats Row ─────────────────────────────────────── */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 32 }}>
-                <AdminStatCard icon="👥" label="Active Users" value={stats?.totalActiveUsers ?? "—"} />
-                <AdminStatCard icon="⏳" label="Pending Approvals" value={(pendingCounts.mentors + pendingCounts.societies)} color="#f59e0b" />
-                <AdminStatCard icon="🎓" label="Active Sessions" value={stats?.activeSessions ?? 0} />
-                <AdminStatCard icon="✅" label="System Status" value="Healthy" color="#22c55e" />
+        <div style={{ animation: "fadeIn 0.5s ease-out" }}>
+            <div style={{ marginBottom: 32 }}>
+                <h1 style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", margin: 0 }}>System Overview</h1>
+                <p style={{ color: "#64748b", marginTop: 4 }}>Real-time telemetry and management controls.</p>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 360px", gap: 24 }}>
+            {/* ── Stats Row ─────────────────────────────────────── */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: 20, marginBottom: 40 }}>
+                <AdminStatCard icon="👥" label="Total Active Users" value={stats?.totalUsers ?? stats?.totalActiveUsers ?? "0"} />
+                <AdminStatCard icon="📨" label="Action Items" value={pendingCounts.mentors + pendingCounts.societies} color="#6366f1" />
+                <AdminStatCard icon="🎓" label="Mentor Sessions" value={stats?.activeSessions ?? stats?.totalSessions ?? 0} />
+                <AdminStatCard icon="🏛️" label="Active Societies" value={stats?.totalSocieties ?? 0} />
+            </div>
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 340px", gap: 32, alignItems: "start" }}>
                 {/* ── Pending Queue ─────────────────────────────── */}
-                <div>
-                    <h2 style={{ fontSize: 16, fontWeight: 600, marginBottom: 16 }}>Pending Approvals</h2>
+                <div style={{ background: "#0f172a", borderRadius: 16, border: "1px solid #1e293b", overflow: "hidden" }}>
+                    <div style={{ padding: "20px 24px", borderBottom: "1px solid #1e293b", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <h2 style={{ fontSize: 16, fontWeight: 700, margin: 0 }}>Approval Queue</h2>
+                        <span style={{ fontSize: 12, background: "#1e293b", color: "#94a3b8", padding: "4px 10px", borderRadius: 8, fontWeight: 600 }}>Priority Actions</span>
+                    </div>
 
-                    {pendingMentors.slice(0, 5).map((m) => (
-                        <div key={m._id} style={queueCardStyle}>
-                            <div>
-                                <span style={{ fontWeight: 600 }}>{m.userId?.profile?.displayName}</span>
-                                <span style={{ color: "#64748b", marginLeft: 8, fontSize: 12 }}>Mentor Application</span>
+                    <div style={{ padding: 20 }}>
+                        {[...pendingMentors.map(m => ({...m, type: 'mentor'})), ...pendingSocieties.map(s => ({...s, type: 'society'}))].slice(0, 6).map((item) => (
+                            <div key={item._id} style={queueCardStyle}>
+                                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                                    <div style={{ width: 40, height: 40, borderRadius: 10, background: item.type === 'mentor' ? 'rgba(99, 102, 241, 0.1)' : 'rgba(16, 185, 129, 0.1)', display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>
+                                        {item.type === 'mentor' ? "🎓" : "🏛️"}
+                                    </div>
+                                    <div>
+                                        <div style={{ fontWeight: 600, fontSize: 14 }}>{item.name || item.userId?.profile?.displayName}</div>
+                                        <div style={{ color: "#64748b", fontSize: 11, textTransform: "uppercase", letterSpacing: "0.05em", fontWeight: 700 }}>
+                                            {item.type === 'mentor' ? "Mentor Request" : "Society Request"}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style={{ display: "flex", gap: 8 }}>
+                                    <button 
+                                        onClick={() => handleAction(item._id, item.type, "approve")} 
+                                        style={approveBtn}
+                                    >
+                                        Verify
+                                    </button>
+                                    <button 
+                                        onClick={() => {
+                                            setSelectedRequest({ _id: item._id, requestType: item.type });
+                                            setShowRejectModal(true);
+                                        }}
+                                        style={rejectBtn}
+                                    >
+                                        Reject
+                                    </button>
+                                </div>
                             </div>
-                            <div style={{ display: "flex", gap: 8 }}>
-                                <button onClick={() => handleVerifyMentor(m._id)} style={approveBtn}>Approve</button>
-                                <button style={rejectBtn}>Reject</button>
-                            </div>
-                        </div>
-                    ))}
+                        ))}
 
-                    {pendingSocieties.slice(0, 5).map((s) => (
-                        <div key={s._id} style={queueCardStyle}>
-                            <div>
-                                <span style={{ fontWeight: 600 }}>{s.name}</span>
-                                <span style={{ color: "#64748b", marginLeft: 8, fontSize: 12 }}>Society Request</span>
+                        {pendingMentors.length === 0 && pendingSocieties.length === 0 && (
+                            <div style={{ textAlign: "center", padding: "40px 0", color: "#475569" }}>
+                                <div style={{ fontSize: 32, marginBottom: 12 }}>✨</div>
+                                <div style={{ fontWeight: 600 }}>Approval Queue Empty</div>
+                                <div style={{ fontSize: 12 }}>All service requests have been processed.</div>
                             </div>
-                            <div style={{ display: "flex", gap: 8 }}>
-                                <button onClick={() => handleApproveSociety(s._id)} style={approveBtn}>Approve</button>
-                                <button style={rejectBtn}>Reject</button>
-                            </div>
-                        </div>
-                    ))}
-
-                    {pendingMentors.length === 0 && pendingSocieties.length === 0 && (
-                        <div style={{ color: "#64748b", padding: 16 }}>No pending approvals ✓</div>
-                    )}
+                        )}
+                    </div>
                 </div>
 
                 {/* ── Live Feed ─────────────────────────────────── */}
-                <LiveEventFeed events={liveEvents} />
+                <div style={{ position: "sticky", top: 104 }}>
+                    <LiveEventFeed events={liveEvents} />
+                </div>
             </div>
+
+            {showRejectModal && (
+                <ReasonModal 
+                    title={`Decline ${selectedRequest?.requestType} Application`}
+                    onClose={({ confirmed, reason }) => {
+                        if (confirmed) {
+                            handleAction(selectedRequest._id, selectedRequest.requestType, "reject", reason);
+                        }
+                        setShowRejectModal(false);
+                    }}
+                />
+            )}
         </div>
     );
 };
 
 const queueCardStyle = {
     display: "flex", justifyContent: "space-between", alignItems: "center",
-    padding: "12px 16px", background: "#1e293b", borderRadius: 8, marginBottom: 8,
+    padding: "16px", background: "rgba(30, 41, 59, 0.5)", borderRadius: 12, marginBottom: 12,
+    border: "1px solid transparent", transition: "all 0.2s",
 };
 const approveBtn = {
-    padding: "4px 12px", background: "#16a34a", color: "#fff",
-    border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12,
+    padding: "6px 16px", background: "#6366f1", color: "#fff",
+    border: "none", borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 700,
+    boxShadow: "0 4px 6px -1px rgba(99, 102, 241, 0.4)"
 };
 const rejectBtn = {
-    padding: "4px 12px", background: "#dc2626", color: "#fff",
-    border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12,
+    padding: "6px 16px", background: "transparent", color: "#94a3b8",
+    border: "1px solid #334155", borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600
 };
 
 export default AdminDashboard;

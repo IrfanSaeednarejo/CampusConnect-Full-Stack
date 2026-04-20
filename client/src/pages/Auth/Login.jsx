@@ -52,7 +52,7 @@ export default function Login() {
 
         if (!pendingAction) {
           if (isAdmin) {
-            navigate('/admin', { replace: true });
+            navigate('/admin/dashboard', { replace: true });
           } else {
             navigate('/dashboard', { replace: true });
           }

@@ -23,12 +23,32 @@ const getSocietyStats = asyncHandler(async (req, res) => {
 });
 
 const createSociety = asyncHandler(async (req, res) => {
-    const created = await societyService.createSociety(req.body, req.file, req.user);
-    return res.status(201).json(new ApiResponse(201, created, "Society created successfully"));
+    const isAdmin = req.user.roles?.includes("admin");
+    const sanitizedBy = { ...req.body };
+
+    // STRICT: Never trust user-provided audit fields
+    delete sanitizedBy.approvedBy;
+    delete sanitizedBy.rejectionReason;
+    delete sanitizedBy.requestedBy;
+    
+    if (!isAdmin) {
+        sanitizedBy.status = "pending"; // Enforce request flow
+    }
+
+    const created = await societyService.createSociety(sanitizedBy, req.file, req.user);
+    return res.status(201).json(new ApiResponse(201, created, "Society creation request submitted successfully"));
 });
 
 const updateSociety = asyncHandler(async (req, res) => {
-    const updated = await societyService.updateSociety(req.params.id, req.body, req.file, req.user);
+    const sanitizedBy = { ...req.body };
+    
+    // User cannot approve their own society or modify audit trail
+    delete sanitizedBy.status; 
+    delete sanitizedBy.approvedBy;
+    delete sanitizedBy.rejectionReason;
+    delete sanitizedBy.requestedBy;
+
+    const updated = await societyService.updateSociety(req.params.id, sanitizedBy, req.file, req.user);
     return res.status(200).json(new ApiResponse(200, updated, "Society updated successfully"));
 });
 

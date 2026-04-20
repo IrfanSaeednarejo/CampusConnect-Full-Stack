@@ -174,6 +174,27 @@ const studyGroupSchema = new Schema(
                 message: "Maximum 10 tags allowed",
             },
         },
+
+        requestedBy: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+        },
+
+        requestMeta: {
+            notes: { type: String, trim: true },
+            preferredSchedule: { type: [scheduleSchema], default: [] },
+            expectedSize: { type: Number },
+        },
+
+        approvedBy: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+        },
+
+        rejectionReason: {
+            type: String,
+            trim: true,
+        },
     },
     {
         timestamps: true,

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import fs from "fs";
 import { ApiError } from "../utils/ApiError.js";
 import { Society } from "../models/society.model.js";
+import { EntityRequest } from "../models/entityRequest.model.js";
 import { User } from "../models/user.model.js";
 import { Event } from "../models/event.model.js";
 import { paginate } from "../utils/paginate.js";
@@ -154,12 +155,38 @@ export const createSociety = async (data, file, requestUser) => {
     const logoLocalPath = file?.path;
     const logo = logoLocalPath ? await uploadFile(logoLocalPath) : null;
 
-    const society = await Society.create({
-        name: nameTrimmed, description: description?.trim() || "", tag: tagTrimmed,
-        category: category || "other", campusId: resolvedCampusId, createdBy: requestUser._id,
+    const isAdmin = requestUser.roles?.includes("admin");
+    const forcedStatus = isAdmin ? (data.status || "approved") : "pending";
+
+    const societyData = {
+        name: nameTrimmed, 
+        description: description?.trim() || "", 
+        tag: tagTrimmed,
+        category: category || "other", 
+        campusId: resolvedCampusId, 
+        createdBy: requestUser._id,
+        requestedBy: requestUser._id,
+        status: forcedStatus,
         members: [{ memberId: requestUser._id, role: "executive", status: "approved", joinedAt: new Date() }],
-        memberCount: 1, ...(logo && { media: { logo: logo.secure_url, logoPublicId: logo.public_id } }),
-    });
+        memberCount: 1, 
+        ...(logo && { media: { logo: logo.secure_url, logoPublicId: logo.public_id } }),
+    };
+
+    if (isAdmin && forcedStatus === "approved") {
+        societyData.approvedBy = requestUser._id;
+    }
+
+    const society = await Society.create(societyData);
+
+    if (forcedStatus === "pending") {
+        await EntityRequest.create({
+            type: "society",
+            payload: data,
+            requestedBy: requestUser._id,
+            campusId: resolvedCampusId,
+            createdEntityId: society._id,
+        }).catch(err => console.error("[Society] Failed to create EntityRequest:", err.message));
+    }
 
     return await Society.findById(society._id).populate("createdBy", "profile.displayName profile.avatar");
 };

@@ -16,11 +16,28 @@ export const ReasonModal = ({ title, prompt, onClose }) => {
                     style={{ width: "100%", padding: "8px 12px", background: "#0f172a", border: "1px solid #334155", borderRadius: 6, color: "#f8fafc", resize: "vertical", marginBottom: 16 }}
                 />
                 <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
-                    <button onClick={() => onClose({ confirmed: false, reason: "" })} style={{ padding: "8px 16px", background: "#334155", border: "none", borderRadius: 6, color: "#f8fafc", cursor: "pointer" }}>
-                        Cancel
+                    <button 
+                        onClick={() => onClose({ confirmed: false, reason: "" })} 
+                        style={{ padding: "10px 20px", background: "transparent", border: "1px solid #334155", borderRadius: 8, color: "#94a3b8", cursor: "pointer", fontSize: 14, fontWeight: 600 }}
+                    >
+                        Back
                     </button>
-                    <button onClick={() => onClose({ confirmed: true, reason: reason.trim() })} style={{ padding: "8px 16px", background: "#dc2626", border: "none", borderRadius: 6, color: "#fff", cursor: "pointer" }}>
-                        Confirm
+                    <button 
+                        disabled={!reason.trim()}
+                        onClick={() => onClose({ confirmed: true, reason: reason.trim() })} 
+                        style={{ 
+                            padding: "10px 20px", 
+                            background: reason.trim() ? "#e11d48" : "#4c0519", 
+                            border: "none", 
+                            borderRadius: 8, 
+                            color: reason.trim() ? "#fff" : "#94a3b8", 
+                            cursor: reason.trim() ? "pointer" : "not-allowed",
+                            fontSize: 14,
+                            fontWeight: 600,
+                            transition: "all 0.2s"
+                        }}
+                    >
+                        Confirm Rejection
                     </button>
                 </div>
             </div>

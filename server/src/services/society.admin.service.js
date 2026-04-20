@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Society } from "../models/society.model.js";
+import { EntityRequest } from "../models/entityRequest.model.js";
 import { Event } from "../models/event.model.js";
 import { Chat } from "../models/chat.model.js";
 import { User } from "../models/user.model.js";
@@ -55,7 +56,30 @@ export const updateSocietyStatus = async (societyId, status, reason, adminUser, 
     }
 
     const previousStatus = society.status;
-    await Society.findByIdAndUpdate(society._id, { $set: { status } });
+    
+    const updates = { status };
+    if (status === "approved") {
+        updates.approvedBy = adminUser._id;
+        updates.rejectionReason = ""; // Clear any previous rejection reason
+    } else if (status === "rejected") {
+        updates.rejectionReason = reason?.trim() || "No reason provided";
+    }
+
+    await Society.findByIdAndUpdate(society._id, { $set: updates });
+
+    // Sync with EntityRequest if it exists
+    if (["approved", "rejected"].includes(status)) {
+        await EntityRequest.findOneAndUpdate(
+            { createdEntityId: society._id, type: "society" },
+            { 
+                $set: { 
+                    status: status === "approved" ? "approved" : "rejected",
+                    reviewedBy: adminUser._id,
+                    rejectionReason: updates.rejectionReason || ""
+                } 
+            }
+        ).catch(err => console.error("[SocietyAdmin] Failed to sync EntityRequest:", err.message));
+    }
 
     // Action enum mapping
     const actionMap = {

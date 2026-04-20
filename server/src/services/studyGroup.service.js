@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import fs from "fs";
 import { ApiError } from "../utils/ApiError.js";
 import { StudyGroup } from "../models/studyGroup.model.js";
+import { EntityRequest } from "../models/entityRequest.model.js";
 import { Chat } from "../models/chat.model.js";
 import { File } from "../models/file.model.js";
 import { paginate } from "../utils/paginate.js";
@@ -122,13 +123,49 @@ export const createStudyGroup = async (data, requestUser) => {
     const parsedTags = Array.isArray(tags) ? tags : typeof tags === "string" ? JSON.parse(tags) : [];
     const parsedSchedule = Array.isArray(schedule) ? schedule : typeof schedule === "string" ? JSON.parse(schedule) : [];
 
-    const group = await StudyGroup.create({
-        name: name.trim(), description: description?.trim() || "", subject: subject?.trim() || "",
-        course: course?.trim() || "", campusId: resolvedCampusId, coordinatorId: requestUser._id,
-        tags: parsedTags, maxMembers: parseInt(maxMembers, 10) || 20, isPrivate: isPrivate === "true" || isPrivate === true,
-        schedule: parsedSchedule, groupMembers: [{ memberId: requestUser._id, role: "coordinator", joinedAt: new Date() }],
-        memberCount: 1, status: "active",
-    });
+    const isAdmin = requestUser.roles?.includes("admin");
+    const forcedStatus = isAdmin ? (data.status || "active") : "pending";
+
+    const groupData = {
+        name: name.trim(), 
+        description: description?.trim() || "", 
+        subject: subject?.trim() || "",
+        course: course?.trim() || "", 
+        campusId: resolvedCampusId, 
+        coordinatorId: requestUser._id,
+        tags: parsedTags, 
+        maxMembers: parseInt(maxMembers, 10) || 20, 
+        isPrivate: isPrivate === "true" || isPrivate === true,
+        schedule: parsedSchedule, 
+        groupMembers: [{ memberId: requestUser._id, role: "coordinator", joinedAt: new Date() }],
+        memberCount: 1, 
+        status: forcedStatus,
+        requestedBy: requestUser._id,
+    };
+
+    if (isAdmin && forcedStatus === "active") {
+        groupData.approvedBy = requestUser._id;
+    }
+
+    if (data.requestMeta) {
+        groupData.requestMeta = {
+            notes: data.requestMeta.notes?.trim() || "",
+            expectedSize: parseInt(data.requestMeta.expectedSize, 10) || 0,
+            preferredSchedule: Array.isArray(data.requestMeta.preferredSchedule) ? data.requestMeta.preferredSchedule : []
+        };
+    }
+
+    const group = await StudyGroup.create(groupData);
+
+    if (forcedStatus === "pending") {
+        await EntityRequest.create({
+            type: "study_group",
+            payload: data,
+            requestedBy: requestUser._id,
+            campusId: resolvedCampusId,
+            createdEntityId: group._id,
+        }).catch(err => console.error("[StudyGroup] Failed to create EntityRequest:", err.message));
+    }
 
     try {
         const chat = await Chat.create({

@@ -147,6 +147,21 @@ const societySchema = new Schema(
             type: Boolean,
             default: true,
         },
+
+        requestedBy: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+        },
+
+        approvedBy: {
+            type: Schema.Types.ObjectId,
+            ref: "User",
+        },
+
+        rejectionReason: {
+            type: String,
+            trim: true,
+        },
     },
     {
         timestamps: true,

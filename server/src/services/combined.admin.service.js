@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { StudyGroup } from "../models/studyGroup.model.js";
+import { EntityRequest } from "../models/entityRequest.model.js";
 import { Chat } from "../models/chat.model.js";
 import { User } from "../models/user.model.js";
 import { Notification } from "../models/notification.model.js";
@@ -59,12 +60,34 @@ export const deleteStudyGroup = async (groupId, adminUser, req) => {
     });
 };
 
-export const updateStudyGroupStatus = async (groupId, status, adminUser, req) => {
-    if (!["active", "archived"].includes(status)) throw new ApiError(400, 'status must be "active" or "archived"');
+export const updateStudyGroupStatus = async (groupId, status, reason, adminUser, req) => {
+    if (!["active", "archived", "rejected"].includes(status)) throw new ApiError(400, 'status must be "active", "archived", or "rejected"');
     if (!mongoose.isValidObjectId(groupId)) throw new ApiError(400, "Invalid study group ID");
 
-    const group = await StudyGroup.findByIdAndUpdate(groupId, { $set: { status } }, { new: true }).select("_id name status");
+    const updates = { status };
+    if (status === "active") {
+        updates.approvedBy = adminUser._id;
+        updates.rejectionReason = "";
+    } else if (status === "rejected") {
+        updates.rejectionReason = reason?.trim() || "No reason provided";
+    }
+
+    const group = await StudyGroup.findByIdAndUpdate(groupId, { $set: updates }, { new: true }).select("_id name status");
     if (!group) throw new ApiError(404, "Study group not found");
+
+    // Sync with EntityRequest if it exists
+    if (["active", "rejected"].includes(status)) {
+        await EntityRequest.findOneAndUpdate(
+            { createdEntityId: group._id, type: "study_group" },
+            { 
+                $set: { 
+                    status: status === "active" ? "approved" : "rejected",
+                    reviewedBy: adminUser._id,
+                    rejectionReason: updates.rejectionReason || ""
+                } 
+            }
+        ).catch(err => console.error("[StudyGroupAdmin] Failed to sync EntityRequest:", err.message));
+    }
 
     await writeAuditLog({
         req,

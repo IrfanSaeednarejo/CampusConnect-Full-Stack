@@ -190,51 +190,109 @@ const SocietyListTab = ({ filterParams }) => {
     );
 };
 
-// ─── AdminSocieties Main ──────────────────────────────────────────────────────
-
-const TABS = [
-    { key: "pending",  label: "Pending",  params: { status: "pending" } },
-    { key: "active",   label: "Active",   params: { status: "approved" } },
-    { key: "frozen",   label: "Frozen",   params: { status: "archived" } },
-];
-
-const tabBtn = (active) => ({
-    padding: "8px 20px", border: "none",
-    borderRadius: "8px 8px 0 0",
-    background: active ? "#1e293b" : "transparent",
-    color: active ? "#f8fafc" : "#64748b",
-    cursor: "pointer", fontSize: 14,
-    fontWeight: active ? 600 : 400,
-    borderBottom: active ? "2px solid #6366f1" : "2px solid transparent",
-    transition: "all 0.15s",
-});
-
-const AdminSocieties = () => {
-    const [activeTab, setActiveTab] = useState("pending");
-    const current = TABS.find((t) => t.key === activeTab);
-
     return (
-        <div>
-            <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 20 }}>Societies</h1>
+        <div style={{ animation: "fadeIn 0.5s ease-out" }}>
+            <div style={{ marginBottom: 32 }}>
+                <h1 style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", margin: 0 }}>Society Governance</h1>
+                <p style={{ color: "#64748b", marginTop: 4 }}>Moderate organizational nodes, manage leadership transitions, and audit activity.</p>
+            </div>
 
-            <div style={{ display: "flex", gap: 4, borderBottom: "1px solid #334155", marginBottom: 24 }}>
+            {/* Tabs & Navigation */}
+            <div style={{ display: "flex", gap: 6, padding: 4, background: "#0f172a", borderRadius: 12, marginBottom: 32, maxWidth: "fit-content", border: "1px solid #1e293b" }}>
                 {TABS.map((t) => (
-                    <button key={t.key} onClick={() => setActiveTab(t.key)} style={tabBtn(activeTab === t.key)}>
-                        {t.label}
+                    <button
+                        key={t.key}
+                        onClick={() => setActiveTab(t.key)}
+                        style={{
+                            padding: "10px 24px", border: "none", borderRadius: 8,
+                            background: activeTab === t.key ? "#6366f1" : "transparent",
+                            color: activeTab === t.key ? "#fff" : "#64748b",
+                            cursor: "pointer", fontSize: 12, fontWeight: 700,
+                            transition: "all 0.2s"
+                        }}
+                    >
+                        {t.label.toUpperCase()}
                     </button>
                 ))}
             </div>
 
-            {activeTab === "pending"
-                ? <PendingSocietiesTab />
-                : <SocietyListTab filterParams={current.params} />
-            }
+            <div style={{ minHeight: "400px" }}>
+                {activeTab === "pending"
+                    ? <PendingSocietiesTab />
+                    : <SocietyListTab filterParams={current.params} />
+                }
+            </div>
         </div>
     );
 };
 
-const approveBtn = { padding: "5px 14px", border: "none", borderRadius: 6, background: "#16a34a", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600 };
-const rejectBtn  = { padding: "5px 14px", border: "none", borderRadius: 6, background: "#dc2626", color: "#fff", cursor: "pointer", fontSize: 12, fontWeight: 600 };
-const inputStyle = { width: "100%", padding: "8px 12px", background: "#1e293b", border: "1px solid #334155", borderRadius: 6, color: "#f8fafc", fontSize: 14 };
+// ── Shared UI Style Components ───────────────────────────────────────────────
+
+const ActionButton = ({ label, color, onClick, variant = "solid" }) => (
+    <button
+        onClick={onClick}
+        style={{
+            flex: 1,
+            padding: "10px",
+            background: variant === "solid" ? color : "transparent",
+            color: variant === "solid" ? "#fff" : color,
+            border: variant === "solid" ? "none" : `1px solid ${color}`,
+            borderRadius: 10,
+            cursor: "pointer",
+            fontSize: 12,
+            fontWeight: 700,
+            transition: "all 0.2s",
+            boxShadow: variant === "solid" ? `0 4px 8px ${color}33` : "none"
+        }}
+    >
+        {label.toUpperCase()}
+    </button>
+);
+
+const SocietyCard = ({ society, onApprove, onReject }) => (
+    <div style={{ background: "#0f172a", borderRadius: 20, padding: 24, border: "1px solid #1e293b", display: "flex", flexDirection: "column", gap: 20, transition: "transform 0.2s, border-color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.borderColor = "#6366f1"}>
+        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+            {society.media?.logo ? (
+                <img src={society.media.logo} alt="" style={{ width: 56, height: 56, borderRadius: 16, background: "#1e293b", objectFit: "cover" }} />
+            ) : (
+                <div style={{ width: 56, height: 56, borderRadius: 16, background: "#1e293b", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24 }}>🏛️</div>
+            )}
+            <div style={{ flex: 1 }}>
+                <div style={{ color: "#f8fafc", fontWeight: 800, fontSize: 16, marginBottom: 2 }}>{society.name}</div>
+                <div style={{ color: "#64748b", fontSize: 13, display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ color: "#6366f1", fontWeight: 700 }}>#{society.tag}</span>
+                    <span>·</span>
+                    <span>{society.category}</span>
+                </div>
+            </div>
+        </div>
+
+        <div style={{ background: "#1e293b", borderRadius: 12, padding: 12, fontSize: 13, color: "#94a3b8", lineHeight: 1.6, minHeight: 60 }}>
+            {society.description || "No mission statement provided."}
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", gap: 8, padding: "12px 0", borderTop: "1px solid #1e293b" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                <span style={{ color: "#64748b" }}>Requested By:</span>
+                <span style={{ color: "#f1f5f9", fontWeight: 600 }}>{society.createdBy?.profile?.displayName || society.createdBy?.email}</span>
+            </div>
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                <span style={{ color: "#64748b" }}>Campus Node:</span>
+                <span style={{ color: "#f1f5f9", fontWeight: 600 }}>{society.campusId?.name || "Global Node"}</span>
+            </div>
+        </div>
+
+        <div style={{ display: "flex", gap: 10 }}>
+            <ActionButton label="Approve" color="#6366f1" onClick={onApprove} />
+            <ActionButton label="Reject" color="#f43f5e" onClick={onReject} variant="outline" />
+        </div>
+    </div>
+);
+
+const inputStyle = { 
+    width: "100%", padding: "12px 16px", background: "#1e293b", 
+    border: "1px solid #334155", borderRadius: 12, color: "#f8fafc", 
+    fontSize: 14, outline: "none", transition: "border-color 0.2s" 
+};
 
 export default AdminSocieties;

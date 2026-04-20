@@ -18,12 +18,32 @@ const getStudyGroupById = asyncHandler(async (req, res) => {
 });
 
 const createStudyGroup = asyncHandler(async (req, res) => {
-    const created = await studyGroupService.createStudyGroup(req.body, req.user);
-    return res.status(201).json(new ApiResponse(201, created, "Study group created successfully"));
+    const isAdmin = req.user.roles?.includes("admin");
+    const sanitizedBody = { ...req.body };
+    
+    // STRICT: Never trust user-provided audit fields
+    delete sanitizedBody.approvedBy;
+    delete sanitizedBy.rejectionReason;
+    delete sanitizedBy.requestedBy;
+    
+    if (!isAdmin) {
+        sanitizedBy.status = "pending"; // Enforce request flow
+    }
+
+    const created = await studyGroupService.createStudyGroup(sanitizedBy, req.user);
+    return res.status(201).json(new ApiResponse(201, created, "Study group request submitted successfully"));
 });
 
 const updateStudyGroup = asyncHandler(async (req, res) => {
-    const updated = await studyGroupService.updateStudyGroup(req.params.id, req.body, req.user);
+    const sanitizedBy = { ...req.body };
+    
+    // User cannot approve their own group or modify audit trail
+    delete sanitizedBy.status; 
+    delete sanitizedBy.approvedBy;
+    delete sanitizedBy.rejectionReason;
+    delete sanitizedBy.requestedBy;
+
+    const updated = await studyGroupService.updateStudyGroup(req.params.id, sanitizedBy, req.user);
     return res.status(200).json(new ApiResponse(200, updated, "Study group updated successfully"));
 });
 

@@ -104,59 +104,63 @@ const AdminApp = () => {
         }}>
             {/* Sidebar */}
             <aside style={{
-                width: 260,
-                background: "#111827",
+                width: 280,
+                background: "#0f172a",
                 display: "flex",
                 flexDirection: "column",
-                borderRight: "1px solid #1f2937",
+                borderRight: "1px solid #1e293b",
                 position: "fixed",
                 height: "100vh",
+                zIndex: 50,
                 overflowY: "auto"
             }}>
-                <div style={{ padding: "32px 24px", borderBottom: "1px solid #1f2937" }}>
+                <div style={{ padding: "32px 24px", borderBottom: "1px solid #1e293b" }}>
                     <div style={{ 
-                        fontSize: 20, 
-                        fontWeight: 800, 
-                        letterSpacing: "-0.025em",
-                        background: "linear-gradient(to right, #6366f1, #a855f7)",
+                        fontSize: 22, 
+                        fontWeight: 900, 
+                        letterSpacing: "-0.04em",
+                        background: "linear-gradient(135deg, #6366f1, #a855f7)",
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent"
                     }}>
                         CampusConnect
                     </div>
-                    <div style={{ color: "#9ca3af", fontSize: 12, fontWeight: 500, marginTop: 4 }}>
-                        CONTROL CENTER
+                    <div style={{ color: "#64748b", fontSize: 10, fontWeight: 800, marginTop: 4, letterSpacing: "0.1em" }}>
+                        ADMINISTRATIVE PORTAL
                     </div>
                 </div>
 
                 {isSuperAdmin && (
                     <div style={{ padding: "16px 20px" }}>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: "#64748b", marginBottom: 8, paddingLeft: 4 }}>
+                            CAMPUS PERSPECTIVE
+                        </div>
                         <select
                             value={selectedCampus || ""}
                             onChange={(e) => dispatch(setSelectedCampus(e.target.value || null))}
                             style={{
-                                width: "100%", background: "#1f2937", color: "#f3f4f6",
-                                border: "1px solid #374151", borderRadius: 8, padding: "8px 12px", fontSize: 13,
-                                outline: "none", cursor: "pointer"
+                                width: "100%", background: "#1e293b", color: "#f1f5f9",
+                                border: "1px solid #334155", borderRadius: 10, padding: "10px 14px", fontSize: 13,
+                                outline: "none", cursor: "pointer", transition: "border-color 0.2s"
                             }}
                         >
-                            <option value="">Global Perspective</option>
+                            <option value="">Global Overview</option>
                             {/* Campus mappings would go here */}
                         </select>
                     </div>
                 )}
 
-                <nav style={{ flex: 1, padding: "0 12px 24px" }}>
+                <nav style={{ flex: 1, padding: "0 14px 24px" }}>
                     {NAV_GROUPS.map((group, gIdx) => (
-                        <div key={gIdx} style={{ marginTop: 24 }}>
+                        <div key={gIdx} style={{ marginTop: 28 }}>
                             <div style={{ 
                                 paddingLeft: 12, 
                                 fontSize: 11, 
-                                fontWeight: 700, 
-                                color: "#4b5563", 
+                                fontWeight: 800, 
+                                color: "#475569", 
                                 textTransform: "uppercase",
-                                letterSpacing: "0.05em",
-                                marginBottom: 8
+                                letterSpacing: "0.1em",
+                                marginBottom: 10
                             }}>
                                 {group.title}
                             </div>
@@ -172,28 +176,31 @@ const AdminApp = () => {
                                             display: "flex",
                                             alignItems: "center",
                                             gap: 12,
-                                            padding: "10px 12px",
-                                            color: isActive ? "#fff" : "#9ca3af",
-                                            background: isActive ? "rgba(99, 102, 241, 0.1)" : "transparent",
+                                            padding: "12px 14px",
+                                            color: isActive ? "#fff" : "#94a3b8",
+                                            background: isActive ? "linear-gradient(90deg, rgba(99, 102, 241, 0.15) 0%, transparent 100%)" : "transparent",
+                                            borderLeft: isActive ? "3px solid #6366f1" : "3px solid transparent",
                                             textDecoration: "none",
                                             fontSize: 14,
                                             fontWeight: isActive ? 600 : 500,
-                                            borderRadius: 8,
-                                            marginBottom: 2,
-                                            transition: "all 0.2s cubic-bezier(0.4, 0, 0.2, 1)",
+                                            borderRadius: "0 8px 8px 0",
+                                            marginLeft: -14, // align with padding
+                                            paddingLeft: isActive ? 11 : 14,
+                                            marginBottom: 4,
+                                            transition: "all 0.2s",
                                         })}
                                     >
-                                        <span style={{ fontSize: 18 }}>{item.icon}</span>
+                                        <span style={{ fontSize: 18, opacity: 0.9 }}>{item.icon}</span>
                                         <span style={{ flex: 1 }}>{item.label}</span>
                                         {badgeVal > 0 && (
                                             <span style={{
-                                                background: item.badge === "pendingTotal" ? "#ef4444" : "#4f46e5",
+                                                background: item.badge === "pendingTotal" ? "#f43f5e" : "#6366f1",
                                                 color: "#fff",
                                                 fontSize: 10,
-                                                fontWeight: 700,
+                                                fontWeight: 800,
                                                 padding: "2px 8px",
-                                                borderRadius: 99,
-                                                boxShadow: "0 2px 4px rgba(0,0,0,0.2)"
+                                                borderRadius: 20,
+                                                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)"
                                             }}>
                                                 {badgeVal}
                                             </span>
@@ -205,40 +212,85 @@ const AdminApp = () => {
                     ))}
                 </nav>
 
-                <div style={{ padding: "20px", borderTop: "1px solid #1f2937", background: "#111827" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ padding: "20px", borderTop: "1px solid #1e293b", background: "#0f172a" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "8px 12px", borderRadius: 12, background: "#1e293b" }}>
                         <div style={{
                             width: 10, height: 10, borderRadius: "50%",
                             background: systemStatus.connected ? "#10b981" : "#f43f5e",
-                            boxShadow: systemStatus.connected ? "0 0 8px rgba(16, 185, 129, 0.4)" : "none"
+                            boxShadow: systemStatus.connected ? "0 0 12px rgba(16, 185, 129, 0.6)" : "none"
                         }} />
-                        <span style={{ color: "#9ca3af", fontSize: 13, fontWeight: 500 }}>
-                            {systemStatus.connected ? "System Online" : "System Offline"}
+                        <span style={{ color: "#e2e8f0", fontSize: 13, fontWeight: 600 }}>
+                            {systemStatus.connected ? "Operational" : "Offline"}
                         </span>
                     </div>
-                    {systemStatus.maintenanceMode && (
-                        <div style={{
-                            marginTop: 12, padding: "8px", background: "rgba(245, 158, 11, 0.1)",
-                            color: "#f59e0b", borderRadius: 6, fontSize: 11, fontWeight: 600,
-                            textAlign: "center", border: "1px solid rgba(245, 158, 11, 0.2)"
-                        }}>
-                            ⚠ MAINTENANCE MODE ACTIVE
-                        </div>
-                    )}
                 </div>
             </aside>
 
-            {/* Main Content */}
-            <main style={{ 
+            {/* Main Content Area */}
+            <div style={{ 
                 flex: 1, 
-                marginLeft: 260,
-                minHeight: "100vh",
-                overflowX: "hidden"
+                marginLeft: 280,
+                display: "flex",
+                flexDirection: "column",
+                minHeight: "100vh"
             }}>
-                <div style={{ padding: "40px" }}>
+                {/* Topbar */}
+                <header style={{
+                    height: 72,
+                    background: "rgba(10, 15, 30, 0.8)",
+                    backdropFilter: "blur(12px)",
+                    borderBottom: "1px solid #1e293b",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "0 40px",
+                    position: "sticky",
+                    top: 0,
+                    zIndex: 40
+                }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <h1 style={{ fontSize: 18, fontWeight: 700, color: "#f8fafc", margin: 0 }}>
+                            {location.pathname.split("/").pop()?.replace(/-/g, " ").toUpperCase() || "DASHBOARD"}
+                        </h1>
+                        <span style={{ color: "#475569", fontSize: 14 }}>/</span>
+                        <span style={{ color: "#94a3b8", fontSize: 14, fontWeight: 500 }}>Control Room</span>
+                    </div>
+
+                    <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
+                        {/* Server Status Indicator */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                            <span style={{ fontSize: 12, color: "#64748b", fontWeight: 600 }}>ID:</span>
+                            <code style={{ fontSize: 12, color: "#94a3b8", background: "#1e293b", padding: "2px 6px", borderRadius: 4 }}>
+                                {user?.id?.slice(-6).toUpperCase() || "ADMIN"}
+                            </code>
+                        </div>
+
+                        {/* Logout - strictly functional, no profile */}
+                        <NavLink to="/logout" style={{ 
+                            padding: "8px 16px", 
+                            background: "rgba(244, 63, 94, 0.1)", 
+                            color: "#f43f5e",
+                            borderRadius: 8,
+                            fontSize: 13,
+                            fontWeight: 700,
+                            textDecoration: "none",
+                            border: "1px solid rgba(244, 63, 94, 0.2)",
+                            transition: "all 0.2s"
+                        }}>
+                            TERMINATE SESSION
+                        </NavLink>
+                    </div>
+                </header>
+
+                {/* Content Outlet */}
+                <main style={{ 
+                    flex: 1, 
+                    padding: "40px",
+                    background: "radial-gradient(circle at top right, rgba(99, 102, 241, 0.05), transparent)"
+                }}>
                     <Outlet />
-                </div>
-            </main>
+                </main>
+            </div>
         </div>
     );
 };

@@ -229,7 +229,7 @@ export default function AppRoutes() {
           AUTHENTICATED — AppShell (GlobalNavbar + AppSidebar)
           All routes below require login + onboarding complete
       ══════════════════════════════════════════════════ */}
-      <Route element={<ProtectedRoute requireOnboarding={true} />}>
+      <Route element={<ProtectedRoute requireOnboarding={true} disallowAdmin={true} />}>
         <Route element={<AppShell />}>
 
           {/* ── Unified Dashboard ──────────────────── */}
@@ -239,7 +239,6 @@ export default function AppRoutes() {
           <Route path="/student/dashboard"  element={<Navigate to="/dashboard" replace />} />
           <Route path="/mentor/dashboard"   element={<Navigate to="/dashboard" replace />} />
           <Route path="/society/dashboard"  element={<Navigate to="/dashboard" replace />} />
-          <Route path="/admin/dashboard"    element={<Navigate to="/dashboard" replace />} />
           <Route path="/event/dashboard"    element={<Navigate to="/dashboard" replace />} />
 
           {/* ── Profile ────────────────────────────── */}
@@ -378,6 +377,7 @@ export default function AppRoutes() {
             <Route path="analytics" element={<AdminAnalytics />} />
             <Route path="audit-logs" element={<AdminAuditLogs />} />
             <Route path="system" element={<AdminSystem />} />
+            <Route path="*" element={<Navigate to="dashboard" replace />} />
           </Route>
         </Route>
 
