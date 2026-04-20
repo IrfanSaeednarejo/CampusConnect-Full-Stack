@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import axios from "../../api/axios";
 import { useDispatch, useSelector } from "react-redux";
 import { getDashboardStats, getPendingMentors, getPendingSocieties, verifyMentor, updateSocietyStatus } from "../../api/adminApi";
 import { setPendingCounts, decrementPending, selectLiveEvents, selectPendingCounts } from "../../redux/slices/adminSlice";
 import AdminStatCard from "../components/AdminStatCard";
 import LiveEventFeed from "../components/LiveEventFeed";
+import ReasonModal from "../components/ReasonModal";
 
 export const AdminDashboard = () => {
     const dispatch = useDispatch();
@@ -13,6 +15,8 @@ export const AdminDashboard = () => {
     const [pendingMentors, setPendingMentors] = useState([]);
     const [pendingSocieties, setPendingSocieties] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [showRejectModal, setShowRejectModal] = useState(false);
+    const [selectedRequest, setSelectedRequest] = useState(null);
 
     useEffect(() => {
         Promise.all([

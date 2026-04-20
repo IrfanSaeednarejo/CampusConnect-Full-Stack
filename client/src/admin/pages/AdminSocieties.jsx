@@ -190,6 +190,17 @@ const SocietyListTab = ({ filterParams }) => {
     );
 };
 
+const AdminSocieties = () => {
+    const [activeTab, setActiveTab] = useState("pending");
+
+    const TABS = [
+        { key: "pending", label: "Pending Requests", params: { status: "pending" } },
+        { key: "active", label: "Active Societies", params: { status: "approved" } },
+        { key: "frozen", label: "Frozen / Archived", params: { status: "archived" } },
+    ];
+
+    const current = TABS.find((t) => t.key === activeTab) || TABS[0];
+
     return (
         <div style={{ animation: "fadeIn 0.5s ease-out" }}>
             <div style={{ marginBottom: 32 }}>

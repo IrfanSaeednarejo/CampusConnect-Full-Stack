@@ -162,11 +162,12 @@ const AdminRequests = () => {
             {showRejectModal && (
                 <ReasonModal 
                     title={`Reject ${selectedRequest?.requestType} Request`}
-                    onConfirm={(reason) => {
-                        handleAction(selectedRequest._id, selectedRequest.requestType, "reject", reason);
+                    onClose={({ confirmed, reason }) => {
+                        if (confirmed) {
+                            handleAction(selectedRequest._id, selectedRequest.requestType, "reject", reason);
+                        }
                         setShowRejectModal(false);
                     }}
-                    onCancel={() => setShowRejectModal(false)}
                 />
             )}
         </div>
