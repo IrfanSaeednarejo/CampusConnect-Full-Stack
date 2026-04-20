@@ -18,6 +18,7 @@ import {
 	selectHiddenMessagesByConversation,
 	selectForwardingMessage,
 	selectLastSeenByConversation,
+	fetchChats,
 	fetchMessages,
 	sendMessage,
 	addOptimisticMessage,
@@ -174,6 +175,10 @@ export const useChatPageState = ({ allowedTypes }) => {
 				isArchived: archivedConversations.includes(conversation.id || conversation._id),
 				isMuted: mutedConversations.includes(conversation.id || conversation._id),
 				lastSeen,
+				otherUserId: conversation.type === "dm" 
+					? ((conversation.members || []).find(m => m.userId?._id?.toString() !== user?._id?.toString() && m.userId?.toString() !== user?._id?.toString())?.userId?._id || 
+					   (conversation.members || []).find(m => m.userId?._id?.toString() !== user?._id?.toString() && m.userId?.toString() !== user?._id?.toString())?.userId)
+					: null,
 				...meta,
 			};
 		}), [
@@ -376,6 +381,11 @@ export const useChatPageState = ({ allowedTypes }) => {
 		}
 	}, [dispatch, selectedConversationId]);
 
+	// Fetch all direct chats on initial load
+	useEffect(() => {
+		dispatch(fetchChats());
+	}, [dispatch]);
+
 	// Wrap all dispatch actions for proper Redux integration
 	const dispatchSetDraft = useCallback((payload) => dispatch(setDraft(payload)), [dispatch]);
 	const dispatchSetReplyTo = useCallback((payload) => dispatch(setReplyTo(payload)), [dispatch]);
@@ -446,6 +456,7 @@ export const useChatPageState = ({ allowedTypes }) => {
 		setForwardingMessage: dispatchSetForwardingMessage,
 		clearForwardingMessage: dispatchClearForwardingMessage,
 		retryMessage: dispatchRetryMessage,
+		currentUser: user,
 	};
 };
 

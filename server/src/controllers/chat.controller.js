@@ -42,6 +42,11 @@ const removeMemberFromChat = asyncHandler(async (req, res) => {
 
 const sendMessage = asyncHandler(async (req, res) => {
     const populated = await chatService.sendMessage(req.params.chatId, req.body, req.user);
+    const { emitToUser } = await import("../sockets/index.js");
+    const io = req.app.get("io");
+    if (io) {
+        io.to(`chat:${req.params.chatId}`).emit("message:new", populated);
+    }
     return res.status(201).json(new ApiResponse(201, populated, "Message sent"));
 });
 

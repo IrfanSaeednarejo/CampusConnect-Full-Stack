@@ -64,6 +64,7 @@ export default function ChatShell({
 	onRetryMessage = noop,
 	onHandleTyping = noop,
 	canSend = true,
+	currentUser = null,
 }) {
 	const navigate = useNavigate();
 	const [showArchived, setShowArchived] = useState(false);
@@ -314,7 +315,12 @@ export default function ChatShell({
 								<MessageBubble
 									key={entry.id}
 									message={entry.message}
-									isCurrentUser={entry.message.senderId === "current"}
+									isCurrentUser={
+										entry.message.senderId === "current" ||
+										entry.message.sender?.toString() === currentUser?._id?.toString() ||
+										entry.message.senderId?.toString() === currentUser?._id?.toString() ||
+										entry.message.sender?._id?.toString() === currentUser?._id?.toString()
+									}
 									userColor={selectedConversation.avatarColor}
 									quickReactions={quickReactions}
 									replyMessage={

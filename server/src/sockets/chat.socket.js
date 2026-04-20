@@ -175,8 +175,14 @@ export const registerChatHandlers = (io, socket) => {
                 });
             }
 
-            const chatRoom = `chat:${chatId}`;
-            io.to(chatRoom).emit("message:new", populated);
+            const targetMembers = chat.members
+                .filter(m => m.userId.toString() !== userId)
+                .map(m => `user:${m.userId.toString()}`);
+            // Broadcast to chat room AND target user rooms, but NOT back to sender
+            socket.to(`chat:${chatId}`).emit("message:new", populated);
+            if (targetMembers.length > 0) {
+                io.to(targetMembers).emit("message:new", populated);
+            }
             logSocket("info", "message:send", userId, `Successfully sent message ${populated._id} to chat ${chatId}`);
 
             if (typeof ackCallback === "function") {

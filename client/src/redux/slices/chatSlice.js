@@ -159,16 +159,15 @@ const chatSlice = createSlice({
 			if (!state.messagesByConversation[conversationId]) {
 				state.messagesByConversation[conversationId] = [];
 			}
+			// Dedup by real _id AND by local tempId
 			const exists = state.messagesByConversation[conversationId].some(
-				(m) => m._id === message._id
+				(m) => m._id && message._id && m._id === message._id
 			);
 			if (!exists) {
 				state.messagesByConversation[conversationId].push(message);
 			}
-			if (conversationId !== state.selectedConversationId) {
-				state.unreadByConversation[conversationId] =
-					(state.unreadByConversation[conversationId] || 0) + 1;
-			}
+			// NOTE: unread increment is handled separately by the socket handler
+			// because the handler knows the current user identity
 		},
 		setConversationMessages: (state, action) => {
 			const { conversationId, messages } = action.payload;
@@ -321,7 +320,29 @@ const chatSlice = createSlice({
 			// Implementation for offline sync if needed
 		},
 		retryMessage: (state, action) => {
-			// Implementation for retrying failed messages
+			const { conversationId, messageId } = action.payload || {};
+			const msgs = state.messagesByConversation[conversationId] || [];
+			const msg = msgs.find((m) => m._id === messageId || m.id === messageId);
+			if (msg) msg.status = 'sending';
+		},
+		incrementUnread: (state, action) => {
+			const { chatId } = action.payload;
+			if (!chatId) return;
+			state.unreadByConversation[chatId] = (state.unreadByConversation[chatId] || 0) + 1;
+			// Also increment on conversation object for consistency
+			const conv = state.conversations.find((c) => (c._id || c.id) === chatId);
+			if (conv) conv.unreadCount = (conv.unreadCount || 0) + 1;
+		},
+		updateConversationMeta: (state, action) => {
+			const { chatId, lastMessage, lastMessageAt } = action.payload;
+			if (!chatId) return;
+			const conv = state.conversations.find((c) => (c._id || c.id) === chatId);
+			if (conv) {
+				conv.lastMessage = lastMessage;
+				conv.lastMessageAt = lastMessageAt;
+			} else {
+				// Conversation not yet in list — will be added when fetchChats resolves
+			}
 		},
 	},
 	extraReducers: (builder) => {
@@ -453,6 +474,8 @@ export const {
 	forwardMessageToConversation,
 	syncPendingMessages,
 	retryMessage,
+	incrementUnread,
+	updateConversationMeta,
 } = chatSlice.actions;
 
 export const selectConversations = (state) => state.chat.conversations;

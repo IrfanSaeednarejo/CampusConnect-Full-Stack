@@ -92,9 +92,9 @@ const ChatHeader = ({
         <div className="user-details">
           <h3>{conversation.name}</h3>
           <p>{statusLine()}</p>
-          {conversation.type === 'user' && (
+          {conversation.type === 'user' && conversation.otherUserId && (
             <div className="mt-[-4px] scale-[0.85] origin-left opacity-80">
-              <MutualConnectionsPreview targetUserId={conversation.id} initialMutualCount={1} />
+              <MutualConnectionsPreview targetUserId={conversation.otherUserId} initialMutualCount={1} />
             </div>
           )}
         </div>

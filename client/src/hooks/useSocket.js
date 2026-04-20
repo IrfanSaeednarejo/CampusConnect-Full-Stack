@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector, useStore } from 'react-redux';
 import { getSocket } from '../socket/socket';
-import { registerChatHandlers, unregisterChatHandlers } from '../socket/handlers/chat.handler';
+import { registerChatHandlers, unregisterChatHandlers, injectGetState } from '../socket/handlers/chat.handler';
 import { registerNotificationHandlers, unregisterNotificationHandlers } from '../socket/handlers/notification.handler';
 import { selectIsAuthenticated } from '../redux/slices/authSlice';
 
 export const useSocket = () => {
   const dispatch = useDispatch();
+  const store = useStore();
   const isAuthenticated = useSelector(selectIsAuthenticated);
   const registeredRef = useRef(false);
 
@@ -31,6 +32,7 @@ export const useSocket = () => {
     socket.on('disconnect', onDisconnect);
     socket.on('connect_error', onConnectError);
 
+    injectGetState(store.getState);
     registerChatHandlers(socket, dispatch);
     registerNotificationHandlers(socket, dispatch);
     registeredRef.current = true;

@@ -5,20 +5,50 @@ import {
   setTypingStatus,
   updateMessageStatus,
   setConnectionStatus,
-  setChatRead,
+  incrementUnread,
+  updateConversationMeta,
 } from '../../redux/slices/chatSlice';
 
+let getState = null;
+
+export const injectGetState = (fn) => {
+  getState = fn;
+};
 
 export const registerChatHandlers = (socket, dispatch) => {
+  // ─── message:new ───────────────────────────────────────────────────────────
   socket.on('message:new', (message) => {
-    const chatId = message.chat?.toString() || message.chatId;
-    if (chatId) {
-      dispatch(newMessage({ conversationId: chatId, message }));
-      if (message?._id) {
+    const chatId = message.chat?.toString() || message.chatId?.toString();
+    if (!chatId) return;
+
+    // Add to message history
+    dispatch(newMessage({ conversationId: chatId, message }));
+
+    // Update conversation meta (last message preview, timestamp)
+    dispatch(updateConversationMeta({
+      chatId,
+      lastMessage: message.content || message.text || '',
+      lastMessageAt: message.createdAt || new Date().toISOString(),
+    }));
+
+    // Increment unread count if conversation is not currently open
+    const currentState = getState?.();
+    const selectedId = currentState?.chat?.selectedConversationId;
+    const currentUserId = currentState?.auth?.user?._id?.toString();
+    const senderId = message.sender?._id?.toString() || message.sender?.toString();
+
+    // Only increment if not from self and not currently viewing
+    if (senderId !== currentUserId && chatId !== selectedId) {
+      dispatch(incrementUnread({ chatId }));
+
+      // Emit delivery receipt back to sender via socket
+      if (socket.connected) {
         socket.emit('message:delivered', { messageId: message._id, chatId });
       }
     }
   });
+
+  // ─── message:updated (edit) ────────────────────────────────────────────────
   socket.on('message:updated', (data) => {
     dispatch(applyEditMessage({
       conversationId: data.chatId,
@@ -27,6 +57,7 @@ export const registerChatHandlers = (socket, dispatch) => {
     }));
   });
 
+  // ─── message:reaction:update ───────────────────────────────────────────────
   socket.on('message:reaction:update', (data) => {
     dispatch(toggleReaction({
       conversationId: data.chatId,
@@ -36,6 +67,7 @@ export const registerChatHandlers = (socket, dispatch) => {
     }));
   });
 
+  // ─── message:delivered ────────────────────────────────────────────────────
   socket.on('message:delivered', (data) => {
     dispatch(updateMessageStatus({
       conversationId: data.chatId,
@@ -44,8 +76,9 @@ export const registerChatHandlers = (socket, dispatch) => {
     }));
   });
 
+  // ─── message:seen ────────────────────────────────────────────────────────
   socket.on('message:seen', (data) => {
-    if (data.messageIds) {
+    if (Array.isArray(data.messageIds)) {
       data.messageIds.forEach((msgId) => {
         dispatch(updateMessageStatus({
           conversationId: data.chatId,
@@ -56,6 +89,7 @@ export const registerChatHandlers = (socket, dispatch) => {
     }
   });
 
+  // ─── typing indicators ───────────────────────────────────────────────────
   socket.on('typing:start', (data) => {
     dispatch(setTypingStatus({
       conversationId: data.chatId,
@@ -72,12 +106,7 @@ export const registerChatHandlers = (socket, dispatch) => {
     }));
   });
 
-  socket.on('chat:read', (data) => {
-    if (data?.chatId) {
-      dispatch(setChatRead({ conversationId: data.chatId }));
-    }
-  });
-
+  // ─── connection state ─────────────────────────────────────────────────────
   socket.on('connect', () => {
     dispatch(setConnectionStatus({ isConnected: true }));
   });
@@ -91,7 +120,8 @@ export const unregisterChatHandlers = (socket) => {
   const events = [
     'message:new', 'message:updated', 'message:reaction:update',
     'message:delivered', 'message:seen',
-    'typing:start', 'typing:stop', 'chat:read',
+    'typing:start', 'typing:stop',
+    'connect', 'disconnect',
   ];
   events.forEach((e) => socket.off(e));
 };
