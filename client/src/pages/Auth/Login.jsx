@@ -46,8 +46,16 @@ export default function Login() {
       }));
 
       if (loginUser.fulfilled.match(resultAction)) {
+        const user = resultAction.payload.user || resultAction.payload;
+        const userRoles = user?.roles || [];
+        const isAdmin = userRoles.some(role => ["super_admin", "campus_admin", "admin"].includes(role));
+
         if (!pendingAction) {
-          navigate('/dashboard', { replace: true });
+          if (isAdmin) {
+            navigate('/admin', { replace: true });
+          } else {
+            navigate('/dashboard', { replace: true });
+          }
         }
       } else {
         setErrors({ email: resultAction.payload || "Login failed" });

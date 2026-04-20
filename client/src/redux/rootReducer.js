@@ -2,6 +2,7 @@
 import { combineReducers } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import userReducer from './slices/userSlice';
+import adminReducer from './slices/adminSlice';
 import eventReducer from './slices/eventSlice';
 import societyReducer from './slices/societySlice';
 import notificationReducer from './slices/notificationSlice';
@@ -26,6 +27,7 @@ import scoringReducer from './slices/scoringSlice';
 const rootReducer = combineReducers({
   auth: authReducer,
   user: userReducer,
+  admin: adminReducer,
   events: eventReducer,
   societies: societyReducer,
   notifications: notificationReducer,
@@ -50,4 +52,3 @@ const rootReducer = combineReducers({
 });
 
 export default rootReducer;
-
