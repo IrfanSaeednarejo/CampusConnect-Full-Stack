@@ -121,7 +121,7 @@ export const getMentorEngagement = async (campusId) => {
                 as: "mentor",
             },
         },
-        { $unwind: { path: "$mentor", preserveNullAndEmpty: true } },
+        { $unwind: { path: "$mentor", preserveNullAndEmptyArrays: true } },
         {
             $lookup: {
                 from: "users",
@@ -130,7 +130,7 @@ export const getMentorEngagement = async (campusId) => {
                 as: "user",
             },
         },
-        { $unwind: { path: "$user", preserveNullAndEmpty: true } },
+        { $unwind: { path: "$user", preserveNullAndEmptyArrays: true } },
         {
             $project: {
                 _id: 0,

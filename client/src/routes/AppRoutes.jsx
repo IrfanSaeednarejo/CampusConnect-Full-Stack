@@ -38,7 +38,7 @@ import OnboardingWizardComplete from "../pages/Onboarding/OnboardingWizardComple
 import Home           from "../pages/Misc/Home";
 import Events         from "../pages/Events";
 import Mentors        from "../pages/Mentors";
-import Societies      from "../pages/Societies";
+// import Societies      from "../pages/Societies";
 import AboutUs        from "../pages/Misc/About";
 import ContactUs      from "../pages/Help/ContactUs";
 import LegalPrivacy   from "../pages/Misc/LegalPrivacy";
@@ -60,7 +60,7 @@ import Network                 from "../pages/Network";
 // ── Society Pages (AppShell) ─────────────────────────────────────────────────
 import SocietiesList    from "../pages/Societies/SocietiesList";
 import SocietyDetail    from "../pages/Societies/SocietyDetail";
-import CreateSociety    from "../pages/Societies/CreateSociety";
+// import CreateSociety    from "../pages/Societies/CreateSociety";
 import SocietyManagement from "../pages/Societies/SocietyManagement";
 import MemberRequests   from "../pages/Societies/MemberRequests";
 import SocietyEvents    from "../pages/Societies/SocietyEvents";
@@ -210,8 +210,8 @@ export default function AppRoutes() {
         <Route path="/events/:id/*" element={<EventDetailLayout />} />
         
         {/* Societies */}
-        <Route path="/societies" element={<Societies />} />
-        <Route path="/societies/browse" element={<SocietiesList />} />
+        <Route path="/societies" element={<SocietiesList />} />
+        <Route path="/societies/browse" element={<Navigate to="/societies" replace />} />
         <Route path="/societies/:id" element={<SocietyDetail />} />
         
         {/* Mentors */}
@@ -261,7 +261,6 @@ export default function AppRoutes() {
           {/* Handled by HYBRID section */}
 
           {/* ── Societies (any auth user) ────────────── */}
-          <Route path="/society/create"     element={<CreateSociety />} />
           <Route path="/my-societies"       element={<SocietiesList />} />
 
           {/* ── Society Head — role gated at component level via RoleGuard ── */}

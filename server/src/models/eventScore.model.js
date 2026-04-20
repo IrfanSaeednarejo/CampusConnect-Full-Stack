@@ -98,7 +98,7 @@ eventScoreSchema.statics.generateLeaderboard = async function (eventId) {
                 as: "submission",
             },
         },
-        { $unwind: { path: "$submission", preserveNullAndEmpty: true } },
+        { $unwind: { path: "$submission", preserveNullAndEmptyArrays: true } },
         { $sort: { averageScore: -1, "submission.submittedAt": 1 } },
         {
             $setWindowFields: {
