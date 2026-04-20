@@ -175,8 +175,8 @@ export const registerChatHandlers = (io, socket) => {
                 });
             }
 
-            const targetMembers = chat.members.map((m) => `user:${m.userId.toString()}`);
-            io.to(`chat:${chatId}`).to(targetMembers).emit("message:new", populated);
+            const chatRoom = `chat:${chatId}`;
+            io.to(chatRoom).emit("message:new", populated);
             logSocket("info", "message:send", userId, `Successfully sent message ${populated._id} to chat ${chatId}`);
 
             if (typeof ackCallback === "function") {

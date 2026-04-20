@@ -115,6 +115,7 @@ const initialState = {
 	searchByConversation: {},
 	lastSeenByConversation: {},
 	loading: { chats: false, messages: false, operation: false },
+	hasLoadedChats: false,
 	error: null,
 	connection: { isConnected: false, error: null, lastConnectedAt: null },
 };
@@ -310,6 +311,7 @@ const chatSlice = createSlice({
 			.addCase(fetchChats.fulfilled, (state, action) => {
 				state.conversations = action.payload || [];
 				state.loading.chats = false;
+				state.hasLoadedChats = true;
 			})
 			.addCase(fetchChats.rejected, (state, action) => {
 				state.error = action.payload;
@@ -390,8 +392,11 @@ const chatSlice = createSlice({
 		builder.addCase(markAsReadThunk.fulfilled, (state, action) => {
 			const { chatId } = action.payload;
 			state.unreadByConversation[chatId] = 0;
-			const chat = state.conversations.find((c) => c._id === chatId);
-			if (chat) chat.unreadCount = 0;
+			const chat = state.conversations.find((c) => c._id === chatId || c.id === chatId);
+			if (chat) {
+				chat.unreadCount = 0;
+				chat.myUnreadCount = 0;
+			}
 		});
 	},
 });
@@ -435,9 +440,10 @@ export const selectSelectedConversationId = (state) => state.chat.selectedConver
 export const selectTypingByConversation = (state) => state.chat.typingByConversation;
 export const selectChatLoading = (state) => state.chat.loading;
 export const selectChatConnection = (state) => state.chat.connection;
+export const selectHasLoadedChats = (state) => state.chat.hasLoadedChats;
 export const selectDirectConversations = (state) => state.chat.conversations;
 export const selectDirectConversationById = (id) => (state) =>
-	state.chat.conversations.find((c) => c.id === id);
+	state.chat.conversations.find((c) => c.id === id || c._id === id);
 export const selectPinnedConversations = (state) => state.chat.pinnedConversations || [];
 export const selectArchivedConversations = (state) => state.chat.archivedConversations || [];
 export const selectMutedConversations = (state) => state.chat.mutedConversations || [];
