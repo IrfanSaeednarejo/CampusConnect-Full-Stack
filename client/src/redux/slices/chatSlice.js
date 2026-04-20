@@ -87,9 +87,9 @@ export const markAsReadThunk = createAsyncThunk(
 
 export const createOrGetDMThunk = createAsyncThunk(
 	"chat/createOrGetDM",
-	async (participantId, { rejectWithValue }) => {
+	async (targetUserId, { rejectWithValue }) => {
 		try {
-			const { data } = await chatApi.createOrGetDM(participantId);
+			const { data } = await chatApi.createOrGetDM(targetUserId);
 			return data.data;
 		} catch (err) {
 			return rejectWithValue(err.message);
@@ -113,6 +113,7 @@ const initialState = {
 	searchResults: [],
 	hiddenMessagesByConversation: {},
 	searchByConversation: {},
+	lastSeenByConversation: {},
 	loading: { chats: false, messages: false, operation: false },
 	error: null,
 	connection: { isConnected: false, error: null, lastConnectedAt: null },
@@ -446,9 +447,9 @@ export const selectSearchResults = (state) => state.chat.searchResults;
 export const selectReplyTo = (state) => state.chat.replyTo;
 export const selectEditingMessage = (state) => state.chat.editingMessage;
 export const selectForwardingMessage = (state) => state.chat.forwardingMessage;
-export const selectHiddenMessagesByConversation = (state) => state.chat.hiddenMessagesByConversation || {};
-export const selectSearchByConversation = (state) => state.chat.searchByConversation || {};
-export const selectLastSeenByConversation = (state) => state.chat.lastSeenByConversation || {};
+export const selectHiddenMessagesByConversation = (state) => state.chat.hiddenMessagesByConversation;
+export const selectSearchByConversation = (state) => state.chat.searchByConversation;
+export const selectLastSeenByConversation = (state) => state.chat.lastSeenByConversation;
 
 export const sendMessage = sendMessageThunk;
 export const createOrGetDM = createOrGetDMThunk;

@@ -18,6 +18,7 @@ import {
 	selectHiddenMessagesByConversation,
 	selectForwardingMessage,
 	selectLastSeenByConversation,
+	fetchMessages,
 	sendMessage,
 	newMessage,
 	setSelectedConversation,
@@ -130,22 +131,42 @@ export const useChatPageState = ({ allowedTypes }) => {
 
 	const directList = useMemo(() =>
 		directConversations.map((conversation) => {
-			const messages = messagesByConversation[conversation.id] || [];
+			const messages = messagesByConversation[conversation.id || conversation._id] || [];
 			const meta = getLastMessageMeta(
 				messages,
 				conversation.lastMessage,
-				conversation.timestamp
+				conversation.timestamp || conversation.lastMessageAt
 			);
-			const lastSeen = lastSeenByConversation[conversation.id] || conversation.lastSeen;
+			const lastSeen = lastSeenByConversation[conversation.id || conversation._id] || conversation.lastSeen;
+
+			// For DMs, find the other member to use their name/avatar
+			let computedName = conversation.name;
+			let computedAvatar = conversation.avatar;
+
+			if (conversation.type === "dm") {
+				const otherMember = (conversation.members || []).find(
+					(m) => m.userId?._id?.toString() !== user?._id?.toString() && 
+						   m.userId?.toString() !== user?._id?.toString()
+				);
+				
+				if (otherMember) {
+					const userData = otherMember.userId?.profile || otherMember.userId || {};
+					computedName = userData.displayName || `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || "User";
+					computedAvatar = userData.avatar;
+				}
+			}
 
 			return {
 				...conversation,
+				id: conversation.id || conversation._id, // Ensure id is present
+				name: computedName || "Conversation",
+				avatar: computedAvatar,
 				type: "user",
-				unread: unreadByConversation[conversation.id] ?? conversation.unread ?? 0,
-				avatarColor: getAvatarColor(conversation.id, "user"),
-				isPinned: pinnedConversations.includes(conversation.id),
-				isArchived: archivedConversations.includes(conversation.id),
-				isMuted: mutedConversations.includes(conversation.id),
+				unread: unreadByConversation[conversation.id || conversation._id] ?? conversation.unreadCount ?? 0,
+				avatarColor: getAvatarColor(conversation.id || conversation._id, "user"),
+				isPinned: pinnedConversations.includes(conversation.id || conversation._id),
+				isArchived: archivedConversations.includes(conversation.id || conversation._id),
+				isMuted: mutedConversations.includes(conversation.id || conversation._id),
 				lastSeen,
 				...meta,
 			};
@@ -157,6 +178,7 @@ export const useChatPageState = ({ allowedTypes }) => {
 			archivedConversations,
 			mutedConversations,
 			lastSeenByConversation,
+			user?._id
 		]
 	);
 
@@ -268,7 +290,7 @@ export const useChatPageState = ({ allowedTypes }) => {
 			replyToId: options.replyToId || null,
 			forwarded: options.forwarded || false,
 		};
-		dispatch(sendMessage({ conversationId, message }));
+		dispatch(sendMessage({ chatId: conversationId, messageData: message }));
 		emit("message", { conversationId, ...message });
 
 		if (!isConnected) {
@@ -315,6 +337,13 @@ export const useChatPageState = ({ allowedTypes }) => {
 			dispatch(syncPendingMessages());
 		}
 	}, [dispatch, isConnected, error]);
+
+	// Fetch messages when conversation changes
+	useEffect(() => {
+		if (selectedConversationId) {
+			dispatch(fetchMessages({ chatId: selectedConversationId }));
+		}
+	}, [dispatch, selectedConversationId]);
 
 	// Wrap all dispatch actions for proper Redux integration
 	const dispatchSetDraft = useCallback((payload) => dispatch(setDraft(payload)), [dispatch]);

@@ -3,8 +3,8 @@ import api from './axios';
 export const getMyChats = () =>
   api.get('/chats');
 
-export const createOrGetDM = (participantId) =>
-  api.post('/chats/dm', { participantId });
+export const createOrGetDM = (targetUserId) =>
+  api.post('/chats/dm', { targetUserId });
 
 export const getChatById = (chatId) =>
   api.get(`/chats/${chatId}`);
