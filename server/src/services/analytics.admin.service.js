@@ -36,6 +36,8 @@ export const getOverview = async (campusId) => {
         completedSessions,
         pendingMentorApprovals,
         pendingSocietyApprovals,
+        pendingEventApprovals,
+        pendingStudyGroupApprovals,
     ] = await Promise.all([
         User.countDocuments({ ...scope, status: { $ne: "deleted" } }),
         User.countDocuments({ ...scope, status: "active" }),
@@ -49,14 +51,16 @@ export const getOverview = async (campusId) => {
         MentorBooking.countDocuments({ ...scope, status: "completed" }),
         Mentor.countDocuments({ ...scope, verified: false, isActive: true }),
         Society.countDocuments({ ...scope, status: "pending" }),
+        Event.countDocuments({ ...scope, status: "pending" }),
+        StudyGroup.countDocuments({ ...scope, status: "pending" }),
     ]);
 
     return {
         users: { total: totalUsers, active: activeUsers, inactive: totalUsers - activeUsers },
         mentors: { total: totalMentors, verified: verifiedMentors, pendingApprovals: pendingMentorApprovals },
         societies: { total: totalSocieties, active: activeSocieties, pendingApprovals: pendingSocietyApprovals },
-        events: { total: totalEvents, active: activeEvents },
-        studyGroups: { total: totalStudyGroups },
+        events: { total: totalEvents, active: activeEvents, pendingApprovals: pendingEventApprovals },
+        studyGroups: { total: totalStudyGroups, pendingApprovals: pendingStudyGroupApprovals },
         sessions: { completed: completedSessions },
     };
 };
@@ -245,19 +249,25 @@ export const getDashboardStats = async (campusId) => {
         totalUsers,
         pendingMentors,
         pendingSocieties,
-        activeSessions,
+        pendingEvents,
+        pendingStudyGroups,
+        activeSessionsProjected,
     ] = await Promise.all([
         User.countDocuments({ ...scope, status: "active" }),
         Mentor.countDocuments({ ...scope, verified: false, isActive: true }),
         Society.countDocuments({ ...scope, status: "pending" }),
+        Event.countDocuments({ ...scope, status: "pending" }),
+        StudyGroup.countDocuments({ ...scope, status: "pending" }),
         MentorBooking.countDocuments({ ...scope, status: "confirmed", startAt: { $lte: new Date() }, endAt: { $gte: new Date() } }),
     ]);
 
     return {
         totalActiveUsers: totalUsers,
-        pendingApprovals: pendingMentors + pendingSocieties,
+        pendingApprovals: pendingMentors + pendingSocieties + pendingEvents + pendingStudyGroups,
         pendingMentors,
         pendingSocieties,
-        activeSessions,
+        pendingEvents,
+        pendingStudyGroups,
+        activeSessions: activeSessionsProjected,
     };
 };

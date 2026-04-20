@@ -129,6 +129,7 @@ import AdminAuditLogs      from "../admin/pages/AdminAuditLogs";
 import AdminSystem         from "../admin/pages/AdminSystem";
 import AdminUserDetail     from "../admin/pages/AdminUserDetail";
 import AdminAnalytics      from "../admin/pages/AdminAnalytics";
+import AdminRequests       from "../admin/pages/AdminRequests";
 
 // ── Payment (AppShell) ───────────────────────────────────────────────────────
 import PaymentHistory from "../pages/Payments/PaymentHistory";
@@ -368,6 +369,7 @@ export default function AppRoutes() {
             <Route path="dashboard" element={<AdminDashboard />} />
             <Route path="users" element={<AdminUsers />} />
             <Route path="users/:userId" element={<AdminUserDetail />} />
+            <Route path="requests" element={<AdminRequests />} />
             <Route path="mentors" element={<AdminMentors />} />
             <Route path="societies" element={<AdminSocieties />} />
             <Route path="events" element={<AdminEvents />} />

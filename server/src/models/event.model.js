@@ -5,7 +5,7 @@ export const EVENT_CATEGORIES = [
 ];
 
 export const EVENT_STATUS = [
-    "draft", "published", "cancelled", "completed",
+    "pending", "draft", "published", "cancelled", "completed",
     "registration", "ongoing", "submission_locked", "judging",
 ];
 export const EVENT_TYPES = [

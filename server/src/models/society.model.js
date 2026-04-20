@@ -135,7 +135,7 @@ const societySchema = new Schema(
                 values: ["pending", "approved", "rejected", "archived"],
                 message: "{VALUE} is not a valid status",
             },
-            default: "approved",
+            default: "pending",
         },
 
         requireApproval: {

@@ -30,6 +30,9 @@ import {
     bulkSuspend,
 } from "../controllers/user.admin.controller.js";
 
+// ── Request admin ─────────────────────────────────────────────────────────────
+import { getUnifiedRequests } from "../controllers/request.admin.controller.js";
+
 // ── Mentor admin ──────────────────────────────────────────────────────────────
 import {
     listMentors,
@@ -96,6 +99,9 @@ router.use(verifyJWT, requireAnyAdmin);
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 router.get("/dashboard/stats", getDashboardStats);
+
+// ─── Requests ─────────────────────────────────────────────────────────────────
+router.get("/requests", getUnifiedRequests);
 
 // ─── Users ────────────────────────────────────────────────────────────────────
 router.get("/users", listUsers);

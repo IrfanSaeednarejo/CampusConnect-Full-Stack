@@ -159,10 +159,10 @@ const studyGroupSchema = new Schema(
         status: {
             type: String,
             enum: {
-                values: ["active", "archived", "deleted"],
+                values: ["pending", "active", "archived", "deleted"],
                 message: "{VALUE} is not a valid status",
             },
-            default: "active",
+            default: "pending",
         },
 
         tags: {
