@@ -96,7 +96,7 @@ export default function ChatShell({
 
 	const filteredMessages = searchQuery
 		? visibleMessages.filter((message) =>
-			message.text?.toLowerCase().includes(searchQuery.toLowerCase())
+			(message.content || message.text)?.toLowerCase().includes(searchQuery.toLowerCase())
 		)
 		: visibleMessages;
 
@@ -328,7 +328,7 @@ export default function ChatShell({
 									onRetry={() => handleRetry(entry.message)}
 									isSearchMatch={
 										searchQuery &&
-										entry.message.text
+										(entry.message.content || entry.message.text)
 											?.toLowerCase()
 											.includes(searchQuery.toLowerCase())
 									}

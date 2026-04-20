@@ -282,7 +282,7 @@ export const useChatPageState = ({ allowedTypes }) => {
 		const messageId = options.messageId || `msg-${Date.now()}`;
 		const message = {
 			id: messageId,
-			text: text.trim(),
+			content: text.trim(),
 			timestamp: new Date().toISOString(),
 			senderId: "current",
 			senderName: user?.name || "You",

@@ -13,8 +13,7 @@ const fileSchema = new Schema(
         userId: {
             type: Schema.Types.ObjectId,
             ref: "User",
-            required: [true, "Uploader is required"],
-            index: true,
+            required: [true, "Uploader is required"]
         },
 
         fileName: {

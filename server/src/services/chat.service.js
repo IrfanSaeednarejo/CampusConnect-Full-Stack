@@ -231,7 +231,7 @@ export const removeMemberFromChat = async (chatId, userId, requestUser) => {
     return isSelf ? "You left the chat" : "Member removed";
 };
 
-export const sendMessage = async (chatId, data, requestUser) => {
+export const sendMessage = async (chatId, data = {}, requestUser) => {
     const { content, type = "text", attachmentId, replyToId } = data;
 
     const chat = await findChatById(chatId, "members isArchived type");

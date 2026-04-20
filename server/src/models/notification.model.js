@@ -29,8 +29,7 @@ const notificationSchema = new Schema(
         userId: {
             type: Schema.Types.ObjectId,
             ref: "User",
-            required: [true, "Recipient user is required"],
-            index: true,
+            required: [true, "Recipient user is required"]
         },
 
         type: {
@@ -94,8 +93,7 @@ const notificationSchema = new Schema(
         eventId: {
             type: String,
             unique: true,
-            sparse: true,
-            index: true
+            sparse: true
         }
     },
     {

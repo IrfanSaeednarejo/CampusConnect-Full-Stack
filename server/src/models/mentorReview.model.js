@@ -60,7 +60,6 @@ const mentorReviewSchema = new Schema(
         versionKey: false,
     }
 );
-mentorReviewSchema.index({ bookingId: 1 }, { unique: true });
 mentorReviewSchema.index({ mentorId: 1, createdAt: -1 });
 mentorReviewSchema.index({ menteeId: 1 });
 mentorReviewSchema.index({ rating: 1 });

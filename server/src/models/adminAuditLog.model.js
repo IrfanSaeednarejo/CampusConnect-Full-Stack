@@ -59,8 +59,7 @@ const adminAuditLogSchema = new Schema(
         adminId: {
             type: Schema.Types.ObjectId,
             ref: "User",
-            required: [true, "Admin ID is required"],
-            index: true,
+            required: [true, "Admin ID is required"]
         },
 
         /** Snapshot of the admin's role at the time of action. */

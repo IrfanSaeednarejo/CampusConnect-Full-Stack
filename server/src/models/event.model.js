@@ -131,11 +131,11 @@ const eventSchema = new Schema(
         },
         societyId: {
             type: Schema.Types.ObjectId, ref: "Society",
-            required: [true, "Society ID is required"], index: true,
+            required: [true, "Society ID is required"]
         },
         campusId: {
             type: Schema.Types.ObjectId, ref: "Campus",
-            required: [true, "Campus ID is required"], index: true,
+            required: [true, "Campus ID is required"]
         },
         createdBy: {
             type: Schema.Types.ObjectId, ref: "User",
@@ -176,7 +176,7 @@ const eventSchema = new Schema(
         cancelledAt: { type: Date },
         cancelledBy: { type: Schema.Types.ObjectId, ref: "User" },
         cancellationReason: { type: String, trim: true, maxlength: 300 },
-        isOnlineCompetition: { type: Boolean, default: false, index: true },
+        isOnlineCompetition: { type: Boolean, default: false },
         eventType: {
             type: String,
             enum: { values: EVENT_TYPES, message: "{VALUE} is not a valid event type" },

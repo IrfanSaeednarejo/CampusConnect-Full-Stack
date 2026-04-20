@@ -148,10 +148,10 @@ const MessageBubble = ({
                 <span className="reply-sender">
                   {replyMessage.senderName || 'Unknown'}
                 </span>
-                <span className="reply-text">{replyMessage.text}</span>
+                <span className="reply-text">{replyMessage.content || replyMessage.text}</span>
               </div>
             )}
-            <p>{message.text || ''}</p>
+            <p>{message.content || message.text || ''}</p>
           </div>
 
           {reactionEntries.length > 0 && (

@@ -76,7 +76,6 @@ const eventTeamSchema = new Schema(
 eventTeamSchema.index({ eventId: 1, status: 1 });
 eventTeamSchema.index({ eventId: 1, "members.userId": 1 });
 eventTeamSchema.index({ eventId: 1, leader: 1 });
-eventTeamSchema.index({ inviteCode: 1 }, { unique: true });
 eventTeamSchema.pre("save", async function (next) {
     if (!this.isNew) return next();
 
