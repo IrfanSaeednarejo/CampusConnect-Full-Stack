@@ -306,4 +306,15 @@ const inputStyle = {
     fontSize: 14, outline: "none", transition: "border-color 0.2s" 
 };
 
+const approveBtn = {
+    padding: "6px 16px", background: "#6366f1", color: "#fff",
+    border: "none", borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 700,
+    boxShadow: "0 4px 6px -1px rgba(99, 102, 241, 0.4)"
+};
+
+const rejectBtn = {
+    padding: "6px 16px", background: "transparent", color: "#94a3b8",
+    border: "1px solid #334155", borderRadius: 8, cursor: "pointer", fontSize: 12, fontWeight: 600
+};
+
 export default AdminSocieties;

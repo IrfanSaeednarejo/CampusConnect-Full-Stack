@@ -14,27 +14,6 @@ export const AdminAuditLogs = () => {
         }).catch(console.error);
     }, [filters]);
 
-    const ACTION_COLORS = {
-        USER_SUSPENDED: "#ef4444", USER_BANNED: "#7f1d1d",
-        MENTOR_APPROVED: "#22c55e", SOCIETY_APPROVED: "#22c55e",
-        NOTIFICATION_BROADCAST: "#6366f1", SYSTEM_MAINTENANCE_TOGGLED: "#f59e0b",
-    };
-
-    const inputStyle = {
-        flex: 1, padding: "8px 12px", background: "#1e293b", border: "1px solid #334155",
-        borderRadius: 6, color: "#f8fafc", fontSize: 14,
-    };
-    
-    const queueCardStyle = {
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-        padding: "12px 16px", background: "#1e293b", borderRadius: 8, marginBottom: 8,
-    };
-
-    const rejectBtn = {
-        padding: "4px 12px", background: "#dc2626", color: "#fff",
-        border: "none", borderRadius: 6, cursor: "pointer", fontSize: 12,
-    };
-
     return (
         <div style={{ animation: "fadeIn 0.5s ease-out" }}>
             <div style={{ marginBottom: 32 }}>
@@ -166,6 +145,15 @@ const logRowStyle = {
 
 const drawerOverlay = {
     position: "fixed", inset: 0, background: "rgba(10, 15, 30, 0.8)", backdropFilter: "blur(8px)", zIndex: 200
+};
+
+const ACTION_COLORS = {
+    USER_SUSPENDED: "#ef4444", 
+    USER_BANNED: "#7f1d1d",
+    MENTOR_APPROVED: "#22c55e", 
+    SOCIETY_APPROVED: "#22c55e",
+    NOTIFICATION_BROADCAST: "#6366f1", 
+    SYSTEM_MAINTENANCE_TOGGLED: "#f59e0b",
 };
 
 const drawerStyle = {

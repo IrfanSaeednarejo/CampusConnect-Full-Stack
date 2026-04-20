@@ -355,33 +355,31 @@ export default function AppRoutes() {
           {/* ── Payments ─────────────────────────────── */}
           <Route path="/payments/history"         element={<PaymentHistory />} />
           <Route path="/student/payments/history" element={<Navigate to="/payments/history" replace />} />
-
         </Route>{/* END AppShell */}
+      </Route>{/* END PROTECTED (STUDENT) */}
 
-        {/* ══════════════════════════════════════════════════
-            ADMIN PORTAL — Standalone Layout (AdminApp)
-            Protected by ProtectedRoute AND AdminRoute logic
-        ══════════════════════════════════════════════════ */}
-        <Route element={<AdminRoute requiredRole="any_admin" />}>
-          <Route path="/admin" element={<AdminApp />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            <Route path="dashboard" element={<AdminDashboard />} />
-            <Route path="users" element={<AdminUsers />} />
-            <Route path="users/:userId" element={<AdminUserDetail />} />
-            <Route path="requests" element={<AdminRequests />} />
-            <Route path="mentors" element={<AdminMentors />} />
-            <Route path="societies" element={<AdminSocieties />} />
-            <Route path="events" element={<AdminEvents />} />
-            <Route path="study-groups" element={<AdminStudyGroups />} />
-            <Route path="notifications" element={<AdminNotifications />} />
-            <Route path="analytics" element={<AdminAnalytics />} />
-            <Route path="audit-logs" element={<AdminAuditLogs />} />
-            <Route path="system" element={<AdminSystem />} />
-            <Route path="*" element={<Navigate to="dashboard" replace />} />
-          </Route>
+      {/* ══════════════════════════════════════════════════
+          ADMIN PORTAL — Standalone Layout (AdminApp)
+          Uses AdminRoute for specialized admin role gating.
+      ══════════════════════════════════════════════════ */}
+      <Route element={<AdminRoute requiredRole="any_admin" />}>
+        <Route path="/admin" element={<AdminApp />}>
+          <Route index element={<Navigate to="dashboard" replace />} />
+          <Route path="dashboard" element={<AdminDashboard />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="users/:userId" element={<AdminUserDetail />} />
+          <Route path="requests" element={<AdminRequests />} />
+          <Route path="mentors" element={<AdminMentors />} />
+          <Route path="societies" element={<AdminSocieties />} />
+          <Route path="events" element={<AdminEvents />} />
+          <Route path="study-groups" element={<AdminStudyGroups />} />
+          <Route path="notifications" element={<AdminNotifications />} />
+          <Route path="analytics" element={<AdminAnalytics />} />
+          <Route path="audit-logs" element={<AdminAuditLogs />} />
+          <Route path="system" element={<AdminSystem />} />
+          <Route path="*" element={<Navigate to="dashboard" replace />} />
         </Route>
-
-      </Route>{/* END ProtectedRoute */}
+      </Route>
 
       {/* ══════════════════════════════════════════════════
           ERROR PAGES — No layout

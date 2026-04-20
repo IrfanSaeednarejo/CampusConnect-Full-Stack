@@ -56,9 +56,6 @@ const AdminNotifications = () => {
         }
     };
 
-    const labelStyle = { display: "block", color: "#94a3b8", fontSize: 12, fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 };
-    const inputStyle = { width: "100%", padding: "8px 12px", background: "#0f172a", border: "1px solid #334155", borderRadius: 6, color: "#f8fafc", fontSize: 14 };
-
     return (
         <div style={{ animation: "fadeIn 0.5s ease-out" }}>
             <div style={{ marginBottom: 32 }}>

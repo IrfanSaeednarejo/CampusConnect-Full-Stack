@@ -12,6 +12,9 @@ export const listUsers = asyncHandler(async (req, res) => {
 
     let filter = scopeQuery(req, {});
 
+    // Requirement: Bring All users except the current admin Profile
+    filter._id = { $ne: req.user._id };
+
     if (status && status !== "all") filter.status = status;
     if (role) filter.roles = role;
 

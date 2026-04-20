@@ -1,7 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-const ADMIN_ROLES = ["super_admin", "admin"];
+const ADMIN_ROLES = ["super_admin", "admin", "campus_admin"];
 
 export const checkAdminRole = (roles = [], required = "any_admin") => {
     if (required === "super_admin") return roles.includes("super_admin");
