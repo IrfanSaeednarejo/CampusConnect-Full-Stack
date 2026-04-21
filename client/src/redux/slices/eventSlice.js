@@ -2,7 +2,13 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as eventApi from '../../api/eventApi';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const errMsg = (err) => err.response?.data?.message || err.message || 'Unknown error';
+const errMsg = (err) => {
+  const data = err.response?.data;
+  if (data?.errors && Array.isArray(data.errors) && data.errors.length > 0) {
+    return `${data.message}: ${data.errors.join(', ')}`;
+  }
+  return data?.message || err.message || 'Unknown error';
+};
 
 // ── Thunks ────────────────────────────────────────────────────────────────────
 

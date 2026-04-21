@@ -46,15 +46,33 @@ export const createCompetition = async (data, file, requestUser) => {
         participationType, startAt, endAt,
         registrationDeadline, submissionDeadline,
         venue, teamConfig, judgingConfig, prizePool, tags, fee, category,
+        isOnlineCompetition, maxCapacity, waitlistEnabled, requireApproval
     } = data;
+
+    const parse = (val) => {
+        if (!val) return {};
+        if (typeof val === "object") return val;
+        try {
+            return JSON.parse(val);
+        } catch (e) {
+            return {};
+        }
+    };
+
+    const parsedVenue = parse(venue);
+    const parsedTeamConfig = parse(teamConfig);
+    const parsedJudgingConfig = parse(judgingConfig);
+    const parsedPrizePool = Array.isArray(prizePool) ? prizePool
+        : typeof prizePool === "string" ? parse(prizePool) : [];
+    const parsedTags = Array.isArray(tags) ? tags
+        : typeof tags === "string" ? parse(tags) : [];
+    const parsedFee = parse(fee);
 
     if (!title?.trim()) throw new ApiError(400, "Title is required");
     if (!description?.trim()) throw new ApiError(400, "Description is required");
     if (!societyId) throw new ApiError(400, "societyId is required");
     if (!startAt || !endAt) throw new ApiError(400, "startAt and endAt are required");
-    if (!venue?.type && (typeof venue === "string" && !JSON.parse(venue).type)) {
-         throw new ApiError(400, "venue.type is required");
-    }
+    if (!parsedVenue?.type) throw new ApiError(400, "venue.type is required");
 
     if (!mongoose.isValidObjectId(societyId)) {
         throw new ApiError(400, "Invalid societyId");
@@ -67,23 +85,17 @@ export const createCompetition = async (data, file, requestUser) => {
         throw new ApiError(400, "Invalid startAt or endAt date");
     }
     if (end <= start) throw new ApiError(400, "endAt must be after startAt");
-    if (start <= new Date()) throw new ApiError(400, "startAt must be in the future");
+    
+    // Relaxed future check: allow up to 5 minutes in the past to account for clock skew/submission delay
+    const now = new Date();
+    if (start.getTime() < now.getTime() - 300000) {
+        throw new ApiError(400, "startAt must be in the future");
+    }
 
     const resolvedCampusId = campusId || requestUser.campusId;
     if (!resolvedCampusId) {
-        throw new ApiError(400, "campusId is required");
+        throw new ApiError(400, "campusId is required (not found in request or user profile)");
     }
-
-    const parse = (val) => (typeof val === "string" ? JSON.parse(val) : val) ?? {};
-
-    const parsedVenue = parse(venue);
-    const parsedTeamConfig = parse(teamConfig);
-    const parsedJudgingConfig = parse(judgingConfig);
-    const parsedPrizePool = Array.isArray(prizePool) ? prizePool
-        : typeof prizePool === "string" ? JSON.parse(prizePool) : [];
-    const parsedTags = Array.isArray(tags) ? tags
-        : typeof tags === "string" ? JSON.parse(tags) : [];
-    const parsedFee = parse(fee);
 
     const partType = participationType || "individual";
     if ((partType === "team" || partType === "both") && parsedTeamConfig) {
@@ -103,8 +115,8 @@ export const createCompetition = async (data, file, requestUser) => {
     const regDeadline = registrationDeadline ? new Date(registrationDeadline) : undefined;
     const subDeadline = submissionDeadline ? new Date(submissionDeadline) : undefined;
 
-    if (regDeadline && regDeadline >= start) {
-        throw new ApiError(400, "registrationDeadline must be before startAt");
+    if (regDeadline && regDeadline > start) {
+        throw new ApiError(400, "registrationDeadline must be before or equal to startAt");
     }
     if (subDeadline && end && subDeadline > end) {
         throw new ApiError(400, "submissionDeadline must be before or equal to endAt");
@@ -119,10 +131,13 @@ export const createCompetition = async (data, file, requestUser) => {
         societyId,
         campusId: resolvedCampusId,
         createdBy: requestUser._id,
-        isOnlineCompetition: true,
-        eventType: eventType || "hackathon",
-        category: category || "competition",
+        isOnlineCompetition: isOnlineCompetition === "true" || isOnlineCompetition === true,
+        eventType: eventType || "general",
+        category: category || "other",
         participationType: partType,
+        maxCapacity: Number(maxCapacity) || 0,
+        waitlistEnabled: waitlistEnabled === "true" || waitlistEnabled === true,
+        requireApproval: requireApproval === "true" || requireApproval === true,
         venue: parsedVenue,
         startAt: start,
         endAt: end,

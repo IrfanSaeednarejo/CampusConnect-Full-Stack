@@ -77,18 +77,26 @@ export default function CreateEventForm() {
     if (!form.title || !form.description || !form.startAt || !form.endAt || !form.venueType) {
       setError("Please fill all required fields."); return;
     }
+    if (form.title.trim().length < 3) {
+      setError("Event Title must be at least 3 characters."); return;
+    }
+    if (form.description.trim().length < 10) {
+      setError("Description must be at least 10 characters."); return;
+    }
+
     const fd = new FormData();
     fd.append("title", form.title);
     fd.append("description", form.description);
     fd.append("category", form.category);
     fd.append("eventType", form.eventType);
-    fd.append("startAt", form.startAt);
-    fd.append("endAt", form.endAt);
+    fd.append("startAt", new Date(form.startAt).toISOString());
+    fd.append("endAt", new Date(form.endAt).toISOString());
     fd.append("societyId", societyId);
-    if (form.registrationDeadline) fd.append("registrationDeadline", form.registrationDeadline);
-    if (form.submissionDeadline) fd.append("submissionDeadline", form.submissionDeadline);
+    if (form.registrationDeadline) fd.append("registrationDeadline", new Date(form.registrationDeadline).toISOString());
+    if (form.submissionDeadline) fd.append("submissionDeadline", new Date(form.submissionDeadline).toISOString());
     fd.append("venue", JSON.stringify({ type: form.venueType, address: form.venueAddress, onlineUrl: form.venueOnlineUrl }));
     fd.append("participationType", form.participationType);
+    fd.append("isOnlineCompetition", isCompetition);
     if (form.maxCapacity) fd.append("maxCapacity", form.maxCapacity);
     fd.append("waitlistEnabled", form.waitlistEnabled);
     fd.append("requireApproval", form.requireApproval);

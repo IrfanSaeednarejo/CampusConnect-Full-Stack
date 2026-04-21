@@ -35,16 +35,21 @@ export default function CreateEvent() {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    category: "general",
-    eventType: "general",
+    category: "competition",
+    eventType: "hackathon",
     societyId: defaultSociety,
-    campusId: "", // Optional depending on backend requirements
+    campusId: "",
     venueType: "physical",
     venueAddress: "",
     venueOnlineUrl: "",
     startAt: "",
     endAt: "",
+    registrationDeadline: "",
+    submissionDeadline: "",
+    participationType: "individual",
     maxCapacity: 0,
+    feeAmount: 0,
+    feeCurrency: "PKR",
     coverImage: null,
   });
 
@@ -67,28 +72,35 @@ export default function CreateEvent() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // We typically wouldn't need campusId if backend extracts from user session,
-    // but if required, user campus should be used. Assuming backend resolves it if omitted.
-
     const submitData = new FormData();
     submitData.append("title", formData.title);
     submitData.append("description", formData.description);
     submitData.append("category", formData.category);
     submitData.append("eventType", formData.eventType);
     submitData.append("societyId", formData.societyId);
-    submitData.append("startAt", new Date(formData.startAt).toISOString());
-    submitData.append("endAt", new Date(formData.endAt).toISOString());
+    submitData.append("participationType", formData.participationType);
+    
+    if (formData.startAt) submitData.append("startAt", new Date(formData.startAt).toISOString());
+    if (formData.endAt) submitData.append("endAt", new Date(formData.endAt).toISOString());
+    if (formData.registrationDeadline) submitData.append("registrationDeadline", new Date(formData.registrationDeadline).toISOString());
+    if (formData.submissionDeadline) submitData.append("submissionDeadline", new Date(formData.submissionDeadline).toISOString());
+    
     submitData.append("maxCapacity", formData.maxCapacity.toString());
     
-    // Construct Venue payload as JSON string or individual fields depending on backend
-    // Since it's a multipart form, you might need to send venue[type] etc.
-    submitData.append("venue[type]", formData.venueType);
-    if (formData.venueType !== "online") {
-      submitData.append("venue[address]", formData.venueAddress);
-    }
-    if (formData.venueType !== "physical") {
-      submitData.append("venue[onlineUrl]", formData.venueOnlineUrl);
-    }
+    // Send venue as JSON string to match backend expectations
+    const venue = {
+      type: formData.venueType,
+      address: formData.venueAddress,
+      onlineUrl: formData.venueOnlineUrl
+    };
+    submitData.append("venue", JSON.stringify(venue));
+
+    // Send fee
+    const fee = {
+      amount: formData.feeAmount,
+      currency: formData.feeCurrency
+    };
+    submitData.append("fee", JSON.stringify(fee));
 
     if (formData.coverImage) {
       submitData.append("coverImage", formData.coverImage);
@@ -96,7 +108,7 @@ export default function CreateEvent() {
 
     const resultAction = await dispatch(createEventThunk(submitData));
     if (createEventThunk.fulfilled.match(resultAction)) {
-      navigate(`/events/${resultAction.payload._id || resultAction.payload.id}`);
+      navigate(`/events/${resultAction.payload?._id || resultAction.payload?.id}`);
     }
   };
 
@@ -195,19 +207,34 @@ export default function CreateEvent() {
               </FormField>
             </div>
 
-            <FormField
-              label="Organizing Society"
-              name="societyId"
-              type="select"
-              value={formData.societyId}
-              onChange={(e) => setFormData({ ...formData, societyId: e.target.value })}
-              required
-            >
-              <option value="" disabled>Select a society</option>
-              {societies.map((soc) => (
-                <option key={soc._id || soc.id} value={soc._id || soc.id}>{soc.name}</option>
-              ))}
-            </FormField>
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                label="Organizing Society"
+                name="societyId"
+                type="select"
+                value={formData.societyId}
+                onChange={(e) => setFormData({ ...formData, societyId: e.target.value })}
+                required
+              >
+                <option value="" disabled>Select a society</option>
+                {societies.map((soc) => (
+                  <option key={soc._id || soc.id} value={soc._id || soc.id}>{soc.name}</option>
+                ))}
+              </FormField>
+
+              <FormField
+                label="Participation Type"
+                name="participationType"
+                type="select"
+                value={formData.participationType}
+                onChange={(e) => setFormData({ ...formData, participationType: e.target.value })}
+                required
+              >
+                <option value="individual">Individual Only</option>
+                <option value="team">Teams Only</option>
+                <option value="both">Both (Mixed)</option>
+              </FormField>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
               <FormField
@@ -225,6 +252,25 @@ export default function CreateEvent() {
                 value={formData.endAt}
                 onChange={(e) => setFormData({ ...formData, endAt: e.target.value })}
                 required
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                label="Registration Deadline"
+                name="registrationDeadline"
+                type="datetime-local"
+                value={formData.registrationDeadline}
+                onChange={(e) => setFormData({ ...formData, registrationDeadline: e.target.value })}
+                placeholder="Before start time"
+              />
+              <FormField
+                label="Submission Deadline"
+                name="submissionDeadline"
+                type="datetime-local"
+                value={formData.submissionDeadline}
+                onChange={(e) => setFormData({ ...formData, submissionDeadline: e.target.value })}
+                placeholder="Before end time"
               />
             </div>
 
@@ -265,14 +311,24 @@ export default function CreateEvent() {
               />
             )}
 
-            <FormField
-              label="Max Capacity (0 for unlimited)"
-              name="maxCapacity"
-              type="number"
-              value={formData.maxCapacity}
-              onChange={(e) => setFormData({ ...formData, maxCapacity: parseInt(e.target.value) || 0 })}
-              min="0"
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                label="Max Capacity (0 for unlimited)"
+                name="maxCapacity"
+                type="number"
+                value={formData.maxCapacity}
+                onChange={(e) => setFormData({ ...formData, maxCapacity: parseInt(e.target.value) || 0 })}
+                min="0"
+              />
+              <FormField
+                label="Registration Fee (PKR)"
+                name="feeAmount"
+                type="number"
+                value={formData.feeAmount}
+                onChange={(e) => setFormData({ ...formData, feeAmount: parseInt(e.target.value) || 0 })}
+                min="0"
+              />
+            </div>
 
             {/* Cover Image */}
             <div>
