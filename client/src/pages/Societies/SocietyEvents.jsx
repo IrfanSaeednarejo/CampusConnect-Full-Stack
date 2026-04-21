@@ -1,282 +1,160 @@
-import { useState, useEffect, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { useOutletContext, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  selectAllEvents,
-  setEvents,
-} from "../../redux/slices/eventSlice";
-import SocietyPageHeader from "../../components/societies/SocietyPageHeader";
+  fetchSocietyEvents,
+  selectSocietyEvents,
+  selectEventsLoading,
+} from "../../redux/slices/societySlice";
 
-export default function SocietyEvents() {
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [filter, setFilter] = useState("all");
-  const events = useSelector(selectAllEvents);
+function formatDate(d) {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
 
-  useEffect(() => {
-    if (events.length === 0) {
-      dispatch(
-        setEvents([
-          {
-            id: 1,
-            title: "Annual Tech Summit 2024",
-            society: "Tech Innovators Club",
-            date: "November 28, 2024",
-            time: "10:00 AM - 4:00 PM",
-            location: "Main Auditorium",
-            attendees: 120,
-            capacity: 200,
-            status: "Upcoming",
-            description:
-              "Join us for a full day of technology talks, workshops, and networking opportunities.",
-            image:
-              "https://lh3.googleusercontent.com/aida-public/AB6AXuD9RA_fMuSaLKstjcMP5ozR-vSaxtqQ_kzINRu0QEbitLaiaOGSvhHQ0t3zi1Py769dste1tAWujcMGzeKsHP3LIDU8GpBrAtxlzAEKMTgoN2PCuAMYnxMVStac_6sgv9hNluDqsTZg4B7sFD-1sE6Uqn7KpdMC_eKzapyTUfan20XYGE2tBdjBB1D9B7MnCMh1-NNhn67QqbuDD5OKhys_-_9nTeollnRzd23QBgopcA4rmFIaSDdXU_42pp-765L5mTwpjWlySM8",
-          },
-          {
-            id: 2,
-            title: "Startup Pitch Night",
-            society: "Entrepreneurs of Tomorrow",
-            date: "December 2, 2024",
-            time: "7:00 PM - 9:30 PM",
-            location: "Innovation Lab",
-            attendees: 45,
-            capacity: 80,
-            status: "Upcoming",
-            description:
-              "Watch student entrepreneurs pitch their startup ideas to industry experts and investors.",
-            image:
-              "https://lh3.googleusercontent.com/aida-public/AB6AXuD3-_oIn91suwJp2Y7wxBTs3ZPaq72Kd3QtdHOL6EAqtQ0n6pEncU7_La8js5jGDp5Kdnq6kTZFIlzvBwNVVXL5B8iD9ywnZP35iPGjqP-dyZRon4S-2U8RENBHlJUtbWJIHeZQJOH_qCScqBVJG5Ri7fhSA5tI5wwhJ4JT1kRXW3-4TlUwqiyRTBJIKwu8tDxKOBltGDVxpO6MiMUlxREPa1y6MTdQbrVx5MJtWEMJiNqfhjjzGPSRGTe4ThsX54Y986W9h7baUy0",
-          },
-          {
-            id: 3,
-            title: "The Art of Persuasion Workshop",
-            society: "Debate Society",
-            date: "December 5, 2024",
-            time: "2:00 PM - 3:30 PM",
-            location: "Room 204",
-            attendees: 30,
-            capacity: 40,
-            status: "Upcoming",
-            description:
-              "Learn advanced debate techniques and persuasive speaking skills from expert coaches.",
-            image:
-              "https://lh3.googleusercontent.com/aida-public/AB6AXuDoQNTWTBvvjCWzGT4LSr1h0qdUOa09wVzKeBx1TX53dyRxgmKHYTDS1TN_XJ-VLe34SDS9ynUpvRNZSRm9Ye3nIOTGeARiF7VoBHRUOoJngE52BBV8TselfYt8GNnQI7A7KevlQzgglbGZlfLMMrKCIFTH_dcWm8clNTFCXKbZchH9FtsE5gMqjY5bl9q-XSz00KbL43PLMbTkQKskFEdjkkYVQLBXyt7kcQRB0O_KhbQDbbDkd0EZRslHm881dAppEobIhYUK95E",
-          },
-          {
-            id: 4,
-            title: "Hackathon 2024",
-            society: "Tech Innovators Club",
-            date: "October 15, 2024",
-            time: "9:00 AM - 9:00 PM",
-            location: "Computer Science Building",
-            attendees: 80,
-            capacity: 100,
-            status: "Completed",
-            description:
-              "24-hour coding marathon where teams built innovative software solutions.",
-            image:
-              "https://lh3.googleusercontent.com/aida-public/AB6AXuDAw7PEHr5CfYENft29JzW_oh8UNy32igeFcIciwY4SLganFizb8gE_yaxTVMUXknXfbbs2veZ4hzrA5Bs6a1Amq2ATMtYS80ZqCfzGd9qYy9u34e2BhMiLfD5hiXIkVwi6DhktH82Ew4leVgs1NDu1MCD6_6Er0SpmlF-WFut93bD157Ns9za1uJCd0Q0dMJoYX8vfND6G0ekTtV3V1Ff_HoP50ErEPHX7P00DVl6K2njjP26CKL39vwnOHDDERwHbVFUbwVixkXY",
-          },
-          {
-            id: 5,
-            title: "Photography Exhibition Opening",
-            society: "Photography Club",
-            date: "September 20, 2024",
-            time: "6:00 PM - 8:00 PM",
-            location: "Art Gallery",
-            attendees: 95,
-            capacity: 120,
-            status: "Completed",
-            description:
-              "Showcase of student photography featuring winners of the annual photo contest.",
-            image:
-              "https://lh3.googleusercontent.com/aida-public/AB6AXuBUb85ANOhOOBeBqSWd-wOjgFd2X0JCzolY-1hBJfJLPjgh0RfRot_aA7obi-3MbWJEWkp-4EOoKaQsxsXaQF0pQ9_q_NaYN4s8cQJ4w2_2cSVD2afeq_WLhwcjHdqA2L-hS7UiUQHqGRXQZ8e8Sm4KhRJ2_iwsPPiMvNwiHZ_JYeAdQdFb2EItrr5p2Qq1QGaRbiLF5b1_EN7VGa92MVgICDZ6Bl4CG_zB56DJg_8QU-44tuOXEc9QEJPAmSZPLZFMMJYsIDE-has",
-          },
-        ])
-      );
-    }
-  }, [dispatch, events.length]);
+const STATUS_CFG = {
+  published:  { label: "Upcoming",  cls: "bg-blue-500/15 text-blue-400" },
+  ongoing:    { label: "Ongoing",   cls: "bg-emerald-500/15 text-emerald-400" },
+  completed:  { label: "Completed", cls: "bg-slate-500/15 text-slate-400" },
+  cancelled:  { label: "Cancelled", cls: "bg-red-500/15 text-red-400" },
+  draft:      { label: "Draft",     cls: "bg-amber-500/15 text-amber-400" },
+};
 
-  const filteredEvents = useMemo(
-    () =>
-      events.filter((event) => {
-        if (filter === "all") return true;
-        if (filter === "upcoming") return event.status === "Upcoming";
-        if (filter === "completed") return event.status === "Completed";
-        return true;
-      }),
-    [events, filter]
-  );
+function EventCard({ event, navigate }) {
+  const statusCfg = STATUS_CFG[event.status] ?? { label: event.status, cls: "bg-slate-500/15 text-slate-400" };
+  const banner = event.coverImage || event.banner;
 
   return (
-    <div className="min-h-screen bg-[#111714] text-white">
-      {/* Header */}
-      <SocietyPageHeader
-        title="Society Events"
-        subtitle="Manage and organize your events"
-        icon="event"
-        backPath="/society/dashboard"
-        action={
-          <button
-            onClick={() => navigate("/society/create-event")}
-            className="px-4 py-2 rounded-lg bg-[#1dc964] text-[#111714] text-sm font-bold hover:bg-[#1dc964]/90 transition-colors flex items-center gap-2"
-          >
-            <span className="material-symbols-outlined">add</span>
-            Create Event
-          </button>
-        }
-      />
-
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filter Tabs */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === "all"
-                  ? "bg-[#1dc964] text-[#111714]"
-                  : "bg-[#1a241e] text-[#9eb7a9] hover:bg-[#1a241e]/80 hover:text-white"
-              }`}
-            >
-              All Events ({events.length})
-            </button>
-            <button
-              onClick={() => setFilter("upcoming")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === "upcoming"
-                  ? "bg-[#1dc964] text-[#111714]"
-                  : "bg-[#1a241e] text-[#9eb7a9] hover:bg-[#1a241e]/80 hover:text-white"
-              }`}
-            >
-              Upcoming ({events.filter((e) => e.status === "Upcoming").length})
-            </button>
-            <button
-              onClick={() => setFilter("completed")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === "completed"
-                  ? "bg-[#1dc964] text-[#111714]"
-                  : "bg-[#1a241e] text-[#9eb7a9] hover:bg-[#1a241e]/80 hover:text-white"
-              }`}
-            >
-              Completed ({events.filter((e) => e.status === "Completed").length}
-              )
-            </button>
-          </div>
-        </div>
-
-        {/* Events Grid */}
-        {filteredEvents.length === 0 ? (
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-12 text-center">
-            <span className="material-symbols-outlined text-6xl text-[#29382f] block mb-4">
-              event
-            </span>
-            <h3 className="text-xl font-semibold text-white mb-2">
-              No events found
-            </h3>
-            <p className="text-[#9eb7a9]">
-              Create your first event to get started.
-            </p>
-          </div>
+    <div
+      onClick={() => navigate(`/events/${event._id}`)}
+      className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden cursor-pointer hover:border-slate-500 transition-all group"
+    >
+      <div className="h-40 bg-slate-700/40 relative overflow-hidden">
+        {banner ? (
+          <img src={banner} alt={event.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredEvents.map((event) => (
-              <div
-                key={event.id}
-                className="bg-[#1a241e] border border-[#29382f] rounded-lg overflow-hidden hover:border-[#1dc964]/50 transition-colors"
-              >
-                <div
-                  className="h-48 bg-cover bg-center"
-                  style={{ backgroundImage: `url("${event.image}")` }}
-                />
-                <div className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        event.status === "Upcoming"
-                          ? "bg-[#1dc964]/20 text-[#1dc964]"
-                          : "bg-[#9eb7a9]/20 text-[#9eb7a9]"
-                      }`}
-                    >
-                      {event.status}
-                    </span>
-                    <span className="text-[#9eb7a9] text-xs">
-                      {event.society}
-                    </span>
-                  </div>
-                  <h3 className="text-white font-bold text-lg mb-2">
-                    {event.title}
-                  </h3>
-                  <p className="text-[#9eb7a9] text-sm mb-4 line-clamp-2">
-                    {event.description}
-                  </p>
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-sm text-[#9eb7a9]">
-                      <span className="material-symbols-outlined text-sm">
-                        calendar_today
-                      </span>
-                      <span>{event.date}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-[#9eb7a9]">
-                      <span className="material-symbols-outlined text-sm">
-                        schedule
-                      </span>
-                      <span>{event.time}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-[#9eb7a9]">
-                      <span className="material-symbols-outlined text-sm">
-                        location_on
-                      </span>
-                      <span>{event.location}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm text-[#9eb7a9]">
-                      <span className="material-symbols-outlined text-sm">
-                        group
-                      </span>
-                      <span>
-                        {event.attendees}/{event.capacity} attendees
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <button className="flex-1 px-4 py-2 rounded-lg bg-[#1dc964] text-[#111714] text-sm font-medium hover:bg-[#1dc964]/90 transition-colors">
-                      Manage
-                    </button>
-                    <button className="px-4 py-2 rounded-lg bg-[#29382f] text-white text-sm font-medium hover:bg-[#29382f]/80 transition-colors">
-                      <span className="material-symbols-outlined">
-                        more_vert
-                      </span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="material-symbols-outlined text-slate-600 text-5xl">event</span>
           </div>
         )}
-
-        {/* Stats Summary */}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-[#1dc964]">
-              {events.length}
-            </div>
-            <div className="text-sm text-[#9eb7a9] mt-1">Total Events</div>
-          </div>
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-[#1dc964]">
-              {events.filter((e) => e.status === "Upcoming").length}
-            </div>
-            <div className="text-sm text-[#9eb7a9] mt-1">Upcoming</div>
-          </div>
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-[#1dc964]">
-              {events.reduce((sum, e) => sum + e.attendees, 0)}
-            </div>
-            <div className="text-sm text-[#9eb7a9] mt-1">Total Attendees</div>
-          </div>
+        <div className="absolute top-2 right-2">
+          <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md ${statusCfg.cls}`}>{statusCfg.label}</span>
         </div>
-      </main>
+      </div>
+      <div className="p-4">
+        <h4 className="text-slate-200 font-semibold text-sm mb-1 line-clamp-1 group-hover:text-white transition-colors">{event.title}</h4>
+        {event.description && (
+          <p className="text-slate-500 text-xs line-clamp-2 mb-3">{event.description}</p>
+        )}
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+          <span className="flex items-center gap-1">
+            <span className="material-symbols-outlined text-[13px]">calendar_today</span>
+            {formatDate(event.startDate)}
+          </span>
+          {event.venue && (
+            <span className="flex items-center gap-1">
+              <span className="material-symbols-outlined text-[13px]">location_on</span>
+              {event.venue}
+            </span>
+          )}
+          {event.registrationCount !== undefined && (
+            <span className="flex items-center gap-1">
+              <span className="material-symbols-outlined text-[13px]">person</span>
+              {event.registrationCount} registered
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EventSection({ title, icon, color, events, navigate }) {
+  if (!events?.length) return null;
+  return (
+    <div>
+      <h3 className={`font-semibold text-sm mb-4 flex items-center gap-2 ${color}`}>
+        <span className="material-symbols-outlined text-base">{icon}</span>
+        {title}
+        <span className="text-slate-500 font-normal">({events.length})</span>
+      </h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {events.map(ev => <EventCard key={ev._id} event={ev} navigate={navigate} />)}
+      </div>
+    </div>
+  );
+}
+
+export default function SocietyEvents() {
+  const dispatch  = useDispatch();
+  const navigate  = useNavigate();
+  const { societyId } = useOutletContext() ?? {};
+  const events    = useSelector(selectSocietyEvents);
+  const loading   = useSelector(selectEventsLoading);
+
+  useEffect(() => {
+    if (societyId) dispatch(fetchSocietyEvents(societyId));
+  }, [dispatch, societyId]);
+
+  const totalEvents = (events.upcoming?.length ?? 0) + (events.ongoing?.length ?? 0) + (events.past?.length ?? 0);
+
+  return (
+    <div className="p-6 lg:p-8 space-y-8">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-slate-100 text-2xl font-bold">Society Events</h1>
+          <p className="text-slate-500 text-sm mt-0.5">All events organized by your society</p>
+        </div>
+        <button
+          onClick={() => navigate("/events/create")}
+          className="flex items-center gap-2 px-4 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm font-semibold rounded-xl border border-slate-600 transition-colors"
+        >
+          <span className="material-symbols-outlined text-base">add</span>
+          Create Event
+        </button>
+      </div>
+
+      {/* Summary pills */}
+      <div className="flex flex-wrap gap-3">
+        {[
+          { label: "Total",    value: totalEvents,                  cls: "bg-slate-800 text-slate-300 border-slate-700" },
+          { label: "Upcoming", value: events.upcoming?.length ?? 0, cls: "bg-blue-500/10 text-blue-400 border-blue-500/25" },
+          { label: "Ongoing",  value: events.ongoing?.length ?? 0,  cls: "bg-emerald-500/10 text-emerald-400 border-emerald-500/25" },
+          { label: "Past",     value: events.past?.length ?? 0,     cls: "bg-slate-700/50 text-slate-500 border-slate-700" },
+        ].map(({ label, value, cls }) => (
+          <div key={label} className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-sm font-semibold ${cls}`}>
+            {value} {label}
+          </div>
+        ))}
+      </div>
+
+      {/* Content */}
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="h-56 bg-slate-800/50 border border-slate-700 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : totalEvents === 0 ? (
+        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-16 text-center">
+          <span className="material-symbols-outlined text-slate-600 text-6xl block mb-4">event_busy</span>
+          <p className="text-slate-300 font-semibold text-lg mb-1">No events yet</p>
+          <p className="text-slate-500 text-sm mb-6">Create your first event to get started.</p>
+          <button
+            onClick={() => navigate("/events/create")}
+            className="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-slate-200 font-semibold rounded-xl border border-slate-600 transition-colors text-sm"
+          >
+            Create Event
+          </button>
+        </div>
+      ) : (
+        <div className="space-y-10">
+          <EventSection title="Ongoing" icon="play_circle" color="text-emerald-400" events={events.ongoing} navigate={navigate} />
+          <EventSection title="Upcoming" icon="upcoming" color="text-blue-400" events={events.upcoming} navigate={navigate} />
+          <EventSection title="Past Events" icon="history" color="text-slate-400" events={events.past} navigate={navigate} />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,373 +1,214 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useOutletContext, useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import {
-  fetchMySocieties,
-  fetchSocietyMembers,
-  fetchSocietyStats,
-  removeMemberThunk,
-  updateMemberRoleThunk,
-  selectCurrentSociety,
-  selectMySocieties,
   selectSocietyMembers,
   selectMemberRequests,
   selectSocietyStats,
   selectSocietyLoading,
-  selectMembersLoading,
 } from "../../redux/slices/societySlice";
-import { selectUser } from "../../redux/slices/authSlice";
-import { useNotification } from "../../contexts/NotificationContext.jsx";
-import PageHeader from "../../components/common/PageHeader";
-import Button from "../../components/common/Button";
-import Card from "../../components/common/Card";
-import EmptyState from "../../components/common/EmptyState";
 
-const TABS = ["overview", "members", "events", "announcements", "analytics"];
+function formatDate(d) {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+function StatCard({ icon, label, value, sub, color = "text-slate-300" }) {
+  return (
+    <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-slate-500 text-xs uppercase tracking-wider mb-1">{label}</p>
+          <p className={`text-2xl font-bold ${color}`}>{value ?? "—"}</p>
+          {sub && <p className="text-slate-600 text-xs mt-1">{sub}</p>}
+        </div>
+        <span className="material-symbols-outlined text-slate-600 text-3xl">{icon}</span>
+      </div>
+    </div>
+  );
+}
+
+function QuickActionCard({ icon, title, description, to, badge, navigate }) {
+  return (
+    <button
+      onClick={() => navigate(to)}
+      className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 text-left hover:border-slate-500 hover:bg-slate-800 transition-all group w-full"
+    >
+      <div className="flex items-center gap-3 mb-2">
+        <div className="w-10 h-10 rounded-lg bg-slate-700/60 flex items-center justify-center group-hover:bg-slate-700 transition-colors">
+          <span className="material-symbols-outlined text-slate-300 text-xl">{icon}</span>
+        </div>
+        {badge > 0 && (
+          <span className="bg-amber-500/20 text-amber-400 text-xs font-bold px-2 py-0.5 rounded-full border border-amber-500/30">
+            {badge} pending
+          </span>
+        )}
+      </div>
+      <p className="text-slate-200 font-semibold text-sm">{title}</p>
+      <p className="text-slate-500 text-xs mt-0.5">{description}</p>
+    </button>
+  );
+}
 
 export default function SocietyManagement() {
-  const navigate   = useNavigate();
-  const dispatch   = useDispatch();
-  const { showSuccess, showError } = useNotification();
+  const navigate  = useNavigate();
+  const { headSociety, societyId, pendingCount } = useOutletContext() ?? {};
+  const members   = useSelector(selectSocietyMembers);
+  const requests  = useSelector(selectMemberRequests);
+  const stats     = useSelector(selectSocietyStats);
+  const loading   = useSelector(selectSocietyLoading);
 
-  const user       = useSelector(selectUser);
-  const mySocieties = useSelector(selectMySocieties);
-  const society    = useSelector(selectCurrentSociety);
-  const members    = useSelector(selectSocietyMembers);
-  const requests   = useSelector(selectMemberRequests);
-  const stats      = useSelector(selectSocietyStats);
-  const loading    = useSelector(selectSocietyLoading);
-  const membersLoading = useSelector(selectMembersLoading);
+  const approvedMembers = members.filter(m => m.status === "approved");
+  const pendingMembers  = members.filter(m => m.status === "pending");
 
-  const [activeTab, setActiveTab] = useState("overview");
-
-  // Load the head's society on mount
-  useEffect(() => {
-    dispatch(fetchMySocieties(user?._id));
-  }, [dispatch, user?._id]);
-
-  // When we know the society, load members + stats
-  const headSociety = society ?? mySocieties?.[0] ?? null;
-  const societyId   = headSociety?._id;
-
-  useEffect(() => {
-    if (societyId) {
-      dispatch(fetchSocietyMembers({ id: societyId }));
-      dispatch(fetchSocietyStats(societyId));
-    }
-  }, [dispatch, societyId]);
-
-  // ── Actions ──────────────────────────────────────────────────────────────────
-
-  const handleRemoveMember = async (memberId) => {
-    if (!societyId) return;
-    try {
-      await dispatch(removeMemberThunk({ societyId, memberId })).unwrap();
-      showSuccess("Member removed.");
-    } catch (err) {
-      showError(err || "Failed to remove member.");
-    }
+  const getMemberName = (m) => {
+    const p = m.memberId?.profile ?? {};
+    return p.displayName || `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim() || "Member";
   };
+  const getMemberAvatar = (m) => m.memberId?.profile?.avatar ?? null;
 
-  const handleRoleChange = async (memberId, role) => {
-    if (!societyId) return;
-    try {
-      await dispatch(updateMemberRoleThunk({ societyId, memberId, role })).unwrap();
-      showSuccess("Member role updated.");
-    } catch (err) {
-      showError(err || "Failed to update role.");
-    }
-  };
-
-  // ── Loading ───────────────────────────────────────────────────────────────────
-
-  if (loading) {
-    return (
-      <div className="flex flex-col min-h-screen bg-[#0d1117]">
-        <div className="max-w-6xl mx-auto px-4 py-8 w-full space-y-6 animate-pulse">
-          <div className="h-10 bg-[#161b22] rounded w-1/3" />
-          <div className="grid grid-cols-4 gap-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="h-24 bg-[#161b22] border border-[#30363d] rounded-xl" />
-            ))}
-          </div>
-          <div className="h-64 bg-[#161b22] border border-[#30363d] rounded-xl" />
-        </div>
-      </div>
-    );
-  }
-
-  // ── No Society Guard ──────────────────────────────────────────────────────────
-
-  if (!headSociety) {
-    return (
-      <div className="flex flex-col min-h-screen bg-[#0d1117] items-center justify-center p-8">
-        <Card padding="p-12">
-          <EmptyState
-            icon="groups"
-            title="No society found"
-            description="You don't manage a society yet. Create one to get started."
-            action={
-              <Button onClick={() => navigate("/society/create")} variant="primary">
-                Create a Society
-              </Button>
-            }
-          />
-        </Card>
-      </div>
-    );
-  }
-
-  const statusColor = {
-    active:    "bg-[#238636]/20 text-[#238636]",
-    pending:   "bg-yellow-500/20 text-yellow-400",
-    suspended: "bg-[#f85149]/20 text-[#f85149]",
-  }[headSociety.status] ?? "bg-[#8b949e]/20 text-[#8b949e]";
+  const statusCls = {
+    approved: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25",
+    pending:  "bg-amber-500/15 text-amber-400 border border-amber-500/25",
+    rejected: "bg-red-500/15 text-red-400 border border-red-500/25",
+  }[headSociety?.status] ?? "bg-slate-500/15 text-slate-400";
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0d1117]">
-      <PageHeader
-        title={headSociety.name}
-        subtitle="Society Management"
-        icon={headSociety.logo ? undefined : "admin_panel_settings"}
-        backPath="/dashboard"
-        action={
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              onClick={() => navigate("/society/member-requests")}
-              variant="secondary"
-              size="sm"
-            >
-              <span className="material-symbols-outlined text-sm mr-1">person_add</span>
-              Requests
-              {requests.length > 0 && (
-                <span className="ml-1.5 px-1.5 py-0.5 bg-yellow-500/30 text-yellow-300 text-xs rounded-full">
-                  {requests.length}
-                </span>
-              )}
-            </Button>
-            <Button
-              onClick={() => navigate(`/society/edit/${societyId}`)}
-              variant="secondary"
-              size="sm"
-            >
-              Edit Society
-            </Button>
-          </div>
-        }
-      />
+    <div className="p-6 lg:p-8 space-y-8">
+      {/* Page Header */}
+      <div className="flex items-start justify-between">
+        <div>
+          <h1 className="text-slate-100 text-2xl font-bold">HQ Dashboard</h1>
+          <p className="text-slate-500 text-sm mt-0.5">Overview of your society's activity</p>
+        </div>
+        <button
+          onClick={() => navigate(`/society/edit/${societyId}`)}
+          className="flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-xl border border-slate-700 transition-colors"
+        >
+          <span className="material-symbols-outlined text-sm">edit</span>
+          Edit Society
+        </button>
+      </div>
 
-      {/* Pending / Suspended Banner */}
-      {headSociety.status !== "active" && (
-        <div className={`mx-4 sm:mx-6 mt-4 p-4 rounded-lg border flex items-center gap-3 ${
-          headSociety.status === "pending"
-            ? "bg-yellow-500/10 border-yellow-500/30 text-yellow-400"
-            : "bg-[#f85149]/10 border-[#f85149]/30 text-[#f85149]"
+      {/* Status banner */}
+      {headSociety?.status !== "approved" && (
+        <div className={`p-4 rounded-xl border flex items-center gap-3 text-sm ${
+          headSociety?.status === "pending"
+            ? "bg-amber-500/10 border-amber-500/25 text-amber-400"
+            : "bg-red-500/10 border-red-500/25 text-red-400"
         }`}>
-          <span className="material-symbols-outlined">
-            {headSociety.status === "pending" ? "pending" : "block"}
-          </span>
+          <span className="material-symbols-outlined">{headSociety?.status === "pending" ? "pending" : "block"}</span>
           <div>
-            <p className="font-semibold capitalize">{headSociety.status}</p>
-            {headSociety.statusReason && (
-              <p className="text-sm opacity-80">{headSociety.statusReason}</p>
-            )}
+            <p className="font-semibold capitalize">{headSociety?.status}</p>
+            {headSociety?.statusReason && <p className="text-xs opacity-75 mt-0.5">{headSociety.statusReason}</p>}
           </div>
         </div>
       )}
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        {/* Stats Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-          {[
-            { label: "Total Members",    value: headSociety.memberCount ?? members.length, icon: "group" },
-            { label: "Pending Requests", value: requests.length, icon: "person_add" },
-            { label: "Total Events",     value: stats?.eventCount ?? headSociety.eventCount ?? "—", icon: "event" },
-            { label: "Status",           value: headSociety.status ?? "active", icon: "verified", badge: statusColor },
-          ].map((s) => (
-            <Card key={s.label} padding="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-[#8b949e] text-xs mb-1">{s.label}</p>
-                  {s.badge ? (
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${s.badge}`}>{s.value}</span>
-                  ) : (
-                    <p className="text-2xl font-bold text-white">{s.value}</p>
-                  )}
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard icon="group" label="Total Members" value={headSociety?.memberCount ?? approvedMembers.length} sub={`+${stats?.members?.joinedLast30Days ?? 0} this month`} color="text-slate-100" />
+        <StatCard icon="pending" label="Pending Requests" value={pendingMembers.length} color={pendingMembers.length > 0 ? "text-amber-400" : "text-slate-300"} />
+        <StatCard icon="event" label="Total Events" value={stats?.events?.total ?? "—"} sub={`${stats?.events?.published ?? 0} upcoming`} />
+        <StatCard icon="check_circle" label="Status" value={headSociety?.status ?? "—"} color={headSociety?.status === "approved" ? "text-emerald-400" : "text-amber-400"} />
+      </div>
+
+      {/* Quick Actions + Society Card */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Society Identity Card */}
+        <div className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden">
+          <div className="h-20 bg-slate-700/50 relative">
+            {headSociety?.media?.coverImage ? (
+              <img src={headSociety.media.coverImage} alt="" className="w-full h-full object-cover" />
+            ) : (
+              <div className="w-full h-full" style={{ background: "linear-gradient(135deg,#1e293b,#0f172a)" }} />
+            )}
+            <div className="absolute -bottom-5 left-4">
+              {headSociety?.media?.logo ? (
+                <img src={headSociety.media.logo} alt="" className="w-10 h-10 rounded-xl object-cover border-2 border-slate-800" />
+              ) : (
+                <div className="w-10 h-10 rounded-xl bg-slate-700 border-2 border-slate-800 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-slate-400 text-base">groups</span>
                 </div>
-                <span className="material-symbols-outlined text-[#238636] text-3xl">{s.icon}</span>
-              </div>
-            </Card>
-          ))}
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-1 border-b border-[#30363d] mb-6 overflow-x-auto">
-          {TABS.map((tab) => (
-            <button
-              key={tab}
-              id={`mgmt-tab-${tab}`}
-              onClick={() => setActiveTab(tab)}
-              className={`px-4 py-2.5 text-sm font-medium capitalize whitespace-nowrap transition-colors border-b-2 -mb-px ${
-                activeTab === tab
-                  ? "text-[#238636] border-[#238636]"
-                  : "text-[#8b949e] border-transparent hover:text-white"
-              }`}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        {/* ── Overview ── */}
-        {activeTab === "overview" && (
-          <div className="space-y-6">
-            <Card padding="p-6">
-              <h3 className="text-lg font-bold text-white mb-4">Society Details</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {[
-                  { label: "Description", value: headSociety.description },
-                  { label: "Category",    value: headSociety.category },
-                  { label: "Created",     value: headSociety.createdAt ? new Date(headSociety.createdAt).toLocaleDateString() : "—" },
-                  { label: "Campus",      value: headSociety.campusId ?? "—" },
-                ].map((item) => (
-                  <div key={item.label}>
-                    <p className="text-[#8b949e] text-xs mb-1">{item.label}</p>
-                    <p className="text-white text-sm">{item.value || "—"}</p>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-        )}
-
-        {/* ── Members ── */}
-        {activeTab === "members" && (
-          <Card padding="p-6">
-            <div className="flex items-center justify-between mb-5">
-              <h3 className="text-lg font-bold text-white">Members ({members.length})</h3>
+              )}
             </div>
-            {membersLoading ? (
-              <div className="space-y-3">
-                {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="h-14 bg-[#0d1117] border border-[#30363d] rounded-lg animate-pulse" />
-                ))}
+          </div>
+          <div className="pt-8 px-4 pb-4">
+            <p className="text-slate-100 font-bold">{headSociety?.name}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-slate-500 text-xs">#{headSociety?.tag}</span>
+              <span className={`text-[10px] font-semibold uppercase px-1.5 py-0.5 rounded-full ${statusCls}`}>{headSociety?.status}</span>
+            </div>
+            <p className="text-slate-500 text-xs mt-2 line-clamp-2">{headSociety?.description}</p>
+            <div className="mt-3 grid grid-cols-2 gap-2 text-center">
+              <div className="bg-slate-900/50 rounded-lg p-2">
+                <p className="text-slate-200 font-bold text-sm">{headSociety?.memberCount ?? approvedMembers.length}</p>
+                <p className="text-slate-600 text-[10px]">Members</p>
               </div>
-            ) : members.length === 0 ? (
-              <EmptyState icon="people" title="No members yet" description="Members will appear here once approved." />
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-[#30363d]">
-                      {["Member", "Role", "Joined", "Actions"].map((h) => (
-                        <th key={h} className="text-left py-3 px-4 text-[#8b949e] font-medium text-xs">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {members.map((m) => {
-                      const profile = m.user?.profile ?? m.profile ?? {};
-                      const name = profile.displayName ||
-                        `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim() ||
-                        m.user?.email || "Unknown";
-                      const memberId = m._id || m.user?._id;
-                      return (
-                        <tr key={memberId} className="border-b border-[#30363d] hover:bg-white/5 transition-colors">
-                          <td className="py-3 px-4">
-                            <div className="flex items-center gap-2">
-                              {profile.avatar ? (
-                                <img src={profile.avatar} alt={name} className="w-8 h-8 rounded-full object-cover border border-[#30363d]" />
-                              ) : (
-                                <div className="w-8 h-8 rounded-full bg-[#238636] flex items-center justify-center text-white text-xs font-bold">
-                                  {name.slice(0, 2).toUpperCase()}
-                                </div>
-                              )}
-                              <span className="text-white">{name}</span>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4">
-                            <select
-                              value={m.role ?? "member"}
-                              onChange={(e) => handleRoleChange(memberId, e.target.value)}
-                              className="bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] rounded px-2 py-1 text-xs focus:outline-none focus:border-[#238636]"
-                            >
-                              {["member", "moderator", "treasurer", "secretary"].map((r) => (
-                                <option key={r} value={r}>{r}</option>
-                              ))}
-                            </select>
-                          </td>
-                          <td className="py-3 px-4 text-[#8b949e]">
-                            {m.joinedAt ? new Date(m.joinedAt).toLocaleDateString() : "—"}
-                          </td>
-                          <td className="py-3 px-4">
-                            <button
-                              onClick={() => handleRemoveMember(memberId)}
-                              className="text-[#f85149] hover:text-[#ff7b72] text-xs transition-colors"
-                            >
-                              Remove
-                            </button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+              <div className="bg-slate-900/50 rounded-lg p-2">
+                <p className="text-slate-200 font-bold text-sm">{stats?.events?.total ?? 0}</p>
+                <p className="text-slate-600 text-[10px]">Events</p>
               </div>
-            )}
-          </Card>
-        )}
+            </div>
+          </div>
+        </div>
 
-        {/* ── Events ── */}
-        {activeTab === "events" && (
-          <Card padding="p-12">
-            <EmptyState
-              icon="event"
-              title="Society Events"
-              description="Create and manage events for your society members."
-              action={
-                <Button onClick={() => navigate("/events")} variant="primary">
-                  Go to Events
-                </Button>
-              }
-            />
-          </Card>
-        )}
+        {/* Quick Actions */}
+        <div className="lg:col-span-2 grid grid-cols-2 gap-3">
+          <QuickActionCard icon="group" title="Manage Members" description="View & manage active members and roles" to="/society/members" badge={pendingMembers.length} navigate={navigate} />
+          <QuickActionCard icon="campaign" title="Announcements" description="Post updates to your society members" to={`/societies/${societyId}`} navigate={navigate} />
+          <QuickActionCard icon="event" title="Society Events" description="View and manage all organized events" to="/society/events" navigate={navigate} />
+          <QuickActionCard icon="analytics" title="Analytics" description="Track growth, engagement, and stats" to="/society/analytics" navigate={navigate} />
+        </div>
+      </div>
 
-        {/* ── Announcements ── */}
-        {activeTab === "announcements" && (
-          <Card padding="p-12">
-            <EmptyState
-              icon="campaign"
-              title="Announcements"
-              description="Post announcements to keep your members informed."
-            />
-          </Card>
-        )}
-
-        {/* ── Analytics ── */}
-        {activeTab === "analytics" && (
-          <div className="space-y-4">
-            {stats ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {Object.entries(stats).map(([key, val]) => (
-                  typeof val === "number" && (
-                    <Card key={key} padding="p-5">
-                      <p className="text-[#8b949e] text-xs capitalize mb-1">
-                        {key.replace(/([A-Z])/g, " $1").trim()}
-                      </p>
-                      <p className="text-2xl font-bold text-white">{val}</p>
-                    </Card>
-                  )
-                ))}
-              </div>
-            ) : (
-              <Card padding="p-12">
-                <EmptyState icon="analytics" title="No analytics yet" description="Stats will appear once your society has activity." />
-              </Card>
-            )}
+      {/* Recent Members */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-slate-300 font-semibold text-sm flex items-center gap-2">
+            <span className="material-symbols-outlined text-slate-500 text-base">group</span>
+            Recent Members
+          </h2>
+          <button onClick={() => navigate("/society/members")} className="text-slate-500 hover:text-slate-300 text-xs transition-colors">
+            View all →
+          </button>
+        </div>
+        {loading ? (
+          <div className="space-y-2">
+            {[1,2,3].map(i => <div key={i} className="h-14 bg-slate-800/50 border border-slate-700 rounded-xl animate-pulse" />)}
+          </div>
+        ) : approvedMembers.length === 0 ? (
+          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-8 text-center">
+            <p className="text-slate-500 text-sm">No approved members yet.</p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {[...approvedMembers].sort((a, b) => new Date(b.joinedAt) - new Date(a.joinedAt)).slice(0, 5).map(m => {
+              const id  = m.memberId?._id ?? m.memberId;
+              const name = getMemberName(m);
+              const avatar = getMemberAvatar(m);
+              return (
+                <div key={id} className="bg-slate-800/50 border border-slate-700 rounded-xl p-3 flex items-center gap-3">
+                  {avatar ? (
+                    <img src={avatar} alt={name} className="w-8 h-8 rounded-full object-cover border border-slate-700" />
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-slate-400 text-xs font-bold">
+                      {name.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-slate-200 text-sm font-medium truncate">{name}</p>
+                    <p className="text-slate-600 text-xs">{m.memberId?.academic?.department ?? ""}</p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-slate-600 text-xs hidden sm:block">{formatDate(m.joinedAt)}</span>
+                    <span className="text-[10px] bg-slate-700 text-slate-400 px-1.5 py-0.5 rounded-full capitalize">{m.role}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
-      </main>
+      </div>
     </div>
   );
 }

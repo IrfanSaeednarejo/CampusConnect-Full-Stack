@@ -1,210 +1,285 @@
-import { useEffect, useState } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import { useState, useCallback } from "react";
+import { useOutletContext, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  fetchSocietyMembers,
   approveMemberThunk,
   rejectMemberThunk,
+  removeMemberThunk,
+  updateMemberRoleThunk,
+  selectSocietyMembers,
   selectMemberRequests,
-  selectCurrentSociety,
   selectMembersLoading,
 } from "../../redux/slices/societySlice";
 import { useNotification } from "../../contexts/NotificationContext.jsx";
-import PageHeader from "../../components/common/PageHeader";
-import Card from "../../components/common/Card";
-import EmptyState from "../../components/common/EmptyState";
-import Button from "../../components/common/Button";
+
+const APPROVED_ROLES = ["student", "active-member", "co-coordinator", "executive", "society_head"];
+
+const ROLE_CONFIG = {
+  "society_head":  { label: "Society Head",  cls: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25" },
+  "co-coordinator":{ label: "Co-Coordinator",cls: "bg-blue-500/15 text-blue-400 border border-blue-500/25" },
+  "executive":     { label: "Executive",     cls: "bg-purple-500/15 text-purple-400 border border-purple-500/25" },
+  "active-member": { label: "Active Member", cls: "bg-slate-500/15 text-slate-400 border border-slate-500/25" },
+  "student":       { label: "Student",       cls: "bg-slate-600/15 text-slate-500 border border-slate-600/25" },
+};
+
+function getMemberName(m) {
+  const p = m.memberId?.profile ?? {};
+  return p.displayName || `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim() || "Unknown Member";
+}
+function getMemberAvatar(m) { return m.memberId?.profile?.avatar ?? null; }
+function formatDate(d) {
+  if (!d) return "—";
+  return new Date(d).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+}
+
+function MemberRow({ m, societyId, dispatch, showSuccess, showError, roleDisabled }) {
+  const [busyRole,   setBusyRole]   = useState(false);
+  const [busyRemove, setBusyRemove] = useState(false);
+  const name   = getMemberName(m);
+  const avatar = getMemberAvatar(m);
+  const memberId = m.memberId?._id ?? m.memberId;
+
+  const handleRole = async (e) => {
+    setBusyRole(true);
+    try {
+      await dispatch(updateMemberRoleThunk({ societyId, memberId, role: e.target.value })).unwrap();
+      showSuccess("Role updated.");
+    } catch (err) { showError(err || "Failed to update role"); }
+    finally { setBusyRole(false); }
+  };
+
+  const handleRemove = async () => {
+    if (!window.confirm(`Remove ${name} from the society?`)) return;
+    setBusyRemove(true);
+    try {
+      await dispatch(removeMemberThunk({ societyId, memberId })).unwrap();
+      showSuccess("Member removed.");
+    } catch (err) { showError(err || "Failed to remove member"); }
+    finally { setBusyRemove(false); }
+  };
+
+  return (
+    <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 flex items-center gap-3">
+      {avatar ? (
+        <img src={avatar} alt={name} className="w-9 h-9 rounded-full object-cover border border-slate-700 shrink-0" />
+      ) : (
+        <div className="w-9 h-9 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-slate-400 text-xs font-bold shrink-0">
+          {name.slice(0, 2).toUpperCase()}
+        </div>
+      )}
+      <div className="flex-1 min-w-0">
+        <p className="text-slate-200 text-sm font-medium truncate">{name}</p>
+        <p className="text-slate-500 text-xs truncate">{m.memberId?.academic?.department ?? ""}</p>
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        <span className="text-slate-600 text-xs hidden md:block">{formatDate(m.joinedAt)}</span>
+        {roleDisabled ? (
+          <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${(ROLE_CONFIG[m.role] ?? ROLE_CONFIG["student"]).cls}`}>
+            {(ROLE_CONFIG[m.role] ?? ROLE_CONFIG["student"]).label}
+          </span>
+        ) : (
+          <select
+            value={m.role}
+            onChange={handleRole}
+            disabled={busyRole}
+            className="bg-slate-900 border border-slate-700 text-slate-300 text-xs rounded-lg px-2 py-1 focus:outline-none focus:border-slate-500 disabled:opacity-50"
+          >
+            {APPROVED_ROLES.filter(r => r !== "society_head").map(r => (
+              <option key={r} value={r}>{ROLE_CONFIG[r]?.label ?? r}</option>
+            ))}
+          </select>
+        )}
+        {!roleDisabled && (
+          <button
+            onClick={handleRemove}
+            disabled={busyRemove}
+            className="text-slate-600 hover:text-red-400 transition-colors disabled:opacity-40 ml-1"
+            title="Remove member"
+          >
+            <span className="material-symbols-outlined text-[17px]">person_remove</span>
+          </button>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function MemberRequests() {
-  const dispatch  = useDispatch();
+  const dispatch   = useDispatch();
   const { showSuccess, showError } = useNotification();
+  const { headSociety, societyId } = useOutletContext() ?? {};
 
-  const society  = useSelector(selectCurrentSociety);
-  const requests = useSelector(selectMemberRequests);
-  const loading  = useSelector(selectMembersLoading);
+  const approved       = useSelector(selectSocietyMembers);  // already filtered to approved/active
+  const pending        = useSelector(selectMemberRequests);   // already filtered to pending
+  const loading        = useSelector(selectMembersLoading);
 
-  const [busyId, setBusyId] = useState(null);
+  const [search, setSearch]       = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [busyId,   setBusyId]    = useState(null);
 
-  useEffect(() => {
-    if (society?._id) {
-      dispatch(fetchSocietyMembers({ id: society._id, params: { status: "pending" } }));
-    }
-  }, [dispatch, society?._id]);
+  const filtered = search.trim()
+    ? approved.filter(m => getMemberName(m).toLowerCase().includes(search.trim().toLowerCase()))
+    : approved;
 
   const handleApprove = async (memberId) => {
     setBusyId(memberId);
     try {
-      await dispatch(approveMemberThunk({ societyId: society._id, memberId })).unwrap();
-      showSuccess("Member approved successfully.");
-    } catch (err) {
-      showError(err || "Failed to approve member.");
-    } finally {
-      setBusyId(null);
-    }
+      await dispatch(approveMemberThunk({ societyId, memberId })).unwrap();
+      showSuccess("Member approved!");
+      if (pending.length === 1) setShowModal(false);
+    } catch (err) { showError(err || "Failed to approve"); }
+    finally { setBusyId(null); }
   };
 
   const handleReject = async (memberId) => {
     setBusyId(memberId);
     try {
-      await dispatch(rejectMemberThunk({ societyId: society._id, memberId })).unwrap();
-      showSuccess("Member request rejected.");
-    } catch (err) {
-      showError(err || "Failed to reject request.");
-    } finally {
-      setBusyId(null);
-    }
+      await dispatch(rejectMemberThunk({ societyId, memberId })).unwrap();
+      showSuccess("Request rejected.");
+      if (pending.length === 1) setShowModal(false);
+    } catch (err) { showError(err || "Failed to reject"); }
+    finally { setBusyId(null); }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0d1117]">
-      <PageHeader
-        title="Member Requests"
-        subtitle="Review and approve join requests"
-        icon="person_add"
-        backPath="/society/manage"
-        action={
-          requests.length > 0 ? (
-            <span className="px-3 py-1 rounded-full bg-yellow-500/20 text-yellow-400 text-sm font-medium">
-              {requests.length} pending
-            </span>
-          ) : null
-        }
-      />
-
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        {/* No society context guard */}
-        {!society && (
-          <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg text-yellow-400 text-sm mb-6">
-            Load your society management page first to get proper context.
-          </div>
+    <div className="p-6 lg:p-8 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-slate-100 text-2xl font-bold">Members</h1>
+          <p className="text-slate-500 text-sm mt-0.5">Manage members and join requests</p>
+        </div>
+        {pending.length > 0 && (
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 text-sm font-semibold rounded-xl border border-amber-500/25 transition-colors"
+          >
+            <span className="material-symbols-outlined text-base">notifications_active</span>
+            Pending Requests
+            <span className="bg-amber-400/20 text-amber-400 text-xs font-bold px-1.5 py-0.5 rounded-full">{pending.length}</span>
+          </button>
         )}
+      </div>
 
-        {/* Loading skeletons */}
-        {loading && (
-          <div className="space-y-4">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-32 bg-[#161b22] border border-[#30363d] rounded-xl animate-pulse" />
-            ))}
-          </div>
+      {/* Role breakdown badges */}
+      <div className="flex flex-wrap gap-2">
+        {Object.entries(
+          approved.reduce((acc, m) => { acc[m.role] = (acc[m.role] || 0) + 1; return acc; }, {})
+        ).map(([role, count]) => (
+          <span key={role} className={`text-[11px] font-semibold px-2.5 py-1 rounded-full ${(ROLE_CONFIG[role] ?? ROLE_CONFIG["student"]).cls}`}>
+            {(ROLE_CONFIG[role] ?? ROLE_CONFIG["student"]).label}: {count}
+          </span>
+        ))}
+        {approved.length === 0 && !loading && (
+          <span className="text-slate-600 text-xs">No approved members yet</span>
         )}
+      </div>
 
-        {/* Empty state */}
-        {!loading && requests.length === 0 && (
-          <Card padding="p-12">
-            <EmptyState
-              icon="inbox"
-              title="No pending requests"
-              description="All member requests have been reviewed."
+      {/* Search */}
+      <div className="relative max-w-sm">
+        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-600 text-base pointer-events-none">search</span>
+        <input
+          type="text"
+          placeholder="Search members…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full pl-9 pr-4 py-2 bg-slate-800/50 border border-slate-700 rounded-xl text-slate-200 placeholder-slate-600 text-sm focus:outline-none focus:border-slate-500 transition-colors"
+        />
+      </div>
+
+      {/* Members List */}
+      {loading ? (
+        <div className="space-y-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="h-16 bg-slate-800/50 border border-slate-700 rounded-xl animate-pulse" />
+          ))}
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-12 text-center">
+          <span className="material-symbols-outlined text-slate-600 text-5xl block mb-3">group_off</span>
+          <p className="text-slate-400 font-medium">
+            {search ? "No members match your search" : "No approved members yet"}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {filtered.map(m => (
+            <MemberRow
+              key={m.memberId?._id ?? m.memberId}
+              m={m}
+              societyId={societyId}
+              dispatch={dispatch}
+              showSuccess={showSuccess}
+              showError={showError}
+              roleDisabled={m.role === "society_head"}
             />
-          </Card>
-        )}
+          ))}
+        </div>
+      )}
 
-        {/* Requests list */}
-        {!loading && requests.length > 0 && (
-          <div className="space-y-4">
-            {requests.map((req) => {
-              const profile = req.user?.profile ?? req.profile ?? {};
-              const name = profile.displayName ||
-                `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim() ||
-                req.user?.email || "Unknown User";
-              const avatar = profile.avatar;
-              const initials = name.slice(0, 2).toUpperCase();
-              const memberId = req._id || req.user?._id;
-              const isBusy = busyId === memberId;
-
-              return (
-                <Card key={memberId} padding="p-6">
-                  <div className="flex items-start gap-5">
-                    {/* Avatar */}
+      {/* Pending Requests Modal */}
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[85vh]">
+            <div className="flex items-center justify-between p-5 border-b border-slate-800">
+              <h3 className="text-slate-200 font-bold text-lg flex items-center gap-2">
+                <span className="material-symbols-outlined text-amber-400">pending</span>
+                Pending Requests
+                <span className="bg-amber-500/15 text-amber-400 text-xs px-2 py-0.5 rounded-full border border-amber-500/25">{pending.length}</span>
+              </h3>
+              <button onClick={() => setShowModal(false)} className="text-slate-500 hover:text-slate-300 transition-colors">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            <div className="p-5 overflow-y-auto space-y-3">
+              {pending.length === 0 ? (
+                <div className="text-center py-10">
+                  <span className="material-symbols-outlined text-slate-600 text-5xl block mb-3">check_circle</span>
+                  <p className="text-slate-400">All caught up! No pending requests.</p>
+                </div>
+              ) : pending.map(m => {
+                const memberId = m.memberId?._id ?? m.memberId;
+                const name     = getMemberName(m);
+                const avatar   = getMemberAvatar(m);
+                const busy     = busyId === memberId;
+                return (
+                  <div key={memberId} className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 flex items-center gap-3">
                     {avatar ? (
-                      <img src={avatar} alt={name} className="w-14 h-14 rounded-full object-cover border border-[#30363d] flex-shrink-0" />
+                      <img src={avatar} alt={name} className="w-10 h-10 rounded-full object-cover border border-slate-700 shrink-0" />
                     ) : (
-                      <div className="w-14 h-14 rounded-full bg-[#238636] flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-                        {initials}
+                      <div className="w-10 h-10 rounded-full bg-slate-700 border border-slate-600 flex items-center justify-center text-slate-400 text-sm font-bold shrink-0">
+                        {name.slice(0, 2).toUpperCase()}
                       </div>
                     )}
-
-                    {/* Details */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between mb-2">
-                        <div>
-                          <h3 className="text-white font-semibold">{name}</h3>
-                          <p className="text-[#8b949e] text-sm">{req.user?.email ?? ""}</p>
-                        </div>
-                        <span className="px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-400 text-xs font-medium">
-                          Pending
-                        </span>
-                      </div>
-
-                      {/* Academic info if available */}
-                      {(profile.department || profile.semester) && (
-                        <p className="text-[#8b949e] text-xs mb-2">
-                          {[profile.department, profile.semester && `Semester ${profile.semester}`]
-                            .filter(Boolean).join(" · ")}
-                        </p>
-                      )}
-
-                      {req.requestNote && (
-                        <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-3 mb-3">
-                          <p className="text-xs text-[#8b949e] font-medium mb-1">Note:</p>
-                          <p className="text-sm text-[#c9d1d9]">{req.requestNote}</p>
-                        </div>
-                      )}
-
-                      <p className="text-xs text-[#8b949e] mb-4">
-                        Requested {req.joinedAt ? new Date(req.joinedAt).toLocaleDateString() : "recently"}
-                      </p>
-
-                      {/* Actions */}
-                      <div className="flex gap-3">
-                        <Button
-                          id={`approve-${memberId}`}
-                          variant="primary"
-                          size="sm"
-                          disabled={isBusy}
-                          onClick={() => handleApprove(memberId)}
-                          className="flex-1"
-                        >
-                          <span className="material-symbols-outlined text-sm mr-1">check_circle</span>
-                          {isBusy ? "Processing…" : "Approve"}
-                        </Button>
-                        <Button
-                          id={`reject-${memberId}`}
-                          variant="danger"
-                          size="sm"
-                          disabled={isBusy}
-                          onClick={() => handleReject(memberId)}
-                          className="flex-1"
-                        >
-                          <span className="material-symbols-outlined text-sm mr-1">cancel</span>
-                          Reject
-                        </Button>
-                      </div>
+                      <p className="text-slate-200 text-sm font-semibold truncate">{name}</p>
+                      <p className="text-slate-500 text-xs">Requested {formatDate(m.joinedAt)}</p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        onClick={() => handleReject(memberId)}
+                        disabled={busy}
+                        className="w-9 h-9 rounded-full bg-slate-700/50 hover:bg-red-500/20 border border-transparent hover:border-red-500/30 text-slate-400 hover:text-red-400 flex items-center justify-center transition-all disabled:opacity-50"
+                        title="Reject"
+                      >
+                        <span className="material-symbols-outlined text-sm">close</span>
+                      </button>
+                      <button
+                        onClick={() => handleApprove(memberId)}
+                        disabled={busy}
+                        className="w-9 h-9 rounded-full bg-emerald-600/20 hover:bg-emerald-500 border border-emerald-500/30 hover:border-transparent text-emerald-400 hover:text-white flex items-center justify-center transition-all disabled:opacity-50"
+                        title="Approve"
+                      >
+                        <span className="material-symbols-outlined text-sm">check</span>
+                      </button>
                     </div>
                   </div>
-                </Card>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        )}
-
-        {/* Summary */}
-        {!loading && requests.length > 0 && (
-          <div className="mt-8 grid grid-cols-2 gap-4">
-            <Card padding="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-[#238636]">{requests.length}</div>
-                <div className="text-xs text-[#8b949e] mt-1">Pending Requests</div>
-              </div>
-            </Card>
-            <Card padding="p-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-white">{society?.memberCount ?? "—"}</div>
-                <div className="text-xs text-[#8b949e] mt-1">Total Members</div>
-              </div>
-            </Card>
-          </div>
-        )}
-      </main>
+        </div>
+      )}
     </div>
   );
 }

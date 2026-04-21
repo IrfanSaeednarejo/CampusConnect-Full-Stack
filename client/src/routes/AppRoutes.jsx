@@ -60,7 +60,6 @@ import Network                 from "../pages/Network";
 // ── Society Pages (AppShell) ─────────────────────────────────────────────────
 import SocietiesList    from "../pages/Societies/SocietiesList";
 import SocietyDetail    from "../pages/Societies/SocietyDetail";
-// import CreateSociety    from "../pages/Societies/CreateSociety";
 import SocietyManagement from "../pages/Societies/SocietyManagement";
 import MemberRequests   from "../pages/Societies/MemberRequests";
 import SocietyEvents    from "../pages/Societies/SocietyEvents";
@@ -68,6 +67,7 @@ import SocietySettings  from "../pages/Societies/SocietySettings";
 import SocietyAnalytics from "../pages/Societies/SocietyAnalytics";
 import EditSociety      from "../pages/Societies/EditSociety";
 import SocietyProfile   from "../pages/Societies/SocietyProfile";
+import SocietyHQLayout  from "../components/societies/SocietyHQLayout";
 
 // ── Event Pages (AppShell) ───────────────────────────────────────────────────
 import EventDetailLayout   from "../pages/events/EventDetailFlow";
@@ -263,16 +263,17 @@ export default function AppRoutes() {
           {/* ── Societies (any auth user) ────────────── */}
           <Route path="/my-societies"       element={<SocietiesList />} />
 
-          {/* ── Society Head — role gated at component level via RoleGuard ── */}
-          {/* Note: routes are accessible, components internally use RoleGuard */}
-          <Route path="/society/manage"          element={<SocietyManagement />} />
-          <Route path="/society/members"         element={<MemberRequests />} />
-          <Route path="/society/member-requests" element={<MemberRequests />} />
-          <Route path="/society/events"          element={<SocietyEvents />} />
-          <Route path="/society/settings"        element={<SocietySettings />} />
-          <Route path="/society/analytics"       element={<SocietyAnalytics />} />
-          <Route path="/society/profile"         element={<SocietyProfile />} />
-          <Route path="/society/edit/:id"        element={<EditSociety />} />
+          {/* ── Society Head HQ — all wrapped in shared layout shell ────── */}
+          <Route element={<SocietyHQLayout />}>
+            <Route path="/society/manage"          element={<SocietyManagement />} />
+            <Route path="/society/members"         element={<MemberRequests />} />
+            <Route path="/society/member-requests" element={<MemberRequests />} />
+            <Route path="/society/events"          element={<SocietyEvents />} />
+            <Route path="/society/settings"        element={<SocietySettings />} />
+            <Route path="/society/analytics"       element={<SocietyAnalytics />} />
+            <Route path="/society/profile"         element={<SocietyProfile />} />
+            <Route path="/society/edit/:id"        element={<EditSociety />} />
+          </Route>
 
           {/* ── Events ───────────────────────────────── */}
           {/* Handled by HYBRID section */}
