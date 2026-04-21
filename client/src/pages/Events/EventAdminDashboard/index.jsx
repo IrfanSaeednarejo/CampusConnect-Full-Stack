@@ -1,11 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchEventById, selectSelectedEvent, transitionStateThunk, postAnnouncementThunk, publishLeaderboardThunk, updateJudgesThunk } from "../../../redux/slices/eventSlice";
+import { 
+  fetchEventById, selectSelectedEvent, transitionStateThunk, postAnnouncementThunk, 
+  publishLeaderboardThunk, updateJudgesThunk, fetchRegistrationsThunk, 
+  selectRegistrations, approveRegistrationThunk, rejectRegistrationThunk 
+} from "../../../redux/slices/eventSlice";
 import { fetchAllSubmissionsThunk, selectAllSubmissions } from "../../../redux/slices/submissionSlice";
 import { disqualifyTeamThunk } from "../../../redux/slices/teamSlice";
 import CircularProgress from "../../../components/common/CircularProgress";
 import Button from "../../../components/common/Button";
+import { toast } from "react-hot-toast";
 
 export default function EventAdminDashboard() {
   const { id: eventId } = useParams();
@@ -14,15 +19,18 @@ export default function EventAdminDashboard() {
 
   const [announcementText, setAnnouncementText] = useState("");
   const [judgeIdInput, setJudgeIdInput] = useState("");
+  const [activeTab, setActiveTab] = useState("registrations");
   
   const event = useSelector(selectSelectedEvent);
   const allSubmissions = useSelector(selectAllSubmissions);
+  const registrations = useSelector(selectRegistrations);
   const loading = !event;
 
   useEffect(() => {
     if (eventId) {
       dispatch(fetchEventById(eventId));
       dispatch(fetchAllSubmissionsThunk(eventId));
+      dispatch(fetchRegistrationsThunk(eventId));
     }
   }, [dispatch, eventId]);
 
@@ -31,6 +39,26 @@ export default function EventAdminDashboard() {
   const handleTransition = async (newState) => {
     if (!window.confirm(`Are you sure you want to transition this event to: ${newState}?`)) return;
     await dispatch(transitionStateThunk({ id: eventId, stateData: { status: newState } }));
+  };
+
+  const handleApproveRegistration = async (userId) => {
+    try {
+      await dispatch(approveRegistrationThunk({ eventId, userId })).unwrap();
+      toast.success("Registration approved");
+    } catch (err) {
+      toast.error(err || "Failed to approve");
+    }
+  };
+
+  const handleRejectRegistration = async (userId) => {
+    const reason = window.prompt("Reason for rejection:");
+    if (reason === null) return;
+    try {
+      await dispatch(rejectRegistrationThunk({ eventId, userId, reason })).unwrap();
+      toast.success("Registration rejected");
+    } catch (err) {
+      toast.error(err || "Failed to reject");
+    }
   };
 
   const handleBroadcast = async (e) => {
@@ -48,7 +76,6 @@ export default function EventAdminDashboard() {
   const handleAssignJudge = async (e) => {
     e.preventDefault();
     if (!judgeIdInput.trim()) return;
-    // For MVP, we pass the current judges + the new one.
     const currentJudges = event.judgingConfig?.judges?.map(j => j._id) || [];
     await dispatch(updateJudgesThunk({ id: eventId, judgeIds: [...currentJudges, judgeIdInput.trim()] }));
     setJudgeIdInput("");
@@ -58,6 +85,8 @@ export default function EventAdminDashboard() {
     if (!window.confirm("Are you sure you want to disqualify this team? This cannot be undone automatically.")) return;
     await dispatch(disqualifyTeamThunk({ eventId, teamId }));
   };
+
+  const pendingCount = registrations.filter(r => r.status === 'pending').length;
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#e6edf3] pb-20">
@@ -82,7 +111,7 @@ export default function EventAdminDashboard() {
       </div>
 
       {/* Main Grid */}
-      <div className="max-w-6xl mx-auto px-4 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="max-w-7xl mx-auto px-4 mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
         
         {/* Left Col: Lifecycle & KPIs */}
         <div className="lg:col-span-1 space-y-6">
@@ -112,11 +141,12 @@ export default function EventAdminDashboard() {
              <div className="grid grid-cols-2 gap-4">
                <div className="bg-[#0d1117] border border-[#30363d] p-4 rounded-lg text-center">
                  <p className="text-3xl font-black text-[#1f6feb]">{allSubmissions.length || 0}</p>
-                 <p className="text-xs text-[#8b949e] uppercase font-bold tracking-widest mt-1">Submissions</p>
+                 <p className="text-xs text-[#8b949e] uppercase font-bold tracking-widest mt-1">Teams</p>
                </div>
-               <div className="bg-[#0d1117] border border-[#30363d] p-4 rounded-lg text-center">
-                 <p className="text-3xl font-black text-[#1dc964]">{0}</p>
-                 <p className="text-xs text-[#8b949e] uppercase font-bold tracking-widest mt-1">Checked In</p>
+               <div className="bg-[#0d1117] border border-[#30363d] p-4 rounded-lg text-center relative">
+                 <p className="text-3xl font-black text-[#e3b341]">{pendingCount}</p>
+                 <p className="text-xs text-[#8b949e] uppercase font-bold tracking-widest mt-1">Pending Regs</p>
+                 {pendingCount > 0 && <span className="absolute top-1 right-1 w-2 h-2 bg-[#e3b341] rounded-full animate-pulse"></span>}
                </div>
              </div>
            </div>
@@ -136,48 +166,131 @@ export default function EventAdminDashboard() {
              </form>
              <p className="text-xs text-[#8b949e] mt-2">Current Judges: {event.judgingConfig?.judges?.length || 0}</p>
            </div>
-           
-           <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 text-center">
-               <h3 className="font-bold text-white border-b border-[#30363d] pb-2 mb-4 text-left">Master Data</h3>
-               <Button variant="outline" className="w-full justify-center gap-2" onClick={() => console.log(allSubmissions)}>
-                 <span className="material-symbols-outlined text-sm">download</span> Dump Submissions JSON
-               </Button>
-           </div>
         </div>
 
         {/* Right Col: Admin tables & Tools */}
-        <div className="lg:col-span-2 space-y-6">
-           <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 overflow-x-auto">
-             <h3 className="font-bold text-white border-b border-[#30363d] pb-2 mb-4">Participant Roster</h3>
-             <table className="w-full text-left text-sm">
-               <thead className="text-[#8b949e] border-b border-[#30363d] bg-[#0d1117]">
-                 <tr>
-                   <th className="p-3 font-semibold">User</th>
-                   <th className="p-3 font-semibold">Team</th>
-                   <th className="p-3 font-semibold">Status</th>
-                   <th className="p-3 font-semibold">Actions</th>
-                 </tr>
-               </thead>
-               <tbody className="divide-y divide-[#30363d]">
-                 {allSubmissions.length === 0 ? (
-                   <tr><td colSpan="4" className="p-4 text-center text-[#8b949e]">No participating teams found.</td></tr>
-                 ) : (
-                   allSubmissions.map(sub => (
-                     <tr key={sub._id} className="hover:bg-[#21262d] transition-colors">
-                       <td className="p-3 flex items-center gap-2">
-                         <span className="material-symbols-outlined text-[#8b949e] text-lg">integration_instructions</span>
-                         <span className="text-white font-medium line-clamp-1">{sub.title || "Untitled"}</span>
-                       </td>
-                       <td className="p-3 text-[#c9d1d9]">{sub.team?.name || "Unknown"}</td>
-                       <td className="p-3"><span className="text-[#e3b341]">{sub.status}</span></td>
-                       <td className="p-3">
-                         <button onClick={() => handleDisqualify(sub.team?._id)} title="Disqualify Team" className="text-[#8b949e] hover:text-[#f85149] transition-colors"><span className="material-symbols-outlined text-[20px]">person_remove</span></button>
-                       </td>
+        <div className="lg:col-span-3 space-y-6">
+           <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6">
+             <div className="flex border-b border-[#30363d] mb-6">
+               <button 
+                onClick={() => setActiveTab("registrations")}
+                className={`px-4 py-3 font-medium text-sm transition-colors relative ${activeTab === 'registrations' ? 'text-[#1dc964]' : 'text-[#8b949e] hover:text-[#c9d1d9]'}`}
+               >
+                 Registrations
+                 {pendingCount > 0 && <span className="ml-2 bg-[#e3b341] text-black text-[10px] font-black px-1.5 py-0.5 rounded-full">{pendingCount}</span>}
+                 {activeTab === 'registrations' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#1dc964]"></div>}
+               </button>
+               <button 
+                onClick={() => setActiveTab("teams")}
+                className={`px-4 py-3 font-medium text-sm transition-colors relative ${activeTab === 'teams' ? 'text-[#1dc964]' : 'text-[#8b949e] hover:text-[#c9d1d9]'}`}
+               >
+                 Approved Teams
+                 {activeTab === 'teams' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#1dc964]"></div>}
+               </button>
+             </div>
+
+             <div className="overflow-x-auto">
+               {activeTab === "registrations" ? (
+                 <table className="w-full text-left text-sm">
+                   <thead className="text-[#8b949e] border-b border-[#30363d] bg-[#0d1117]">
+                     <tr>
+                       <th className="p-3 font-semibold">Participant</th>
+                       <th className="p-3 font-semibold">Payment</th>
+                       <th className="p-3 font-semibold">Details</th>
+                       <th className="p-3 font-semibold">Status</th>
+                       <th className="p-3 font-semibold text-right">Actions</th>
                      </tr>
-                   ))
-                 )}
-               </tbody>
-             </table>
+                   </thead>
+                   <tbody className="divide-y divide-[#30363d]">
+                     {registrations.length === 0 ? (
+                       <tr><td colSpan="5" className="p-4 text-center text-[#8b949e]">No registrations found.</td></tr>
+                     ) : (
+                       registrations.map(reg => (
+                         <tr key={reg._id} className="hover:bg-[#21262d] transition-colors">
+                           <td className="p-3">
+                             <div className="flex items-center gap-3">
+                               <img src={reg.userId?.profile?.avatar || "/default-avatar.png"} className="w-8 h-8 rounded-full border border-[#30363d]" />
+                               <div>
+                                 <p className="text-white font-medium">{reg.userId?.profile?.displayName}</p>
+                                 <p className="text-xs text-[#8b949e]">{reg.userId?.email}</p>
+                               </div>
+                             </div>
+                           </td>
+                           <td className="p-3">
+                             {reg.paymentScreenshot ? (
+                               <a href={reg.paymentScreenshot} target="_blank" rel="noreferrer" className="text-[#58a6ff] hover:underline flex items-center gap-1">
+                                 <span className="material-symbols-outlined text-sm">image</span> View Proof
+                               </a>
+                             ) : (
+                               <span className="text-[#8b949e]">N/A</span>
+                             )}
+                           </td>
+                           <td className="p-3">
+                             <p className="text-xs text-[#c9d1d9] italic line-clamp-1">{reg.additionalInfo?.note || "No notes"}</p>
+                           </td>
+                           <td className="p-3">
+                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
+                               reg.status === 'pending' ? 'bg-[#e3b341]/10 text-[#e3b341]' :
+                               reg.status === 'approved' ? 'bg-[#1dc964]/10 text-[#1dc964]' :
+                               'bg-[#f85149]/10 text-[#f85149]'
+                             }`}>
+                               {reg.status}
+                             </span>
+                           </td>
+                           <td className="p-3 text-right">
+                             {reg.status === 'pending' && (
+                               <div className="flex justify-end gap-2">
+                                 <button onClick={() => handleApproveRegistration(reg.userId?._id)} className="w-8 h-8 rounded bg-[#1dc964]/10 text-[#1dc964] hover:bg-[#1dc964] hover:text-black transition-all flex items-center justify-center">
+                                   <span className="material-symbols-outlined text-sm">check</span>
+                                 </button>
+                                 <button onClick={() => handleRejectRegistration(reg.userId?._id)} className="w-8 h-8 rounded bg-[#f85149]/10 text-[#f85149] hover:bg-[#f85149] hover:text-white transition-all flex items-center justify-center">
+                                   <span className="material-symbols-outlined text-sm">close</span>
+                                 </button>
+                               </div>
+                             )}
+                           </td>
+                         </tr>
+                       ))
+                     )}
+                   </tbody>
+                 </table>
+               ) : (
+                 <table className="w-full text-left text-sm">
+                   <thead className="text-[#8b949e] border-b border-[#30363d] bg-[#0d1117]">
+                     <tr>
+                       <th className="p-3 font-semibold">Team Name</th>
+                       <th className="p-3 font-semibold">Members</th>
+                       <th className="p-3 font-semibold">Submission</th>
+                       <th className="p-3 font-semibold text-right">Actions</th>
+                     </tr>
+                   </thead>
+                   <tbody className="divide-y divide-[#30363d]">
+                     {allSubmissions.length === 0 ? (
+                       <tr><td colSpan="4" className="p-4 text-center text-[#8b949e]">No participating teams found.</td></tr>
+                     ) : (
+                       allSubmissions.map(sub => (
+                         <tr key={sub._id} className="hover:bg-[#21262d] transition-colors">
+                           <td className="p-3">
+                             <span className="text-white font-medium">{sub.team?.name || "Untitled"}</span>
+                           </td>
+                           <td className="p-3 text-[#c9d1d9]">{sub.team?.members?.length || 0}</td>
+                           <td className="p-3">
+                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-[#1f6feb]/10 text-[#1f6feb]`}>
+                               {sub.status}
+                             </span>
+                           </td>
+                           <td className="p-3 text-right">
+                             <button onClick={() => handleDisqualify(sub.team?._id)} title="Disqualify Team" className="text-[#8b949e] hover:text-[#f85149] transition-colors">
+                               <span className="material-symbols-outlined text-[20px]">person_remove</span>
+                             </button>
+                           </td>
+                         </tr>
+                       ))
+                     )}
+                   </tbody>
+                 </table>
+               )}
+             </div>
            </div>
 
             <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6">

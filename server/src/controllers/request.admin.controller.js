@@ -26,9 +26,10 @@ export const getUnifiedRequests = ah(async (req, res) => {
     }
 
     if (type === "all" || type === "events") {
-        results.events = await Event.find({ ...baseFilter, status: "pending" })
-            .populate("createdBy", "profile.displayName profile.avatar")
-            .populate("societyId", "name tag")
+        results.events = await Event.find({ ...baseFilter, approvalStatus: "pending_admin_review" })
+            .populate("createdBy", "profile.displayName profile.avatar email")
+            .populate("societyId", "name tag media.logo")
+            .populate("campusId", "name code")
             .sort({ createdAt: -1 });
     }
 

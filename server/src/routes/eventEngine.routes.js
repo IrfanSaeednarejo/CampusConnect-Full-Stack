@@ -26,6 +26,10 @@ import {
     getLeaderboard,
     publishLeaderboard,
     updateJudges,
+    registerForEvent,
+    getRegistrations,
+    approveRegistration,
+    rejectRegistration
 } from "../controllers/event.controller.js";
 
 import {
@@ -111,6 +115,35 @@ router.patch(
     verifyJWT,
     authorize("society_head", "admin"),
     publishLeaderboard
+);
+
+// Registration Endpoints
+router.post(
+    "/:eventId/register",
+    verifyJWT,
+    upload.single("paymentScreenshot"),
+    registerForEvent
+);
+
+router.get(
+    "/:eventId/registrations",
+    verifyJWT,
+    authorize("society_head", "admin"),
+    getRegistrations
+);
+
+router.patch(
+    "/:eventId/registrations/:userId/approve",
+    verifyJWT,
+    authorize("society_head", "admin"),
+    approveRegistration
+);
+
+router.patch(
+    "/:eventId/registrations/:userId/reject",
+    verifyJWT,
+    authorize("society_head", "admin"),
+    rejectRegistration
 );
 
 

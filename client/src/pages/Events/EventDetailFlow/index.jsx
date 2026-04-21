@@ -10,6 +10,7 @@ import EnrollmentCTA from "../../../components/events/Detail/EnrollmentCTA";
 import OverviewTab from "../../../components/events/Detail/OverviewTab";
 import TeamsTab from "../../../components/events/Detail/TeamsTab";
 import LeaderboardTab from "../../../components/events/Detail/LeaderboardTab";
+import RegisterEvent from "../RegisterEvent";
 
 import useEventSocket from "../../../hooks/useEventSocket";
 
@@ -34,7 +35,8 @@ export default function EventDetailLayout() {
   if (error || !event) return <div className="h-screen flex justify-center items-center bg-[#0d1117] text-[#8b949e]">Event Not Found</div>;
 
   const isCreator = user?._id === event.createdBy?._id || user?.id === event.createdBy;
-  const isParticipant = true; // Would check against user status
+  const userRegistration = event?.registrations?.find(r => r.userId === user?._id || r.userId?._id === user?._id);
+  const isRegistered = !!userRegistration;
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#e6edf3]">
@@ -91,6 +93,7 @@ export default function EventDetailLayout() {
               <Route index element={<OverviewTab />} />
               <Route path="teams" element={<TeamsTab />} />
               <Route path="leaderboard" element={<LeaderboardTab />} />
+              <Route path="register" element={<RegisterEvent />} />
             </Routes>
           </div>
         </div>
@@ -104,6 +107,8 @@ export default function EventDetailLayout() {
             registrationOpen={event.registrationOpen}
             spotsRemaining={event.spotsRemaining}
             isFull={event.isFull}
+            isRegistered={isRegistered}
+            registrationStatus={userRegistration?.status}
             onEnroll={() => navigate(`/events/${id}/register`)}
           />
 

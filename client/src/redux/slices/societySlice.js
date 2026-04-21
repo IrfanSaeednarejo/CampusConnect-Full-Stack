@@ -223,6 +223,18 @@ export const fetchSocietyEvents = createAsyncThunk(
   }
 );
 
+export const fetchSocietyEventsByStatus = createAsyncThunk(
+  'societies/fetchEventsByStatus',
+  async ({ societyId, approvalStatus }, { rejectWithValue }) => {
+    try {
+      const { data } = await societyApi.getSocietyEventsByStatus(societyId, { approvalStatus });
+      return { approvalStatus, events: data.data };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to fetch events');
+    }
+  }
+);
+
 // ── Initial State ─────────────────────────────────────────────────────────────
 
 const initialState = {
@@ -243,6 +255,9 @@ const initialState = {
   // Events
   societyEvents: { upcoming: [], ongoing: [], past: [] },
   eventsLoading: false,
+  // HQ Events (by approvalStatus for tabbed view)
+  hqEvents: { pending: [], rejected: [], approved: [] },
+  hqEventsLoading: false,
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -437,6 +452,20 @@ const societySlice = createSlice({
         state.societyEvents = action.payload ?? { upcoming: [], ongoing: [], past: [] };
       })
       .addCase(fetchSocietyEvents.rejected, (state) => { state.eventsLoading = false; });
+
+    // fetchSocietyEventsByStatus
+    builder
+      .addCase(fetchSocietyEventsByStatus.pending, (state) => { state.hqEventsLoading = true; })
+      .addCase(fetchSocietyEventsByStatus.fulfilled, (state, action) => {
+        state.hqEventsLoading = false;
+        const { approvalStatus, events } = action.payload;
+        const bucket = approvalStatus === 'pending_admin_review' ? 'pending'
+          : approvalStatus === 'rejected' ? 'rejected' : 'approved';
+        const evList = Array.isArray(events) ? events
+          : events?.docs ?? events?.upcoming ?? events?.events ?? [];
+        state.hqEvents[bucket] = evList;
+      })
+      .addCase(fetchSocietyEventsByStatus.rejected, (state) => { state.hqEventsLoading = false; });
   },
 });
 
@@ -461,5 +490,7 @@ export const selectAnnouncementsPagination   = (state) => state.societies.announ
 // Events
 export const selectSocietyEvents    = (state) => state.societies.societyEvents;
 export const selectEventsLoading    = (state) => state.societies.eventsLoading;
+export const selectHQEvents         = (state) => state.societies.hqEvents;
+export const selectHQEventsLoading  = (state) => state.societies.hqEventsLoading;
 
 export default societySlice.reducer;

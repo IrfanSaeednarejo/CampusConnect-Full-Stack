@@ -11,6 +11,8 @@ export default function EnrollmentCTA({
   spotsRemaining,
   isFull,
   loading = false,
+  isRegistered = false,
+  registrationStatus = null,
   onEnroll
 }) {
   const role = useSelector(selectRole);
@@ -28,6 +30,26 @@ export default function EnrollmentCTA({
   }
 
   const renderContent = () => {
+    if (isRegistered) {
+      return (
+        <div className="text-center space-y-4">
+          <div className="w-12 h-12 bg-[#1dc964]/10 rounded-full flex items-center justify-center mx-auto">
+            <span className="material-symbols-outlined text-[#1dc964]">how_to_reg</span>
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-white">Already Registered</h3>
+            <p className="text-sm text-[#8b949e] mt-1">Status: <span className={`font-bold uppercase ${registrationStatus === 'approved' ? 'text-[#1dc964]' : registrationStatus === 'pending' ? 'text-[#e3b341]' : 'text-[#f85149]'}`}>{registrationStatus}</span></p>
+          </div>
+          {registrationStatus === 'approved' && (
+            <p className="text-xs text-[#8b949e]">You are confirmed for this event!</p>
+          )}
+          {registrationStatus === 'pending' && (
+            <p className="text-xs text-[#8b949e]">Waiting for organizer approval.</p>
+          )}
+        </div>
+      );
+    }
+
     if (status === "draft" || status === "published") {
       return (
         <div className="text-center space-y-2">

@@ -44,7 +44,31 @@ export default function LeaderboardTab() {
   }
 
   if (board.length === 0) {
-    return <div className="p-10 text-center text-[#8b949e]">No submissions scored yet.</div>;
+    let title = "No Scores Yet";
+    let message = "No submissions have been scored yet.";
+    let icon = "leaderboard";
+
+    if (event?.status === 'published' || event?.status === 'registration') {
+      title = "Event hasn't started";
+      message = "The leaderboard will be populated once the event begins and submissions are scored.";
+      icon = "event_upcoming";
+    } else if (event?.status === 'active') {
+      title = "Event Ongoing";
+      message = "The event is currently active. Scores will appear here once judging begins.";
+      icon = "sports_score";
+    } else if (event?.status === 'judging') {
+      title = "Judging in Progress";
+      message = "Submissions are currently being evaluated. Check back soon for the results!";
+      icon = "gavel";
+    }
+
+    return (
+      <div className="p-10 text-center animate-fade-in flex flex-col items-center justify-center min-h-[300px]">
+        <span className="material-symbols-outlined text-6xl text-[#30363d] mb-4">{icon}</span>
+        <h2 className="text-xl font-bold text-white mb-2">{title}</h2>
+        <p className="text-[#8b949e] max-w-md">{message}</p>
+      </div>
+    );
   }
 
   return (

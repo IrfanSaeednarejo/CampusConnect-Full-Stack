@@ -34,7 +34,7 @@ const NAV_GROUPS = [
     {
         title: "Operations",
         items: [
-            { to: "/admin/events", label: "Events", icon: "📅" },
+            { to: "/admin/events", label: "Events", icon: "📅", badge: "events" },
             { to: "/admin/study-groups", label: "Study Groups", icon: "📚" },
             { to: "/admin/notifications", label: "Broadcaster", icon: "🔔" },
         ]

@@ -36,11 +36,14 @@ export const adminAddSocietyMember = (id, data) => axiosInstance.post(`/admin/so
 export const adminUpdateSocietyMember = (id, userId, data) => axiosInstance.patch(`/admin/societies/${id}/members/${userId}`, data);
 export const adminRemoveSocietyMember = (id, userId) => axiosInstance.delete(`/admin/societies/${id}/members/${userId}`);
 
-// ── Event Management ─────────────────────────────────────────────────────────
+// ── Event Management ─────────────────────────────────────────────────────────────────────
 export const getAdminEvents = (params) => axiosInstance.get("/admin/events", { params });
+export const getPendingEvents = (params) => axiosInstance.get("/admin/events/pending", { params });
 export const getEventRegistrations = (id, params) => axiosInstance.get(`/admin/events/${id}/registrations`, { params });
 export const forceCancelEvent = (id, data) => axiosInstance.patch(`/admin/events/${id}/cancel`, data);
 export const forceEventStatus = (id, data) => axiosInstance.patch(`/admin/events/${id}/status`, data);
+export const approveEvent = (id) => axiosInstance.patch(`/admin/events/${id}/approve`);
+export const rejectEvent = (id, data) => axiosInstance.patch(`/admin/events/${id}/reject`, data);
 
 // ── Study Group Management ───────────────────────────────────────────────────
 export const getAdminStudyGroups = (params) => axiosInstance.get("/admin/study-groups", { params });

@@ -27,8 +27,8 @@ const findCompetitionById = async (eventId) => {
     if (!mongoose.isValidObjectId(eventId)) {
         throw new ApiError(400, "Invalid event ID format");
     }
-    const event = await Event.findOne({ _id: eventId, isOnlineCompetition: true });
-    if (!event) throw new ApiError(404, "Competition not found");
+    const event = await Event.findOne({ _id: eventId });
+    if (!event) throw new ApiError(404, "Event not found");
     return event;
 };
 
@@ -145,6 +145,7 @@ export const createCompetition = async (data, file, requestUser) => {
         coverImage: cover?.secure_url || "",
         coverImagePublicId: cover?.public_id || "",
         status: "draft",
+        approvalStatus: "pending_admin_review",
     });
 };
 
@@ -154,11 +155,13 @@ export const getCompetitions = async (queryParams, requestUser) => {
         participationType, status, q,
     } = queryParams;
 
-    const filter = { isOnlineCompetition: true };
+    const filter = {};
     const isAdmin = requestUser?.roles?.includes("admin");
 
     if (!isAdmin) {
-        filter.status = { $in: ["registration", "ongoing", "submission_locked", "judging", "completed"] };
+        // Public users only see admin-approved events in the full event lifecycle
+        filter.approvalStatus = "approved";
+        filter.status = { $in: ["published", "registration", "ongoing", "submission_locked", "judging", "completed"] };
     } else if (status && status !== "all") {
         filter.status = status;
     }
@@ -195,6 +198,7 @@ export const getCompetitionById = async (eventId, requestUser) => {
         { path: "createdBy", select: "profile.displayName profile.avatar profile.firstName profile.lastName" },
         { path: "societyId", select: "name tag description" },
         { path: "judgingConfig.judges", select: "profile.displayName profile.avatar" },
+        { path: "registrations.userId", select: "profile.displayName profile.avatar email" },
     ]);
 
     const eventObj = event.toObject({ virtuals: true });
@@ -564,4 +568,122 @@ export const updateJudges = async (eventId, data, requestUser) => {
         .select("judgingConfig.judges");
 
     return updated.judgingConfig.judges;
+};
+
+export const registerForEvent = async (eventId, data, file, requestUser) => {
+    const event = await findCompetitionById(eventId);
+    
+    if (event.status !== "registration" && event.status !== "published") {
+        throw new ApiError(400, "Registration is not open for this event");
+    }
+
+    if (event.registrationDeadline && new Date() > event.registrationDeadline) {
+        throw new ApiError(400, "Registration deadline has passed");
+    }
+
+    if (event.registrations.some(r => r.userId.toString() === requestUser._id.toString())) {
+        throw new ApiError(400, "You have already applied for this event");
+    }
+
+    const { additionalInfo } = data;
+
+    let paymentScreenshot = "";
+    let paymentScreenshotPublicId = "";
+    if (file) {
+        const uploadResult = await uploadFile(file.path);
+        if (uploadResult) {
+            paymentScreenshot = uploadResult.secure_url;
+            paymentScreenshotPublicId = uploadResult.public_id;
+        }
+    } else if (event.fee?.amount > 0) {
+        throw new ApiError(400, "Payment screenshot is required for paid events");
+    }
+
+    const newRegistration = {
+        userId: requestUser._id,
+        status: "pending",
+        paymentScreenshot,
+        paymentScreenshotPublicId,
+        additionalInfo: additionalInfo ? (typeof additionalInfo === 'string' ? JSON.parse(additionalInfo) : additionalInfo) : {},
+        registeredAt: new Date()
+    };
+
+    const updated = await Event.findByIdAndUpdate(
+        event._id,
+        { $push: { registrations: newRegistration } },
+        { new: true, runValidators: true }
+    );
+
+    return updated.registrations[updated.registrations.length - 1];
+};
+
+export const getRegistrations = async (eventId, queryParams, requestUser) => {
+    const { status } = queryParams;
+    const event = await findCompetitionById(eventId);
+    requireOrganizerOrAdmin(event, requestUser);
+
+    let registrations = event.registrations;
+    if (status && status !== "all") {
+        registrations = registrations.filter(r => r.status === status);
+    }
+
+    // Populate user info manually since registrations is just an array
+    await Event.populate(registrations, {
+        path: "userId",
+        select: "profile.displayName profile.avatar profile.firstName profile.lastName email",
+        model: "User"
+    });
+
+    return registrations;
+};
+
+export const approveRegistration = async (eventId, userId, requestUser) => {
+    const event = await findCompetitionById(eventId);
+    requireOrganizerOrAdmin(event, requestUser);
+
+    const regIndex = event.registrations.findIndex(r => r.userId.toString() === userId.toString());
+    if (regIndex === -1) throw new ApiError(404, "Registration not found for this user");
+
+    if (event.registrations[regIndex].status === "approved") {
+        throw new ApiError(400, "Registration is already approved");
+    }
+
+    const updateQuery = {};
+    updateQuery[`registrations.${regIndex}.status`] = "approved";
+    updateQuery[`registrations.${regIndex}.reviewedBy`] = requestUser._id;
+    updateQuery[`registrations.${regIndex}.reviewedAt`] = new Date();
+
+    const updated = await Event.findByIdAndUpdate(
+        event._id,
+        { $set: updateQuery },
+        { new: true }
+    );
+
+    return updated.registrations[regIndex];
+};
+
+export const rejectRegistration = async (eventId, userId, reason, requestUser) => {
+    const event = await findCompetitionById(eventId);
+    requireOrganizerOrAdmin(event, requestUser);
+
+    const regIndex = event.registrations.findIndex(r => r.userId.toString() === userId.toString());
+    if (regIndex === -1) throw new ApiError(404, "Registration not found for this user");
+
+    if (event.registrations[regIndex].status === "rejected") {
+        throw new ApiError(400, "Registration is already rejected");
+    }
+
+    const updateQuery = {};
+    updateQuery[`registrations.${regIndex}.status`] = "rejected";
+    updateQuery[`registrations.${regIndex}.reviewedBy`] = requestUser._id;
+    updateQuery[`registrations.${regIndex}.reviewedAt`] = new Date();
+    updateQuery[`registrations.${regIndex}.rejectionReason`] = reason || "";
+
+    const updated = await Event.findByIdAndUpdate(
+        event._id,
+        { $set: updateQuery },
+        { new: true }
+    );
+
+    return updated.registrations[regIndex];
 };

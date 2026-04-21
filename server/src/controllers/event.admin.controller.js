@@ -56,3 +56,32 @@ export const getEventRegistrations = asyncHandler(async (req, res) => {
     const result = await eventService.getEventRegistrations(eventId, status, page, limit);
     return res.status(200).json(new ApiResponse(200, result, "Registrations fetched"));
 });
+
+/**
+ * GET /admin/events/pending
+ */
+export const listPendingEvents = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 20 } = req.query;
+    let filter = scopeQuery(req, {});
+    const result = await eventService.listPendingEvents(filter, { page, limit });
+    return res.status(200).json(new ApiResponse(200, result, "Pending events fetched"));
+});
+
+/**
+ * PATCH /admin/events/:eventId/approve
+ */
+export const approveEvent = asyncHandler(async (req, res) => {
+    const { eventId } = req.params;
+    await eventService.approveEvent(eventId, req.user, req);
+    return res.status(200).json(new ApiResponse(200, null, "Event approved successfully"));
+});
+
+/**
+ * PATCH /admin/events/:eventId/reject
+ */
+export const rejectEvent = asyncHandler(async (req, res) => {
+    const { eventId } = req.params;
+    const { reason } = req.body;
+    await eventService.rejectEvent(eventId, reason, req.user, req);
+    return res.status(200).json(new ApiResponse(200, null, "Event rejected"));
+});

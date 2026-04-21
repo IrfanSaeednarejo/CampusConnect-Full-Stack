@@ -69,6 +69,42 @@ export const publishLeaderboardThunk = createAsyncThunk('events/publishLeaderboa
   }
 );
 
+export const registerForEventThunk = createAsyncThunk('events/register',
+  async ({ eventId, formData }, { rejectWithValue }) => {
+    try {
+      const { data } = await eventApi.registerForEvent(eventId, formData);
+      return { eventId, registration: data.data };
+    } catch (err) { return rejectWithValue(errMsg(err)); }
+  }
+);
+
+export const fetchRegistrationsThunk = createAsyncThunk('events/fetchRegistrations',
+  async (eventId, { rejectWithValue }) => {
+    try {
+      const { data } = await eventApi.getEventRegistrations(eventId);
+      return data.data;
+    } catch (err) { return rejectWithValue(errMsg(err)); }
+  }
+);
+
+export const approveRegistrationThunk = createAsyncThunk('events/approveRegistration',
+  async ({ eventId, userId }, { rejectWithValue }) => {
+    try {
+      const { data } = await eventApi.approveRegistration(eventId, userId);
+      return { eventId, userId, registration: data.data };
+    } catch (err) { return rejectWithValue(errMsg(err)); }
+  }
+);
+
+export const rejectRegistrationThunk = createAsyncThunk('events/rejectRegistration',
+  async ({ eventId, userId, reason }, { rejectWithValue }) => {
+    try {
+      const { data } = await eventApi.rejectRegistration(eventId, userId, reason);
+      return { eventId, userId, registration: data.data };
+    } catch (err) { return rejectWithValue(errMsg(err)); }
+  }
+);
+
 export const fetchAnnouncementsThunk = createAsyncThunk('events/fetchAnnouncements',
   async (id, { rejectWithValue }) => {
     try {
@@ -110,6 +146,7 @@ export const updateJudgesThunk = createAsyncThunk('events/updateJudges',
 const initialState = {
   events:        [],
   currentEvent:  null,
+  registrations: [],
   myEvents:      [],        // derived client-side or separate fetch
   announcements: [],
   leaderboard:   [],
@@ -231,14 +268,57 @@ const eventSlice = createSlice({
       })
       .addCase(publishLeaderboardThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
 
+    // registerForEventThunk
+    builder
+      .addCase(registerForEventThunk.pending, (state) => { state.actionLoading = true; state.error = null; })
+      .addCase(registerForEventThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        // Optionally update the event status/registrations if needed
+        // but typically the UI will wait for redirect or showing success
+        if (state.currentEvent?._id === action.payload.eventId) {
+          state.currentEvent.registrations.push(action.payload.registration);
+        }
+      })
+      .addCase(registerForEventThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
+
+    // fetchRegistrationsThunk
+    builder
+      .addCase(fetchRegistrationsThunk.pending, (state) => { state.loading = true; state.error = null; })
+      .addCase(fetchRegistrationsThunk.fulfilled, (state, action) => {
+        state.loading = false;
+        state.registrations = action.payload;
+      })
+      .addCase(fetchRegistrationsThunk.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
+
+    // approveRegistrationThunk
+    builder
+      .addCase(approveRegistrationThunk.pending, (state) => { state.actionLoading = true; })
+      .addCase(approveRegistrationThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const updated = action.payload.registration;
+        const idx = state.registrations.findIndex(r => r.userId?._id === updated.userId?._id || r.userId === updated.userId);
+        if (idx !== -1) state.registrations[idx] = updated;
+      })
+      .addCase(approveRegistrationThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
+
+    // rejectRegistrationThunk
+    builder
+      .addCase(rejectRegistrationThunk.pending, (state) => { state.actionLoading = true; })
+      .addCase(rejectRegistrationThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const updated = action.payload.registration;
+        const idx = state.registrations.findIndex(r => r.userId?._id === updated.userId?._id || r.userId === updated.userId);
+        if (idx !== -1) state.registrations[idx] = updated;
+      })
+      .addCase(rejectRegistrationThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
+
     // fetchAnnouncementsThunk
     builder
-      .addCase(fetchAnnouncementsThunk.pending, (state) => { state.loading = true; })
+      .addCase(fetchAnnouncementsThunk.pending, (state) => { /* do not set global loading */ })
       .addCase(fetchAnnouncementsThunk.fulfilled, (state, action) => {
-        state.loading = false;
         state.announcements = Array.isArray(action.payload) ? action.payload : [];
       })
-      .addCase(fetchAnnouncementsThunk.rejected, (state) => { state.loading = false; });
+      .addCase(fetchAnnouncementsThunk.rejected, (state) => { /* do not set global loading */ });
 
     // postAnnouncementThunk
     builder
@@ -276,6 +356,7 @@ export const {
 export const selectAllEvents         = (state) => state.events.events;
 export const selectCurrentEvent      = (state) => state.events.currentEvent;
 export const selectMyEvents          = (state) => state.events.myEvents;
+export const selectRegistrations     = (state) => state.events.registrations;
 export const selectEventAnnouncements = (state) => state.events.announcements;
 export const selectLeaderboard       = (state) => state.events.leaderboard;
 export const selectEventPagination   = (state) => state.events.pagination;

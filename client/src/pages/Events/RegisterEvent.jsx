@@ -1,219 +1,208 @@
-import React from "react";
-import { useParams } from "react-router-dom";
-import SocietySidebar from "../../components/layout/Sidebar";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { selectSelectedEvent, registerForEventThunk } from "../../redux/slices/eventSlice";
+import { selectUser } from "../../redux/slices/authSlice";
+import CircularProgress from "../../components/common/CircularProgress";
+import { toast } from "react-hot-toast";
 
-// --- Chess Club Events Widget ---
-function ChessClubEvents({ eventType }) {
-  // Example events based on type
-  const eventsMap = {
-    chessclub: [
-      {
-        name: "Annual Chess Tournament",
-        date: "Oct 26, 2024 - 10:00 AM",
-        badge: 42,
-      },
-      {
-        name: "Weekly Casual Play",
-        date: "Nov 01, 2024 - 06:00 PM",
-        badge: 15,
-        highlight: true,
-      },
-      {
-        name: "Beginner's Workshop",
-        date: "Nov 10, 2024 - 03:00 PM",
-        badge: 28,
-      },
-    ],
-    debateteam: [
-      {
-        name: "Inter-College Debate",
-        date: "Nov 05, 2024 - 02:00 PM",
-        badge: 30,
-      },
-      {
-        name: "Weekly Practice",
-        date: "Nov 07, 2024 - 05:00 PM",
-        badge: 12,
-        highlight: true,
-      },
-    ],
-  };
-
-  const events = eventsMap[eventType] || [];
-
-  return (
-    <div className="w-1/3 bg-[#0d1117] rounded-xl p-6 flex flex-col gap-6 shadow-lg border border-[#21262d]">
-      <h2 className="text-xl font-semibold text-white">
-        {eventType
-          ? `${eventType.replace(/^\w/, (c) => c.toUpperCase())} Events`
-          : "Events"}
-      </h2>
-      <div className="relative">
-        <input
-          className="w-full bg-[#161b22] text-[#c9d1d9] border border-[#30363d] rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-[#238636] transition-colors"
-          placeholder="Search events..."
-          type="text"
-        />
-        <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e]">
-          search
-        </span>
-      </div>
-      <div className="flex-grow overflow-y-auto">
-        {events.map((event) => (
-          <div
-            key={event.name}
-            className={`group flex items-center gap-3 p-4 border rounded-lg cursor-pointer transition-colors ${
-              event.highlight
-                ? "bg-[#238636]/30 border-[#238636]"
-                : "bg-[#161b22] border-[#30363d] hover:bg-[#21262d]"
-            }`}
-          >
-            <span
-              className={`material-symbols-outlined text-lg ${
-                event.highlight
-                  ? "text-white"
-                  : "text-[#8b949e] group-hover:text-white"
-              }`}
-            >
-              event
-            </span>
-            <div className="flex flex-col flex-grow">
-              <span className="text-sm font-medium text-white">
-                {event.name}
-              </span>
-              <span
-                className={`text-xs ${
-                  event.highlight ? "text-primary" : "text-[#8b949e]"
-                }`}
-              >
-                {event.date}
-              </span>
-            </div>
-            <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 text-xs font-semibold text-white bg-[#238636] rounded-full">
-              {event.badge}
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// --- Attendees Table Widget ---
-function AttendeesTable({ eventType }) {
-  // Example attendees
-  const attendeesMap = {
-    chessclub: [
-      {
-        name: "Alice Johnson",
-        email: "alice.j@campus.com",
-        id: "2022001",
-        date: "Oct 30, 2024",
-      },
-      {
-        name: "Bob Williams",
-        email: "bob.w@campus.com",
-        id: "2022002",
-        date: "Oct 30, 2024",
-      },
-    ],
-    debateteam: [
-      {
-        name: "Charlie Brown",
-        email: "charlie.b@campus.com",
-        id: "2022003",
-        date: "Oct 31, 2024",
-      },
-      {
-        name: "Diana Prince",
-        email: "diana.p@campus.com",
-        id: "2022004",
-        date: "Nov 01, 2024",
-      },
-    ],
-  };
-
-  const attendees = attendeesMap[eventType] || [];
-
-  return (
-    <div className="flex-1 bg-[#0d1117] rounded-xl p-6 flex flex-col gap-6 shadow-lg border border-[#21262d]">
-      <h2 className="text-xl font-semibold text-white">
-        Attendees for:{" "}
-        {eventType ? eventType.replace(/^\w/, (c) => c.toUpperCase()) : "Event"}
-      </h2>
-      <div className="flex items-center gap-4">
-        <div className="relative flex-grow">
-          <input
-            className="w-full bg-[#161b22] text-[#c9d1d9] border border-[#30363d] rounded-lg py-2 pl-10 pr-4 focus:outline-none focus:border-[#238636] transition-colors"
-            placeholder="Filter attendees..."
-            type="text"
-          />
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e]">
-            filter_alt
-          </span>
-        </div>
-        <button className="flex items-center gap-2 px-4 py-2 bg-[#238636] text-white rounded-lg hover:bg-[#238636]/80 transition-colors text-sm font-medium">
-          <span className="material-symbols-outlined text-base">download</span>
-          Export
-        </button>
-        <button className="flex items-center gap-2 px-4 py-2 bg-[#238636] text-white rounded-lg hover:bg-[#238636]/80 transition-colors text-sm font-medium">
-          <span className="material-symbols-outlined text-base">add</span>Add
-          Attendee
-        </button>
-      </div>
-      <div className="flex-grow overflow-y-auto">
-        <table className="w-full text-left table-auto">
-          <thead>
-            <tr className="bg-[#161b22] text-[#8b949e] text-xs uppercase tracking-wider">
-              <th className="px-4 py-3 rounded-tl-lg">Name</th>
-              <th className="px-4 py-3">Email</th>
-              <th className="px-4 py-3">Student ID</th>
-              <th className="px-4 py-3">Registration Date</th>
-              <th className="px-4 py-3 rounded-tr-lg">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[#21262d]">
-            {attendees.map((a) => (
-              <tr
-                key={a.id}
-                className="hover:bg-[#161b22]/50 transition-colors"
-              >
-                <td className="px-4 py-4 text-sm font-medium text-white">
-                  {a.name}
-                </td>
-                <td className="px-4 py-4 text-sm text-[#c9d1d9]">{a.email}</td>
-                <td className="px-4 py-4 text-sm text-[#c9d1d9]">{a.id}</td>
-                <td className="px-4 py-4 text-sm text-[#c9d1d9]">{a.date}</td>
-                <td className="px-4 py-4 text-sm text-[#8b949e] flex gap-2">
-                  <button className="text-[#8b949e] hover:text-white material-symbols-outlined text-lg">
-                    edit
-                  </button>
-                  <button className="text-[#8b949e] hover:text-red-500 material-symbols-outlined text-lg">
-                    delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-// --- Main Page Layout ---
 export default function RegisterEvent() {
-  const { eventType } = useParams(); // from route /events/:eventType
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  
+  const event = useSelector(selectSelectedEvent);
+  const user = useSelector(selectUser);
+  const [loading, setLoading] = useState(false);
+  
+  const [formData, setFormData] = useState({
+    additionalInfo: "",
+    screenshot: null
+  });
+  const [preview, setPreview] = useState(null);
+
+  // Check if already registered
+  const isRegistered = event?.registrations?.some(r => r.userId === user?._id || r.userId?._id === user?._id);
+  const myRegistration = event?.registrations?.find(r => r.userId === user?._id || r.userId?._id === user?._id);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData({ ...formData, screenshot: file });
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (event?.fee?.amount > 0 && !formData.screenshot) {
+      toast.error("Payment screenshot is required for this event");
+      return;
+    }
+
+    const submissionData = new FormData();
+    submissionData.append("additionalInfo", JSON.stringify({ note: formData.additionalInfo }));
+    if (formData.screenshot) {
+      submissionData.append("paymentScreenshot", formData.screenshot);
+    }
+
+    setLoading(true);
+    try {
+      const resultAction = await dispatch(registerForEventThunk({ eventId: id, formData: submissionData }));
+      if (registerForEventThunk.fulfilled.match(resultAction)) {
+        toast.success("Registration submitted! Waiting for approval.");
+        navigate(`/events/${id}`);
+      } else {
+        toast.error(resultAction.payload || "Registration failed");
+      }
+    } catch (err) {
+      toast.error("An unexpected error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!event) return <div className="p-10 flex justify-center"><CircularProgress /></div>;
+
+  if (isRegistered) {
+    return (
+      <div className="p-8 text-center animate-fade-in flex flex-col items-center justify-center min-h-[400px]">
+        <div className="w-20 h-20 bg-[#1dc964]/20 rounded-full flex items-center justify-center mb-6">
+          <span className="material-symbols-outlined text-4xl text-[#1dc964]">check_circle</span>
+        </div>
+        <h2 className="text-2xl font-bold text-white mb-2">You're already on the list!</h2>
+        <p className="text-[#8b949e] max-w-md mb-6">
+          Your registration status is currently <span className="text-white font-bold uppercase">{myRegistration?.status}</span>.
+          {myRegistration?.status === 'pending' && " The society head will review your details soon."}
+        </p>
+        <button 
+          onClick={() => navigate(`/events/${id}`)}
+          className="bg-[#21262d] text-white px-6 py-2 rounded-lg border border-[#30363d] hover:bg-[#30363d] transition-colors"
+        >
+          Back to Overview
+        </button>
+      </div>
+    );
+  }
+
+  const isFree = !event.fee?.amount || event.fee.amount === 0;
 
   return (
-    <div className="bg-background-light bg-black font-display flex h-240">
-      <SocietySidebar />
-      <main className="flex-1 p-8">
-        <div className="w-full h-full flex gap-6">
-          <ChessClubEvents eventType={eventType} />
-          <AttendeesTable eventType={eventType} />
+    <div className="p-6 md:p-8 animate-fade-in max-w-3xl mx-auto">
+      <div className="mb-8 border-b border-[#30363d] pb-4">
+        <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+          <span className="material-symbols-outlined text-[#1dc964]">app_registration</span>
+          Register for {event.title}
+        </h2>
+        <p className="text-[#8b949e] mt-1">Please fill in the details below to secure your spot.</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-8">
+        {/* User Info (Read Only) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-[#8b949e] uppercase tracking-wider">Full Name</label>
+            <div className="bg-[#0d1117] border border-[#30363d] p-3 rounded-lg text-white opacity-70">
+              {user?.profile?.displayName || `${user?.profile?.firstName} ${user?.profile?.lastName}`}
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-[#8b949e] uppercase tracking-wider">Email Address</label>
+            <div className="bg-[#0d1117] border border-[#30363d] p-3 rounded-lg text-white opacity-70">
+              {user?.email}
+            </div>
+          </div>
         </div>
-      </main>
+
+        {/* Fee Section */}
+        <div className={`p-6 rounded-xl border ${isFree ? 'bg-[#238636]/10 border-[#238636]/30' : 'bg-[#e3b341]/10 border-[#e3b341]/30'}`}>
+          <div className="flex justify-between items-center">
+            <div>
+              <h4 className="font-bold text-white text-lg">{isFree ? 'Free Event' : 'Paid Registration'}</h4>
+              <p className="text-sm text-[#8b949e]">{isFree ? 'No payment required for this event.' : `Please pay PKR ${event.fee.amount.toLocaleString()} to the society account.`}</p>
+            </div>
+            {!isFree && (
+              <div className="text-2xl font-black text-[#e3b341]">
+                PKR {event.fee.amount}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Payment Screenshot Upload */}
+        {!isFree && (
+          <div className="space-y-4">
+            <label className="text-sm font-bold text-white flex items-center gap-2">
+              <span className="material-symbols-outlined text-[#e3b341]">receipt_long</span>
+              Payment Screenshot
+              <span className="text-red-500">*</span>
+            </label>
+            
+            <div className="relative group">
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                required
+              />
+              <div className={`border-2 border-dashed rounded-xl p-8 transition-all flex flex-col items-center justify-center gap-4 ${preview ? 'border-[#1dc964] bg-[#1dc964]/5' : 'border-[#30363d] group-hover:border-[#8b949e] bg-[#0d1117]'}`}>
+                {preview ? (
+                  <div className="relative w-full max-w-xs aspect-video rounded-lg overflow-hidden border border-[#30363d]">
+                    <img src={preview} alt="Screenshot preview" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      <span className="text-white text-xs font-bold">Change Image</span>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-5xl text-[#30363d]">upload_file</span>
+                    <div className="text-center">
+                      <p className="text-white font-medium">Click to upload or drag and drop</p>
+                      <p className="text-xs text-[#8b949e] mt-1">PNG, JPG or JPEG (Max 5MB)</p>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Additional Info */}
+        <div className="space-y-2">
+          <label className="text-sm font-bold text-white">Additional Notes (Optional)</label>
+          <textarea
+            value={formData.additionalInfo}
+            onChange={(e) => setFormData({ ...formData, additionalInfo: e.target.value })}
+            placeholder="Anything else you'd like the organizers to know?"
+            rows={4}
+            className="w-full bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-white focus:outline-none focus:border-[#1dc964] transition-colors resize-none"
+          />
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-4 pt-4">
+          <button
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex-1 px-6 py-3 rounded-lg border border-[#30363d] text-white font-bold hover:bg-[#21262d] transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex-[2] bg-[#1dc964] text-black px-6 py-3 rounded-lg font-bold hover:bg-[#1fb15b] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {loading ? (
+              <><CircularProgress size={20} color="black" /> Submitting...</>
+            ) : (
+              'Confirm Registration'
+            )}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

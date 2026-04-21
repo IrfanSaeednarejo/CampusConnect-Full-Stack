@@ -30,3 +30,4 @@ export const deleteSocietyPost = (id, postId) => api.delete(`${BASE}/${id}/posts
 // ── Society Events ────────────────────────────────────────────────────────────
 
 export const getSocietyEventsById = (id) => api.get(`${BASE}/${id}/events`);
+export const getSocietyEventsByStatus = (id, params = {}) => api.get(`${BASE}/${id}/events`, { params });

@@ -60,6 +60,26 @@ const updateJudges = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, judges, `Judges ${req.body.action === "add" ? "added" : "removed"} successfully`));
 });
 
+const registerForEvent = asyncHandler(async (req, res) => {
+    const result = await eventService.registerForEvent(req.params.eventId, req.body, req.file, req.user);
+    return res.status(201).json(new ApiResponse(201, result, "Successfully registered for event"));
+});
+
+const getRegistrations = asyncHandler(async (req, res) => {
+    const result = await eventService.getRegistrations(req.params.eventId, req.query, req.user);
+    return res.status(200).json(new ApiResponse(200, result, "Registrations fetched successfully"));
+});
+
+const approveRegistration = asyncHandler(async (req, res) => {
+    const result = await eventService.approveRegistration(req.params.eventId, req.params.userId, req.user);
+    return res.status(200).json(new ApiResponse(200, result, "Registration approved"));
+});
+
+const rejectRegistration = asyncHandler(async (req, res) => {
+    const result = await eventService.rejectRegistration(req.params.eventId, req.params.userId, req.body.reason, req.user);
+    return res.status(200).json(new ApiResponse(200, result, "Registration rejected"));
+});
+
 export {
     createCompetition,
     getCompetitions,
@@ -72,4 +92,8 @@ export {
     getLeaderboard,
     publishLeaderboard,
     updateJudges,
+    registerForEvent,
+    getRegistrations,
+    approveRegistration,
+    rejectRegistration
 };

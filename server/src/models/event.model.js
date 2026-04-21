@@ -8,6 +8,10 @@ export const EVENT_STATUS = [
     "pending", "draft", "published", "cancelled", "completed",
     "registration", "ongoing", "submission_locked", "judging",
 ];
+
+export const APPROVAL_STATUS = [
+    "pending_admin_review", "approved", "rejected",
+];
 export const EVENT_TYPES = [
     "general", "hackathon", "coding_competition", "workshop", "seminar",
 ];
@@ -47,10 +51,16 @@ const registrationSchema = new Schema(
         userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
         status: {
             type: String,
-            enum: ["registered", "waitlisted", "cancelled", "attended"],
-            default: "registered",
+            enum: ["pending", "approved", "rejected", "registered", "waitlisted", "cancelled", "attended"],
+            default: "pending",
         },
+        paymentScreenshot: { type: String, default: "" },
+        paymentScreenshotPublicId: { type: String, default: "", select: false },
+        additionalInfo: { type: Schema.Types.Mixed, default: {} },
         registeredAt: { type: Date, default: Date.now },
+        reviewedBy: { type: Schema.Types.ObjectId, ref: "User" },
+        reviewedAt: { type: Date },
+        rejectionReason: { type: String, trim: true, maxlength: 300 },
     },
     { _id: true }
 );
@@ -194,6 +204,17 @@ const eventSchema = new Schema(
         scoringPublished: { type: Boolean, default: false },
         prizePool: { type: [prizeSchema], default: [] },
         announcements: { type: [announcementSchema], default: [] },
+
+        // ── Admin Approval Layer ───────────────────────────────────────────────
+        approvalStatus: {
+            type: String,
+            enum: { values: APPROVAL_STATUS, message: "{VALUE} is not a valid approval status" },
+            default: "pending_admin_review",
+            index: true,
+        },
+        rejectionReason: { type: String, trim: true, maxlength: 500, default: "" },
+        approvedBy: { type: Schema.Types.ObjectId, ref: "User", default: null },
+        approvedAt: { type: Date, default: null },
     },
     {
         timestamps: true,
@@ -208,6 +229,7 @@ eventSchema.index({ societyId: 1, startAt: -1 });
 eventSchema.index({ status: 1, campusId: 1 });
 eventSchema.index({ category: 1, campusId: 1 });
 eventSchema.index({ isOnlineCompetition: 1, status: 1 });
+eventSchema.index({ approvalStatus: 1, status: 1 });
 eventSchema.index({ "registrations.userId": 1 });
 eventSchema.index({ "judgingConfig.judges": 1 });
 eventSchema.index(

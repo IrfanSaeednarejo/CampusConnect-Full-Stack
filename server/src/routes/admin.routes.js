@@ -58,12 +58,15 @@ import {
     adminRemoveSocietyMember
 } from "../controllers/society.admin.controller.js";
 
-// ── Event admin ───────────────────────────────────────────────────────────────
+// ── Event admin ────────────────────────────────────────────────────────────────────────────────────
 import {
     listEvents,
     forceCancelEvent,
     forceEventStatus,
     getEventRegistrations,
+    listPendingEvents,
+    approveEvent,
+    rejectEvent,
 } from "../controllers/event.admin.controller.js";
 
 // ── StudyGroup admin ──────────────────────────────────────────────────────────
@@ -147,11 +150,14 @@ router.patch("/societies/:id/members/:userId", requireWriteAdmin, requireCampusA
 router.delete("/societies/:id/members/:userId", requireWriteAdmin, requireCampusAdmin(), adminRemoveSocietyMember);
 router.delete("/societies/:id", requireSuperAdmin, deleteSociety);
 
-// ─── Events ───────────────────────────────────────────────────────────────────
+// ─── Events ────────────────────────────────────────────────────────────────────────────────────
 router.get("/events", listEvents);
+router.get("/events/pending", listPendingEvents);           // NOTE: /pending before /:eventId
 router.get("/events/:eventId/registrations", getEventRegistrations);
 router.patch("/events/:eventId/cancel", requireWriteAdmin, requireCampusAdmin(), forceCancelEvent);
 router.patch("/events/:eventId/status", requireSuperAdmin, forceEventStatus);
+router.patch("/events/:eventId/approve", requireWriteAdmin, requireCampusAdmin(), approveEvent);
+router.patch("/events/:eventId/reject",  requireWriteAdmin, requireCampusAdmin(), rejectEvent);
 
 // ─── Study Groups ─────────────────────────────────────────────────────────────
 router.get("/study-groups", listStudyGroups);

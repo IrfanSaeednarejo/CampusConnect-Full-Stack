@@ -100,3 +100,16 @@ export const getJudgingProgress = (eventId) =>
 
 export const getMyJudgingQueue = (eventId, params = {}) =>
   api.get(`${BASE}/${eventId}/judging/my-queue`, { params });
+
+// Registration
+export const registerForEvent = (eventId, formData) =>
+  api.post(`${BASE}/${eventId}/register`, formData);
+
+export const getEventRegistrations = (eventId, params = {}) =>
+  api.get(`${BASE}/${eventId}/registrations`, { params });
+
+export const approveRegistration = (eventId, userId) =>
+  api.patch(`${BASE}/${eventId}/registrations/${userId}/approve`);
+
+export const rejectRegistration = (eventId, userId, reason) =>
+  api.patch(`${BASE}/${eventId}/registrations/${userId}/reject`, { reason });

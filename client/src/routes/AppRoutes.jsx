@@ -68,6 +68,7 @@ import SocietyAnalytics from "../pages/Societies/SocietyAnalytics";
 import EditSociety      from "../pages/Societies/EditSociety";
 import SocietyProfile   from "../pages/Societies/SocietyProfile";
 import SocietyHQLayout  from "../components/societies/SocietyHQLayout";
+import CreateEventForm  from "../pages/Societies/CreateEventForm";
 
 // ── Event Pages (AppShell) ───────────────────────────────────────────────────
 import EventDetailLayout   from "../pages/events/EventDetailFlow";
@@ -268,6 +269,7 @@ export default function AppRoutes() {
             <Route path="/society/:id/manage"          element={<SocietyManagement />} />
             <Route path="/society/:id/members"         element={<MemberRequests />} />
             <Route path="/society/:id/member-requests" element={<MemberRequests />} />
+            <Route path="/society/:id/events/create"   element={<CreateEventForm />} />
             <Route path="/society/:id/events"          element={<SocietyEvents />} />
             <Route path="/society/:id/settings"        element={<SocietySettings />} />
             <Route path="/society/:id/analytics"       element={<SocietyAnalytics />} />
