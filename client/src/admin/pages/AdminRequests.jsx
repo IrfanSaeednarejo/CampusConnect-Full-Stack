@@ -14,6 +14,9 @@ const TYPE_CFG = {
 
 const FILTERS = ["all", "mentor", "society", "event", "study_group"];
 
+// Backend uses plural keys for type filter; map display keys to API params
+const FILTER_API_MAP = { mentor: "mentors", society: "societies", event: "events", study_group: "study_groups" };
+
 const AdminRequests = () => {
   const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
@@ -34,7 +37,8 @@ const AdminRequests = () => {
   const fetchRequests = async () => {
     setLoading(true);
     try {
-      const { data } = await axios.get("/admin/requests", { params: { type: filter } });
+      const apiType = filter === "all" ? "all" : (FILTER_API_MAP[filter] ?? filter);
+      const { data } = await axios.get("/admin/requests", { params: { type: apiType } });
       setRequests(data.data || []);
     } catch (err) {
       console.error("Failed to fetch requests", err);

@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-    getAdminMentors,
-    getPendingMentors,
-    verifyMentor,
-    rejectMentor,
-    suspendMentor,
-    overrideMentorTier,
+  getAdminMentors,
+  getPendingMentors,
+  verifyMentor,
+  rejectMentor,
+  suspendMentor,
+  overrideMentorTier,
 } from "../../api/adminApi";
 import { useDispatch } from "react-redux";
 import { decrementPending } from "../../redux/slices/adminSlice";
@@ -14,380 +14,363 @@ import AdminTable from "../components/AdminTable";
 import AdminBadge from "../components/AdminBadge";
 import ReasonModal from "../components/ReasonModal";
 
-// ─── Shared styles ────────────────────────────────────────────────────────────
-
-const tabBtn = (active) => ({
-    padding: "8px 20px",
-    border: "none",
-    borderRadius: "8px 8px 0 0",
-    background: active ? "#1e293b" : "transparent",
-    color: active ? "#f8fafc" : "#64748b",
-    cursor: "pointer",
-    fontSize: 14,
-    fontWeight: active ? 600 : 400,
-    borderBottom: active ? "2px solid #6366f1" : "2px solid transparent",
-    transition: "all 0.15s",
-});
-
-const actionBtn = (color) => ({
-    padding: "5px 14px",
-    border: "none",
-    borderRadius: 6,
-    background: color,
-    color: "#fff",
-    cursor: "pointer",
-    fontSize: 12,
-    fontWeight: 600,
-});
-
-// ─── Pending Tab ──────────────────────────────────────────────────────────────
+// ── Pending Tab ────────────────────────────────────────────────────────────────
 
 const PendingMentorsTab = () => {
-    const dispatch = useDispatch();
-    const [mentors, setMentors] = useState([]);
-    const [pagination, setPagination] = useState({});
-    const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(true);
-    const [rejectModal, setRejectModal] = useState(null); // mentorId
+  const dispatch = useDispatch();
+  const [mentors,    setMentors]    = useState([]);
+  const [pagination, setPagination] = useState({});
+  const [page,       setPage]       = useState(1);
+  const [loading,    setLoading]    = useState(true);
+  const [rejectModal,setRejectModal]= useState(null); // mentorId
+  const [busyId,     setBusyId]     = useState(null);
 
-    const fetchPending = useCallback(async (p = 1) => {
-        setLoading(true);
-        try {
-            const { data } = await getPendingMentors({ page: p, limit: 12 });
-            setMentors(data.data?.docs || []);
-            setPagination(data.data?.pagination || {});
-        } finally {
-            setLoading(false);
-        }
-    }, []);
+  const fetchPending = useCallback(async (p = 1) => {
+    setLoading(true);
+    try {
+      const { data } = await getPendingMentors({ page: p, limit: 12 });
+      setMentors(data.data?.docs ?? data.data ?? []);
+      setPagination(data.data?.pagination ?? {});
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-    useEffect(() => { fetchPending(page); }, [page, fetchPending]);
+  useEffect(() => { fetchPending(page); }, [page, fetchPending]);
 
-    const handleVerify = async (mentorId) => {
-        await verifyMentor(mentorId);
-        dispatch(decrementPending({ key: "mentors" }));
-        setMentors((prev) => prev.filter((m) => m._id !== mentorId));
-    };
+  const handleVerify = async (mentorId) => {
+    setBusyId(mentorId);
+    try {
+      await verifyMentor(mentorId);
+      dispatch(decrementPending({ key: "mentors" }));
+      setMentors(prev => prev.filter(m => m._id !== mentorId));
+    } finally { setBusyId(null); }
+  };
 
-    const handleReject = async ({ confirmed, reason }) => {
-        if (!confirmed || !rejectModal) return setRejectModal(null);
-        await rejectMentor(rejectModal, { reason });
-        dispatch(decrementPending({ key: "mentors" }));
-        setMentors((prev) => prev.filter((m) => m._id !== rejectModal));
-        setRejectModal(null);
-    };
+  const handleReject = async ({ confirmed, reason }) => {
+    if (!confirmed || !rejectModal) return setRejectModal(null);
+    setBusyId(rejectModal);
+    try {
+      await rejectMentor(rejectModal, { reason });
+      dispatch(decrementPending({ key: "mentors" }));
+      setMentors(prev => prev.filter(m => m._id !== rejectModal));
+    } finally {
+      setBusyId(null);
+      setRejectModal(null);
+    }
+  };
 
-    if (loading) return <div style={{ color: "#64748b", padding: 32 }}>Loading...</div>;
-
-    if (mentors.length === 0)
-        return <div style={{ color: "#64748b", padding: 32, textAlign: "center" }}>No pending mentor applications ✓</div>;
-
+  if (loading) {
     return (
-        <div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(340px, 1fr))", gap: 16 }}>
-                {mentors.map((mentor) => (
-                    <div key={mentor._id} style={{
-                        background: "#0f172a", borderRadius: 12, padding: 20,
-                        border: "1px solid #334155",
-                    }}>
-                        {/* Header */}
-                        <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
-                            <img
-                                src={mentor.userId?.profile?.avatar || ""}
-                                alt=""
-                                style={{ width: 44, height: 44, borderRadius: "50%", background: "#334155", objectFit: "cover" }}
-                            />
-                            <div>
-                                <div style={{ color: "#f8fafc", fontWeight: 600, fontSize: 15 }}>
-                                    {mentor.userId?.profile?.displayName || "Unknown"}
-                                </div>
-                                <div style={{ color: "#64748b", fontSize: 12 }}>
-                                    {mentor.userId?.email}
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Bio */}
-                        {mentor.bio && (
-                            <p style={{ color: "#94a3b8", fontSize: 13, marginBottom: 12, lineHeight: 1.5 }}>
-                                {mentor.bio.length > 100 ? mentor.bio.substring(0, 100) + "…" : mentor.bio}
-                            </p>
-                        )}
-
-                        {/* Expertise tags */}
-                        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
-                            {(mentor.expertise || []).slice(0, 5).map((e) => (
-                                <span key={e} style={{
-                                    padding: "2px 8px", background: "#1e293b", borderRadius: 4,
-                                    color: "#94a3b8", fontSize: 11, border: "1px solid #334155",
-                                }}>
-                                    {e}
-                                </span>
-                            ))}
-                        </div>
-
-                        {/* Rate + campus */}
-                        <div style={{ color: "#64748b", fontSize: 12, marginBottom: 16 }}>
-                            {mentor.hourlyRate > 0 ? `${mentor.currency || "PKR"} ${mentor.hourlyRate}/hr` : "Free"} ·{" "}
-                            {mentor.userId?.campusId?.name || "Unknown Campus"}
-                        </div>
-
-                        {/* Actions */}
-                        <div style={{ display: "flex", gap: 8 }}>
-                            <button onClick={() => handleVerify(mentor._id)} style={actionBtn("#16a34a")}>
-                                ✓ Approve
-                            </button>
-                            <button onClick={() => setRejectModal(mentor._id)} style={actionBtn("#dc2626")}>
-                                ✗ Reject
-                            </button>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Pagination */}
-            {pagination.pages > 1 && (
-                <div style={{ display: "flex", justifyContent: "center", gap: 8, marginTop: 20 }}>
-                    {Array.from({ length: pagination.pages }, (_, i) => i + 1).map((p) => (
-                        <button key={p} onClick={() => setPage(p)} style={{
-                            width: 32, height: 32, border: "none", borderRadius: 6,
-                            background: p === page ? "#6366f1" : "#1e293b", color: "#f8fafc", cursor: "pointer",
-                        }}>{p}</button>
-                    ))}
-                </div>
-            )}
-
-            {rejectModal && (
-                <ReasonModal
-                    title="Reject Mentor Application"
-                    prompt="Provide a reason (will be sent to the applicant):"
-                    onClose={handleReject}
-                />
-            )}
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-60 rounded-2xl bg-[#0f172a] border border-[#1e293b] animate-pulse" />
+        ))}
+      </div>
     );
+  }
+
+  if (mentors.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 bg-[#0f172a] border border-[#1e293b] rounded-2xl text-center">
+        <span className="material-symbols-outlined text-[#334155] text-6xl mb-4">how_to_reg</span>
+        <p className="text-[#f8fafc] font-bold text-lg mb-1">All clear!</p>
+        <p className="text-[#64748b] text-sm">No pending mentor applications to review.</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+        {mentors.map(mentor => {
+          const profile = mentor.userId?.profile ?? {};
+          const name    = profile.displayName || `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.trim() || "Unknown";
+          const avatar  = profile.avatar;
+          const initials= name.slice(0, 2).toUpperCase();
+          const isBusy  = busyId === mentor._id;
+          const isFree  = !mentor.hourlyRate || mentor.hourlyRate === 0;
+
+          return (
+            <div
+              key={mentor._id}
+              className="bg-[#0f172a] border border-[#1e293b] rounded-2xl p-5 flex flex-col gap-4 hover:border-[#334155] transition-colors"
+            >
+              {/* Header */}
+              <div className="flex items-center gap-3">
+                {avatar ? (
+                  <img src={avatar} alt={name} className="w-11 h-11 rounded-xl object-cover border border-[#334155] shrink-0" />
+                ) : (
+                  <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-600 to-slate-700 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                    {initials}
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="text-[#f8fafc] font-bold text-sm truncate">{name}</p>
+                  <p className="text-[#64748b] text-xs truncate">{mentor.userId?.email}</p>
+                </div>
+                <span className="text-xs font-bold text-indigo-300 bg-indigo-500/10 border border-indigo-500/25 px-2 py-0.5 rounded-full shrink-0">
+                  {isFree ? "Free" : `PKR ${mentor.hourlyRate}/hr`}
+                </span>
+              </div>
+
+              {/* Bio */}
+              <p className="text-[#94a3b8] text-xs leading-relaxed line-clamp-2 bg-[#1e293b] rounded-lg px-3 py-2 min-h-[44px]">
+                {mentor.bio || "No professional bio provided."}
+              </p>
+
+              {/* Category + Experience */}
+              {(mentor.categories?.length > 0 || mentor.yearsExperience) && (
+                <div className="flex items-center gap-2 flex-wrap">
+                  {mentor.categories?.map(c => (
+                    <span key={c} className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 bg-slate-700/50 text-slate-400 rounded-md">
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Skills */}
+              <div className="flex flex-wrap gap-1.5">
+                {(mentor.expertise ?? []).slice(0, 5).map(e => (
+                  <span
+                    key={e}
+                    className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md"
+                    style={{ background: "rgba(99,102,241,0.1)", color: "#818cf8", border: "1px solid rgba(99,102,241,0.2)" }}
+                  >
+                    {e}
+                  </span>
+                ))}
+                {(mentor.expertise?.length ?? 0) > 5 && (
+                  <span className="text-[10px] text-[#64748b] px-1.5 py-0.5">+{mentor.expertise.length - 5}</span>
+                )}
+              </div>
+
+              {/* Applicant info */}
+              <div className="flex items-center justify-between text-[11px] text-[#475569] pt-2 border-t border-[#1e293b]">
+                <span>{mentor.userId?.campusId?.name ?? "Campus"}</span>
+                <span>{new Date(mentor.createdAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-2 mt-auto">
+                <button
+                  onClick={() => handleVerify(mentor._id)}
+                  disabled={isBusy}
+                  className="flex-1 py-2 text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+                  style={{ background: "rgba(16,185,129,0.12)", color: "#34d399", border: "1px solid rgba(16,185,129,0.3)" }}
+                >
+                  {isBusy ? "…" : "✓ Approve"}
+                </button>
+                <button
+                  onClick={() => setRejectModal(mentor._id)}
+                  disabled={isBusy}
+                  className="flex-1 py-2 text-xs font-bold rounded-xl transition-all disabled:opacity-50"
+                  style={{ background: "rgba(239,68,68,0.08)", color: "#f87171", border: "1px solid rgba(239,68,68,0.2)" }}
+                >
+                  ✕ Reject
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Pagination */}
+      {pagination.pages > 1 && (
+        <div className="flex justify-center gap-2 mt-6">
+          {Array.from({ length: pagination.pages }, (_, i) => i + 1).map(p => (
+            <button
+              key={p}
+              onClick={() => setPage(p)}
+              className={`w-8 h-8 rounded-lg text-sm font-bold transition-colors ${
+                p === page ? "bg-indigo-600 text-white" : "bg-[#1e293b] text-[#64748b] hover:bg-[#334155]"
+              }`}
+            >
+              {p}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {rejectModal && (
+        <ReasonModal
+          title="Reject Mentor Application"
+          prompt="Provide a reason for rejection — this will be sent to the applicant:"
+          onClose={handleReject}
+        />
+      )}
+    </>
+  );
 };
 
-// ─── Verified / Suspended Tab ─────────────────────────────────────────────────
+// ── Verified / Suspended Tab ───────────────────────────────────────────────────
 
 const MentorListTab = ({ filterParams }) => {
-    const navigate = useNavigate();
-    const [mentors, setMentors] = useState([]);
-    const [pagination, setPagination] = useState({});
-    const [page, setPage] = useState(1);
-    const [loading, setLoading] = useState(true);
-    const [suspendModal, setSuspendModal] = useState(null);
-    const [tierModal, setTierModal] = useState(null);
+  const navigate = useNavigate();
+  const [mentors,     setMentors]     = useState([]);
+  const [pagination,  setPagination]  = useState({});
+  const [page,        setPage]        = useState(1);
+  const [loading,     setLoading]     = useState(true);
+  const [suspendModal,setSuspendModal]= useState(null);
+  const [tierModal,   setTierModal]   = useState(null);
 
-    const fetchMentors = useCallback(async (p = 1) => {
-        setLoading(true);
-        try {
-            const { data } = await getAdminMentors({ ...filterParams, page: p, limit: 20 });
-            setMentors(data.data?.docs || []);
-            setPagination(data.data?.pagination || {});
-        } finally {
-            setLoading(false);
-        }
-    }, [filterParams]);
+  const fetchMentors = useCallback(async (p = 1) => {
+    setLoading(true);
+    try {
+      const { data } = await getAdminMentors({ ...filterParams, page: p, limit: 20 });
+      setMentors(data.data?.docs ?? []);
+      setPagination(data.data?.pagination ?? {});
+    } finally { setLoading(false); }
+  }, [filterParams]);
 
-    useEffect(() => { fetchMentors(page); }, [page, fetchMentors]);
+  useEffect(() => { fetchMentors(page); }, [page, fetchMentors]);
 
-    const handleSuspend = async ({ confirmed, reason }) => {
-        if (!confirmed || !suspendModal) return setSuspendModal(null);
-        await suspendMentor(suspendModal, { reason });
-        setSuspendModal(null);
-        fetchMentors(page);
-    };
+  const handleSuspend = async ({ confirmed, reason }) => {
+    if (!confirmed || !suspendModal) return setSuspendModal(null);
+    await suspendMentor(suspendModal, { reason });
+    setSuspendModal(null);
+    fetchMentors(page);
+  };
 
-    const handleTierOverride = async (mentorId, tier) => {
-        await overrideMentorTier(mentorId, { tier });
-        setTierModal(null);
-        fetchMentors(page);
-    };
+  const handleTierOverride = async (mentorId, tier) => {
+    await overrideMentorTier(mentorId, { tier });
+    setTierModal(null);
+    fetchMentors(page);
+  };
 
-    const columns = [
-        {
-            key: "user",
-            label: "Mentor",
-            render: (m) => (
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <img src={m.userId?.profile?.avatar || ""} alt="" style={{ width: 32, height: 32, borderRadius: "50%", background: "#334155" }} />
-                    <div>
-                        <div style={{ color: "#f8fafc", fontWeight: 500 }}>{m.userId?.profile?.displayName}</div>
-                        <div style={{ color: "#64748b", fontSize: 11 }}>{m.userId?.email}</div>
-                    </div>
-                </div>
-            ),
-        },
-        { key: "tier", label: "Tier", render: (m) => <AdminBadge type="tier" value={m.tier} /> },
-        { key: "totalSessions", label: "Sessions", render: (m) => m.totalSessions ?? 0 },
-        { key: "averageRating", label: "Rating", render: (m) => m.averageRating ? `⭐ ${m.averageRating}` : "—" },
-        { key: "isActive", label: "Status", render: (m) => <AdminBadge type="status" value={m.isActive ? "active" : "suspended"} /> },
-    ];
-
-    const rowActions = (m) => [
-        { label: "View Profile", onClick: () => navigate(`/admin/mentors/${m._id}`) },
-        ...(m.isActive ? [{ label: "Suspend", onClick: () => setSuspendModal(m._id), danger: true }] : []),
-        { label: "Override Tier", onClick: () => setTierModal(m) },
-    ];
-
-    return (
-        <div>
-            <AdminTable
-                columns={columns}
-                data={mentors}
-                loading={loading}
-                rowActions={rowActions}
-                pagination={pagination}
-                onPageChange={setPage}
-                onRowClick={(m) => navigate(`/admin/mentors/${m._id}`)}
-            />
-
-            {suspendModal && (
-                <ReasonModal title="Suspend Mentor" prompt="Reason for suspension:" onClose={handleSuspend} />
-            )}
-
-            {tierModal && (
-                <div style={overlayStyle}>
-                    <div style={modalStyle}>
-                        <h3 style={{ fontWeight: 700, marginBottom: 16 }}>Override Tier — {tierModal.userId?.profile?.displayName}</h3>
-                        <div style={{ display: "flex", gap: 8 }}>
-                            {["bronze", "silver", "gold"].map((t) => (
-                                <button
-                                    key={t}
-                                    onClick={() => handleTierOverride(tierModal._id, t)}
-                                    style={{ ...actionBtn(t === "gold" ? "#d97706" : t === "silver" ? "#64748b" : "#92400e"), flex: 1 }}
-                                >
-                                    {t.charAt(0).toUpperCase() + t.slice(1)}
-                                </button>
-                            ))}
-                        </div>
-                        <button onClick={() => setTierModal(null)} style={{ ...actionBtn("#334155"), width: "100%", marginTop: 12 }}>
-                            Cancel
-                        </button>
-                    </div>
-                </div>
-            )}
+  const columns = [
+    {
+      key: "user",
+      label: "Mentor",
+      render: (m) => (
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          {m.userId?.profile?.avatar ? (
+            <img src={m.userId.profile.avatar} alt="" style={{ width: 32, height: 32, borderRadius: "50%", objectFit: "cover" }} />
+          ) : (
+            <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#334155", display: "flex", alignItems: "center", justifyContent: "center", color: "#94a3b8", fontSize: 12, fontWeight: 700 }}>
+              {(m.userId?.profile?.displayName ?? "?")[0]}
+            </div>
+          )}
+          <div>
+            <div style={{ color: "#f8fafc", fontWeight: 600, fontSize: 14 }}>{m.userId?.profile?.displayName ?? "—"}</div>
+            <div style={{ color: "#64748b", fontSize: 11 }}>{m.userId?.email}</div>
+          </div>
         </div>
-    );
+      ),
+    },
+    { key: "tier",         label: "Tier",     render: (m) => <AdminBadge type="tier" value={m.tier} /> },
+    { key: "totalSessions",label: "Sessions", render: (m) => m.totalSessions ?? 0 },
+    { key: "averageRating",label: "Rating",   render: (m) => m.averageRating ? `⭐ ${m.averageRating.toFixed(1)}` : "—" },
+    { key: "isActive",     label: "Status",   render: (m) => <AdminBadge type="status" value={m.isActive ? "active" : "suspended"} /> },
+  ];
+
+  const rowActions = (m) => [
+    { label: "View Profile", onClick: () => navigate(`/admin/mentors/${m._id}`) },
+    ...(m.isActive ? [{ label: "Suspend", onClick: () => setSuspendModal(m._id), danger: true }] : []),
+    { label: "Override Tier", onClick: () => setTierModal(m) },
+  ];
+
+  return (
+    <>
+      <AdminTable
+        columns={columns}
+        data={mentors}
+        loading={loading}
+        rowActions={rowActions}
+        pagination={pagination}
+        onPageChange={setPage}
+        onRowClick={(m) => navigate(`/admin/mentors/${m._id}`)}
+      />
+
+      {suspendModal && (
+        <ReasonModal title="Suspend Mentor" prompt="Reason for suspension:" onClose={handleSuspend} />
+      )}
+
+      {tierModal && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(10,15,30,0.85)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
+          <div style={{ background: "#0f172a", borderRadius: 20, padding: 32, width: 380, border: "1px solid #1e293b" }}>
+            <h3 style={{ color: "#f8fafc", fontWeight: 700, marginBottom: 6 }}>Override Tier</h3>
+            <p style={{ color: "#64748b", fontSize: 13, marginBottom: 20 }}>{tierModal.userId?.profile?.displayName}</p>
+            <div style={{ display: "flex", gap: 10 }}>
+              {["bronze", "silver", "gold"].map(t => (
+                <button
+                  key={t}
+                  onClick={() => handleTierOverride(tierModal._id, t)}
+                  style={{
+                    flex: 1, padding: "10px", borderRadius: 12, border: "none", cursor: "pointer", fontWeight: 700, fontSize: 12,
+                    background: t === "gold" ? "rgba(217,119,6,0.15)" : t === "silver" ? "rgba(100,116,139,0.15)" : "rgba(146,64,14,0.15)",
+                    color: t === "gold" ? "#fbbf24" : t === "silver" ? "#94a3b8" : "#d97706",
+                  }}
+                >
+                  {t.charAt(0).toUpperCase() + t.slice(1)}
+                </button>
+              ))}
+            </div>
+            <button onClick={() => setTierModal(null)} style={{ marginTop: 12, width: "100%", padding: "10px", background: "#1e293b", color: "#94a3b8", border: "none", borderRadius: 12, cursor: "pointer", fontWeight: 600, fontSize: 13 }}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </>
+  );
 };
 
-// ─── AdminMentors Main ────────────────────────────────────────────────────────
+// ── Main ──────────────────────────────────────────────────────────────────────
 
 const TABS = [
-    { key: "pending",   label: "Pending" },
-    { key: "verified",  label: "Verified" },
-    { key: "suspended", label: "Suspended" },
+  { key: "pending",   label: "Pending Applications", icon: "pending_actions" },
+  { key: "verified",  label: "Active Mentors",        icon: "verified" },
+  { key: "suspended", label: "Suspended",             icon: "block" },
 ];
 
 const AdminMentors = () => {
-    const [activeTab, setActiveTab] = useState("pending");
+  const [activeTab, setActiveTab] = useState("pending");
 
-    const tabFilterMap = {
-        verified:  { verified: true, isActive: true },
-        suspended: { isActive: false },
-    };
+  const filterMap = {
+    verified:  { verified: true, isActive: true },
+    suspended: { isActive: false },
+  };
 
-    return (
-        <div style={{ animation: "fadeIn 0.5s ease-out" }}>
-            <div style={{ marginBottom: 32 }}>
-                <h1 style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", margin: 0 }}>Mentor Governance</h1>
-                <p style={{ color: "#64748b", marginTop: 4 }}>Manage verification lifecycle, tier assignments, and performance monitoring.</p>
-            </div>
+  return (
+    <div>
+      {/* Header */}
+      <div style={{ marginBottom: 28 }}>
+        <h1 style={{ fontSize: 24, fontWeight: 800, color: "#f8fafc", margin: 0 }}>Mentor Governance</h1>
+        <p style={{ color: "#64748b", marginTop: 4, fontSize: 14 }}>
+          Review applications, manage verification lifecycle, tier assignments, and performance monitoring.
+        </p>
+      </div>
 
-            {/* Tabs & Navigation */}
-            <div style={{ display: "flex", gap: 6, padding: 4, background: "#0f172a", borderRadius: 12, marginBottom: 32, maxWidth: "fit-content", border: "1px solid #1e293b" }}>
-                {TABS.map((t) => (
-                    <button
-                        key={t.key}
-                        onClick={() => setActiveTab(t.key)}
-                        style={{
-                            padding: "10px 24px", border: "none", borderRadius: 8,
-                            background: activeTab === t.key ? "#6366f1" : "transparent",
-                            color: activeTab === t.key ? "#fff" : "#64748b",
-                            cursor: "pointer", fontSize: 12, fontWeight: 700,
-                            transition: "all 0.2s"
-                        }}
-                    >
-                        {t.label.toUpperCase()}
-                    </button>
-                ))}
-            </div>
+      {/* Tab bar */}
+      <div
+        className="flex gap-1.5 p-1 rounded-2xl border border-[#1e293b] mb-8 w-fit"
+        style={{ background: "#0f172a" }}
+      >
+        {TABS.map(t => (
+          <button
+            key={t.key}
+            onClick={() => setActiveTab(t.key)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
+              activeTab === t.key
+                ? "bg-indigo-600 text-white"
+                : "text-[#64748b] hover:text-[#94a3b8] hover:bg-[#1e293b]"
+            }`}
+          >
+            <span className="material-symbols-outlined text-[15px]">{t.icon}</span>
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-            <div style={{ minHeight: "400px" }}>
-                {activeTab === "pending" && <PendingMentorsTab />}
-                {activeTab !== "pending" && <MentorListTab filterParams={tabFilterMap[activeTab]} />}
-            </div>
-        </div>
-    );
-};
-
-// ── Shared UI Styles ─────────────────────────────────────────────────────────
-
-const ActionButton = ({ label, color, onClick, variant = "solid" }) => (
-    <button
-        onClick={onClick}
-        style={{
-            flex: 1,
-            padding: "10px",
-            background: variant === "solid" ? color : "transparent",
-            color: variant === "solid" ? "#fff" : color,
-            border: variant === "solid" ? "none" : `1px solid ${color}`,
-            borderRadius: 10,
-            cursor: "pointer",
-            fontSize: 12,
-            fontWeight: 700,
-            transition: "all 0.2s",
-            boxShadow: variant === "solid" ? `0 4px 8px ${color}33` : "none"
-        }}
-    >
-        {label.toUpperCase()}
-    </button>
-);
-
-const MentorCard = ({ mentor, onVerify, onReject }) => (
-    <div style={{ background: "#0f172a", borderRadius: 20, padding: 24, border: "1px solid #1e293b", display: "flex", flexDirection: "column", gap: 20, transition: "transform 0.2s, border-color 0.2s" }} onMouseEnter={(e) => e.currentTarget.style.borderColor = "#6366f1"}>
-        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-            <img src={mentor.userId?.profile?.avatar || "/default-avatar.png"} alt="" style={{ width: 56, height: 56, borderRadius: 16, background: "#1e293b", objectFit: "cover" }} />
-            <div style={{ flex: 1 }}>
-                <div style={{ color: "#f8fafc", fontWeight: 800, fontSize: 16, marginBottom: 2 }}>{mentor.userId?.profile?.displayName}</div>
-                <div style={{ color: "#64748b", fontSize: 13 }}>{mentor.userId?.email}</div>
-            </div>
-        </div>
-
-        <div style={{ background: "#1e293b", borderRadius: 12, padding: 12, fontSize: 13, color: "#94a3b8", lineHeight: 1.6, minHeight: 60 }}>
-            {mentor.bio || "No professional overview provided."}
-        </div>
-
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {(mentor.expertise || []).map(e => (
-                <span key={e} style={{ padding: "4px 10px", borderRadius: 6, background: "rgba(99, 102, 241, 0.1)", color: "#818cf8", fontSize: 11, fontWeight: 700 }}>{e.toUpperCase()}</span>
-            ))}
-        </div>
-
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 12, borderTop: "1px solid #1e293b" }}>
-            <div style={{ color: "#64748b", fontSize: 12, fontWeight: 600 }}>
-                {mentor.hourlyRate > 0 ? `${mentor.currency || "PKR"} ${mentor.hourlyRate}/hr` : "Free Service"}
-            </div>
-            <div style={{ color: "#64748b", fontSize: 12 }}>{mentor.userId?.campusId?.name || "Global Node"}</div>
-        </div>
-
-        <div style={{ display: "flex", gap: 10, marginTop: 4 }}>
-            <ActionButton label="Approve" color="#6366f1" onClick={onVerify} />
-            <ActionButton label="Reject" color="#f43f5e" onClick={onReject} variant="outline" />
-        </div>
+      {/* Content */}
+      <div style={{ minHeight: 400 }}>
+        {activeTab === "pending"   && <PendingMentorsTab />}
+        {activeTab !== "pending"   && <MentorListTab filterParams={filterMap[activeTab]} />}
+      </div>
     </div>
-);
-
-// ─── Modal Styles ─────────────────────────────────────────────────────────────
-
-const overlayStyle = {
-    position: "fixed", inset: 0, background: "rgba(10, 15, 30, 0.8)",
-    backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200,
-};
-const modalStyle = {
-    background: "#0f172a", borderRadius: 20, padding: 32, width: 400,
-    border: "1px solid #1e293b", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)"
+  );
 };
 
 export default AdminMentors;
