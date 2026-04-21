@@ -125,10 +125,10 @@ export const fetchBookingById = createAsyncThunk(
 
 export const confirmBookingThunk = createAsyncThunk(
   'mentoring/confirmBooking',
-  async (id, { rejectWithValue }) => {
+  async ({ id, data }, { rejectWithValue }) => {
     try {
-      const { data } = await mentoringApi.confirmBooking(id);
-      return data.data;
+      const response = await mentoringApi.confirmBooking(id, data);
+      return response.data.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message || 'Failed to confirm booking');
     }
@@ -137,10 +137,10 @@ export const confirmBookingThunk = createAsyncThunk(
 
 export const cancelBookingThunk = createAsyncThunk(
   'mentoring/cancelBooking',
-  async (id, { rejectWithValue }) => {
+  async ({ id, data }, { rejectWithValue }) => {
     try {
-      const { data } = await mentoringApi.cancelBooking(id);
-      return data.data; // Should return { bookingId, status: 'cancelled' }
+      const response = await mentoringApi.cancelBooking(id, data);
+      return response.data.data; // Should return { bookingId, status: 'cancelled' }
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message || 'Failed to cancel booking');
     }

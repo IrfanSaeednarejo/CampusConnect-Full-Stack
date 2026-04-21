@@ -43,7 +43,7 @@ const bookSession = asyncHandler(async (req, res) => {
 });
 
 const confirmBooking = asyncHandler(async (req, res) => {
-    const updated = await mentoringService.confirmBooking(req.params.bookingId, req.user);
+    const updated = await mentoringService.confirmBooking(req.params.bookingId, req.body, req.user);
     return res.status(200).json(new ApiResponse(200, updated, "Booking confirmed successfully"));
 });
 

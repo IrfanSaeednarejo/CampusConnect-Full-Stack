@@ -32,11 +32,11 @@ export const getMyBookings = (params = {}) =>
 export const getBookingById = (bookingId) =>
   api.get(`${BASE}/bookings/${bookingId}`);
 
-export const confirmBooking = (bookingId) =>
-  api.patch(`${BASE}/bookings/${bookingId}/confirm`);
+export const confirmBooking = (bookingId, data) =>
+  api.patch(`${BASE}/bookings/${bookingId}/confirm`, data);
 
-export const cancelBooking = (bookingId) =>
-  api.patch(`${BASE}/bookings/${bookingId}/cancel`);
+export const cancelBooking = (bookingId, data) =>
+  api.patch(`${BASE}/bookings/${bookingId}/cancel`, data);
 
 export const completeBooking = (bookingId) =>
   api.patch(`${BASE}/bookings/${bookingId}/complete`);

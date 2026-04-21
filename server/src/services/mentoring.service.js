@@ -289,13 +289,17 @@ export const bookSession = async (mentorId, data, requestUser) => {
     return created;
 };
 
-export const confirmBooking = async (bookingId, requestUser) => {
+export const confirmBooking = async (bookingId, data, requestUser) => {
+    const { meetingLink } = data || {};
     const booking = await findBookingById(bookingId, "mentorId mentorUserId menteeId status startAt");
     if (booking.mentorUserId.toString() !== requestUser._id.toString()) throw new ApiError(403, "Only the mentor can confirm bookings");
     if (booking.status !== "pending") throw new ApiError(400, `Cannot confirm a booking with status "${booking.status}"`);
     if (booking.startAt <= new Date()) throw new ApiError(400, "Cannot confirm a booking that has already started");
 
-    const updated = await MentorBooking.findByIdAndUpdate(bookingId, { $set: { status: "confirmed", confirmedAt: new Date() } }, { new: true })
+    const updatePayload = { status: "confirmed", confirmedAt: new Date() };
+    if (meetingLink?.trim()) updatePayload.meetingLink = meetingLink.trim();
+
+    const updated = await MentorBooking.findByIdAndUpdate(bookingId, { $set: updatePayload }, { new: true })
         .populate("mentorId", "userId tier averageRating").populate("menteeId", "profile.displayName profile.avatar");
 
     const session = await MentorSession.create({
@@ -310,7 +314,9 @@ export const confirmBooking = async (bookingId, requestUser) => {
         targetId: booking.menteeId._id || booking.menteeId,
         payload: {
             bookingId: updated._id,
-            date: booking.startAt.toDateString()
+            date: booking.startAt.toDateString(),
+            meetingLink: meetingLink?.trim() || null,
+            mentorName: requestUser.profile?.displayName || "Your Mentor",
         }
     });
 

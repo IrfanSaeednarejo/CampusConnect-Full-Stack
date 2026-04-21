@@ -98,6 +98,13 @@ const mentorBookingSchema = new Schema(
             default: "pending",
         },
 
+        meetingLink: {
+            type: String,
+            trim: true,
+            maxlength: [500, "Meeting link cannot exceed 500 characters"],
+            default: "",
+        },
+
         confirmedAt: { type: Date },
 
         completedAt: { type: Date },
