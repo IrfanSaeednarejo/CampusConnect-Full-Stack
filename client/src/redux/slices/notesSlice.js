@@ -13,6 +13,18 @@ export const fetchNotes = createAsyncThunk(
     }
 );
 
+export const getNoteByIdThunk = createAsyncThunk(
+    "notes/getNoteById",
+    async (id, { rejectWithValue }) => {
+        try {
+            const { data } = await notesApi.getNoteById(id);
+            return data.data;
+        } catch (err) {
+            return rejectWithValue(err.message);
+        }
+    }
+);
+
 export const createNoteThunk = createAsyncThunk(
     "notes/createNote",
     async (noteData, { rejectWithValue }) => {
@@ -80,6 +92,17 @@ const notesSlice = createSlice({
                 state.error = action.payload;
                 state.loading = false;
             })
+            .addCase(getNoteByIdThunk.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(getNoteByIdThunk.fulfilled, (state, action) => {
+                state.selectedNote = action.payload;
+                state.loading = false;
+            })
+            .addCase(getNoteByIdThunk.rejected, (state, action) => {
+                state.error = action.payload;
+                state.loading = false;
+            })
             .addCase(createNoteThunk.fulfilled, (state, action) => {
                 state.notes.unshift(action.payload);
             })
@@ -88,9 +111,15 @@ const notesSlice = createSlice({
                 if (idx !== -1) {
                     state.notes[idx] = action.payload;
                 }
+                if (state.selectedNote?._id === action.payload._id) {
+                    state.selectedNote = action.payload;
+                }
             })
             .addCase(deleteNoteThunk.fulfilled, (state, action) => {
                 state.notes = state.notes.filter((n) => n._id !== action.payload);
+                if (state.selectedNote?._id === action.payload) {
+                    state.selectedNote = null;
+                }
             });
     },
 });
@@ -100,5 +129,6 @@ export const { setSelectedNote, clearNoteError } = notesSlice.actions;
 export const selectAllNotes = (state) => state.notes.notes;
 export const selectNotesLoading = (state) => state.notes.loading;
 export const selectNoteError = (state) => state.notes.error;
+export const selectSelectedNote = (state) => state.notes.selectedNote;
 
 export default notesSlice.reducer;
