@@ -81,7 +81,7 @@ export default function SocietyManagement() {
           <p className="text-slate-500 text-sm mt-0.5">Overview of your society's activity</p>
         </div>
         <button
-          onClick={() => navigate(`/society/edit/${societyId}`)}
+          onClick={() => navigate(`/society/${societyId}/settings`)}
           className="flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 text-sm font-medium rounded-xl border border-slate-700 transition-colors"
         >
           <span className="material-symbols-outlined text-sm">edit</span>
@@ -154,10 +154,10 @@ export default function SocietyManagement() {
 
         {/* Quick Actions */}
         <div className="lg:col-span-2 grid grid-cols-2 gap-3">
-          <QuickActionCard icon="group" title="Manage Members" description="View & manage active members and roles" to="/society/members" badge={pendingMembers.length} navigate={navigate} />
+          <QuickActionCard icon="group" title="Manage Members" description="View & manage active members and roles" to={`/society/${societyId}/members`} badge={pendingMembers.length} navigate={navigate} />
           <QuickActionCard icon="campaign" title="Announcements" description="Post updates to your society members" to={`/societies/${societyId}`} navigate={navigate} />
-          <QuickActionCard icon="event" title="Society Events" description="View and manage all organized events" to="/society/events" navigate={navigate} />
-          <QuickActionCard icon="analytics" title="Analytics" description="Track growth, engagement, and stats" to="/society/analytics" navigate={navigate} />
+          <QuickActionCard icon="event" title="Society Events" description="View and manage all organized events" to={`/society/${societyId}/events`} navigate={navigate} />
+          <QuickActionCard icon="analytics" title="Analytics" description="Track growth, engagement, and stats" to={`/society/${societyId}/analytics`} navigate={navigate} />
         </div>
       </div>
 
@@ -168,7 +168,7 @@ export default function SocietyManagement() {
             <span className="material-symbols-outlined text-slate-500 text-base">group</span>
             Recent Members
           </h2>
-          <button onClick={() => navigate("/society/members")} className="text-slate-500 hover:text-slate-300 text-xs transition-colors">
+          <button onClick={() => navigate(`/society/${societyId}/members`)} className="text-slate-500 hover:text-slate-300 text-xs transition-colors">
             View all →
           </button>
         </div>

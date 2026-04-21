@@ -553,7 +553,7 @@ export const softDelete = async (userId, password) => {
 
 export const getSocieties = async (targetId) => {
     const societies = await Society.find({ "members.memberId": targetId })
-        .select("name tag description createdBy status createdAt")
+        .select("name tag description createdBy status createdAt members media")
         .populate("createdBy", "profile.displayName profile.avatar")
         .lean();
     return societies;

@@ -123,8 +123,8 @@ export default function EditSociety() {
             title="Society not found"
             description={error || "Could not load society data."}
             action={
-              <Button onClick={() => navigate("/society/manage")} variant="primary">
-                Back to Management
+              <Button onClick={() => navigate("/societies")} variant="primary">
+                Back to Societies
               </Button>
             }
           />

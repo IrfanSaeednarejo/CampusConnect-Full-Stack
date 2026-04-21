@@ -265,14 +265,14 @@ export default function AppRoutes() {
 
           {/* ── Society Head HQ — all wrapped in shared layout shell ────── */}
           <Route element={<SocietyHQLayout />}>
-            <Route path="/society/manage"          element={<SocietyManagement />} />
-            <Route path="/society/members"         element={<MemberRequests />} />
-            <Route path="/society/member-requests" element={<MemberRequests />} />
-            <Route path="/society/events"          element={<SocietyEvents />} />
-            <Route path="/society/settings"        element={<SocietySettings />} />
-            <Route path="/society/analytics"       element={<SocietyAnalytics />} />
-            <Route path="/society/profile"         element={<SocietyProfile />} />
-            <Route path="/society/edit/:id"        element={<EditSociety />} />
+            <Route path="/society/:id/manage"          element={<SocietyManagement />} />
+            <Route path="/society/:id/members"         element={<MemberRequests />} />
+            <Route path="/society/:id/member-requests" element={<MemberRequests />} />
+            <Route path="/society/:id/events"          element={<SocietyEvents />} />
+            <Route path="/society/:id/settings"        element={<SocietySettings />} />
+            <Route path="/society/:id/analytics"       element={<SocietyAnalytics />} />
+            <Route path="/society/:id/profile"         element={<SocietyProfile />} />
+            <Route path="/society/:id/edit"            element={<EditSociety />} />
           </Route>
 
           {/* ── Events ───────────────────────────────── */}
