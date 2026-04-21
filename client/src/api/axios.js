@@ -66,8 +66,10 @@ api.interceptors.response.use(
           const { logout } = await import('../redux/slices/authSlice');
           storeRef.dispatch(logout());
         }
-        // Force redirect to login on failed refresh (e.g. admin terminated session)
-        window.location.href = '/login?reason=session_expired';
+        // Force redirect to login on failed refresh (e.g. admin terminated session), but prevent infinite redirect loops
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login?reason=session_expired';
+        }
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
