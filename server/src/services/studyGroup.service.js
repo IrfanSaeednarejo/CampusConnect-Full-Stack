@@ -113,7 +113,7 @@ export const getStudyGroupById = async (groupId, requestUser) => {
 };
 
 export const createStudyGroup = async (data, requestUser) => {
-    const { name, description, subject, course, tags, maxMembers, isPrivate, schedule, campusId } = data;
+    const { name, description, subject, course, tags, maxMembers, isPrivate, requireJoinApproval, schedule, campusId } = data;
 
     if (!name?.trim()) throw new ApiError(400, "Study group name is required");
 
@@ -136,8 +136,9 @@ export const createStudyGroup = async (data, requestUser) => {
         tags: parsedTags, 
         maxMembers: parseInt(maxMembers, 10) || 20, 
         isPrivate: isPrivate === "true" || isPrivate === true,
+        requireJoinApproval: requireJoinApproval === "true" || requireJoinApproval === true,
         schedule: parsedSchedule, 
-        groupMembers: [{ memberId: requestUser._id, role: "coordinator", joinedAt: new Date() }],
+        groupMembers: [{ memberId: requestUser._id, role: "coordinator", status: "approved", joinedAt: new Date() }],
         memberCount: 1, 
         status: forcedStatus,
         requestedBy: requestUser._id,

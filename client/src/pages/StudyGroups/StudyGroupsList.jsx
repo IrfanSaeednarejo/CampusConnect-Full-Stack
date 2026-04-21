@@ -28,7 +28,9 @@ const CATEGORIES = [
 export default function StudyGroupsList() {
   const { goTo } = useNavigation();
   const dispatch = useDispatch();
-  const { isAuthenticated, openAuth } = useAuth();
+  const { isAuthenticated, openAuth, user } = useAuth();
+  
+  const isAdmin = user?.roles?.includes("admin");
 
   const allGroups = useSelector(selectAllStudyGroups);
   const loading = useSelector(selectStudyGroupLoading);
@@ -62,24 +64,24 @@ export default function StudyGroupsList() {
   );
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-[#0d1117]">
       <PageHeader
         title="Find a Study Group"
         subtitle="Team up with peers in your courses or interests"
         icon="groups"
         backPath="/dashboard"
-        action={
+        action={isAdmin ? (
           <button
             onClick={() => {
               if (!isAuthenticated) return openAuth();
               goTo("/study-groups/create");
             }}
-            className="px-4 py-2 rounded-lg bg-[#238636] text-white text-sm font-bold hover:bg-[#2ea043] transition-colors flex items-center gap-2"
+            className="px-5 py-2.5 rounded-xl bg-[#238636] text-white text-sm font-bold hover:bg-[#2ea043] transition-all flex items-center gap-2 shadow-lg shadow-[#238636]/20"
           >
             <span className="material-symbols-outlined text-xl">add</span>
             Create Study Group
           </button>
-        }
+        ) : null}
       />
 
       <PageContent>
@@ -119,15 +121,17 @@ export default function StudyGroupsList() {
         )}
 
         {/* Stats Summary */}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <StatsCard value={allGroups.length} label="Total Groups" />
+        <div className="mt-12 grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <StatsCard value={allGroups.length} label="Total Groups" icon="groups" />
           <StatsCard
             value={totalMembers}
             label="Total Members"
+            icon="person"
           />
           <StatsCard
             value={averageMembers}
             label="Avg Members/Group"
+            icon="monitoring"
           />
         </div>
       </PageContent>
