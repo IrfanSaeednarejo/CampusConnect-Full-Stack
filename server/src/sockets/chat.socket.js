@@ -61,6 +61,31 @@ const logSocket = (level, event, userId, msg, err = null) => {
 export const registerChatHandlers = (io, socket) => {
     const userId = socket.userId;
 
+    socket.on("chat:join", async (data) => {
+        const chatId = data?.chatId;
+        if (!chatId || !mongoose.isValidObjectId(chatId)) return;
+
+        try {
+            const isMember = await Chat.exists({ _id: chatId, "members.userId": userId });
+            if (!isMember) {
+                logSocket("warn", "chat:join", userId, `Unauthorized join attempt to chat ${chatId}`);
+                return;
+            }
+            socket.join(`chat:${chatId}`);
+            logSocket("info", "chat:join", userId, `Dynamic join to chat:${chatId}`);
+        } catch (err) {
+            logSocket("error", "chat:join", userId, "Join failed", err);
+        }
+    });
+
+    socket.on("chat:leave", (data) => {
+        const chatId = data?.chatId;
+        if (chatId) {
+            socket.leave(`chat:${chatId}`);
+            logSocket("info", "chat:leave", userId, `Left chat:${chatId}`);
+        }
+    });
+
     socket.on("chat:sync", async (data, ackCallback) => {
         try {
             if (!checkRateLimit("chat:sync", userId, 1, 5000)) {

@@ -7,7 +7,8 @@ import {
   selectChatLoading,
   newMessage,
   setTypingStatus,
-  selectTypingByConversation
+  selectTypingByConversation,
+  setSelectedConversation
 } from "../../redux/slices/chatSlice";
 import { useAuth } from "../../hooks/useAuth";
 import { useSocket } from "../../hooks";
@@ -29,37 +30,18 @@ export default function StudyGroupChatView({ chatId, groupName }) {
   useEffect(() => {
     if (!socket || !chatId) return;
 
+    // Join room dynamically (Backend handler now supports this)
     socket.emit("chat:join", { chatId });
+    
+    // Set as active conversation in Redux so global handlers work correctly
+    dispatch(setSelectedConversation(chatId));
 
-    const handleNewMessage = (msg) => {
-      if (msg.chat === chatId || msg.chat?._id === chatId) {
-        dispatch(newMessage({ conversationId: chatId, message: msg }));
-      }
-    };
-
-    const handleTypingStart = ({ chatId: incomingId, userId, displayName }) => {
-      if (incomingId === chatId && userId !== user?._id) {
-        dispatch(setTypingStatus({ conversationId: chatId, isTyping: true, userName: displayName }));
-      }
-    };
-
-    const handleTypingStop = ({ chatId: incomingId, userId }) => {
-      if (incomingId === chatId && userId !== user?._id) {
-        dispatch(setTypingStatus({ conversationId: chatId, isTyping: false }));
-      }
-    };
-
-    socket.on("message:new", handleNewMessage);
-    socket.on("typing:start", handleTypingStart);
-    socket.on("typing:stop", handleTypingStop);
-
+    // Cleanup
     return () => {
       socket.emit("chat:leave", { chatId });
-      socket.off("message:new", handleNewMessage);
-      socket.off("typing:start", handleTypingStart);
-      socket.off("typing:stop", handleTypingStop);
+      dispatch(setSelectedConversation(null));
     };
-  }, [socket, chatId, dispatch, user?._id]);
+  }, [socket, chatId, dispatch]);
 
   useEffect(() => {
     if (chatId) {
