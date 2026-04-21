@@ -13,7 +13,7 @@ const getSocietyById = asyncHandler(async (req, res) => {
 });
 
 const getSocietyMembers = asyncHandler(async (req, res) => {
-    const members = await societyService.getSocietyMembers(req.params.id, req.query);
+    const members = await societyService.getSocietyMembers(req.params.id, req.query, req.user);
     return res.status(200).json(new ApiResponse(200, members, "Society members fetched successfully"));
 });
 

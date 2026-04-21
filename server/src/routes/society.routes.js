@@ -21,6 +21,13 @@ import {
   rejectMember,
 } from "../controllers/society.controller.js";
 
+import {
+  getPosts,
+  createPost,
+  deletePost,
+  getSocietyEvents,
+} from "../controllers/societyPost.controller.js";
+
 const router = Router();
 
 router
@@ -117,5 +124,22 @@ router
     authorize("society_head", "admin"),
     rejectMember
   );
+
+// ── Announcements (Posts) ─────────────────────────────────────────────────────
+
+router
+  .route("/:id/posts")
+  .get(verifyJWT, getPosts)
+  .post(verifyJWT, upload.array("images", 2), createPost);
+
+router
+  .route("/:id/posts/:postId")
+  .delete(verifyJWT, deletePost);
+
+// ── Society Events ────────────────────────────────────────────────────────────
+
+router
+  .route("/:id/events")
+  .get(verifyJWT, getSocietyEvents);
 
 export default router;

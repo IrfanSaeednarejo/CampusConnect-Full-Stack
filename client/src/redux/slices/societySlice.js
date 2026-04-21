@@ -171,6 +171,58 @@ export const updateMemberRoleThunk = createAsyncThunk(
   }
 );
 
+// ── Announcements Thunks ─────────────────────────────────────────────────────
+
+export const fetchSocietyPosts = createAsyncThunk(
+  'societies/fetchPosts',
+  async ({ societyId, params }, { rejectWithValue }) => {
+    try {
+      const { data } = await societyApi.getSocietyPosts(societyId, params);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to fetch posts');
+    }
+  }
+);
+
+export const createSocietyPostThunk = createAsyncThunk(
+  'societies/createPost',
+  async ({ societyId, formData }, { rejectWithValue }) => {
+    try {
+      const { data } = await societyApi.createSocietyPost(societyId, formData);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to create post');
+    }
+  }
+);
+
+export const deleteSocietyPostThunk = createAsyncThunk(
+  'societies/deletePost',
+  async ({ societyId, postId }, { rejectWithValue }) => {
+    try {
+      await societyApi.deleteSocietyPost(societyId, postId);
+      return postId;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to delete post');
+    }
+  }
+);
+
+// ── Society Events Thunk ──────────────────────────────────────────────────────
+
+export const fetchSocietyEvents = createAsyncThunk(
+  'societies/fetchEvents',
+  async (societyId, { rejectWithValue }) => {
+    try {
+      const { data } = await societyApi.getSocietyEventsById(societyId);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to fetch events');
+    }
+  }
+);
+
 // ── Initial State ─────────────────────────────────────────────────────────────
 
 const initialState = {
@@ -180,10 +232,17 @@ const initialState = {
   members: [],           // members of currentSociety
   memberRequests: [],    // pending members of currentSociety
   stats: null,           // stats for currentSociety
-  pagination: { page: 1, total: 0, hasMore: false },
+  pagination: { page: 1, total: 0, pages: 1, hasMore: false },
   loading: false,
   membersLoading: false,
   error: null,
+  // Announcements
+  announcements: [],
+  announcementsLoading: false,
+  announcementsPagination: { page: 1, total: 0, pages: 1 },
+  // Events
+  societyEvents: { upcoming: [], ongoing: [], past: [] },
+  eventsLoading: false,
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -345,6 +404,39 @@ const societySlice = createSlice({
         const idx = state.members.findIndex(m => (m._id || m.id) === memberId);
         if (idx !== -1) state.members[idx] = { ...state.members[idx], ...member };
       });
+
+    // fetchSocietyPosts
+    builder
+      .addCase(fetchSocietyPosts.pending, (state) => { state.announcementsLoading = true; })
+      .addCase(fetchSocietyPosts.fulfilled, (state, action) => {
+        state.announcementsLoading = false;
+        state.announcements = action.payload?.posts ?? [];
+        state.announcementsPagination = action.payload?.pagination ?? state.announcementsPagination;
+      })
+      .addCase(fetchSocietyPosts.rejected, (state) => { state.announcementsLoading = false; });
+
+    // createSocietyPostThunk — prepend new post to feed
+    builder
+      .addCase(createSocietyPostThunk.fulfilled, (state, action) => {
+        state.announcements.unshift(action.payload);
+        state.announcementsPagination.total += 1;
+      });
+
+    // deleteSocietyPostThunk
+    builder
+      .addCase(deleteSocietyPostThunk.fulfilled, (state, action) => {
+        state.announcements = state.announcements.filter(p => p._id !== action.payload);
+        state.announcementsPagination.total -= 1;
+      });
+
+    // fetchSocietyEvents
+    builder
+      .addCase(fetchSocietyEvents.pending, (state) => { state.eventsLoading = true; })
+      .addCase(fetchSocietyEvents.fulfilled, (state, action) => {
+        state.eventsLoading = false;
+        state.societyEvents = action.payload ?? { upcoming: [], ongoing: [], past: [] };
+      })
+      .addCase(fetchSocietyEvents.rejected, (state) => { state.eventsLoading = false; });
   },
 });
 
@@ -352,15 +444,22 @@ export const { clearCurrentSociety, clearError, removeMemberLocally } = societyS
 
 // ── Selectors ─────────────────────────────────────────────────────────────────
 
-export const selectAllSocieties     = (state) => state.societies.societies;
-export const selectCurrentSociety   = (state) => state.societies.currentSociety;
-export const selectMySocieties      = (state) => state.societies.mySocieties;
-export const selectSocietyMembers   = (state) => state.societies.members;
-export const selectMemberRequests   = (state) => state.societies.memberRequests;
-export const selectSocietyStats     = (state) => state.societies.stats;
+export const selectAllSocieties      = (state) => state.societies.societies;
+export const selectCurrentSociety    = (state) => state.societies.currentSociety;
+export const selectMySocieties       = (state) => state.societies.mySocieties;
+export const selectSocietyMembers    = (state) => state.societies.members;
+export const selectMemberRequests    = (state) => state.societies.memberRequests;
+export const selectSocietyStats      = (state) => state.societies.stats;
 export const selectSocietyPagination = (state) => state.societies.pagination;
-export const selectSocietyLoading   = (state) => state.societies.loading;
-export const selectMembersLoading   = (state) => state.societies.membersLoading;
-export const selectSocietyError     = (state) => state.societies.error;
+export const selectSocietyLoading    = (state) => state.societies.loading;
+export const selectMembersLoading    = (state) => state.societies.membersLoading;
+export const selectSocietyError      = (state) => state.societies.error;
+// Announcements
+export const selectSocietyAnnouncements      = (state) => state.societies.announcements;
+export const selectAnnouncementsLoading      = (state) => state.societies.announcementsLoading;
+export const selectAnnouncementsPagination   = (state) => state.societies.announcementsPagination;
+// Events
+export const selectSocietyEvents    = (state) => state.societies.societyEvents;
+export const selectEventsLoading    = (state) => state.societies.eventsLoading;
 
 export default societySlice.reducer;

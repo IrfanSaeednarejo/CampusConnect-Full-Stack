@@ -71,8 +71,9 @@ export const getSocietyById = async (societyId) => {
     return society;
 };
 
-export const getSocietyMembers = async (societyId, queryParams) => {
-    const { role, status = "approved" } = queryParams;
+export const getSocietyMembers = async (societyId, queryParams, requestUser) => {
+    const { role } = queryParams;
+    let { status = "approved" } = queryParams;
 
     if (!mongoose.isValidObjectId(societyId)) throw new ApiError(400, "Invalid Society ID");
 
@@ -82,6 +83,13 @@ export const getSocietyMembers = async (societyId, queryParams) => {
         });
 
     if (!society) throw new ApiError(404, "Society not found");
+
+    // Only the society head or admin can request status=all (to see pending requests)
+    const isOwner = society.createdBy.toString() === requestUser?._id?.toString();
+    const isAdmin = requestUser?.roles?.includes("admin");
+    if (status === "all" && !isOwner && !isAdmin) {
+        status = "approved"; // silently downgrade for non-heads
+    }
 
     let members = society.members;
     if (status !== "all") members = members.filter((m) => m.status === status);

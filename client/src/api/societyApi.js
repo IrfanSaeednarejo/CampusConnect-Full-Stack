@@ -20,3 +20,13 @@ export const removeMemberFromSociety = (id, memberId) => api.delete(`${BASE}/${i
 export const updateMemberRole = (id, memberId, data) => api.patch(`${BASE}/${id}/members/${memberId}/role`, data);
 export const approveMember = (id, memberId) => api.patch(`${BASE}/${id}/members/${memberId}/approve`);
 export const rejectMember = (id, memberId) => api.patch(`${BASE}/${id}/members/${memberId}/reject`);
+
+// ── Announcements (Posts) ─────────────────────────────────────────────────────
+
+export const getSocietyPosts = (id, params = {}) => api.get(`${BASE}/${id}/posts`, { params });
+export const createSocietyPost = (id, formData) => api.post(`${BASE}/${id}/posts`, formData);
+export const deleteSocietyPost = (id, postId) => api.delete(`${BASE}/${id}/posts/${postId}`);
+
+// ── Society Events ────────────────────────────────────────────────────────────
+
+export const getSocietyEventsById = (id) => api.get(`${BASE}/${id}/events`);
