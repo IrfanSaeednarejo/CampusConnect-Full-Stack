@@ -165,8 +165,9 @@ function OverviewTab({ society, members }) {
 
 // ── Members Tab ───────────────────────────────────────────────────────────────
 
-function MembersTab({ members, memberRequests, isHead, loading, societyId, dispatch, showSuccess, showError }) {
+function MembersTab({ members, memberRequests, canManageMembers, loading, societyId, dispatch, showSuccess, showError }) {
   const [busyId, setBusyId] = useState(null);
+  const [showPendingModal, setShowPendingModal] = useState(false);
 
   const handleApprove = async (memberId) => {
     setBusyId(memberId);
@@ -185,6 +186,8 @@ function MembersTab({ members, memberRequests, isHead, loading, societyId, dispa
     try {
       await dispatch(rejectMemberThunk({ societyId, memberId })).unwrap();
       showSuccess("Request rejected.");
+      // Optional: Auto-close modal if no requests left
+      if (memberRequests.length === 1) setShowPendingModal(false);
     } catch (err) {
       showError(err || "Failed to reject request");
     } finally {
@@ -203,62 +206,94 @@ function MembersTab({ members, memberRequests, isHead, loading, societyId, dispa
   }
 
   return (
-    <div className="space-y-6">
-      {/* Pending Requests — only visible to head */}
-      {isHead && memberRequests.length > 0 && (
-        <div>
-          <h3 className="text-slate-300 font-semibold text-sm mb-3 flex items-center gap-2">
-            <span className="material-symbols-outlined text-amber-400 text-base">pending</span>
-            Pending Requests
-            <span className="ml-auto bg-amber-500/15 text-amber-400 text-xs font-bold px-2 py-0.5 rounded-full border border-amber-500/25">
-              {memberRequests.length}
-            </span>
-          </h3>
-          <div className="space-y-2">
-            {memberRequests.map((m) => {
-              const memberId = m.memberId?._id ?? m.memberId;
-              const name = getMemberName(m);
-              return (
-                <div key={memberId} className="bg-amber-500/5 border border-amber-500/20 rounded-xl p-4 flex items-center gap-3">
-                  <MemberAvatar member={m} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-slate-200 text-sm font-medium truncate">{name}</p>
-                    <p className="text-slate-500 text-xs">
-                      Requested {formatDate(m.joinedAt)}
-                    </p>
-                  </div>
-                  <div className="flex gap-2 flex-shrink-0">
-                    <button
-                      onClick={() => handleApprove(memberId)}
-                      disabled={busyId === memberId}
-                      className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold rounded-lg transition-colors disabled:opacity-50"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => handleReject(memberId)}
-                      disabled={busyId === memberId}
-                      className="px-3 py-1.5 bg-slate-700 hover:bg-red-500/20 text-slate-300 hover:text-red-400 text-xs font-semibold rounded-lg border border-slate-600 hover:border-red-500/30 transition-colors disabled:opacity-50"
-                    >
-                      Reject
-                    </button>
-                  </div>
+    <div className="space-y-6 relative">
+      {/* Pending Requests Popup Modal */}
+      {showPendingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[85vh]">
+            <div className="flex items-center justify-between p-5 border-b border-slate-800">
+              <h3 className="text-slate-200 font-bold text-lg flex items-center gap-2">
+                <span className="material-symbols-outlined text-amber-400">pending</span>
+                Pending Requests
+                <span className="bg-amber-500/15 text-amber-400 text-xs px-2 py-0.5 rounded-full">
+                  {memberRequests.length}
+                </span>
+              </h3>
+              <button 
+                onClick={() => setShowPendingModal(false)}
+                className="text-slate-500 hover:text-slate-300 transition-colors"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div className="p-5 overflow-y-auto space-y-3">
+              {memberRequests.length === 0 ? (
+                <div className="text-center py-10">
+                  <span className="material-symbols-outlined text-slate-600 text-5xl mb-3">check_circle</span>
+                  <p className="text-slate-400">No pending requests right now.</p>
                 </div>
-              );
-            })}
+              ) : (
+                memberRequests.map((m) => {
+                  const memberId = m.memberId?._id ?? m.memberId;
+                  const name = getMemberName(m);
+                  return (
+                    <div key={memberId} className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 flex items-center gap-3">
+                      <MemberAvatar member={m} />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-slate-200 text-sm font-medium truncate">{name}</p>
+                        <p className="text-slate-500 text-xs">
+                          Requested {formatDate(m.joinedAt)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button
+                          onClick={() => handleReject(memberId)}
+                          disabled={busyId === memberId}
+                          className="w-8 h-8 rounded-full bg-slate-700/50 hover:bg-red-500/20 border border-transparent hover:border-red-500/30 text-slate-400 hover:text-red-400 flex items-center justify-center transition-all disabled:opacity-50"
+                          title="Reject"
+                        >
+                          <span className="material-symbols-outlined text-sm">close</span>
+                        </button>
+                        <button
+                          onClick={() => handleApprove(memberId)}
+                          disabled={busyId === memberId}
+                          className="w-8 h-8 rounded-full bg-emerald-600/20 hover:bg-emerald-500/90 border border-emerald-500/30 hover:border-transparent text-emerald-400 hover:text-white flex items-center justify-center transition-all disabled:opacity-50"
+                          title="Approve"
+                        >
+                          <span className="material-symbols-outlined text-sm font-bold">check</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Active Members */}
+      {/* Active Members Area */}
       <div>
-        <h3 className="text-slate-300 font-semibold text-sm mb-3 flex items-center gap-2">
-          <span className="material-symbols-outlined text-slate-400 text-base">group</span>
-          Active Members
-          <span className="ml-auto bg-slate-700 text-slate-400 text-xs font-bold px-2 py-0.5 rounded-full">
-            {members.length}
-          </span>
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-slate-300 font-semibold text-sm flex items-center gap-2">
+            <span className="material-symbols-outlined text-slate-400 text-base">group</span>
+            Active Members
+            <span className="bg-slate-700 text-slate-400 text-xs font-bold px-2 py-0.5 rounded-full">
+              {members.length}
+            </span>
+          </h3>
+
+          {canManageMembers && memberRequests.length > 0 && (
+            <button
+              onClick={() => setShowPendingModal(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-amber-400 text-xs font-semibold rounded-lg transition-colors"
+            >
+              <span className="material-symbols-outlined text-[14px]">notifications_active</span>
+              Pending Requests ({memberRequests.length})
+            </button>
+          )}
+        </div>
         {members.length === 0 ? (
           <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-10 text-center">
             <span className="material-symbols-outlined text-slate-600 text-4xl mb-2 block">groups</span>
@@ -692,6 +727,7 @@ export default function SocietyDetail() {
                     society?.createdBy?.toString() === userId?.toString();
   const userRole = isCreator ? "society_head" : (memberRecord?.role ?? null);
   const isHead = isCreator || userRole === "society_head";
+  const canManageMembers = isHead || ["co-coordinator", "executive"].includes(userRole);
 
   // ── Actions ──────────────────────────────────────────────────────────────────
 
@@ -907,7 +943,7 @@ export default function SocietyDetail() {
               <MembersTab
                 members={members}
                 memberRequests={memberReqs}
-                isHead={isHead}
+                canManageMembers={canManageMembers}
                 loading={membersLoading}
                 societyId={id}
                 dispatch={dispatch}

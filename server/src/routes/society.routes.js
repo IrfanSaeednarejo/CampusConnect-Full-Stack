@@ -113,7 +113,6 @@ router
   .route("/:id/members/:memberId/approve")
   .patch(
     verifyJWT,
-    authorize("society_head", "admin"),
     approveMember
   );
 
@@ -121,7 +120,6 @@ router
   .route("/:id/members/:memberId/reject")
   .patch(
     verifyJWT,
-    authorize("society_head", "admin"),
     rejectMember
   );
 

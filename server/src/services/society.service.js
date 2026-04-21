@@ -24,6 +24,15 @@ const requireSocietyOwner = (society, userId) => {
     }
 };
 
+const requireSocietyModerator = (society, userId) => {
+    if (society.createdBy.toString() === userId.toString()) return;
+    
+    const member = society.members.find((m) => m.memberId?.toString() === userId.toString() && m.status === "approved");
+    if (!member || !["society_head", "co-coordinator", "executive"].includes(member.role)) {
+        throw new ApiError(403, "Only Society Heads, Co-Coordinators, and Executives can perform this action");
+    }
+};
+
 const findSocietyById = async (societyId, selectFields = "") => {
     if (!mongoose.isValidObjectId(societyId)) throw new ApiError(400, "Invalid society ID format");
     const society = await Society.findById(societyId).select(selectFields || undefined);
@@ -84,11 +93,17 @@ export const getSocietyMembers = async (societyId, queryParams, requestUser) => 
 
     if (!society) throw new ApiError(404, "Society not found");
 
-    // Only the society head or admin can request status=all (to see pending requests)
-    const isOwner = society.createdBy.toString() === requestUser?._id?.toString();
+    // Only moderators or admins can request status=all (to see pending requests)
     const isAdmin = requestUser?.roles?.includes("admin");
-    if (status === "all" && !isOwner && !isAdmin) {
-        status = "approved"; // silently downgrade for non-heads
+    const isOwner = society.createdBy.toString() === requestUser?._id?.toString();
+    const isModerator = isOwner || society.members.some(
+        (m) => m.memberId?._id?.toString() === requestUser?._id?.toString() &&
+               m.status === "approved" &&
+               ["society_head", "co-coordinator", "executive"].includes(m.role)
+    );
+
+    if (status === "all" && !isModerator && !isAdmin) {
+        status = "approved"; // silently downgrade for regular users
     }
 
     let members = society.members;
@@ -261,29 +276,26 @@ export const joinSociety = async (societyId, requestUser) => {
         if (existing.status === "pending") throw new ApiError(409, "Your join request is already pending approval");
         if (existing.status === "rejected") throw new ApiError(403, "Your previous join request was rejected. Contact the society head.");
 
-        existing.status = society.requireApproval ? "pending" : "approved";
+        existing.status = "pending";
         existing.joinedAt = new Date();
         await society.save();
-        return { status: existing.status, message: society.requireApproval ? "Re-join request submitted — awaiting approval" : "You have re-joined the society" };
+        return { status: "pending", message: "Re-join request submitted — awaiting approval" };
     }
 
-    const memberStatus = society.requireApproval ? "pending" : "approved";
-    society.members.push({ memberId: requestUser._id, role: "student", status: memberStatus, joinedAt: new Date() });
+    society.members.push({ memberId: requestUser._id, role: "student", status: "pending", joinedAt: new Date() });
     await society.save();
 
-    if (society.requireApproval) {
-        systemEvents.emit("notification:create", {
-            userId: society.createdBy,
-            type: "society_update",
-            title: "New Join Request",
-            body: `${requestUser.profile.displayName} wants to join ${society.name}`,
-            ref: society._id,
-            refModel: "Society",
-            actorId: requestUser._id
-        });
-    }
+    systemEvents.emit("notification:create", {
+        userId: society.createdBy,
+        type: "society_update",
+        title: "New Join Request",
+        body: `${requestUser.profile.displayName} wants to join ${society.name}`,
+        ref: society._id,
+        refModel: "Society",
+        actorId: requestUser._id
+    });
 
-    return { status: memberStatus, message: society.requireApproval ? "Join request submitted — awaiting approval from the society head" : "You have successfully joined the society", isNew: true };
+    return { status: "pending", message: "Join request submitted — awaiting approval from the society head", isNew: true };
 };
 
 export const leaveSociety = async (societyId, requestUser) => {
@@ -376,8 +388,8 @@ export const updateMemberRole = async (societyId, memberId, data, requestUser) =
 export const approveMember = async (societyId, memberId, requestUser) => {
     if (!mongoose.isValidObjectId(memberId)) throw new ApiError(400, "Invalid member ID format");
 
-    const society = await findSocietyById(societyId, "members memberCount createdBy");
-    requireSocietyOwner(society, requestUser._id);
+    const society = await findSocietyById(societyId, "name members memberCount createdBy");
+    requireSocietyModerator(society, requestUser._id);
 
     const member = society.members.find((m) => m.memberId.toString() === memberId && m.status === "pending");
     if (!member) throw new ApiError(404, "No pending join request found for this user");
@@ -402,8 +414,8 @@ export const approveMember = async (societyId, memberId, requestUser) => {
 export const rejectMember = async (societyId, memberId, requestUser) => {
     if (!mongoose.isValidObjectId(memberId)) throw new ApiError(400, "Invalid member ID format");
 
-    const society = await findSocietyById(societyId, "members createdBy");
-    requireSocietyOwner(society, requestUser._id);
+    const society = await findSocietyById(societyId, "name members createdBy");
+    requireSocietyModerator(society, requestUser._id);
 
     const member = society.members.find((m) => m.memberId.toString() === memberId && m.status === "pending");
     if (!member) throw new ApiError(404, "No pending join request found for this user");
