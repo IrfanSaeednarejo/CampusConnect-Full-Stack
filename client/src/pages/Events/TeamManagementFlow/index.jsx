@@ -97,13 +97,10 @@ export default function TeamManagementFlow() {
   const maxSize = event.teamConfig?.maxSize || 5;
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#e6edf3] pb-20">
+    <div className="text-[#e6edf3] pb-10">
       
       {/* Header Area */}
-      <div className="bg-[#161b22] border-b border-[#30363d] py-6 px-4 sm:px-10 lg:px-20 relative">
-        <button onClick={() => navigate(`/events/${eventId}`)} className="flex items-center text-[#8b949e] hover:text-white transition-colors mb-4">
-          <span className="material-symbols-outlined mr-2">arrow_back</span> Back to Event
-        </button>
+      <div className="border-b border-[#30363d] py-6 px-4 sm:px-10 lg:px-20 relative bg-[#161b22]">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-black text-white">Team Management</h1>

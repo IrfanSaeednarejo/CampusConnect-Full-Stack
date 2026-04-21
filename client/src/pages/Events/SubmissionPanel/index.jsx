@@ -32,7 +32,8 @@ export default function SubmissionPanel() {
     title: "",
     description: "",
     repositoryUrl: "",
-    liveDemoUrl: ""
+    liveDemoUrl: "",
+    youtubeUrl: ""
   });
 
   useEffect(() => {
@@ -47,8 +48,9 @@ export default function SubmissionPanel() {
       setFormData({
         title: submission.title || "",
         description: submission.description || "",
-        repositoryUrl: submission.repositoryUrl || "",
-        liveDemoUrl: submission.liveDemoUrl || "",
+        repositoryUrl: submission.links?.find(l => l.label === 'GitHub' || l.label === 'Repository')?.url || "",
+        liveDemoUrl: submission.links?.find(l => l.label === 'Deployment' || l.label === 'Live Demo')?.url || "",
+        youtubeUrl: submission.links?.find(l => l.label === 'YouTube Video')?.url || "",
       });
     }
   }, [submission]);
@@ -58,8 +60,9 @@ export default function SubmissionPanel() {
     if (!eventId) return;
 
     const links = [];
-    if (formData.repositoryUrl) links.push({ label: 'Repository', url: formData.repositoryUrl });
-    if (formData.liveDemoUrl) links.push({ label: 'Live Demo', url: formData.liveDemoUrl });
+    if (formData.repositoryUrl) links.push({ label: 'GitHub', url: formData.repositoryUrl });
+    if (formData.liveDemoUrl) links.push({ label: 'Deployment', url: formData.liveDemoUrl });
+    if (formData.youtubeUrl) links.push({ label: 'YouTube Video', url: formData.youtubeUrl });
 
     // Send the draft payload
     await dispatch(submitWorkThunk({
@@ -77,8 +80,9 @@ export default function SubmissionPanel() {
     if (!window.confirm("Are you sure you want to finalize your submission? You cannot alter files afterward.")) return;
     
     const links = [];
-    if (formData.repositoryUrl) links.push({ label: 'Repository', url: formData.repositoryUrl });
-    if (formData.liveDemoUrl) links.push({ label: 'Live Demo', url: formData.liveDemoUrl });
+    if (formData.repositoryUrl) links.push({ label: 'GitHub', url: formData.repositoryUrl });
+    if (formData.liveDemoUrl) links.push({ label: 'Deployment', url: formData.liveDemoUrl });
+    if (formData.youtubeUrl) links.push({ label: 'YouTube Video', url: formData.youtubeUrl });
 
     await dispatch(submitWorkThunk({
       eventId,
@@ -112,12 +116,11 @@ export default function SubmissionPanel() {
   const submissionsOpen = event.submissionsOpen;
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#e6edf3] pb-20">
+    <div className="text-[#e6edf3] pb-10">
       <PageHeader
         title="Submission Panel"
         subtitle={event.title}
         icon="upload_file"
-        backPath={`/events/${eventId}`}
         action={
           <div className="bg-[#161b22] border border-[#30363d] px-4 py-2 rounded-lg flex gap-3 items-center">
             <span className="material-symbols-outlined text-xl text-[#1f6feb]">info</span>
@@ -169,20 +172,30 @@ export default function SubmissionPanel() {
               />
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField 
-                  label="Repository URL" 
+                  label="GitHub URL" 
                   name="repositoryUrl" 
                   value={formData.repositoryUrl} 
                   onChange={e => setFormData({...formData, repositoryUrl: e.target.value})}
                   placeholder="https://github.com/..."
                   disabled={!submissionsOpen || submission?.status === 'submitted'}
+                  required
                 />
                 <FormField 
-                  label="Live Demo URL (Optional)" 
+                  label="Deployment URL (Optional)" 
                   name="liveDemoUrl" 
                   value={formData.liveDemoUrl} 
                   onChange={e => setFormData({...formData, liveDemoUrl: e.target.value})}
                   placeholder="https://my-app.vercel.app"
                   disabled={!submissionsOpen || submission?.status === 'submitted'}
+                />
+                <FormField 
+                  label="YouTube Video Link" 
+                  name="youtubeUrl" 
+                  value={formData.youtubeUrl} 
+                  onChange={e => setFormData({...formData, youtubeUrl: e.target.value})}
+                  placeholder="https://youtube.com/watch?v=..."
+                  disabled={!submissionsOpen || submission?.status === 'submitted'}
+                  required
                 />
               </div>
 

@@ -12,6 +12,12 @@ import TeamsTab from "../../../components/events/Detail/TeamsTab";
 import LeaderboardTab from "../../../components/events/Detail/LeaderboardTab";
 import RegisterEvent from "../RegisterEvent";
 
+import TeamManagementFlow from "../TeamManagementFlow";
+import SubmissionPanel from "../SubmissionPanel";
+import JudgingDashboard from "../JudgingDashboard";
+import EventAdminDashboard from "../EventAdminDashboard";
+import EditEvent from "../EditEvent";
+
 import useEventSocket from "../../../hooks/useEventSocket";
 
 export default function EventDetailLayout() {
@@ -35,8 +41,12 @@ export default function EventDetailLayout() {
   if (error || !event) return <div className="h-screen flex justify-center items-center bg-[#0d1117] text-[#8b949e]">Event Not Found</div>;
 
   const isCreator = user?._id === event.createdBy?._id || user?.id === event.createdBy;
+  const isAdmin = user?.roles?.includes("admin");
+  const isJudge = event?.judgingConfig?.judges?.some(j => (j._id || j) === user?._id);
+  
   const userRegistration = event?.registrations?.find(r => r.userId === user?._id || r.userId?._id === user?._id);
   const isRegistered = !!userRegistration;
+  const isApproved = userRegistration?.status === "approved";
 
   return (
     <div className="min-h-screen bg-[#0d1117] text-[#e6edf3]">
@@ -85,6 +95,30 @@ export default function EventDetailLayout() {
             <NavLink to={`/events/${id}/leaderboard`} className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#1dc964] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
               Leaderboard
             </NavLink>
+
+            {isApproved && (event.participationType === "team" || event.participationType === "both") && (
+              <NavLink to={`/events/${id}/my-team`} className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#1f6feb] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
+                My Team
+              </NavLink>
+            )}
+
+            {isApproved && ['ongoing', 'submission_open'].includes(event.status) && (
+              <NavLink to={`/events/${id}/submission`} className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#1f6feb] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
+                Submit Project
+              </NavLink>
+            )}
+
+            {(isCreator || isAdmin) && (
+              <NavLink to={`/events/${id}/manage`} className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#e3b341] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
+                Manage HQ
+              </NavLink>
+            )}
+
+            {(isCreator || isAdmin || isJudge) && (
+              <NavLink to={`/events/${id}/judging`} className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#e3b341] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
+                Judging
+              </NavLink>
+            )}
           </div>
 
           {/* Sub-routes Content */}
@@ -94,6 +128,11 @@ export default function EventDetailLayout() {
               <Route path="teams" element={<TeamsTab />} />
               <Route path="leaderboard" element={<LeaderboardTab />} />
               <Route path="register" element={<RegisterEvent />} />
+              <Route path="my-team" element={<TeamManagementFlow />} />
+              <Route path="submission" element={<SubmissionPanel />} />
+              <Route path="manage" element={<EventAdminDashboard />} />
+              <Route path="judging" element={<JudgingDashboard />} />
+              <Route path="edit" element={<EditEvent />} />
             </Routes>
           </div>
         </div>

@@ -72,11 +72,6 @@ import CreateEventForm  from "../pages/Societies/CreateEventForm";
 
 // ── Event Pages (AppShell) ───────────────────────────────────────────────────
 import EventDetailLayout   from "../pages/events/EventDetailFlow";
-import EditEvent           from "../pages/events/EditEvent";
-import SubmissionPanel     from "../pages/events/SubmissionPanel";
-import JudgingDashboard    from "../pages/events/JudgingDashboard";
-import TeamManagementFlow  from "../pages/events/TeamManagementFlow";
-import EventAdminDashboard from "../pages/events/EventAdminDashboard";
 import QRCheckInPanel      from "../pages/events/CheckIn/QRCheckInPanel";
 
 // ── Study Groups (AppShell) ──────────────────────────────────────────────────
@@ -279,11 +274,6 @@ export default function AppRoutes() {
 
           {/* ── Events ───────────────────────────────── */}
           {/* Handled by HYBRID section */}
-          <Route path="/events/:id/edit"      element={<EditEvent />} />
-          <Route path="/events/:id/team"      element={<TeamManagementFlow />} />
-          <Route path="/events/:id/submission" element={<SubmissionPanel />} />
-          <Route path="/events/:id/judge"     element={<JudgingDashboard />} />
-          <Route path="/events/:id/manage"    element={<EventAdminDashboard />} />
           <Route path="/events/:id/check-in"  element={<QRCheckInPanel />} />
 
           {/* ── Study Groups ─────────────────────────── */}

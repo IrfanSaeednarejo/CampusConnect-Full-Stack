@@ -80,7 +80,7 @@ export default function EditEvent() {
 
     const resultAction = await dispatch(updateEventThunk({ id, formData: payload }));
     if (updateEventThunk.fulfilled.match(resultAction)) {
-      navigate(`/events/${id}`);
+      navigate(`/events/${id}/manage`);
     }
   };
 
@@ -89,16 +89,16 @@ export default function EditEvent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-white">
+    <div className="text-white pb-10">
       <header className="bg-[#161b22] border-b border-[#30363d] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => navigate(`/events/${id}`)}
+              onClick={() => navigate(`/events/${id}/manage`)}
               className="flex items-center gap-2 text-[#8b949e] hover:text-white transition-colors"
             >
               <span className="material-symbols-outlined text-xl">arrow_back</span>
-              <span className="text-sm font-medium">Back to Event</span>
+              <span className="text-sm font-medium">Back to Manage HQ</span>
             </button>
             <div className="flex items-center gap-3">
               <span className="material-symbols-outlined text-4xl text-[#1dc964]">edit_calendar</span>
@@ -220,7 +220,7 @@ export default function EditEvent() {
 
           <div className="pt-6">
             <FormActions
-              onCancel={() => navigate(`/events/${id}`)}
+              onCancel={() => navigate(`/events/${id}/manage`)}
               onSubmit={handleSubmit}
               cancelText="Cancel"
               submitText={loading ? "Saving..." : "Save Changes"}

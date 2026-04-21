@@ -44,13 +44,10 @@ export default function JudgingDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0d1117] flex flex-col text-[#e6edf3]">
+    <div className="flex flex-col text-[#e6edf3]">
       {/* Header */}
       <header className="bg-[#161b22] border-b border-[#30363d] px-4 md:px-8 py-4 sticky top-0 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 z-10 shadow-lg">
         <div>
-          <button onClick={() => navigate(`/events/${eventId}`)} className="text-[#8b949e] hover:text-white mb-2 flex items-center text-sm transition-colors">
-            <span className="material-symbols-outlined text-sm mr-1">arrow_back</span> Back to Event
-          </button>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <span className="material-symbols-outlined text-[#8957e5] text-3xl">gavel</span>
             Judging Dashboard
@@ -79,7 +76,7 @@ export default function JudgingDashboard() {
       <main className="flex-1 overflow-hidden grid grid-cols-1 lg:grid-cols-4 max-w-[1600px] w-full mx-auto">
         
         {/* Left Col: Queue Sidebar */}
-        <div className="lg:col-span-1 border-r border-[#30363d] bg-[#161b22] overflow-y-auto h-[calc(100vh-100px)] hide-scrollbar">
+        <div className="lg:col-span-1 border-r border-[#30363d] bg-[#161b22] overflow-y-auto h-[600px] hide-scrollbar">
           <div className="p-4 border-b border-[#30363d] sticky top-0 bg-[#161b22]/90 backdrop-blur z-10 flex justify-between items-center">
             <h3 className="font-bold text-white">Assigned to You</h3>
             {loading && <span className="material-symbols-outlined animate-spin text-[#8b949e] text-sm">refresh</span>}
@@ -119,7 +116,7 @@ export default function JudgingDashboard() {
         </div>
 
         {/* Right Col: Active Evaluation / Rubric Area */}
-        <div className="lg:col-span-3 bg-[#0d1117] flex flex-col p-6 overflow-y-auto h-[calc(100vh-100px)]">
+        <div className="lg:col-span-3 bg-[#0d1117] flex flex-col p-6 overflow-y-auto h-[600px]">
            {!activeSub ? (
              <div className="m-auto text-center max-w-md">
                <span className="material-symbols-outlined text-6xl text-[#30363d] mb-4">receipt_long</span>
@@ -135,16 +132,20 @@ export default function JudgingDashboard() {
                       <h2 className="text-2xl font-black text-white mb-2">{activeSub.title || "Untitled Project"}</h2>
                       <p className="text-sm mb-4 text-[#8b949e]">{activeSub.description || "No description provided."}</p>
                       
-                      {activeSub.repositoryUrl && (
-                        <a href={activeSub.repositoryUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[#58a6ff] hover:underline mb-2">
-                           <span className="material-symbols-outlined text-lg">code</span> View Code Repository
-                        </a>
-                      )}
-                      
-                      {activeSub.liveDemoUrl && (
-                        <a href={activeSub.liveDemoUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[#58a6ff] hover:underline">
-                           <span className="material-symbols-outlined text-lg">open_in_new</span> View Live Demo
-                        </a>
+                      {activeSub.links && activeSub.links.length > 0 && (
+                        <div className="flex flex-col gap-2 mt-4">
+                           {activeSub.links.map((link, idx) => {
+                             let icon = "link";
+                             if (link.label === "GitHub" || link.label === "Repository") icon = "code";
+                             else if (link.label === "Deployment" || link.label === "Live Demo") icon = "open_in_new";
+                             else if (link.label === "YouTube Video") icon = "smart_display";
+                             return (
+                               <a key={idx} href={link.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-[#58a6ff] hover:underline">
+                                 <span className="material-symbols-outlined text-lg">{icon}</span> View {link.label}
+                               </a>
+                             );
+                           })}
+                        </div>
                       )}
                    </div>
 

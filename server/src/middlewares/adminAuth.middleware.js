@@ -97,12 +97,11 @@ export const requireAnyAdmin = (req, _res, next) => {
  */
 export const requireWriteAdmin = (req, _res, next) => {
     if (!req.user) return next(new ApiError(401, "Authentication required"));
-
-    const roles = req.user.roles || [];
-    if (roles.includes(READ_ONLY) && !hasRole(roles, SUPER_ADMIN, CAMPUS_ADMIN, LEGACY_ADMIN)) {
-        return next(new ApiError(403, "Read-only admins cannot perform write operations"));
+    const { roles, permissions } = req.user;
+    if (hasRole(roles, SUPER_ADMIN, CAMPUS_ADMIN, LEGACY_ADMIN) || permissions?.write) {
+        return next();
     }
-    next();
+    return next(new ApiError(403, "permission error", ["User lacks write permission"]));
 };
 
 // ─── scopeQuery ───────────────────────────────────────────────────────────────
@@ -156,3 +155,4 @@ export const getEffectiveCampusId = (req) => {
     }
     return req.user?.campusId || null;
 };
+

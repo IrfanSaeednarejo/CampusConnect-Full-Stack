@@ -4,7 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { 
   fetchEventById, selectSelectedEvent, transitionStateThunk, postAnnouncementThunk, 
   publishLeaderboardThunk, updateJudgesThunk, fetchRegistrationsThunk, 
-  selectRegistrations, approveRegistrationThunk, rejectRegistrationThunk 
+  selectRegistrations, approveRegistrationThunk, rejectRegistrationThunk,
+  deleteEventThunk
 } from "../../../redux/slices/eventSlice";
 import { fetchAllSubmissionsThunk, selectAllSubmissions } from "../../../redux/slices/submissionSlice";
 import { disqualifyTeamThunk } from "../../../redux/slices/teamSlice";
@@ -86,16 +87,28 @@ export default function EventAdminDashboard() {
     await dispatch(disqualifyTeamThunk({ eventId, teamId }));
   };
 
+  const handleDeleteEvent = async () => {
+    const confirmName = window.prompt(`To delete this event, please type its name: "${event.title}"`);
+    if (confirmName === event.title) {
+      try {
+        await dispatch(deleteEventThunk(eventId)).unwrap();
+        toast.success("Event deleted successfully");
+        navigate("/events");
+      } catch (err) {
+        toast.error(err || "Failed to delete event");
+      }
+    } else if (confirmName !== null) {
+      toast.error("Event name did not match.");
+    }
+  };
+
   const pendingCount = registrations.filter(r => r.status === 'pending').length;
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#e6edf3] pb-20">
+    <div className="text-[#e6edf3] pb-10">
       
       {/* Header */}
-      <div className="bg-[#161b22] border-b border-[#30363d] py-6 px-4 sm:px-10 lg:px-20">
-        <button onClick={() => navigate(`/events/${eventId}`)} className="flex items-center text-[#8b949e] hover:text-white transition-colors mb-4">
-          <span className="material-symbols-outlined mr-2">arrow_back</span> Back to Event
-        </button>
+      <div className="border-b border-[#30363d] py-6 px-4 sm:px-10 lg:px-20 bg-[#161b22]">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-3xl font-black text-white flex items-center gap-3">
@@ -104,9 +117,17 @@ export default function EventAdminDashboard() {
             </h1>
             <p className="text-[#8b949e] mt-1">{event.title}</p>
           </div>
-          <Button variant="primary" onClick={() => navigate(`/events/${eventId}/check-in`)}>
-            <span className="material-symbols-outlined mr-2">qr_code_scanner</span> Launch Scanner
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="secondary" onClick={() => navigate(`/events/${eventId}/edit`)}>
+              <span className="material-symbols-outlined mr-2">settings</span> Settings
+            </Button>
+            <Button className="bg-[#f85149]/10 text-[#f85149] hover:bg-[#f85149] hover:text-white border border-[#f85149]/20" onClick={handleDeleteEvent}>
+              <span className="material-symbols-outlined mr-2">delete</span> Delete
+            </Button>
+            <Button variant="primary" onClick={() => navigate(`/events/${eventId}/check-in`)}>
+              <span className="material-symbols-outlined mr-2">qr_code_scanner</span> Scanner
+            </Button>
+          </div>
         </div>
       </div>
 
