@@ -198,6 +198,7 @@ export const updateStudyGroup = async (groupId, data, requestUser) => {
     if (course !== undefined) updates.course = course.trim();
     if (maxMembers !== undefined) updates.maxMembers = parseInt(maxMembers, 10);
     if (isPrivate !== undefined) updates.isPrivate = isPrivate === "true" || isPrivate === true;
+    if (data.requireJoinApproval !== undefined) updates.requireJoinApproval = data.requireJoinApproval === "true" || data.requireJoinApproval === true;
 
     if (tags !== undefined) updates.tags = Array.isArray(tags) ? tags : typeof tags === "string" ? JSON.parse(tags) : [];
     if (schedule !== undefined) updates.schedule = Array.isArray(schedule) ? schedule : typeof schedule === "string" ? JSON.parse(schedule) : [];
@@ -243,26 +244,78 @@ export const archiveStudyGroup = async (groupId, requestUser) => {
 };
 
 export const joinStudyGroup = async (groupId, requestUser) => {
-    const group = await findGroupById(groupId, "coordinatorId groupMembers memberCount maxMembers isPrivate status");
+    const group = await findGroupById(groupId, "coordinatorId groupMembers memberCount maxMembers isPrivate requireJoinApproval status chatId");
 
     if (group.status !== "active") throw new ApiError(400, "This study group is not currently accepting members");
     if (group.isPrivate) throw new ApiError(403, "This is a private study group — ask the coordinator for an invite");
 
     const userId = requestUser._id.toString();
     if (group.coordinatorId.toString() === userId) throw new ApiError(409, "You are the coordinator of this group");
-    if (group.groupMembers.some((m) => m.memberId.toString() === userId)) throw new ApiError(409, "You are already a member of this study group");
+    
+    const existingMember = group.groupMembers.find((m) => m.memberId.toString() === userId);
+    if (existingMember) {
+        if (existingMember.status === "pending") throw new ApiError(409, "Your join request is still pending approval");
+        if (existingMember.status === "approved") throw new ApiError(409, "You are already a member of this study group");
+        // If they were rejected, maybe allow them to request again? For now, blocked.
+        if (existingMember.status === "rejected") throw new ApiError(403, "Your request to join was previously rejected");
+    }
+
     if (group.memberCount >= group.maxMembers) throw new ApiError(409, "This study group is full");
 
-    group.groupMembers.push({ memberId: requestUser._id, role: "member", joinedAt: new Date() });
+    const newMemberStatus = group.requireJoinApproval ? "pending" : "approved";
+    
+    group.groupMembers.push({ 
+        memberId: requestUser._id, 
+        role: "member", 
+        status: newMemberStatus,
+        joinedAt: new Date() 
+    });
+    
     await group.save();
 
-    if (group.chatId) {
+    // Only add to chat if approved immediately
+    if (newMemberStatus === "approved" && group.chatId) {
         Chat.findByIdAndUpdate(group.chatId, {
             $push: { members: { userId: requestUser._id, role: "member", joinedAt: new Date() } }
         }).catch((err) => console.error("[StudyGroup] Failed to add member to chat:", err.message));
     }
 
-    return { memberCount: group.memberCount };
+    return { 
+        status: newMemberStatus,
+        memberCount: group.memberCount 
+    };
+};
+
+export const handleMembershipRequest = async (groupId, memberUserId, action, requestUser) => {
+    const group = await findGroupById(groupId, "coordinatorId groupMembers memberCount chatId status");
+    requireCoordinatorOrAdmin(group, requestUser);
+
+    if (!["accept", "reject"].includes(action)) throw new ApiError(400, "Invalid action. Use 'accept' or 'reject'");
+
+    const memberIndex = group.groupMembers.findIndex((m) => m.memberId.toString() === memberUserId.toString());
+    if (memberIndex === -1) throw new ApiError(404, "Join request not found");
+
+    const member = group.groupMembers[memberIndex];
+    if (member.status !== "pending") throw new ApiError(400, `Cannot ${action} a member who is already ${member.status}`);
+
+    if (action === "accept") {
+        member.status = "approved";
+        member.joinedAt = new Date();
+        
+        // Sync with Chat
+        if (group.chatId) {
+            await Chat.findByIdAndUpdate(group.chatId, {
+                $push: { members: { userId: memberUserId, role: "member", joinedAt: new Date() } }
+            }).catch((err) => console.error("[StudyGroup] Failed to sync member to chat on acceptance:", err.message));
+        }
+    } else {
+        // If rejected, we can either remove them or set status to rejected. 
+        // Removing them allows them to try again later if they want, or keeps the array clean.
+        group.groupMembers.splice(memberIndex, 1);
+    }
+
+    await group.save();
+    return { status: member.status, action };
 };
 
 export const leaveStudyGroup = async (groupId, requestUser) => {

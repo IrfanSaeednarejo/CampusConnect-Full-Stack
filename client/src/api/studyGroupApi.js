@@ -35,6 +35,12 @@ export const removeMember = (id, memberId) =>
 export const updateMemberRole = (id, memberId, data) =>
   api.patch(`${BASE}/${id}/members/${memberId}/role`, data);
 
+export const approveMember = (id, memberUserId) =>
+  api.patch(`${BASE}/${id}/members/${memberUserId}/approve`);
+
+export const rejectMember = (id, memberUserId) =>
+  api.patch(`${BASE}/${id}/members/${memberUserId}/reject`);
+
 
 export const getResources = (id) =>
   api.get(`${BASE}/${id}/resources`);

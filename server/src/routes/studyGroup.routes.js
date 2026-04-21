@@ -19,6 +19,8 @@ import {
     removeResource,
     getResources,
     updateSchedule,
+    approveMember,
+    rejectMember,
 } from "../controllers/studyGroup.controller.js";
 
 const router = Router();
@@ -65,6 +67,14 @@ router
 router
     .route("/:id/members/:memberId/role")
     .patch(verifyJWT, updateMemberRole);
+
+router
+    .route("/:id/members/:memberUserId/approve")
+    .patch(verifyJWT, approveMember);
+
+router
+    .route("/:id/members/:memberUserId/reject")
+    .patch(verifyJWT, rejectMember);
 
 router
     .route("/:id/resources")

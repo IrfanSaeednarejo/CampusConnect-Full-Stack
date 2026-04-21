@@ -111,6 +111,30 @@ export const deleteStudyGroupThunk = createAsyncThunk(
   }
 );
 
+export const approveMemberThunk = createAsyncThunk(
+  'studyGroups/approveMember',
+  async ({ groupId, memberUserId }, { rejectWithValue }) => {
+    try {
+      const { data } = await studyGroupApi.approveMember(groupId, memberUserId);
+      return { groupId, memberUserId, ...data.data };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to approve member');
+    }
+  }
+);
+
+export const rejectMemberThunk = createAsyncThunk(
+  'studyGroups/rejectMember',
+  async ({ groupId, memberUserId }, { rejectWithValue }) => {
+    try {
+      const { data } = await studyGroupApi.rejectMember(groupId, memberUserId);
+      return { groupId, memberUserId, ...data.data };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to reject join request');
+    }
+  }
+);
+
 // ── Initial State ─────────────────────────────────────────────────────────────
 
 const initialState = {
@@ -230,7 +254,33 @@ const studyGroupSlice = createSlice({
           state.selectedGroup = null;
         }
       })
-      .addCase(deleteStudyGroupThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
+      .addCase(deleteStudyGroupThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
+
+      // approveMemberThunk
+      .addCase(approveMemberThunk.pending, (state) => { state.actionLoading = true; })
+      .addCase(approveMemberThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const { memberUserId } = action.payload;
+        if (state.selectedGroup) {
+          const index = state.selectedGroup.groupMembers.findIndex(m => (m.memberId._id || m.memberId) === memberUserId);
+          if (index !== -1) {
+            state.selectedGroup.groupMembers[index].status = 'approved';
+            state.selectedGroup.memberCount += 1;
+          }
+        }
+      })
+      .addCase(approveMemberThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
+
+      // rejectMemberThunk
+      .addCase(rejectMemberThunk.pending, (state) => { state.actionLoading = true; })
+      .addCase(rejectMemberThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const { memberUserId } = action.payload;
+        if (state.selectedGroup) {
+          state.selectedGroup.groupMembers = state.selectedGroup.groupMembers.filter(m => (m.memberId._id || m.memberId) !== memberUserId);
+        }
+      })
+      .addCase(rejectMemberThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
   },
 });
 

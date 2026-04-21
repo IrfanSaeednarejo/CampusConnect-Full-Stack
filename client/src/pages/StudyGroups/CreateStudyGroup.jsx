@@ -42,6 +42,7 @@ export default function CreateStudyGroup() {
         description: values.description,
         schedule: values.schedule,
         maxMembers: values.maxMembers ? parseInt(values.maxMembers) : 20,
+        requireJoinApproval: values.requireJoinApproval,
       };
 
       const result = await dispatch(createStudyGroupThunk(payload)).unwrap();
@@ -59,6 +60,7 @@ export default function CreateStudyGroup() {
       description: "",
       schedule: [],
       maxMembers: "",
+      requireJoinApproval: false,
     },
     handleSubmit
   );
@@ -125,8 +127,24 @@ export default function CreateStudyGroup() {
               min="2"
               max="50"
               placeholder="e.g., 20"
-              helpText="Leave blank for unlimited members"
+              helpText="Between 2 and 50 members"
             />
+
+            {/* Approval Policy */}
+            <div className="flex items-center gap-3 bg-[#1c2128] border border-[#30363d] p-4 rounded-xl">
+               <input 
+                  type="checkbox" 
+                  id="requireJoinApproval"
+                  name="requireJoinApproval"
+                  checked={values.requireJoinApproval}
+                  onChange={(e) => setValue('requireJoinApproval', e.target.checked)}
+                  className="w-5 h-5 accent-[#238636]"
+               />
+               <div>
+                  <label htmlFor="requireJoinApproval" className="font-bold text-white block">Require Join Approval</label>
+                  <p className="text-xs text-[#8b949e]">New members will need your approval before they can join and chat.</p>
+               </div>
+            </div>
 
             {/* Info Box */}
             <InfoBox title="Group Guidelines">

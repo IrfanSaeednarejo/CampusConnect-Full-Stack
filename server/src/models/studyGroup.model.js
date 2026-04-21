@@ -13,6 +13,11 @@ const memberSchema = new Schema(
             enum: ["coordinator", "member"],
             default: "member",
         },
+        status: {
+            type: String,
+            enum: ["pending", "approved", "rejected"],
+            default: "approved",
+        },
         joinedAt: {
             type: Date,
             default: Date.now,
@@ -155,6 +160,10 @@ const studyGroupSchema = new Schema(
             type: Boolean,
             default: false,
         },
+        requireJoinApproval: {
+            type: Boolean,
+            default: false,
+        },
 
         status: {
             type: String,
@@ -225,7 +234,7 @@ studyGroupSchema.index(
 
 studyGroupSchema.pre("save", function (next) {
     if (this.isModified("groupMembers")) {
-        this.memberCount = this.groupMembers.length;
+        this.memberCount = this.groupMembers.filter(m => m.status === "approved").length;
     }
     next();
 });

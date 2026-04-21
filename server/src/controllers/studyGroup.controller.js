@@ -23,27 +23,27 @@ const createStudyGroup = asyncHandler(async (req, res) => {
     
     // STRICT: Never trust user-provided audit fields
     delete sanitizedBody.approvedBy;
-    delete sanitizedBy.rejectionReason;
-    delete sanitizedBy.requestedBy;
+    delete sanitizedBody.rejectionReason;
+    delete sanitizedBody.requestedBy;
     
     if (!isAdmin) {
-        sanitizedBy.status = "pending"; // Enforce request flow
+        sanitizedBody.status = "pending"; // Enforce request flow
     }
 
-    const created = await studyGroupService.createStudyGroup(sanitizedBy, req.user);
+    const created = await studyGroupService.createStudyGroup(sanitizedBody, req.user);
     return res.status(201).json(new ApiResponse(201, created, "Study group request submitted successfully"));
 });
 
 const updateStudyGroup = asyncHandler(async (req, res) => {
-    const sanitizedBy = { ...req.body };
+    const sanitizedBody = { ...req.body };
     
     // User cannot approve their own group or modify audit trail
-    delete sanitizedBy.status; 
-    delete sanitizedBy.approvedBy;
-    delete sanitizedBy.rejectionReason;
-    delete sanitizedBy.requestedBy;
+    delete sanitizedBody.status; 
+    delete sanitizedBody.approvedBy;
+    delete sanitizedBody.rejectionReason;
+    delete sanitizedBody.requestedBy;
 
-    const updated = await studyGroupService.updateStudyGroup(req.params.id, sanitizedBy, req.user);
+    const updated = await studyGroupService.updateStudyGroup(req.params.id, sanitizedBody, req.user);
     return res.status(200).json(new ApiResponse(200, updated, "Study group updated successfully"));
 });
 
@@ -97,6 +97,16 @@ const updateSchedule = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, updated, "Schedule updated successfully"));
 });
 
+const approveMember = asyncHandler(async (req, res) => {
+    const result = await studyGroupService.handleMembershipRequest(req.params.id, req.params.memberUserId, "accept", req.user);
+    return res.status(200).json(new ApiResponse(200, result, "Member approved successfully"));
+});
+
+const rejectMember = asyncHandler(async (req, res) => {
+    const result = await studyGroupService.handleMembershipRequest(req.params.id, req.params.memberUserId, "reject", req.user);
+    return res.status(200).json(new ApiResponse(200, result, "Join request rejected successfully"));
+});
+
 export {
     getStudyGroups,
     getMyStudyGroups,
@@ -113,4 +123,6 @@ export {
     removeResource,
     getResources,
     updateSchedule,
+    approveMember,
+    rejectMember,
 };
