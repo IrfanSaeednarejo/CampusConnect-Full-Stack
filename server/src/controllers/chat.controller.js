@@ -79,6 +79,11 @@ const toggleReaction = asyncHandler(async (req, res) => {
     );
 });
 
+const disconnectChat = asyncHandler(async (req, res) => {
+    const result = await chatService.disconnectChat(req.params.chatId, req.user);
+    return res.status(200).json(new ApiResponse(200, null, result.message));
+});
+
 export {
     createOrGetDM,
     getMyChats,
@@ -92,4 +97,5 @@ export {
     deleteMessage,
     markChatAsRead,
     toggleReaction,
+    disconnectChat,
 };

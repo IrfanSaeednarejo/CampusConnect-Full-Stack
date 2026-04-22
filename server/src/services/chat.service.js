@@ -433,3 +433,31 @@ export const toggleReaction = async (chatId, msgId, data, requestUser) => {
         action,
     };
 };
+
+export const disconnectChat = async (chatId, requestUser) => {
+    const chat = await findChatById(chatId, "type members");
+    if (chat.type !== "dm") {
+        throw new ApiError(400, "Only DM chats can be disconnected");
+    }
+
+    requireMember(chat, requestUser._id);
+
+    const otherMember = chat.members.find(m => m.userId.toString() !== requestUser._id.toString());
+    if (!otherMember) {
+        throw new ApiError(404, "Other member not found");
+    }
+
+    const { Connection } = await import("../models/connection.model.js");
+    const result = await Connection.deleteOne({
+        $or: [
+            { requester: requestUser._id, recipient: otherMember.userId },
+            { requester: otherMember.userId, recipient: requestUser._id }
+        ]
+    });
+
+    if (result.deletedCount === 0) {
+        throw new ApiError(404, "Connection not found or already disconnected");
+    }
+
+    return { message: "Chat disconnected successfully. You are no longer connected with this user." };
+};

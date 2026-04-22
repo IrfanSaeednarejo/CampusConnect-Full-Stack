@@ -12,7 +12,8 @@ const ChatInput = ({
   replyMessage,
   onCancelReply,
   isEditing,
-  onCancelEdit
+  onCancelEdit,
+  senderName = "You"
 }) => {
   // State to control emoji picker visibility
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -105,19 +106,18 @@ const ChatInput = ({
   return (
     <div className="chat-input">
       {(replyMessage || isEditing) && (
-        <div className="input-preview">
+        <div className="input-preview-bar animate-in shadow-sm">
+          <div className="preview-indicator"></div>
           <div className="preview-content">
-            <span className="preview-label">
-              {isEditing ? 'Editing message' : 'Replying to'}
+            <span className="preview-title">
+              {isEditing ? 'Editing Message' : `Replying to ${replyMessage?.senderName || replyMessage?.sender?.profile?.displayName || 'User'}`}
             </span>
-            {!isEditing && replyMessage && (
-              <span className="preview-text">
-                {replyMessage.senderName || 'Unknown'}: {replyMessage.text}
-              </span>
-            )}
+            <span className="preview-snippet">
+              {isEditing ? value : (replyMessage?.content || replyMessage?.text || '...')}
+            </span>
           </div>
           <button
-            className="preview-close"
+            className="preview-close-btn"
             onClick={isEditing ? onCancelEdit : onCancelReply}
             title="Cancel"
           >
@@ -229,17 +229,20 @@ const ChatInput = ({
         />
         
         {/* Message input field */}
-        <input
-          type="text"
-          value={value}
-          onChange={(event) => onChange?.(event.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder={isEditing ? 'Edit your message...' : 'Type a message...'}
-        />
+        <div className="input-wrapper">
+            <input
+                type="text"
+                value={value}
+                onChange={(event) => onChange?.(event.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder={isEditing ? 'Edit your message...' : 'Type a message...'}
+                className="message-input-field"
+            />
+        </div>
         
         {/* Send button */}
-        <button className="send-button" onClick={handleSend}>
-          <Send size={20} />
+        <button className={`send-button ${value.trim() ? 'active' : ''}`} onClick={handleSend} disabled={!value.trim()}>
+          <Send size={18} />
         </button>
       </div>
     </div>

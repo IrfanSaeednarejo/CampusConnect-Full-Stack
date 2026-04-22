@@ -7,6 +7,8 @@ import {
   setConnectionStatus,
   incrementUnread,
   updateConversationMeta,
+  applyDeleteMessage,
+  closeConversation,
 } from '../../redux/slices/chatSlice';
 
 let getState = null;
@@ -54,6 +56,14 @@ export const registerChatHandlers = (socket, dispatch) => {
       conversationId: data.chatId,
       messageId: data.messageId,
       text: data.content,
+    }));
+  });
+
+  // ─── message:deleted ──────────────────────────────────────────────────────
+  socket.on('message:deleted', (data) => {
+    dispatch(applyDeleteMessage({
+      conversationId: data.chatId,
+      messageId: data.messageId,
     }));
   });
 
@@ -119,6 +129,17 @@ export const registerChatHandlers = (socket, dispatch) => {
     }));
   });
 
+  // ─── chat:disconnected ────────────────────────────────────────────────────
+  socket.on('chat:disconnected', (data) => {
+    const currentState = getState?.();
+    const selectedId = currentState?.chat?.selectedConversationId;
+    
+    if (data.chatId === selectedId) {
+      dispatch(closeConversation());
+      // Optionally redirect or show a toast via another mechanism
+    }
+  });
+
   // ─── connection state ─────────────────────────────────────────────────────
   socket.on('connect', () => {
     dispatch(setConnectionStatus({ isConnected: true }));
@@ -131,8 +152,8 @@ export const registerChatHandlers = (socket, dispatch) => {
 
 export const unregisterChatHandlers = (socket) => {
   const events = [
-    'message:new', 'message:updated', 'message:reaction:update',
-    'message:delivered', 'message:seen',
+    'message:new', 'message:updated', 'message:deleted', 'message:reaction:update',
+    'message:delivered', 'message:seen', 'chat:disconnected',
     'typing:start', 'typing:stop',
     'connect', 'disconnect',
   ];

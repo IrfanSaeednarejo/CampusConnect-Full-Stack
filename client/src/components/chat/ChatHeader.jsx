@@ -6,7 +6,8 @@ import {
   BellOff,
   Bell,
   Trash2,
-  MoreVertical
+  MoreVertical,
+  UserMinus
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
 import MutualConnectionsPreview from '../network/MutualConnectionsPreview';
@@ -44,7 +45,8 @@ const ChatHeader = ({
   onArchive,
   onMute,
   onPin,
-  onClearChat
+  onClearChat,
+  onDisconnect
 }) => {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const moreMenuRef = useRef(null);
@@ -81,22 +83,31 @@ const ChatHeader = ({
   };
 
   return (
-    <div className="chat-header">
+    <div className="chat-header shadow-sm">
       <div className="header-info">
         <div className="avatar-container">
-          <div className={`avatar ${avatarColor}`}>{conversation.avatar}</div>
+          <div className={`avatar ${avatarColor} circular-avatar shadow-sm`}>
+            {conversation.avatar && conversation.avatar.length > 2 ? (
+              <img src={conversation.avatar} alt={conversation.name} />
+            ) : (
+              conversation.avatar
+            )}
+          </div>
           {conversation.type === 'user' && conversation.status === 'online' && (
             <span className="status-indicator online"></span>
           )}
         </div>
         <div className="user-details">
-          <h3>{conversation.name}</h3>
-          <p>{statusLine()}</p>
-          {conversation.type === 'user' && conversation.otherUserId && (
-            <div className="mt-[-4px] scale-[0.85] origin-left opacity-80">
-              <MutualConnectionsPreview targetUserId={conversation.otherUserId} initialMutualCount={1} />
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            <h3 className="font-bold">{conversation.name}</h3>
+            {isPinned && <Pin size={12} className="text-emerald-500 fill-emerald-500" />}
+          </div>
+          <div className="status-container flex items-center gap-1.5">
+            {conversation.type === 'user' && (
+               <span className={`status-dot ${conversation.status === 'online' ? 'online' : 'offline'}`}></span>
+            )}
+            <p className="status-text">{statusLine()}</p>
+          </div>
         </div>
       </div>
       <div className="header-actions">
@@ -190,6 +201,31 @@ const ChatHeader = ({
                 </button>
                 <button
                   onClick={() => {
+                    if (window.confirm("Are you sure you want to disconnect? You will need to send a new request to message again.")) {
+                        onDisconnect?.();
+                    }
+                    setShowMoreMenu(false);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '10px 16px',
+                    border: 'none',
+                    backgroundColor: 'transparent',
+                    color: '#f87171',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#1f2937'}
+                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                >
+                  <UserMinus size={16} /> Disconnect Connection
+                </button>
+                <button
+                  onClick={() => {
                     setShowMoreMenu(false);
                   }}
                   style={{
@@ -202,7 +238,7 @@ const ChatHeader = ({
                     cursor: 'pointer',
                     fontSize: '14px',
                   }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#0d1117'}
+                  onMouseEnter={(e) => e.target.style.backgroundColor = '#1f2937'}
                   onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                 >
                   Report

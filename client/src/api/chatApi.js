@@ -35,3 +35,6 @@ export const deleteMessage = (chatId, msgId) =>
 
 export const toggleReaction = (chatId, msgId, emoji) =>
   api.post(`/chats/${chatId}/messages/${msgId}/react`, { emoji });
+
+export const disconnectChat = (chatId) =>
+  api.post(`/chats/${chatId}/disconnect`);

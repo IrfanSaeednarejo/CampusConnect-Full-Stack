@@ -128,8 +128,12 @@ const ChatSidebar = ({
             >
               {/* Avatar with status */}
               <div className="avatar-container">
-                <div className={`avatar ${getAvatarColor(conversation)}`}>
-                  {conversation.avatar || conversation.name[0]}
+                <div className={`avatar ${getAvatarColor(conversation)} circular-avatar shadow-sm`}>
+                  {conversation.avatar && conversation.avatar.length > 2 ? (
+                    <img src={conversation.avatar} alt={conversation.name} />
+                  ) : (
+                    conversation.avatar || conversation.name[0]
+                  )}
                 </div>
 
                 {/* Show status only for users, not groups */}
@@ -141,7 +145,7 @@ const ChatSidebar = ({
               {/* Conversation details */}
               <div className="conversation-info">
                 <div className="conversation-header">
-                  <h3>{conversation.name}</h3>
+                  <h3 className="font-semibold">{conversation.name}</h3>
                   <span className="timestamp">
                     {formatSidebarTime(conversation.timestamp)}
                   </span>

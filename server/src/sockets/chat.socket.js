@@ -10,6 +10,8 @@ const rateLimits = {
     "message:status": new Map(),
     "message:react": new Map(),
     "message:edit": new Map(),
+    "message:delete": new Map(),
+    "chat:disconnect": new Map(),
 };
 
 const checkRateLimit = (action, userId, maxCount, windowMs) => {
@@ -292,6 +294,102 @@ export const registerChatHandlers = (io, socket) => {
             if (typeof ackCallback === "function") ackCallback({ success: true, message });
         } catch (err) {
             logSocket("error", "message:edit", userId, "Edit failed", err);
+            if (typeof ackCallback === "function") ackCallback({ error: err.message });
+        }
+    });
+
+    socket.on("message:delete", async (data, ackCallback) => {
+        try {
+            if (!checkRateLimit("message:delete", userId, 5, 5000)) {
+                logSocket("warn", "message:delete", userId, "Rate limit exceeded");
+                return;
+            }
+
+            const { messageId, chatId } = data || {};
+            if (!messageId || !chatId || !mongoose.isValidObjectId(messageId)) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Invalid payload" });
+                return;
+            }
+
+            const message = await Message.findById(messageId);
+            if (!message || message.chat.toString() !== chatId) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Message not found" });
+                return;
+            }
+
+            if (!message.sender || message.sender.toString() !== userId) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Unauthorized to delete this message" });
+                return;
+            }
+
+            const DELETE_WINDOW_MS = 15 * 60 * 1000;
+            if (Date.now() - new Date(message.createdAt).getTime() > DELETE_WINDOW_MS) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Message can only be deleted within 15 minutes of sending" });
+                return;
+            }
+
+            message.isDeleted = true;
+            message.content = "This message was deleted";
+            message.deletedAt = new Date();
+            await message.save();
+
+            io.to(`chat:${chatId}`).emit("message:deleted", {
+                messageId,
+                chatId,
+                senderId: userId
+            });
+
+            logSocket("info", "message:delete", userId, `Successfully deleted message ${messageId}`);
+            if (typeof ackCallback === "function") ackCallback({ success: true });
+        } catch (err) {
+            logSocket("error", "message:delete", userId, "Delete failed", err);
+            if (typeof ackCallback === "function") ackCallback({ error: err.message });
+        }
+    });
+
+    socket.on("chat:disconnect", async (data, ackCallback) => {
+        try {
+            if (!checkRateLimit("chat:disconnect", userId, 1, 10000)) {
+                logSocket("warn", "chat:disconnect", userId, "Rate limit exceeded");
+                return;
+            }
+
+            const { chatId } = data || {};
+            if (!chatId || !mongoose.isValidObjectId(chatId)) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Invalid chatId" });
+                return;
+            }
+
+            const chat = await Chat.findById(chatId).select("members type");
+            if (!chat || !chat.hasMember(userId) || chat.type !== "dm") {
+                if (typeof ackCallback === "function") ackCallback({ error: "Chat not found or not a DM" });
+                return;
+            }
+
+            const otherMember = chat.members.find(m => m.userId.toString() !== userId);
+            if (!otherMember) {
+                if (typeof ackCallback === "function") ackCallback({ error: "Could not find other member" });
+                return;
+            }
+
+            const { Connection } = await import("../models/connection.model.js");
+            await Connection.deleteOne({
+                $or: [
+                    { requester: userId, recipient: otherMember.userId },
+                    { requester: otherMember.userId, recipient: userId }
+                ]
+            });
+
+            // Notify both users that they are now disconnected
+            io.to(`chat:${chatId}`).emit("chat:disconnected", {
+                chatId,
+                disconnectedBy: userId
+            });
+
+            logSocket("info", "chat:disconnect", userId, `User disconnected chat ${chatId}`);
+            if (typeof ackCallback === "function") ackCallback({ success: true });
+        } catch (err) {
+            logSocket("error", "chat:disconnect", userId, "Disconnect failed", err);
             if (typeof ackCallback === "function") ackCallback({ error: err.message });
         }
     });

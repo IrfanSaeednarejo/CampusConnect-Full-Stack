@@ -149,7 +149,7 @@ messageSchema.index({ chat: 1, "readBy.userId": 1 });
 messageSchema.index({ chat: 1, _id: -1 });
 
 messageSchema.statics.getChatMessages = function (chatId, { before, limit = 50 } = {}) {
-    const filter = { chat: chatId, isDeleted: false };
+    const filter = { chat: chatId };
 
     if (before) {
         filter._id = { $lt: before };

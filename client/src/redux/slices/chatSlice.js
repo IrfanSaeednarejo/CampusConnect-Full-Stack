@@ -96,6 +96,17 @@ export const createOrGetDMThunk = createAsyncThunk(
 		}
 	}
 );
+export const disconnectChatThunk = createAsyncThunk(
+	"chat/disconnectChat",
+	async (chatId, { rejectWithValue }) => {
+		try {
+			await chatApi.disconnectChat(chatId);
+			return { chatId };
+		} catch (err) {
+			return rejectWithValue(err.message);
+		}
+	}
+);
 const initialState = {
 	conversations: [],
 	messagesByConversation: {},
@@ -159,15 +170,14 @@ const chatSlice = createSlice({
 			if (!state.messagesByConversation[conversationId]) {
 				state.messagesByConversation[conversationId] = [];
 			}
-			// Dedup by real _id AND by local tempId
+			// Dedup by real _id OR by idempotencyKey/tempId
 			const exists = state.messagesByConversation[conversationId].some(
-				(m) => m._id && message._id && m._id === message._id
+				(m) => (m._id && message._id && m._id === message._id) ||
+                       (m.tempId && message.idempotencyKey && m.tempId === message.idempotencyKey)
 			);
 			if (!exists) {
 				state.messagesByConversation[conversationId].push(message);
 			}
-			// NOTE: unread increment is handled separately by the socket handler
-			// because the handler knows the current user identity
 		},
 		setConversationMessages: (state, action) => {
 			const { conversationId, messages } = action.payload;
@@ -198,6 +208,7 @@ const chatSlice = createSlice({
 				msg.content = text;
 				msg.text = text;
 				msg.isEdited = true;
+				msg.editedAt = new Date().toISOString();
 			}
 		},
 		deleteMessageForAll: (state, action) => {
@@ -207,6 +218,18 @@ const chatSlice = createSlice({
 			if (msg) {
 				msg.content = "This message was deleted";
 				msg.text = "This message was deleted";
+				msg.deleted = true;
+				msg.isDeleted = true;
+			}
+		},
+		applyDeleteMessage: (state, action) => {
+			const { conversationId, messageId } = action.payload;
+			const msgs = state.messagesByConversation[conversationId] || [];
+			const msg = msgs.find((m) => m._id === messageId || m.id === messageId);
+			if (msg) {
+				msg.content = "This message was deleted";
+				msg.text = "This message was deleted";
+				msg.isDeleted = true;
 				msg.deleted = true;
 			}
 		},
@@ -409,12 +432,14 @@ const chatSlice = createSlice({
 		});
 
 		builder.addCase(deleteMessageThunk.fulfilled, (state, action) => {
+			state.loading.operation = false;
 			const { chatId, messageId } = action.payload;
 			const msgs = state.messagesByConversation[chatId];
 			if (msgs) {
 				const msg = msgs.find((m) => m._id === messageId);
 				if (msg) {
 					msg.content = "This message was deleted";
+					msg.isDeleted = true;
 					msg.deleted = true;
 				}
 			}
@@ -440,6 +465,28 @@ const chatSlice = createSlice({
 				chat.myUnreadCount = 0;
 			}
 		});
+
+		builder.addCase(deleteMessageThunk.pending, (state) => {
+			state.loading.operation = true;
+		});
+		builder.addCase(deleteMessageThunk.rejected, (state) => {
+			state.loading.operation = false;
+		});
+
+		builder.addCase(disconnectChatThunk.pending, (state) => {
+			state.loading.operation = true;
+		});
+		builder.addCase(disconnectChatThunk.fulfilled, (state, action) => {
+			state.loading.operation = false;
+			const { chatId } = action.payload;
+			state.conversations = state.conversations.filter(c => (c.id || c._id) !== chatId);
+			if (state.selectedConversationId === chatId) {
+				state.selectedConversationId = null;
+			}
+		});
+		builder.addCase(disconnectChatThunk.rejected, (state) => {
+			state.loading.operation = false;
+		});
 	},
 });
 
@@ -452,6 +499,7 @@ export const {
 	addOptimisticMessage,
 	replaceOptimisticMessage,
 	applyEditMessage,
+	applyDeleteMessage,
 	deleteMessageForAll,
 	toggleReaction,
 	updateMessageStatus,

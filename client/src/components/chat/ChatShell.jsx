@@ -63,6 +63,7 @@ export default function ChatShell({
 	onClearForwardingMessage = noop,
 	onRetryMessage = noop,
 	onHandleTyping = noop,
+    onDisconnect = noop,
 	canSend = true,
 	currentUser = null,
 }) {
@@ -113,15 +114,28 @@ export default function ChatShell({
 		let lastDay = "";
 		const output = [];
 		messagesToRender.forEach((message) => {
-			const day = formatDayLabel(message.timestamp);
+			const day = formatDayLabel(message.timestamp || message.createdAt);
 			if (day && day !== lastDay) {
-				output.push({ type: "separator", id: `sep-${message.id}`, label: day });
+				output.push({ type: "separator", id: `sep-${message.id || message._id}`, label: day });
 				lastDay = day;
 			}
-			output.push({ type: "message", id: message.id, message });
+            
+            const replyMsg = message.replyToId
+				? visibleMessages.find((msg) => (msg._id || msg.id) === message.replyToId)
+				: null;
+            
+            const enhancedMessage = {
+                ...message,
+                replyPreview: replyMsg ? {
+                    senderDisplayName: replyMsg.senderName || replyMsg.sender?.profile?.displayName || 'User',
+                    content: replyMsg.content || replyMsg.text || 'Message'
+                } : null
+            };
+
+			output.push({ type: "message", id: message.id || message._id, message: enhancedMessage });
 		});
 		return output;
-	}, [messagesToRender]);
+	}, [messagesToRender, visibleMessages]);
 
 	const visibleConversations = useMemo(() => {
 		if (!showArchived) {
@@ -253,6 +267,11 @@ export default function ChatShell({
 		onClearConversation({ conversationId: selectedConversationId });
 	};
 
+    const handleDisconnectChat = () => {
+        if (!selectedConversationId) return;
+        onDisconnect(selectedConversationId);
+    };
+
 	const handleCancelForward = () => {
 		onClearForwardingMessage();
 	};
@@ -287,6 +306,7 @@ export default function ChatShell({
 						onMute={handleMute}
 						onPin={handlePin}
 						onClearChat={handleClearChat}
+                        onDisconnect={handleDisconnectChat}
 					/>
 
 					{forwardingMessage && (
@@ -317,6 +337,7 @@ export default function ChatShell({
 									message={entry.message}
 									isCurrentUser={
 										entry.message.senderId === "current" ||
+										entry.message.senderId === currentUser?._id?.toString() ||
 										entry.message.sender === currentUser?._id?.toString() ||
 										entry.message.sender?._id?.toString() === currentUser?._id?.toString() ||
                                         entry.message.sender?._id === currentUser?._id

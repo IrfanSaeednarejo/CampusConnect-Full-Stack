@@ -22,9 +22,9 @@ import {
  * Safely handles strings, numbers, or Date objects
  */
 const formatTime = (timestamp) => {
-  if (!timestamp) return ''; // Handle missing timestamp
-  const date = timestamp instanceof Date ? timestamp : new Date(timestamp);
-  if (isNaN(date.getTime())) return ''; // Invalid date
+  if (!timestamp) return '';
+  const date = new Date(timestamp);
+  if (isNaN(date.getTime())) return '';
   return date.toLocaleTimeString('en-US', {
     hour: 'numeric',
     minute: '2-digit',
@@ -98,44 +98,11 @@ const MessageBubble = ({
     <div
       className={`message-bubble ${isCurrentUser ? 'sent' : 'received'} ${
         isSearchMatch ? 'match' : ''
-      }`}
+      } ${isDeleted ? 'is-deleted' : ''}`}
     >
-      {!isCurrentUser && (
-        <div className="message-actions">
-          <button onClick={onReply} title="Reply">
-            <Reply size={14} />
-          </button>
-          <button onClick={onForward} title="Forward">
-            <Forward size={14} />
-          </button>
-          <button onClick={() => onDelete?.(false)} title="Delete for me">
-            <Trash2 size={14} />
-          </button>
-          <button onClick={() => onReact?.('👍')} title="React">
-            <Smile size={14} />
-          </button>
-        </div>
-      )}
-      
-      {isCurrentUser && (
-        <div className="message-actions">
-          <button onClick={onReply} title="Reply">
-            <Reply size={14} />
-          </button>
-          {!isDeleted && (
-            <button onClick={onEdit} title="Edit">
-              <Pencil size={14} />
-            </button>
-          )}
-          <button onClick={() => onDelete?.(true)} title="Delete for everyone">
-            <Trash size={14} />
-          </button>
-        </div>
-      )}
-
       <div className={`bubble-content ${isCurrentUser ? 'reverse' : ''}`}>
         {!isCurrentUser && (
-          <div className={`avatar ${userColor || 'blue'} circular-avatar`}>
+          <div className={`avatar ${userColor || 'blue'} circular-avatar shadow-sm`}>
             {senderAvatar ? (
               <img src={senderAvatar} alt={senderDisplayName} />
             ) : (
@@ -145,17 +112,46 @@ const MessageBubble = ({
         )}
 
         <div className={`message-content ${isCurrentUser ? 'align-end' : ''}`}>
-          <div className={`bubble ${isCurrentUser ? 'sent' : 'received'} ${isDeleted ? 'deleted' : ''}`}>
-            {message.forwarded && <span className="message-forwarded">Forwarded</span>}
-            {replyMessage && (
-              <div className="message-reply">
-                <span className="reply-sender">
-                  {replyMessage.senderName || 'Unknown'}
-                </span>
-                <span className="reply-text">{replyMessage.content || replyMessage.text}</span>
+          <div className={`bubble ${isCurrentUser ? 'sent' : 'received'} ${isDeleted ? 'deleted' : ''} shadow-sm`}>
+            {/* Action Buttons (Floating on hover) */}
+            {!isDeleted && (
+              <div className={`message-actions-overlay ${isCurrentUser ? 'sent' : 'received'}`}>
+                <button onClick={onReply} title="Reply"><Reply size={14} /></button>
+                {isCurrentUser && (
+                  <>
+                    <button onClick={onEdit} title="Edit"><Pencil size={14} /></button>
+                    <button onClick={() => onDelete?.(true)} title="Delete for everyone" className="delete-btn"><Trash2 size={14} /></button>
+                  </>
+                )}
+                {!isCurrentUser && (
+                   <button onClick={() => onDelete?.(false)} title="Delete for me" className="delete-btn"><Trash size={14} /></button>
+                )}
+                <button onClick={() => onReact?.('👍')} title="React"><Smile size={14} /></button>
               </div>
             )}
-            <p>{message.content || message.text || ''}</p>
+
+            {message.forwarded && <span className="message-forwarded flex items-center gap-1"><Forward size={10} /> Forwarded</span>}
+            
+            {/* Reply Preview */}
+            {message.replyPreview && (
+              <div className="message-reply-preview">
+                <div className="reply-border"></div>
+                <div className="reply-content">
+                  <span className="reply-sender">{message.replyPreview.senderDisplayName}</span>
+                  <span className="reply-text">{message.replyPreview.content}</span>
+                </div>
+              </div>
+            )}
+
+            <p className="message-text">
+              {isDeleted ? "This message was deleted" : (message.content || message.text || '')}
+            </p>
+
+            <div className="message-footer">
+              <span className="message-time">{formatTime(message.createdAt || message.timestamp)}</span>
+              {message.isEdited && !isDeleted && <span className="edited-label">Edited</span>}
+              {isCurrentUser && <StatusIcon status={message.status || 'sent'} />}
+            </div>
           </div>
 
           {reactionEntries.length > 0 && (
@@ -172,17 +168,6 @@ const MessageBubble = ({
               ))}
             </div>
           )}
-
-          <div className="message-footer">
-            <span className="message-time">{formatTime(message.timestamp)}</span>
-            {message.edited && <span className="edited-label">edited</span>}
-            {isCurrentUser && <StatusIcon status={message.status} />}
-            {isCurrentUser && message.status === 'failed' && (
-              <button className="retry-button" onClick={onRetry}>
-                <RotateCcw size={12} /> Retry
-              </button>
-            )}
-          </div>
         </div>
       </div>
     </div>

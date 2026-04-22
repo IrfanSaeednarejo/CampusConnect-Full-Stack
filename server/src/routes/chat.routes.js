@@ -14,6 +14,7 @@ import {
     deleteMessage,
     markChatAsRead,
     toggleReaction,
+    disconnectChat,
 } from "../controllers/chat.controller.js";
 
 const router = Router();
@@ -36,6 +37,10 @@ router
 router
     .route("/:chatId/read")
     .patch(markChatAsRead);
+
+router
+    .route("/:chatId/disconnect")
+    .post(disconnectChat);
 router
     .route("/:chatId/members")
     .post(addMemberToChat);
