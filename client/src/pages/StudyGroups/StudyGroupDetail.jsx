@@ -11,6 +11,7 @@ import {
 } from "../../redux/slices/studyGroupSlice";
 import { useAuth } from "../../hooks/useAuth";
 import { toast } from "react-hot-toast";
+import ConfirmModal from "../../components/common/ConfirmModal";
 
 // Components
 import StudyGroupChatView from "../../components/studyGroups/StudyGroupChatView";
@@ -29,6 +30,7 @@ export default function StudyGroupDetail() {
   const actionLoading = useSelector(selectStudyGroupActionLoading);
   
   const [activeTab, setActiveTab] = useState("discussion");
+  const [confirmState, setConfirmState] = useState({ isOpen: false });
 
   useEffect(() => {
     dispatch(fetchStudyGroupById(id));
@@ -49,13 +51,23 @@ export default function StudyGroupDetail() {
 
   const handleJoinLeave = async () => {
     if (isMember || isPending) {
-        if (!window.confirm("Are you sure you want to leave this study group?")) return;
-        try {
-            await dispatch(leaveStudyGroupThunk(id)).unwrap();
-            toast.success("Successfully left the group");
-        } catch (err) {
-            toast.error(err || "Failed to leave group");
-        }
+        setConfirmState({
+            isOpen: true,
+            title: "Leave Study Group",
+            message: `Are you sure you want to leave "${group.name}"? You will lose access to the group chat and shared resources.`,
+            confirmText: "Yes, Leave Group",
+            variant: "danger",
+            onConfirm: async () => {
+                try {
+                    await dispatch(leaveStudyGroupThunk(id)).unwrap();
+                    toast.success("Successfully left the group");
+                } catch (err) {
+                    toast.error(err || "Failed to leave group");
+                } finally {
+                    setConfirmState({ isOpen: false });
+                }
+            }
+        });
     } else {
         try {
             const result = await dispatch(joinStudyGroupThunk(id)).unwrap();
@@ -322,6 +334,10 @@ export default function StudyGroupDetail() {
 
         </div>
       </div>
+      <ConfirmModal 
+        {...confirmState} 
+        onCancel={() => setConfirmState({ isOpen: false })} 
+      />
     </div>
   );
 }

@@ -26,6 +26,7 @@ import {
 } from "../../redux/slices/societySlice";
 import { selectUser } from "../../redux/slices/authSlice";
 import { useNotification } from "../../contexts/NotificationContext.jsx";
+import ConfirmModal from "../../components/common/ConfirmModal";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: "info" },
@@ -365,7 +366,7 @@ function EventCard({ event, navigate }) {
         <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
           <span className="flex items-center gap-1">
             <span className="material-symbols-outlined text-[13px]">calendar_today</span>
-            {formatDate(event.startDate)}
+            {formatDate(event.startAt)}
           </span>
           {event.venue && (
             <span className="flex items-center gap-1">
@@ -549,23 +550,15 @@ function PostCreator({ societyId, dispatch, showSuccess, showError }) {
   );
 }
 
-function PostCard({ post, canDelete, societyId, dispatch, userId, showSuccess, showError }) {
+function PostCard({ post, canDelete, societyId, dispatch, userId, showSuccess, showError, onDelete }) {
   const [deleting, setDeleting] = useState(false);
   const author = post.authorId ?? {};
   const p = author?.profile ?? {};
   const name = p.displayName || `${p.firstName ?? ""} ${p.lastName ?? ""}`.trim() || "Member";
   const avatar = p.avatar;
 
-  const handleDelete = async () => {
-    setDeleting(true);
-    try {
-      await dispatch(deleteSocietyPostThunk({ societyId, postId: post._id })).unwrap();
-      showSuccess("Post deleted.");
-    } catch (err) {
-      showError(err || "Failed to delete post");
-    } finally {
-      setDeleting(false);
-    }
+  const handleDelete = () => {
+    onDelete(post);
   };
 
   return (
@@ -607,6 +600,7 @@ function PostCard({ post, canDelete, societyId, dispatch, userId, showSuccess, s
               src={img}
               alt=""
               className="w-full h-52 object-cover rounded-lg border border-slate-700"
+              onDelete={onDeletePost}
             />
           ))}
         </div>
@@ -615,7 +609,7 @@ function PostCard({ post, canDelete, societyId, dispatch, userId, showSuccess, s
   );
 }
 
-function AnnouncementsTab({ societyId, userRole, isHead, isMember, announcements, announcementsLoading, dispatch, user, showSuccess, showError }) {
+function AnnouncementsTab({ societyId, userRole, isHead, isMember, announcements, announcementsLoading, dispatch, user, showSuccess, showError, onDeletePost }) {
   const canPost = isHead || userRole === "co-coordinator";
 
   return (
@@ -656,6 +650,7 @@ function AnnouncementsTab({ societyId, userRole, isHead, isMember, announcements
                 userId={user?._id}
                 showSuccess={showSuccess}
                 showError={showError}
+                onDelete={onDeletePost}
               />
             ))
           )}
@@ -687,6 +682,7 @@ export default function SocietyDetail() {
 
   const [activeTab, setActiveTab] = useState("overview");
   const [actionBusy, setActionBusy] = useState(false);
+  const [confirmConfig, setConfirmConfig] = useState({ isOpen: false });
 
   // ── Load data ────────────────────────────────────────────────────────────────
 
@@ -733,22 +729,61 @@ export default function SocietyDetail() {
 
   const handleJoinLeave = async () => {
     if (!user) { navigate("/login"); return; }
+    
+    if (isMember) {
+      setConfirmConfig({
+        isOpen: true,
+        title: "Leave Society",
+        message: `Are you sure you want to leave "${society.name}"? You will lose access to member-only discussions and events.`,
+        onConfirm: async () => {
+          setActionBusy(true);
+          try {
+            await dispatch(leaveSocietyThunk(id)).unwrap();
+            showSuccess("You have left the society.");
+            dispatch(fetchSocietyMembers({ id, params: { status: "all" } }));
+          } catch (err) {
+            showError(err?.message || "Failed to leave society.");
+          } finally {
+            setActionBusy(false);
+            setConfirmConfig({ isOpen: false });
+          }
+        },
+        variant: "danger"
+      });
+      return;
+    }
+
     setActionBusy(true);
     try {
-      if (isMember) {
-        await dispatch(leaveSocietyThunk(id)).unwrap();
-        showSuccess("You have left the society.");
-        dispatch(fetchSocietyMembers({ id, params: { status: "all" } }));
-      } else {
-        const res = await dispatch(joinSocietyThunk(id)).unwrap();
-        showSuccess(res.status === "pending" ? "Join request sent! Awaiting approval." : "You have joined the society!");
-        dispatch(fetchSocietyMembers({ id, params: { status: "all" } }));
-      }
+      const res = await dispatch(joinSocietyThunk(id)).unwrap();
+      showSuccess(res.status === "pending" ? "Join request sent! Awaiting approval." : "You have joined the society!");
+      dispatch(fetchSocietyMembers({ id, params: { status: "all" } }));
     } catch (err) {
       showError(typeof err === "string" ? err : err?.message || "Action failed. Please try again.");
     } finally {
       setActionBusy(false);
     }
+  };
+
+  const handleDeletePost = (post) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Delete Announcement",
+      message: "Are you sure you want to delete this announcement? This action is permanent and cannot be undone.",
+      onConfirm: async () => {
+        setActionBusy(true);
+        try {
+          await dispatch(deleteSocietyPostThunk({ societyId: id, postId: post._id })).unwrap();
+          showSuccess("Announcement deleted successfully.");
+        } catch (err) {
+          showError(err || "Failed to delete announcement.");
+        } finally {
+          setActionBusy(false);
+          setConfirmConfig({ isOpen: false });
+        }
+      },
+      variant: "danger"
+    });
   };
 
   // ── Loading ──────────────────────────────────────────────────────────────────
@@ -801,7 +836,7 @@ export default function SocietyDetail() {
 
           {isHead && (
             <Link
-              to={`/society/manage`}
+              to={`/society/${id}/manage`}
               className="ml-auto flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 border border-slate-700 rounded-lg px-3 py-1.5 transition-colors"
             >
               <span className="material-symbols-outlined text-sm">settings</span>
@@ -972,11 +1007,22 @@ export default function SocietyDetail() {
                 user={user}
                 showSuccess={showSuccess}
                 showError={showError}
+                onDeletePost={handleDeletePost}
               />
             )}
-          </div>
         </div>
       </div>
+    </div>
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        onClose={() => setConfirmConfig({ isOpen: false })}
+        onConfirm={confirmConfig.onConfirm}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        variant={confirmConfig.variant}
+        loading={actionBusy}
+      />
     </div>
   );
 }

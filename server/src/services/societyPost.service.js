@@ -160,27 +160,42 @@ export const deletePost = async (societyId, postId, requestUser) => {
 
 // ── Society Events ────────────────────────────────────────────────────────────
 
-export const getSocietyEvents = async (societyId) => {
+export const getSocietyEvents = async (societyId, queryParams = {}, requestUser = null) => {
     if (!mongoose.isValidObjectId(societyId)) throw new ApiError(400, "Invalid society ID");
 
     const now = new Date();
+    const sId = new mongoose.Types.ObjectId(societyId);
+    
+    const { approvalStatus } = queryParams;
+    const filter = { societyId: sId };
 
-    const events = await Event.find({ societyId })
-        .select("title description banner startDate endDate venue status format registrationCount coverImage")
-        .sort({ startDate: 1 })
+    if (approvalStatus) {
+        filter.approvalStatus = approvalStatus;
+    } else {
+        filter.approvalStatus = "approved";
+        filter.status = { $in: ["published", "registration", "ongoing", "submission_locked", "judging", "completed"] };
+    }
+
+    const events = await Event.find(filter)
+        .select("title description banner startAt endAt venue status format registrationCount coverImage approvalStatus rejectionReason")
+        .sort({ startAt: 1 })
         .lean();
+
+    if (approvalStatus) {
+        return { events };
+    }
 
     const upcoming = [];
     const ongoing = [];
     const past = [];
 
     for (const ev of events) {
-        const start = new Date(ev.startDate);
-        const end = ev.endDate ? new Date(ev.endDate) : null;
+        const start = ev.startAt ? new Date(ev.startAt) : null;
+        const end = ev.endAt ? new Date(ev.endAt) : null;
 
         if (ev.status === "cancelled" || ev.status === "completed" || (end && end < now)) {
             past.push(ev);
-        } else if (start <= now && (!end || end >= now)) {
+        } else if (start && start <= now && (!end || end >= now)) {
             ongoing.push(ev);
         } else {
             upcoming.push(ev);

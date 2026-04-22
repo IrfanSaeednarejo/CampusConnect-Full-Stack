@@ -17,6 +17,7 @@ import Button from "../../../components/common/Button";
 import FileDropzone from "../../../components/events/Submissions/FileDropzone";
 import PageHeader from "../../../components/common/PageHeader";
 import PageContent from "../../../components/common/PageContent";
+import ConfirmModal from "../../../components/common/ConfirmModal";
 
 export default function SubmissionPanel() {
   const { id: eventId } = useParams();
@@ -35,6 +36,8 @@ export default function SubmissionPanel() {
     liveDemoUrl: "",
     youtubeUrl: ""
   });
+
+  const [confirmState, setConfirmState] = useState({ isOpen: false });
 
   useEffect(() => {
     if (eventId) {
@@ -76,22 +79,30 @@ export default function SubmissionPanel() {
   };
 
   const handleFinalSubmit = async () => {
-    if (!window.confirm("Are you sure you want to finalize your submission? You cannot alter files afterward.")) return;
-    
-    const links = [];
-    if (formData.repositoryUrl) links.push({ label: 'GitHub', url: formData.repositoryUrl });
-    if (formData.liveDemoUrl) links.push({ label: 'Deployment', url: formData.liveDemoUrl });
-    if (formData.youtubeUrl) links.push({ label: 'YouTube Video', url: formData.youtubeUrl });
+    setConfirmState({
+      isOpen: true,
+      title: "Finalize Submission",
+      message: "Are you sure you want to finalize your submission? You cannot alter files or project details after this step. This is an irreversible action.",
+      confirmText: "Yes, Finalize",
+      variant: "primary",
+      onConfirm: async () => {
+        const links = [];
+        if (formData.repositoryUrl) links.push({ label: 'GitHub', url: formData.repositoryUrl });
+        if (formData.liveDemoUrl) links.push({ label: 'Deployment', url: formData.liveDemoUrl });
+        if (formData.youtubeUrl) links.push({ label: 'YouTube Video', url: formData.youtubeUrl });
 
-    await dispatch(submitWorkThunk({
-      eventId,
-      data: { 
-        title: formData.title, 
-        description: formData.description,
-        links: links,
-        status: "submitted" 
-      } 
-    }));
+        await dispatch(submitWorkThunk({
+          eventId,
+          data: { 
+            title: formData.title, 
+            description: formData.description,
+            links: links,
+            status: "submitted" 
+          } 
+        }));
+        setConfirmState({ isOpen: false });
+      }
+    });
   };
 
   const handleFileUpload = async (e) => {
@@ -288,6 +299,10 @@ export default function SubmissionPanel() {
         </div>
 
       </PageContent>
+      <ConfirmModal 
+        {...confirmState} 
+        onCancel={() => setConfirmState({ isOpen: false })} 
+      />
     </div>
   );
 }

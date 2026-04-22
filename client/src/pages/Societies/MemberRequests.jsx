@@ -11,6 +11,7 @@ import {
   selectMembersLoading,
 } from "../../redux/slices/societySlice";
 import { useNotification } from "../../contexts/NotificationContext.jsx";
+import ConfirmModal from "../../components/common/ConfirmModal";
 
 const APPROVED_ROLES = ["student", "active-member", "co-coordinator", "executive", "society_head"];
 
@@ -32,7 +33,7 @@ function formatDate(d) {
   return new Date(d).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 }
 
-function MemberRow({ m, societyId, dispatch, showSuccess, showError, roleDisabled }) {
+function MemberRow({ m, societyId, dispatch, showSuccess, showError, roleDisabled, onRemove }) {
   const [busyRole,   setBusyRole]   = useState(false);
   const [busyRemove, setBusyRemove] = useState(false);
   const name   = getMemberName(m);
@@ -48,14 +49,8 @@ function MemberRow({ m, societyId, dispatch, showSuccess, showError, roleDisable
     finally { setBusyRole(false); }
   };
 
-  const handleRemove = async () => {
-    if (!window.confirm(`Remove ${name} from the society?`)) return;
-    setBusyRemove(true);
-    try {
-      await dispatch(removeMemberThunk({ societyId, memberId })).unwrap();
-      showSuccess("Member removed.");
-    } catch (err) { showError(err || "Failed to remove member"); }
-    finally { setBusyRemove(false); }
+  const handleRemove = () => {
+    onRemove(m);
   };
 
   return (
@@ -116,10 +111,35 @@ export default function MemberRequests() {
   const [search, setSearch]       = useState("");
   const [showModal, setShowModal] = useState(false);
   const [busyId,   setBusyId]    = useState(null);
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [confirmConfig, setConfirmConfig] = useState({ isOpen: false });
 
   const filtered = search.trim()
     ? approved.filter(m => getMemberName(m).toLowerCase().includes(search.trim().toLowerCase()))
     : approved;
+
+  const handleRemoveMember = (m) => {
+    const name = getMemberName(m);
+    const memberId = m.memberId?._id ?? m.memberId;
+    setConfirmConfig({
+      isOpen: true,
+      title: "Remove Member",
+      message: `Are you sure you want to remove "${name}" from this society? This action will revoke their access to all society-exclusive resources.`,
+      onConfirm: async () => {
+        setIsRemoving(true);
+        try {
+          await dispatch(removeMemberThunk({ societyId, memberId })).unwrap();
+          showSuccess("Member removed successfully.");
+        } catch (err) {
+          showError(err || "Failed to remove member");
+        } finally {
+          setIsRemoving(false);
+          setConfirmConfig({ isOpen: false });
+        }
+      },
+      variant: "danger"
+    });
+  };
 
   const handleApprove = async (memberId) => {
     setBusyId(memberId);
@@ -212,6 +232,7 @@ export default function MemberRequests() {
               showSuccess={showSuccess}
               showError={showError}
               roleDisabled={m.role === "society_head"}
+              onRemove={handleRemoveMember}
             />
           ))}
         </div>
@@ -280,6 +301,16 @@ export default function MemberRequests() {
           </div>
         </div>
       )}
+
+      <ConfirmModal
+        isOpen={confirmConfig.isOpen}
+        onClose={() => setConfirmConfig({ isOpen: false })}
+        onConfirm={confirmConfig.onConfirm}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        variant={confirmConfig.variant}
+        loading={isRemoving}
+      />
     </div>
   );
 }

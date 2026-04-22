@@ -19,6 +19,7 @@ import { selectUser } from "../../redux/slices/authSlice";
 import { useSocket } from "../../hooks/useSocket";
 import Avatar from "../../components/common/Avatar";
 import { toast } from "react-hot-toast";
+import ConfirmModal from "../../components/common/ConfirmModal";
 
 // --- Sub-Component: SessionControlPanel ---
 const SessionControlPanel = ({ session, isMentor, onEndSession }) => {
@@ -194,16 +195,26 @@ export default function SessionWorkspace() {
   const isMentor = session.mentorId?.userId?.toString() === currentUser?._id;
   const partner = isMentor ? session.menteeId : session.mentorId?.userId;
 
-  const handleEndSession = async () => {
-      if (window.confirm("Are you sure you want to end this session? It will be marked as complete.")) {
-          try {
-              await dispatch(completeBookingThunk(bookingId)).unwrap();
-              // The backend emits mentor_session:ended, so the setSessionEnded listener will handle state
-              toast.success("Session concluded successfully");
-          } catch (err) {
-              toast.error(err || "Failed to end session");
-          }
+  const [confirmState, setConfirmState] = useState({ isOpen: false });
+
+  const handleEndSession = () => {
+    setConfirmState({
+      isOpen: true,
+      title: "End Session",
+      message: "Are you sure you want to end this session? It will be marked as complete and both participants will be notified. This action cannot be reversed.",
+      confirmText: "Yes, End Session",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+            await dispatch(completeBookingThunk(bookingId)).unwrap();
+            toast.success("Session concluded successfully");
+        } catch (err) {
+            toast.error(err || "Failed to end session");
+        } finally {
+            setConfirmState({ isOpen: false });
+        }
       }
+    });
   };
 
   return (
@@ -300,6 +311,10 @@ export default function SessionWorkspace() {
          </div>
 
       </div>
+      <ConfirmModal 
+        {...confirmState} 
+        onCancel={() => setConfirmState({ isOpen: false })} 
+      />
     </div>
   );
 }

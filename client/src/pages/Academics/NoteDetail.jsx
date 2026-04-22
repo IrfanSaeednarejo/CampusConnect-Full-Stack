@@ -12,6 +12,7 @@ import {
 import AcademicsShell from "../../components/academics/AcademicsShell";
 import NoteBreadcrumbs from "../../components/academics/NoteBreadcrumbs";
 import NoteEditorToolbar from "../../components/academics/NoteEditorToolbar";
+import ConfirmModal from "../../components/common/ConfirmModal";
 
 export default function NoteDetail() {
   const { id } = useParams();
@@ -25,6 +26,7 @@ export default function NoteDetail() {
   const [editTitle, setEditTitle] = useState("");
   const [editContent, setEditContent] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [confirmState, setConfirmState] = useState({ isOpen: false });
 
   useEffect(() => {
     if (id) {
@@ -39,16 +41,25 @@ export default function NoteDetail() {
     }
   }, [note, isEditMode]);
 
-  const handleDelete = async () => {
-    if (confirm("Are you sure you want to delete this note? This action cannot be undone.")) {
-      try {
-        await dispatch(deleteNoteThunk(id)).unwrap();
-        toast.success("Note deleted successfully");
-        navigate("/notes");
-      } catch (err) {
-        toast.error(err || "Failed to delete note");
+  const handleDelete = () => {
+    setConfirmState({
+      isOpen: true,
+      title: "Delete Note",
+      message: `Are you sure you want to delete "${note.title}"? This action is permanent and cannot be undone.`,
+      confirmText: "Delete Note",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await dispatch(deleteNoteThunk(id)).unwrap();
+          toast.success("Note deleted successfully");
+          navigate("/notes");
+        } catch (err) {
+          toast.error(err || "Failed to delete note");
+        } finally {
+          setConfirmState({ isOpen: false });
+        }
       }
-    }
+    });
   };
 
   const handleSave = async () => {
@@ -207,6 +218,10 @@ export default function NoteDetail() {
           </div>
         )}
       </div>
+    <ConfirmModal 
+        {...confirmState} 
+        onCancel={() => setConfirmState({ isOpen: false })} 
+      />
     </AcademicsShell>
   );
 }

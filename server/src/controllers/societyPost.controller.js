@@ -27,7 +27,7 @@ const deletePost = asyncHandler(async (req, res) => {
 // ── Society Events ────────────────────────────────────────────────────────────
 
 const getSocietyEvents = asyncHandler(async (req, res) => {
-    const result = await societyPostService.getSocietyEvents(req.params.id);
+    const result = await societyPostService.getSocietyEvents(req.params.id, req.query, req.user);
     return res.status(200).json(new ApiResponse(200, result, "Society events fetched successfully"));
 });
 
