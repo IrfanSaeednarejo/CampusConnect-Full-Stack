@@ -7,7 +7,8 @@ import {
   selectMentoringLoading,
   confirmBookingThunk,
   cancelBookingThunk,
-  completeBookingThunk
+  completeBookingThunk,
+  markNoShowThunk
 } from "../../redux/slices/mentoringSlice";
 import { selectUser } from "../../redux/slices/authSlice";
 import { toast } from "react-hot-toast";
@@ -79,7 +80,8 @@ export default function MentorSessionsManagement() {
     dispatch(fetchMyBookings({ sort: '-startAt', limit: 100 }));
   }, [dispatch]);
 
-  const scheduledSessions = bookings.filter(b => ['pending', 'confirmed'].includes(b.status));
+  const pendingSessions = bookings.filter(b => b.status === 'pending');
+  const scheduledSessions = bookings.filter(b => b.status === 'confirmed');
   const completedSessions = bookings.filter(b => ['completed', 'cancelled', 'no-show'].includes(b.status));
 
   const handleActionClick = (bookingId, action) => {
@@ -87,7 +89,7 @@ export default function MentorSessionsManagement() {
       setConfirmModal({ isOpen: true, bookingId });
     } else if (action === "cancel") {
       setCancelModal({ isOpen: true, bookingId });
-    } else if (action === "complete") {
+    } else if (action === "complete" || action === "no-show") {
       // Direct action without text input
       executeAction(bookingId, action);
     }
@@ -108,6 +110,9 @@ export default function MentorSessionsManagement() {
       } else if (action === 'complete') {
         await dispatch(completeBookingThunk(bookingId)).unwrap();
         toast.success("Session marked as completed!");
+      } else if (action === 'no-show') {
+        await dispatch(markNoShowThunk(bookingId)).unwrap();
+        toast.success("Session marked as No Show.");
       }
       dispatch(fetchMyBookings({ sort: '-startAt', limit: 100 }));
     } catch (err) {
@@ -143,10 +148,22 @@ export default function MentorSessionsManagement() {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-[#30363d] gap-8 mt-2">
+        <div className="flex border-b border-[#30363d] gap-8 mt-2 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab("pending")}
+            className={`flex flex-col items-center justify-center border-b-[3px] py-3 transition-colors shrink-0 ${
+              activeTab === "pending"
+                ? "border-b-[#e3b341] text-[#c9d1d9]"
+                : "border-b-transparent text-[#8b949e] hover:text-[#c9d1d9]"
+            }`}
+          >
+            <span className="text-sm font-bold tracking-wide">
+              Pending <span className="ml-1 bg-[#21262d] px-2 py-0.5 rounded-full text-xs border border-[#30363d]">{pendingSessions.length}</span>
+            </span>
+          </button>
           <button
             onClick={() => setActiveTab("scheduled")}
-            className={`flex flex-col items-center justify-center border-b-[3px] py-3 transition-colors ${
+            className={`flex flex-col items-center justify-center border-b-[3px] py-3 transition-colors shrink-0 ${
               activeTab === "scheduled"
                 ? "border-b-[#3fb950] text-[#c9d1d9]"
                 : "border-b-transparent text-[#8b949e] hover:text-[#c9d1d9]"
@@ -158,7 +175,7 @@ export default function MentorSessionsManagement() {
           </button>
           <button
             onClick={() => setActiveTab("completed")}
-            className={`flex flex-col items-center justify-center border-b-[3px] py-3 transition-colors ${
+            className={`flex flex-col items-center justify-center border-b-[3px] py-3 transition-colors shrink-0 ${
               activeTab === "completed"
                 ? "border-b-[#3fb950] text-[#c9d1d9]"
                 : "border-b-transparent text-[#8b949e] hover:text-[#c9d1d9]"
@@ -173,6 +190,115 @@ export default function MentorSessionsManagement() {
         {/* Sessions List */}
         <div className="flex flex-col gap-5 mt-2">
           
+        {/* PENDING SESSIONS */}
+        {activeTab === "pending" && pendingSessions.map((session) => {
+            const partner = getPartnerInfo(session);
+            const partnerName = partner?.profile?.displayName || `${partner?.profile?.firstName || 'Unknown'} ${partner?.profile?.lastName || ''}`;
+            const date = new Date(session.startAt);
+            const isMentor = session.mentorId?.userId?._id === currentUser?._id;
+            const isPending = session.status === 'pending';
+            
+            return (
+              <div
+                key={session._id}
+                className={`flex flex-col gap-5 rounded-xl p-5 border transition-colors ${isPending ? 'bg-[#161b22]/50 border-[#e3b341]/30 hover:border-[#e3b341]/60' : 'bg-[#161b22] border-[#30363d] hover:border-[#8b949e]'}`}
+              >
+                {/* Header section */}
+                <div className="flex flex-col md:flex-row justify-between gap-4">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="shrink-0 relative">
+                      {partner?.profile?.avatar ? (
+                        <img src={partner.profile.avatar} alt="Avatar" className="w-16 h-16 rounded-full object-cover border-2 border-[#21262d]" />
+                      ) : (
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#e3b341] to-[#b08800] flex items-center justify-center text-xl font-bold text-white border-2 border-[#21262d]">
+                          {partnerName[0]}
+                        </div>
+                      )}
+                      <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full border-2 border-[#161b22] flex items-center justify-center ${isMentor ? 'bg-[#1f6feb]' : 'bg-[#e3b341]'}`}>
+                         <span className="material-symbols-outlined text-[12px] text-white font-bold">{isMentor ? 'school' : 'person'}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-center gap-3">
+                        <p className="text-lg font-bold text-white truncate">{partnerName}</p>
+                        <span className={`px-2.5 py-0.5 text-[10px] font-bold uppercase rounded-full border ${
+                          session.status === 'confirmed' ? 'bg-[#3fb950]/10 text-[#3fb950] border-[#3fb950]/20' : 'bg-[#d29922]/10 text-[#d29922] border-[#d29922]/20'
+                        }`}>
+                          {session.status}
+                        </span>
+                      </div>
+                      <p className="text-sm font-medium text-[#c9d1d9] mt-1 line-clamp-1">{session.topic || 'General Mentoring & Discussion'}</p>
+                      
+                      <div className="flex items-center gap-3 mt-2 text-xs font-medium text-[#8b949e] flex-wrap">
+                        <span className="flex items-center gap-1.5 bg-[#0d1117] px-2.5 py-1 rounded-md border border-[#30363d]">
+                          <span className="material-symbols-outlined text-[14px]">calendar_today</span> 
+                          {date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-[#0d1117] px-2.5 py-1 rounded-md border border-[#30363d]">
+                          <span className="material-symbols-outlined text-[14px]">schedule</span> 
+                          {date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} • {session.duration} mins
+                        </span>
+                        <span className="flex items-center gap-1.5 bg-[#0d1117] px-2.5 py-1 rounded-md border border-[#30363d]">
+                          <span className="material-symbols-outlined text-[14px]">{session.fee === 0 ? 'money_off' : 'payments'}</span> 
+                          {session.fee === 0 ? 'Free' : `${session.currency} ${session.fee}`}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Actions desktop */}
+                  <div className="hidden md:flex flex-col gap-2 shrink-0 items-end min-w-[200px]">
+                    <SessionActions 
+                      session={session} 
+                      isMentor={isMentor} 
+                      actionLoading={actionLoading} 
+                      onAction={handleActionClick} 
+                      navigate={navigate} 
+                    />
+                  </div>
+                </div>
+
+                {/* Details Section */}
+                {(session.notes || session.meetingLink) && (
+                  <div className="mt-2 bg-[#0d1117]/50 rounded-xl p-4 border border-[#30363d] space-y-3">
+                    {session.meetingLink && session.status === 'confirmed' && (
+                      <div className="flex gap-3 items-start">
+                        <span className="material-symbols-outlined text-[#388bfd] text-[18px] mt-0.5">link</span>
+                        <div>
+                          <p className="text-xs font-bold text-[#8b949e] uppercase tracking-wider mb-1">Meeting Link</p>
+                          <a href={session.meetingLink} target="_blank" rel="noreferrer" className="text-sm font-medium text-[#58a6ff] hover:underline break-all">
+                            {session.meetingLink}
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                    {session.notes && (
+                       <div className="flex gap-3 items-start">
+                       <span className="material-symbols-outlined text-[#8b949e] text-[18px] mt-0.5">edit_note</span>
+                       <div>
+                         <p className="text-xs font-bold text-[#8b949e] uppercase tracking-wider mb-0.5">Notes from Mentee</p>
+                         <p className="text-sm text-[#c9d1d9] leading-relaxed">{session.notes}</p>
+                       </div>
+                     </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Actions mobile */}
+                <div className="flex flex-col gap-2 md:hidden pt-4 border-t border-[#30363d] mt-2">
+                   <SessionActions 
+                      session={session} 
+                      isMentor={isMentor} 
+                      actionLoading={actionLoading} 
+                      onAction={handleActionClick} 
+                      navigate={navigate} 
+                   />
+                </div>
+              </div>
+            );
+          })}
+
           {/* SCHEDULED SESSIONS */}
           {activeTab === "scheduled" && scheduledSessions.map((session) => {
             const partner = getPartnerInfo(session);
@@ -336,13 +462,29 @@ export default function MentorSessionsManagement() {
           })}
 
           {/* Empty States */}
+          {activeTab === "pending" && pendingSessions.length === 0 && (
+            <div className="flex flex-col items-center justify-center gap-3 text-center bg-[#161b22]/50 rounded-2xl p-16 mt-4 border border-[#30363d] border-dashed">
+              <div className="w-20 h-20 rounded-full bg-[#0d1117] flex items-center justify-center border-2 border-[#30363d] mb-4">
+                <span className="material-symbols-outlined text-4xl text-[#8b949e]">inbox</span>
+              </div>
+              <p className="text-2xl font-bold text-white">No pending requests</p>
+              <p className="text-[#8b949e] max-w-md mt-2">You don't have any sessions awaiting confirmation.</p>
+              <button 
+                onClick={() => navigate('/mentors')} 
+                className="mt-6 px-6 py-2.5 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] hover:border-[#8b949e] text-[#c9d1d9] font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-sm">search</span> Browse Mentors
+              </button>
+            </div>
+          )}
+
           {activeTab === "scheduled" && scheduledSessions.length === 0 && (
             <div className="flex flex-col items-center justify-center gap-3 text-center bg-[#161b22]/50 rounded-2xl p-16 mt-4 border border-[#30363d] border-dashed">
               <div className="w-20 h-20 rounded-full bg-[#0d1117] flex items-center justify-center border-2 border-[#30363d] mb-4">
                 <span className="material-symbols-outlined text-4xl text-[#8b949e]">event_busy</span>
               </div>
               <p className="text-2xl font-bold text-white">No scheduled sessions</p>
-              <p className="text-[#8b949e] max-w-md mt-2">You don't have any upcoming mentoring sessions booked. Keep exploring to find or mentor someone!</p>
+              <p className="text-[#8b949e] max-w-md mt-2">You don't have any upcoming confirmed mentoring sessions.</p>
               <button 
                 onClick={() => navigate('/mentors')} 
                 className="mt-6 px-6 py-2.5 bg-[#21262d] hover:bg-[#30363d] border border-[#30363d] hover:border-[#8b949e] text-[#c9d1d9] font-semibold rounded-xl transition-all shadow-sm flex items-center gap-2"
@@ -430,10 +572,20 @@ function SessionActions({ session, isMentor, actionLoading, onAction, navigate }
           )}
         </>
       )}
+      {isMentor && session.status === 'confirmed' && new Date() > new Date(session.startAt) && (
+        <button 
+          onClick={() => onAction(session._id, 'no-show')}
+          disabled={loading}
+          className="w-full flex items-center justify-center gap-2 px-5 py-2 bg-transparent border border-[#d29922]/40 text-[#e3b341] text-xs font-semibold rounded-lg hover:bg-[#d29922]/10 transition-colors disabled:opacity-50 mt-1"
+        >
+          <span className="material-symbols-outlined text-[16px]">person_off</span>
+          Mark No-Show
+        </button>
+      )}
       <button 
         onClick={() => onAction(session._id, 'cancel')}
         disabled={loading}
-        className="w-full flex items-center justify-center gap-2 px-5 py-2 bg-transparent border border-[#da3633]/40 text-[#ff7b72] text-xs font-semibold rounded-lg hover:bg-[#da3633]/10 transition-colors disabled:opacity-50"
+        className="w-full flex items-center justify-center gap-2 px-5 py-2 bg-transparent border border-[#da3633]/40 text-[#ff7b72] text-xs font-semibold rounded-lg hover:bg-[#da3633]/10 transition-colors disabled:opacity-50 mt-1"
       >
         <span className="material-symbols-outlined text-[16px]">cancel</span>
         Cancel Session

@@ -121,11 +121,11 @@ export default function MentorEarnings() {
           {activeTab === "overview" && (
             sessionEarnings.length > 0 ? (
               sessionEarnings.map((session) => {
-                const mentee = session.studentId;
-                const menteeName = mentee?.profile?.displayName || `${mentee?.profile?.firstName} ${mentee?.profile?.lastName}`;
-                const date = new Date(session.scheduledAt);
-                // In future, you might have session duration, for now assume 1h multiplier or base rate
-                const amount = mentorProfile?.hourlyRate || 0;
+                const mentee = session.menteeId;
+                const menteeName = mentee?.profile?.displayName || `${mentee?.profile?.firstName || ''} ${mentee?.profile?.lastName || ''}`.trim() || 'Mentee';
+                const date = new Date(session.startAt);
+                // Use actual payout from booking if available, otherwise fall back to hourly rate
+                const amount = session.mentorPayout || mentorProfile?.hourlyRate || 0;
 
                 return (
                   <div

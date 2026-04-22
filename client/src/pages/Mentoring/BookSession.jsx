@@ -76,7 +76,8 @@ export default function BookSession() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
-  const urlMentorId = searchParams.get("mentorId") || useParams().mentorId;
+  const params = useParams();
+  const urlMentorId = searchParams.get("mentorId") || params.mentorId;
   
   const allMentors = useSelector(selectAllMentors) || [];
   const currentMentor = useSelector(selectCurrentMentor);
@@ -147,17 +148,22 @@ export default function BookSession() {
       return;
     }
 
+    const duration = 60; // 1 hour session
+    const start = selectedSlot.start;
+    const end = new Date(start.getTime() + duration * 60000);
+
     const bookingData = {
-      scheduledAt: selectedSlot.start.toISOString(),
+      startAt: start.toISOString(),
+      endAt: end.toISOString(),
       topic,
       notes,
-      duration: 60 // Enforcing 1hr
+      duration
     };
 
     try {
       await dispatch(bookSessionThunk({ mentorId: activeMentor._id, bookingData })).unwrap();
       toast.success("Session booked successfully!");
-      navigate("/dashboard");
+      navigate("/my-sessions");
     } catch (err) {
       toast.error(err || "Failed to book session");
     }

@@ -24,10 +24,11 @@ const CORE_NAV = [
 ];
 
 const MENTOR_NAV = [
-  { label: 'My Mentees', to: '/mentor/mentees', icon: 'person' },
-  { label: 'My Schedule', to: '/mentor/sessions', icon: 'schedule' },
+  { label: 'Mentor Hub', to: '/mentor/dashboard', icon: 'grid_view' },
+  { label: 'My Sessions', to: '/my-sessions', icon: 'schedule' },
   { label: 'Earnings', to: '/mentor/earnings', icon: 'payments' },
-  { label: 'My Profile', to: '/mentor/display-profile', icon: 'badge' },
+  { label: 'Reviews', to: '/mentor/reviews', icon: 'star' },
+  { label: 'Edit Profile', to: '/mentor/profile/edit', icon: 'badge' },
 ];
 
 const getSocietyNav = (id, pendingCount = 0) => [

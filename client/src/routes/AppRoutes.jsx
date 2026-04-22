@@ -105,20 +105,20 @@ import Conversation from "../pages/Chat/Conversation";
 import NotificationsPage from "../pages/Notifications";
 
 // ── Mentoring Pages (AppShell) ───────────────────────────────────────────────
-import MentorshipHub            from "../pages/Mentoring/MentorshipHub";
 import MentorRegistration       from "../pages/Mentoring/MentorRegistration";
 import MentorProfile            from "../pages/Mentoring/MentorProfile";
-import MentorProfileView        from "../pages/Mentoring/MentorProfileView";
+import MentorPublicProfile      from "../pages/Mentoring/MentorPublicProfile";
 import MentorSessionsManagement from "../pages/Mentoring/MentorSessionsManagement";
 import MentorEarnings           from "../pages/Mentoring/MentorEarnings";
-import MentorMentees            from "../pages/Mentoring/MentorMentees";
+import MentorDashboard          from "../pages/Mentoring/MentorDashboard";
+import MentorEditProfile        from "../pages/Mentoring/MentorEditProfile";
+import MentorReviewsPage        from "../pages/Mentoring/MentorReviewsPage";
 import BookSession              from "../pages/Mentoring/BookSession";
-import FeedbackMentoring        from "../pages/Mentoring/FeedbackMentoring";
+import ReviewSession            from "../pages/Mentoring/ReviewSession";
 import RequestAcceptedConfirmation from "../pages/Mentoring/RequestAcceptedConfirmation";
 import VerificationPending      from "../pages/Mentoring/VerificationPending";
 import ApplicationRejected      from "../pages/Mentoring/ApplicationRejected";
-import MentorDisplayProfile     from "../pages/Mentoring/MentorDisplayProfile";
-import SessionWorkspace        from "../pages/Mentoring/SessionWorkspace";
+import SessionWorkspace         from "../pages/Mentoring/SessionWorkspace";
 
 // ── Admin Portal Pages (Standalone shell) ────────────────────────────────────
 import AdminRoute          from "../admin/guards/AdminRoute";
@@ -231,7 +231,7 @@ export default function AppRoutes() {
         
         {/* Mentors */}
         <Route path="/mentors"   element={<Mentors />} />
-        <Route path="/mentors/:mentorId" element={<MentorProfileView />} />
+        <Route path="/mentors/:mentorId" element={<MentorPublicProfile />} />
         <Route path="/mentor-profile/:id" element={<RouteRedirect to="/mentors/:id" />} />
         
         <Route path="/members"        element={<Navigate to="/network" replace />} />
@@ -255,7 +255,6 @@ export default function AppRoutes() {
 
           {/* Legacy dashboard redirects → unified dashboard */}
           <Route path="/student/dashboard"  element={<Navigate to="/dashboard" replace />} />
-          <Route path="/mentor/dashboard"   element={<Navigate to="/dashboard" replace />} />
           <Route path="/society/dashboard"  element={<Navigate to="/dashboard" replace />} />
           <Route path="/event/dashboard"    element={<Navigate to="/dashboard" replace />} />
 
@@ -323,34 +322,38 @@ export default function AppRoutes() {
           <Route path="/student/notifications" element={<Navigate to="/notifications" replace />} />
           <Route path="/mentor-notifications"  element={<Navigate to="/notifications" replace />} />
 
-          {/* ── Mentoring (any auth user can browse/apply) ── */}
+          {/* ── Mentoring (any auth user can browse/book) ── */}
           <Route path="/mentorship-hub"        element={<Navigate to="/mentors" replace />} />
           <Route path="/mentor/register"       element={<MentorRegistration />} />
           <Route path="/mentor-registration"   element={<Navigate to="/mentor/register" replace />} />
           <Route path="/mentor-apply"          element={<Navigate to="/mentor/register" replace />} />
-          <Route path="/mentor/display-profile" element={<MentorDisplayProfile />} />
-          <Route path="/book-session"          element={<BookSession />} />
           <Route path="/mentor/book/:mentorId" element={<BookSession />} />
-          <Route path="/feedback"              element={<FeedbackMentoring />} />
+          <Route path="/book-session"          element={<Navigate to="/mentors" replace />} />
+          <Route path="/my-sessions"           element={<MentorSessionsManagement />} />
+          <Route path="/workspace/session/:bookingId" element={<SessionWorkspace />} />
           <Route path="/request-accepted"      element={<RequestAcceptedConfirmation />} />
           <Route path="/verification-pending"  element={<VerificationPending />} />
           <Route path="/application-rejected"  element={<ApplicationRejected />} />
-          <Route path="/my-sessions"           element={<MentorSessionsManagement />} />
-          <Route path="/workspace/session/:bookingId" element={<SessionWorkspace />} />
           <Route path="/student/sessions"      element={<Navigate to="/my-sessions" replace />} />
           <Route path="/student/book-mentor"   element={<Navigate to="/mentors" replace />} />
 
-          {/* ── Mentor-role routes (component guards via RoleGuard internally) ── */}
-          <Route path="/mentor/sessions"      element={<MentorSessionsManagement />} />
-          <Route path="/mentor/mentees"       element={<Navigate to="/mentor/sessions" replace />} />
-          <Route path="/mentor/earnings"      element={<MentorEarnings />} />
-          <Route path="/mentor/profile"       element={<MentorDisplayProfile />} />
-          <Route path="/mentor/availability"  element={<MentorProfile />} />
-          {/* Legacy mentor routes */}
-          <Route path="/mentor-sessions"      element={<Navigate to="/mentor/sessions" replace />} />
-          <Route path="/mentor-mentees"       element={<Navigate to="/mentor/mentees" replace />} />
-          <Route path="/earnings"             element={<Navigate to="/mentor/earnings" replace />} />
-          <Route path="/mentor-events"        element={<Navigate to="/events" replace />} />
+          {/* ── Mentor Portal (mentor-role pages, internally guarded) ── */}
+          <Route path="/mentor/dashboard"      element={<MentorDashboard />} />
+          <Route path="/mentor/profile/edit"   element={<MentorEditProfile />} />
+          <Route path="/mentor/availability"   element={<MentorProfile />} />
+          <Route path="/mentor/earnings"       element={<MentorEarnings />} />
+          <Route path="/mentor/reviews"        element={<MentorReviewsPage />} />
+          {/* Legacy mentor redirects */}
+          <Route path="/mentor/sessions"       element={<Navigate to="/my-sessions" replace />} />
+          <Route path="/mentor/mentees"        element={<Navigate to="/my-sessions" replace />} />
+          <Route path="/mentor/profile"        element={<Navigate to="/mentor/dashboard" replace />} />
+          <Route path="/mentor/display-profile" element={<Navigate to="/mentor/dashboard" replace />} />
+          <Route path="/mentor-sessions"       element={<Navigate to="/my-sessions" replace />} />
+          <Route path="/mentor-mentees"        element={<Navigate to="/my-sessions" replace />} />
+          <Route path="/earnings"              element={<Navigate to="/mentor/earnings" replace />} />
+          <Route path="/mentor-events"         element={<Navigate to="/events" replace />} />
+          <Route path="/mentoring/hub"         element={<Navigate to="/mentor/dashboard" replace />} />
+          <Route path="/feedback"              element={<ReviewSession />} />
 
           {/* Admin routes migrated out of AppShell to their own AdminApp layout */}
 

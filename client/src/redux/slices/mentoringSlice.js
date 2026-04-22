@@ -183,6 +183,30 @@ export const submitReviewThunk = createAsyncThunk(
   }
 );
 
+export const markNoShowThunk = createAsyncThunk(
+  'mentoring/markNoShow',
+  async (bookingId, { rejectWithValue }) => {
+    try {
+      const { data } = await mentoringApi.markNoShow(bookingId);
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to mark no-show');
+    }
+  }
+);
+
+export const respondToReviewThunk = createAsyncThunk(
+  'mentoring/respondToReview',
+  async ({ mentorId, reviewId, content }, { rejectWithValue }) => {
+    try {
+      const { data } = await mentoringApi.respondToReview(mentorId, reviewId, { content });
+      return data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to respond to review');
+    }
+  }
+);
+
 // ── Initial State ─────────────────────────────────────────────────────────────
 
 const initialState = {
@@ -193,6 +217,7 @@ const initialState = {
   currentBooking: null,  // Selected booking details
   availability: [],      // Viewed mentor's schedule array
   reviews: [],           // Viewed mentor's reviews
+  reviewDistribution: {},// Rating distribution { 1: n, 2: n, ... }
   
   pagination: {
     page: 1,
@@ -337,14 +362,47 @@ const mentoringSlice = createSlice({
         if (state.currentBooking?._id === updated._id) state.currentBooking = updated;
       })
       .addCase(cancelBookingThunk.fulfilled, (state, action) => {
-        const bookingId = action.payload.bookingId || action.payload._id;
-        state.bookings = state.bookings.map(b => b._id === bookingId ? { ...b, status: 'cancelled' } : b);
-        if (state.currentBooking?._id === bookingId) state.currentBooking.status = 'cancelled';
+        const updated = action.payload;
+        const bookingId = updated?._id || updated?.bookingId;
+        state.bookings = state.bookings.map(b => b._id === bookingId ? { ...b, ...updated, status: 'cancelled' } : b);
+        if (state.currentBooking?._id === bookingId) state.currentBooking = { ...state.currentBooking, status: 'cancelled' };
       })
       .addCase(completeBookingThunk.fulfilled, (state, action) => {
         const updated = action.payload;
         state.bookings = state.bookings.map(b => b._id === updated._id ? updated : b);
         if (state.currentBooking?._id === updated._id) state.currentBooking = updated;
+      })
+      .addCase(markNoShowThunk.fulfilled, (state, action) => {
+        const updated = action.payload;
+        state.bookings = state.bookings.map(b => b._id === updated._id ? updated : b);
+        if (state.currentBooking?._id === updated._id) state.currentBooking = updated;
+      })
+      // Reviews
+      .addCase(fetchMentorReviews.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchMentorReviews.fulfilled, (state, action) => {
+        state.loading = false;
+        state.reviews = action.payload.docs || [];
+        state.reviewDistribution = action.payload.distribution || {};
+      })
+      .addCase(fetchMentorReviews.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(submitReviewThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+      })
+      .addCase(submitReviewThunk.pending, (state) => {
+        state.actionLoading = true;
+      })
+      .addCase(submitReviewThunk.rejected, (state, action) => {
+        state.actionLoading = false;
+        state.error = action.payload;
+      })
+      .addCase(respondToReviewThunk.fulfilled, (state, action) => {
+        const updated = action.payload;
+        state.reviews = state.reviews.map(r => r._id === updated._id ? updated : r);
       });
   },
 });
@@ -366,5 +424,6 @@ export const selectCurrentBooking = (state) => state.mentoring.currentBooking;
 export const selectMentoringLoading = (state) => state.mentoring.loading;
 export const selectMentoringActionLoading = (state) => state.mentoring.actionLoading;
 export const selectMentoringError = (state) => state.mentoring.error;
+export const selectReviewDistribution = (state) => state.mentoring.reviewDistribution;
 
 export default mentoringSlice.reducer;
