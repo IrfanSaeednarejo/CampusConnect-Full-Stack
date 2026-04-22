@@ -73,6 +73,15 @@ import CreateEventForm  from "../pages/Societies/CreateEventForm";
 // ── Event Pages (AppShell) ───────────────────────────────────────────────────
 import EventDetailLayout   from "../pages/events/EventDetailFlow";
 import QRCheckInPanel      from "../pages/events/CheckIn/QRCheckInPanel";
+import OverviewTab         from "../components/events/Detail/OverviewTab";
+import TeamsTab            from "../components/events/Detail/TeamsTab";
+import LeaderboardTab      from "../components/events/Detail/LeaderboardTab";
+import RegisterEvent       from "../pages/events/RegisterEvent";
+import TeamManagementFlow  from "../pages/events/TeamManagementFlow";
+import SubmissionPanel     from "../pages/events/SubmissionPanel";
+import JudgingDashboard    from "../pages/events/JudgingDashboard";
+import EventAdminDashboard from "../pages/events/EventAdminDashboard";
+import EditEvent           from "../pages/events/EditEvent";
 
 // ── Study Groups (AppShell) ──────────────────────────────────────────────────
 import StudyGroupsList     from "../pages/StudyGroups/StudyGroupsList";
@@ -203,7 +212,17 @@ export default function AppRoutes() {
       <Route element={<ModularLayout />}>
         {/* Events */}
         <Route path="/events" element={<Events />} />
-        <Route path="/events/:id/*" element={<EventDetailLayout />} />
+        <Route path="/events/:id" element={<EventDetailLayout />}>
+          <Route index element={<OverviewTab />} />
+          <Route path="teams" element={<TeamsTab />} />
+          <Route path="leaderboard" element={<LeaderboardTab />} />
+          <Route path="register" element={<RegisterEvent />} />
+          <Route path="my-team" element={<TeamManagementFlow />} />
+          <Route path="submission" element={<SubmissionPanel />} />
+          <Route path="manage" element={<EventAdminDashboard />} />
+          <Route path="judging" element={<JudgingDashboard />} />
+          <Route path="edit" element={<EditEvent />} />
+        </Route>
         
         {/* Societies */}
         <Route path="/societies" element={<SocietiesList />} />

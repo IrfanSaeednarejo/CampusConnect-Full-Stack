@@ -35,11 +35,8 @@ export default function EditEvent() {
     maxCapacity: 0,
   });
 
-  useEffect(() => {
-    if (id) {
-      dispatch(fetchEventById(id));
-    }
-  }, [dispatch, id]);
+  // The parent EventDetailLayout handles the initial fetchEventById.
+  // We just react to the event object being populated.
 
   // Sync to form data when event is loaded
   useEffect(() => {

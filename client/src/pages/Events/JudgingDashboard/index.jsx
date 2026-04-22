@@ -19,7 +19,6 @@ export default function JudgingDashboard() {
 
   useEffect(() => {
     if (eventId) {
-      dispatch(fetchEventById(eventId));
       dispatch(fetchMyJudgingQueue({ eventId }));
     }
   }, [dispatch, eventId]);

@@ -8,10 +8,9 @@ import { toast } from "react-hot-toast";
 
 export default function RegisterEvent() {
   const { id } = useParams();
+  const event = useSelector(selectSelectedEvent);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  
-  const event = useSelector(selectSelectedEvent);
   const user = useSelector(selectUser);
   const [loading, setLoading] = useState(false);
   

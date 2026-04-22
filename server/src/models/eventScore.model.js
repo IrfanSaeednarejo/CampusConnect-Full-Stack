@@ -101,12 +101,6 @@ eventScoreSchema.statics.generateLeaderboard = async function (eventId) {
         { $unwind: { path: "$submission", preserveNullAndEmptyArrays: true } },
         { $sort: { averageScore: -1, "submission.submittedAt": 1 } },
         {
-            $setWindowFields: {
-                sortBy: { averageScore: -1, "submission.submittedAt": 1 },
-                output: { rank: { $rank: {} } },
-            },
-        },
-        {
             $lookup: {
                 from: "eventteams",
                 localField: "submission.teamId",
@@ -128,7 +122,6 @@ eventScoreSchema.statics.generateLeaderboard = async function (eventId) {
         {
             $project: {
                 _id: 0,
-                rank: 1,
                 submissionId: "$_id",
                 averageScore: { $round: ["$averageScore", 2] },
                 judgeCount: 1,
@@ -139,7 +132,16 @@ eventScoreSchema.statics.generateLeaderboard = async function (eventId) {
                     links: "$submission.links",
                     isLate: "$submission.isLate",
                 },
-                team: { $cond: { if: { $gt: [{ $size: "$team" }, 0] }, then: { $first: "$team" }, else: null } },
+                team: { 
+                    $cond: { 
+                        if: { $gt: [{ $size: "$team" }, 0] }, 
+                        then: {
+                            _id: { $arrayElemAt: ["$team._id", 0] },
+                            name: { $arrayElemAt: ["$team.teamName", 0] }
+                        }, 
+                        else: null 
+                    } 
+                },
                 user: { $cond: { if: { $gt: [{ $size: "$user" }, 0] }, then: { $first: "$user" }, else: null } },
             },
         },

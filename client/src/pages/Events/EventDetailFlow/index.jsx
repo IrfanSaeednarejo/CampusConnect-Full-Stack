@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Routes, Route, NavLink } from "react-router-dom";
+import { useParams, useNavigate, Outlet, NavLink } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchEventById, selectSelectedEvent, selectEventLoading, selectEventError } from "../../../redux/slices/eventSlice";
 import CircularProgress from "../../../components/common/CircularProgress";
@@ -7,16 +7,7 @@ import EventStatusBadge from "../../../components/events/Shared/EventStatusBadge
 import { selectUser } from "../../../redux/slices/authSlice";
 import EnrollmentCTA from "../../../components/events/Detail/EnrollmentCTA";
 
-import OverviewTab from "../../../components/events/Detail/OverviewTab";
-import TeamsTab from "../../../components/events/Detail/TeamsTab";
-import LeaderboardTab from "../../../components/events/Detail/LeaderboardTab";
-import RegisterEvent from "../RegisterEvent";
 
-import TeamManagementFlow from "../TeamManagementFlow";
-import SubmissionPanel from "../SubmissionPanel";
-import JudgingDashboard from "../JudgingDashboard";
-import EventAdminDashboard from "../EventAdminDashboard";
-import EditEvent from "../EditEvent";
 
 import useEventSocket from "../../../hooks/useEventSocket";
 
@@ -37,8 +28,8 @@ export default function EventDetailLayout() {
     if (id) dispatch(fetchEventById(id));
   }, [dispatch, id]);
 
-  if (loading) return <div className="h-screen flex justify-center items-center bg-[#0d1117]"><CircularProgress /></div>;
-  if (error || !event) return <div className="h-screen flex justify-center items-center bg-[#0d1117] text-[#8b949e]">Event Not Found</div>;
+  if (loading && !event) return <div className="h-screen flex justify-center items-center bg-[#0d1117]"><CircularProgress /></div>;
+  if (!event && !loading) return <div className="h-screen flex justify-center items-center bg-[#0d1117] text-[#8b949e]">Event Not Found</div>;
 
   const isCreator = user?._id === event.createdBy?._id || user?.id === event.createdBy;
   const isAdmin = user?.roles?.includes("admin");
@@ -86,36 +77,36 @@ export default function EventDetailLayout() {
         <div className="lg:col-span-3">
           {/* Navigation Tabs */}
           <div className="flex overflow-x-auto border-b border-[#30363d] mb-6">
-            <NavLink end to={`/events/${id}`} className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#1dc964] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
+            <NavLink end to="" className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#1dc964] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
               Overview
             </NavLink>
-            <NavLink to={`/events/${id}/teams`} className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#1dc964] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
+            <NavLink to="teams" className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#1dc964] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
               Teams & Participants
             </NavLink>
-            <NavLink to={`/events/${id}/leaderboard`} className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#1dc964] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
+            <NavLink to="leaderboard" className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#1dc964] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
               Leaderboard
             </NavLink>
 
             {isApproved && (event.participationType === "team" || event.participationType === "both") && (
-              <NavLink to={`/events/${id}/my-team`} className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#1f6feb] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
+              <NavLink to="my-team" className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#1f6feb] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
                 My Team
               </NavLink>
             )}
 
             {isApproved && ['ongoing', 'submission_open'].includes(event.status) && (
-              <NavLink to={`/events/${id}/submission`} className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#1f6feb] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
+              <NavLink to="submission" className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#1f6feb] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
                 Submit Project
               </NavLink>
             )}
 
             {(isCreator || isAdmin) && (
-              <NavLink to={`/events/${id}/manage`} className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#e3b341] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
+              <NavLink to="manage" className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#e3b341] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
                 Manage HQ
               </NavLink>
             )}
 
             {(isCreator || isAdmin || isJudge) && (
-              <NavLink to={`/events/${id}/judging`} className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#e3b341] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
+              <NavLink to="judging" className={({isActive}) => `px-4 py-3 font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-[#e3b341] text-white' : 'border-transparent text-[#8b949e] hover:text-[#c9d1d9]'}`}>
                 Judging
               </NavLink>
             )}
@@ -123,17 +114,7 @@ export default function EventDetailLayout() {
 
           {/* Sub-routes Content */}
           <div className="bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden min-h-[400px]">
-            <Routes>
-              <Route index element={<OverviewTab />} />
-              <Route path="teams" element={<TeamsTab />} />
-              <Route path="leaderboard" element={<LeaderboardTab />} />
-              <Route path="register" element={<RegisterEvent />} />
-              <Route path="my-team" element={<TeamManagementFlow />} />
-              <Route path="submission" element={<SubmissionPanel />} />
-              <Route path="manage" element={<EventAdminDashboard />} />
-              <Route path="judging" element={<JudgingDashboard />} />
-              <Route path="edit" element={<EditEvent />} />
-            </Routes>
+            <Outlet />
           </div>
         </div>
 
@@ -148,7 +129,7 @@ export default function EventDetailLayout() {
             isFull={event.isFull}
             isRegistered={isRegistered}
             registrationStatus={userRegistration?.status}
-            onEnroll={() => navigate(`/events/${id}/register`)}
+            onEnroll={() => navigate("register")}
           />
 
           <div className="bg-[#161b22] border border-[#30363d] p-5 rounded-xl space-y-4">

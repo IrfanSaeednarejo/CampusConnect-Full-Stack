@@ -29,7 +29,6 @@ export default function EventAdminDashboard() {
 
   useEffect(() => {
     if (eventId) {
-      dispatch(fetchEventById(eventId));
       dispatch(fetchAllSubmissionsThunk(eventId));
       dispatch(fetchRegistrationsThunk(eventId));
     }

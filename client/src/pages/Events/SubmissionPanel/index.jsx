@@ -38,7 +38,6 @@ export default function SubmissionPanel() {
 
   useEffect(() => {
     if (eventId) {
-      dispatch(fetchEventById(eventId));
       dispatch(fetchMySubmission(eventId));
     }
   }, [dispatch, eventId]);

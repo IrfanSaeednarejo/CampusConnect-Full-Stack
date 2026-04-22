@@ -63,7 +63,6 @@ export default function TeamManagementFlow() {
 
   useEffect(() => {
     if (eventId) {
-      dispatch(fetchEventById(eventId));
       dispatch(fetchTeams({ eventId }));
       dispatch(fetchMyTeam(eventId));
     }
