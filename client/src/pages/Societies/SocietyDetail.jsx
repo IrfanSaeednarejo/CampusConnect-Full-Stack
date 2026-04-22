@@ -371,7 +371,7 @@ function EventCard({ event, navigate }) {
           {event.venue && (
             <span className="flex items-center gap-1">
               <span className="material-symbols-outlined text-[13px]">location_on</span>
-              {event.venue}
+              {event.venue.type === 'online' ? 'Online Event' : event.venue.address || 'TBD'}
             </span>
           )}
           {event.format && (
