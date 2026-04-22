@@ -21,6 +21,7 @@ import TeamStatusHeader from "../../../components/events/Teams/TeamStatusHeader"
 import CreateTeamModal from "../../../components/events/Teams/CreateTeamModal";
 import MyTeamDashboard from "../../../components/events/Teams/MyTeamDashboard";
 import FindTeamBoard from "../../../components/events/Teams/FindTeamBoard";
+import ConfirmModal from "../../../components/common/ConfirmModal";
 
 // Minor form modal inside orchestrator for password required
 const JoinTeamModal = ({ team, isOpen, onClose, onSubmit, loading }) => {
@@ -80,6 +81,7 @@ export default function TeamManagementFlow() {
 
   const [isCreateModalOpen, setCreateModalOpen] = useState(false);
   const [joinModalConfig, setJoinModalConfig] = useState({ isOpen: false, team: null });
+  const [confirmConfig, setConfirmConfig] = useState({ isOpen: false });
 
   useEffect(() => {
     if (eventId) {
@@ -106,37 +108,59 @@ export default function TeamManagementFlow() {
     }
   };
 
-  const handleJoinTeam = async (password) => {
+  const handleJoinTeam = (password) => {
     const { team } = joinModalConfig;
-    const resultAction = await dispatch(joinTeamThunk({ eventId, teamId: team._id, data: { password } }));
-    if (joinTeamThunk.fulfilled.match(resultAction)) {
-      setJoinModalConfig({ isOpen: false, team: null });
-      // Redirect to my-team upon joining
-      navigate(`/events/${eventId}/my-team`);
-    }
+    setConfirmConfig({
+      isOpen: true,
+      title: "Team Enrollment",
+      message: `You are about to join '${team.teamName}'. Once enrolled, you will be part of this squad for the duration of the event. Proceed?`,
+      confirmText: "Authorized Join",
+      onConfirm: async () => {
+        const resultAction = await dispatch(joinTeamThunk({ eventId, teamId: team._id, data: { password } }));
+        if (joinTeamThunk.fulfilled.match(resultAction)) {
+          setJoinModalConfig({ isOpen: false, team: null });
+          navigate(`/events/${eventId}/my-team`);
+        }
+        setConfirmConfig({ isOpen: false });
+      }
+    });
   };
 
-  const handleLeaveTeam = async () => {
+  const handleLeaveTeam = () => {
     if (!myTeam) return;
     const isLeader = myTeam.members.some(m => (m.userId?._id === user._id || m.userId === user._id) && m.role === 'leader');
-    const confirmMsg = isLeader 
-      ? "As leader, leaving will disband the team or transfer leadership. Are you sure?"
-      : "Are you sure you want to leave this team?";
     
-    if (window.confirm(confirmMsg)) {
-      await dispatch(leaveTeamThunk({ eventId, teamId: myTeam._id }));
-    }
+    setConfirmConfig({
+      isOpen: true,
+      title: isLeader ? "Squad Dissolution" : "Departure Protocol",
+      message: isLeader 
+        ? "As the leader, leaving this team will trigger a SQUAD DISBAND or require a leadership transfer. Are you sure you want to proceed?" 
+        : "You are about to leave this team. You will lose access to team-specific resources. Proceed with departure?",
+      confirmText: isLeader ? "Disband / Leave" : "Depart Team",
+      variant: "danger",
+      onConfirm: async () => {
+        await dispatch(leaveTeamThunk({ eventId, teamId: myTeam._id }));
+        setConfirmConfig({ isOpen: false });
+      }
+    });
   };
 
-  const handleRemoveMember = async (userId, displayName) => {
-    if (!window.confirm(`Are you sure you want to remove ${displayName} from your team?`)) return;
-    try {
-      await dispatch(kickMemberThunk({ eventId, teamId: myTeam._id, userId })).unwrap();
-      // Refresh my team
-      dispatch(fetchMyTeam(eventId));
-    } catch (err) {
-      // Error is handled by thunk/slice but we can add local feedback if needed
-    }
+  const handleRemoveMember = (userId, displayName) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Member Removal",
+      message: `You are removing '${displayName}' from the team roster. This action is tracked and the member will be notified. Proceed?`,
+      confirmText: "Remove Member",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await dispatch(kickMemberThunk({ eventId, teamId: myTeam._id, userId })).unwrap();
+          // Refresh my team
+          dispatch(fetchMyTeam(eventId));
+        } catch (err) {}
+        setConfirmConfig({ isOpen: false });
+      }
+    });
   };
 
   const minSize = event.teamConfig?.minSize || 1;
@@ -202,6 +226,10 @@ export default function TeamManagementFlow() {
         onClose={() => setJoinModalConfig({ isOpen: false, team: null })}
         onSubmit={handleJoinTeam}
         loading={loading}
+      />
+      <ConfirmModal 
+        {...confirmConfig} 
+        onCancel={() => setConfirmConfig({ isOpen: false })} 
       />
     </div>
   );

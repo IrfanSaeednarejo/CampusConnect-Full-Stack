@@ -12,6 +12,7 @@ import { fetchTeams, selectTeams, disqualifyTeamThunk, kickMemberThunk } from ".
 import CircularProgress from "../../../components/common/CircularProgress";
 import Button from "../../../components/common/Button";
 import { toast } from "react-hot-toast";
+import ConfirmModal from "../../../components/common/ConfirmModal";
 
 export default function EventAdminDashboard() {
   const { id: eventId } = useParams();
@@ -39,9 +40,18 @@ export default function EventAdminDashboard() {
 
   if (loading) return <div className="h-screen flex justify-center items-center bg-[#0d1117]"><CircularProgress /></div>;
 
-  const handleTransition = async (newState) => {
-    if (!window.confirm(`Are you sure you want to transition this event to: ${newState}?`)) return;
-    await dispatch(transitionStateThunk({ id: eventId, stateData: { status: newState } }));
+  const handleTransition = (newState) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "State Transition Protocol",
+      message: `You are about to move this event to the '${newState}' phase. This will trigger notifications and may restrict certain user actions. Proceed?`,
+      confirmText: `Transition to ${newState}`,
+      variant: "warning",
+      onConfirm: async () => {
+        await dispatch(transitionStateThunk({ id: eventId, stateData: { status: newState } }));
+        setConfirmConfig({ isOpen: false });
+      }
+    });
   };
 
   const handleApproveRegistration = async (userId) => {
@@ -71,9 +81,18 @@ export default function EventAdminDashboard() {
     setAnnouncementText("");
   };
 
-  const handlePublishLeaderboard = async () => {
-    if (!window.confirm("Publishing the leaderboard makes all scores visible. Continue?")) return;
-    await dispatch(publishLeaderboardThunk(eventId));
+  const handlePublishLeaderboard = () => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Leaderboard Visibility",
+      message: "Publishing the leaderboard makes all scores and rankings visible to all participants. This action is usually performed at the end of the event.",
+      confirmText: "Publish Now",
+      variant: "primary",
+      onConfirm: async () => {
+        await dispatch(publishLeaderboardThunk(eventId));
+        setConfirmConfig({ isOpen: false });
+      }
+    });
   };
 
   const handleAssignJudge = async (e) => {
@@ -84,46 +103,74 @@ export default function EventAdminDashboard() {
     setJudgeIdInput("");
   };
 
-  const handleDisqualify = async (teamId) => {
-    if (!window.confirm("Are you sure you want to disqualify this team? This cannot be undone automatically.")) return;
-    await dispatch(disqualifyTeamThunk({ eventId, teamId }));
+  const handleDisqualify = (teamId) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Terminal Sanction",
+      message: "Are you sure you want to disqualify this team? This will bar them from further participation and submission scoring.",
+      confirmText: "Disqualify Team",
+      variant: "danger",
+      onConfirm: async () => {
+        await dispatch(disqualifyTeamThunk({ eventId, teamId }));
+        setConfirmConfig({ isOpen: false });
+      }
+    });
   };
 
-  const handleKickMember = async (teamId, userId, displayName) => {
-    if (!window.confirm(`Are you sure you want to remove ${displayName} from this team?`)) return;
-    try {
-      await dispatch(kickMemberThunk({ eventId, teamId, userId })).unwrap();
-      toast.success(`${displayName} removed from team`);
-      // Refresh teams to reflect changes
-      dispatch(fetchTeams({ eventId }));
-      // Update selected team if modal is open
-      if (selectedTeam?._id === teamId) {
-        setSelectedTeam(prev => ({
-          ...prev,
-          members: prev.members.filter(m => (m.userId?._id || m.userId) !== userId)
-        }));
+  const handleKickMember = (teamId, userId, displayName) => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Member Eviction",
+      message: `You are removing ${displayName} from their team. This participant will need to join another team or remain independent.`,
+      confirmText: "Eject Member",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await dispatch(kickMemberThunk({ eventId, teamId, userId })).unwrap();
+          toast.success(`${displayName} removed from team`);
+          dispatch(fetchTeams({ eventId }));
+          if (selectedTeam?._id === teamId) {
+            setSelectedTeam(prev => ({
+              ...prev,
+              members: prev.members.filter(m => (m.userId?._id || m.userId) !== userId)
+            }));
+          }
+        } catch (err) {
+          toast.error(err || "Failed to remove member");
+        }
+        setConfirmConfig({ isOpen: false });
       }
-    } catch (err) {
-      toast.error(err || "Failed to remove member");
-    }
+    });
   };
 
-  const handleDeleteEvent = async () => {
-    const confirmName = window.prompt(`To delete this event, please type its name: "${event.title}"`);
-    if (confirmName === event.title) {
-      try {
-        await dispatch(deleteEventThunk(eventId)).unwrap();
-        toast.success("Event deleted successfully");
-        navigate("/events");
-      } catch (err) {
-        toast.error(err || "Failed to delete event");
+  const handleDeleteEvent = () => {
+    setConfirmConfig({
+      isOpen: true,
+      title: "Permanent Destruction",
+      message: `WARNING: You are about to PERMANENTLY DELETE "${event.title}". All registrations, teams, and submissions will be lost forever. Type the event name below to confirm.`,
+      confirmText: "Delete Infinitely",
+      variant: "danger",
+      showVerify: true, // Custom logic for delete
+      onConfirm: async () => {
+        const confirmName = window.prompt(`To delete this event, please type its name: "${event.title}"`);
+        if (confirmName === event.title) {
+          try {
+            await dispatch(deleteEventThunk(eventId)).unwrap();
+            toast.success("Event deleted successfully");
+            navigate("/events");
+          } catch (err) {
+            toast.error(err || "Failed to delete event");
+          }
+        } else if (confirmName !== null) {
+          toast.error("Event name did not match.");
+        }
+        setConfirmConfig({ isOpen: false });
       }
-    } else if (confirmName !== null) {
-      toast.error("Event name did not match.");
-    }
+    });
   };
 
   const [selectedTeam, setSelectedTeam] = useState(null);
+  const [confirmConfig, setConfirmConfig] = useState({ isOpen: false });
   
   const safeRegistrations = Array.isArray(registrations) ? registrations : [];
   const safeSubmissions = Array.isArray(allSubmissions) ? allSubmissions : [];
@@ -509,6 +556,12 @@ export default function EventAdminDashboard() {
            </div>
          </div>
       )}
+
+      {/* Global Confirmation Modal */}
+      <ConfirmModal 
+        {...confirmConfig} 
+        onCancel={() => setConfirmConfig({ isOpen: false })} 
+      />
     </div>
   );
 
