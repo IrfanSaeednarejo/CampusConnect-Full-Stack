@@ -17,7 +17,7 @@ export default function LeaderboardTab() {
       try {
         const { data } = await api.get(`/competitions/${id}/leaderboard`);
         // Ensure strictly sorted descending
-        const sorted = (data.data || []).sort((a,b) => b.totalScore - a.totalScore);
+        const sorted = (data.data || []).sort((a,b) => b.averageScore - a.averageScore);
         setBoard(sorted);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to load leaderboard");
@@ -81,7 +81,7 @@ export default function LeaderboardTab() {
               <span className="material-symbols-outlined text-4xl text-[#c0c0c0] mb-2">workspace_premium</span>
               <div className="w-full md:w-32 bg-[#161b22] border-t-4 border-t-[#c0c0c0] p-4 text-center rounded-t-lg shadow-xl h-32 flex flex-col justify-end">
                 <span className="font-bold text-white line-clamp-1">{board[1].team?.name || "Participant"}</span>
-                <span className="text-xl font-black text-[#c0c0c0]">{board[1].totalScore} pts</span>
+                <span className="text-xl font-black text-[#c0c0c0]">{board[1].averageScore} pts</span>
               </div>
            </div>
         )}
@@ -92,7 +92,7 @@ export default function LeaderboardTab() {
               <span className="material-symbols-outlined text-6xl text-[#ffd700] mb-2 animate-pulse">workspace_premium</span>
               <div className="w-full md:w-40 bg-[#0d1117] border-t-8 border-t-[#ffd700] p-4 text-center rounded-t-xl shadow-2xl h-40 flex flex-col justify-end">
                 <span className="font-bold text-white text-lg line-clamp-1">{board[0].team?.name || "Participant"}</span>
-                <span className="text-2xl font-black text-[#ffd700]">{board[0].totalScore} pts</span>
+                <span className="text-2xl font-black text-[#ffd700]">{board[0].averageScore} pts</span>
               </div>
            </div>
         )}
@@ -103,7 +103,7 @@ export default function LeaderboardTab() {
               <span className="material-symbols-outlined text-4xl text-[#cd7f32] mb-2">workspace_premium</span>
               <div className="w-full md:w-32 bg-[#161b22] border-t-4 border-t-[#cd7f32] p-4 text-center rounded-t-lg shadow-xl h-24 flex flex-col justify-end">
                 <span className="font-bold text-white line-clamp-1">{board[2].team?.name || "Participant"}</span>
-                <span className="text-lg font-black text-[#cd7f32]">{board[2].totalScore} pts</span>
+                <span className="text-lg font-black text-[#cd7f32]">{board[2].averageScore} pts</span>
               </div>
            </div>
         )}
@@ -125,7 +125,7 @@ export default function LeaderboardTab() {
                  <tr key={idx} className="hover:bg-[#21262d] transition-colors">
                    <td className="p-4 text-center text-[#8b949e] font-semibold">{idx + 4}</td>
                    <td className="p-4 text-white font-semibold">{item.team?.name || "Unknown"}</td>
-                   <td className="p-4 text-right text-[#1dc964] font-bold">{item.totalScore}</td>
+                   <td className="p-4 text-right text-[#1dc964] font-bold">{item.averageScore}</td>
                  </tr>
                ))}
              </tbody>
