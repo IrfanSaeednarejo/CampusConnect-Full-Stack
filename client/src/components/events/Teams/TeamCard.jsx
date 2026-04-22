@@ -18,9 +18,10 @@ export default function TeamCard({ team, onJoinClick, userHasTeam }) {
           <p className="text-xs text-[#8b949e] uppercase font-semibold tracking-wider mb-2">Members ({team.members.length}/{team.maxSize || 5})</p>
           <div className="flex flex-wrap gap-2 text-sm text-[#c9d1d9]">
             {team.members.map((m) => (
-               <span key={m.user?._id || m.userId} className="bg-[#0d1117] border border-[#30363d] px-2 py-1 rounded line-clamp-1 max-w-full">
-                 {m.user?.displayName || "Anonymous"} {m.role === 'leader' && '👑'}
-               </span>
+                <span key={m.userId?._id || m.userId} className="bg-[#0d1117] border border-[#30363d] px-2 py-1 rounded text-[11px] font-medium text-[#8b949e] flex items-center gap-1.5 max-w-full">
+                  <span className="truncate">{m.userId?.profile?.displayName || m.user?.displayName || "Anonymous Participant"}</span>
+                  {m.role === 'leader' && <span className="text-[#e3b341]">👑</span>}
+                </span>
             ))}
           </div>
         </div>

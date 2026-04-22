@@ -101,7 +101,10 @@ const submissionSlice = createSlice({
       .addCase(fetchAllSubmissionsThunk.pending, (state) => { state.uploadStatus = "loading"; })
       .addCase(fetchAllSubmissionsThunk.fulfilled, (state, action) => {
         state.uploadStatus = "succeeded";
-        state.allSubmissions = action.payload || [];
+        // Handle both direct array and paginated response
+        state.allSubmissions = Array.isArray(action.payload) 
+          ? action.payload 
+          : (action.payload?.docs || []);
         state.error = null;
       })
       .addCase(fetchAllSubmissionsThunk.rejected, (state, action) => {

@@ -8,7 +8,7 @@ import {
   deleteEventThunk
 } from "../../../redux/slices/eventSlice";
 import { fetchAllSubmissionsThunk, selectAllSubmissions } from "../../../redux/slices/submissionSlice";
-import { disqualifyTeamThunk } from "../../../redux/slices/teamSlice";
+import { fetchTeams, selectTeams, disqualifyTeamThunk, kickMemberThunk } from "../../../redux/slices/teamSlice";
 import CircularProgress from "../../../components/common/CircularProgress";
 import Button from "../../../components/common/Button";
 import { toast } from "react-hot-toast";
@@ -25,12 +25,15 @@ export default function EventAdminDashboard() {
   const event = useSelector(selectSelectedEvent);
   const allSubmissions = useSelector(selectAllSubmissions);
   const registrations = useSelector(selectRegistrations);
+  const teams = useSelector(selectTeams);
   const loading = !event;
 
   useEffect(() => {
     if (eventId) {
+      dispatch(fetchEventById(eventId));
       dispatch(fetchAllSubmissionsThunk(eventId));
       dispatch(fetchRegistrationsThunk(eventId));
+      dispatch(fetchTeams({ eventId }));
     }
   }, [dispatch, eventId]);
 
@@ -86,6 +89,25 @@ export default function EventAdminDashboard() {
     await dispatch(disqualifyTeamThunk({ eventId, teamId }));
   };
 
+  const handleKickMember = async (teamId, userId, displayName) => {
+    if (!window.confirm(`Are you sure you want to remove ${displayName} from this team?`)) return;
+    try {
+      await dispatch(kickMemberThunk({ eventId, teamId, userId })).unwrap();
+      toast.success(`${displayName} removed from team`);
+      // Refresh teams to reflect changes
+      dispatch(fetchTeams({ eventId }));
+      // Update selected team if modal is open
+      if (selectedTeam?._id === teamId) {
+        setSelectedTeam(prev => ({
+          ...prev,
+          members: prev.members.filter(m => (m.userId?._id || m.userId) !== userId)
+        }));
+      }
+    } catch (err) {
+      toast.error(err || "Failed to remove member");
+    }
+  };
+
   const handleDeleteEvent = async () => {
     const confirmName = window.prompt(`To delete this event, please type its name: "${event.title}"`);
     if (confirmName === event.title) {
@@ -101,7 +123,13 @@ export default function EventAdminDashboard() {
     }
   };
 
-  const pendingCount = registrations.filter(r => r.status === 'pending').length;
+  const [selectedTeam, setSelectedTeam] = useState(null);
+  
+  const safeRegistrations = Array.isArray(registrations) ? registrations : [];
+  const safeSubmissions = Array.isArray(allSubmissions) ? allSubmissions : [];
+  const safeTeams = Array.isArray(teams) ? teams : [];
+  
+  const pendingCount = safeRegistrations.filter(r => r.status === 'pending').length;
 
   return (
     <div className="text-[#e6edf3] min-h-screen animate-in fade-in duration-500">
@@ -196,11 +224,11 @@ export default function EventAdminDashboard() {
             <h3 className="text-[10px] font-black text-[#8b949e] uppercase tracking-[0.2em] mb-4">Active Roster</h3>
             <div className="flex items-end justify-between">
               <div>
-                <span className="block text-3xl font-black text-white">{allSubmissions.length || 0}</span>
-                <span className="text-[10px] text-[#1f6feb] font-bold uppercase">Approved Entities</span>
+                <span className="block text-3xl font-black text-white">{(teams || []).length || 0}</span>
+                <span className="text-[10px] text-[#1f6feb] font-bold uppercase">Formed Teams</span>
               </div>
               <div className="w-12 h-12 bg-[#1f6feb]/10 rounded-full flex items-center justify-center">
-                <span className="material-symbols-outlined text-[#1f6feb]">dataset</span>
+                <span className="material-symbols-outlined text-[#1f6feb]">groups</span>
               </div>
             </div>
           </div>
@@ -260,10 +288,10 @@ export default function EventAdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#30363d]/50">
-                      {registrations.length === 0 ? (
+                      {safeRegistrations.length === 0 ? (
                         <tr><td colSpan="4" className="py-32 text-center text-[#8b949e] text-sm italic">No data records found</td></tr>
                       ) : (
-                        registrations.map(reg => (
+                        safeRegistrations.map(reg => (
                           <tr key={reg._id} className="hover:bg-[#1f6feb]/5 transition-colors group">
                             <td className="px-8 py-4">
                               <div className="flex items-center gap-4">
@@ -323,29 +351,41 @@ export default function EventAdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#30363d]/50">
-                      {allSubmissions.length === 0 ? (
+                      {safeTeams.length === 0 ? (
                         <tr><td colSpan="4" className="py-32 text-center text-[#8b949e] text-sm italic">Roster remains unpopulated</td></tr>
                       ) : (
-                        allSubmissions.map(sub => (
-                          <tr key={sub._id} className="hover:bg-[#1f6feb]/5 transition-colors">
+                        safeTeams.map(team => (
+                          <tr 
+                            key={team._id} 
+                            onClick={() => setSelectedTeam(team)}
+                            className="hover:bg-[#1f6feb]/5 transition-colors cursor-pointer group"
+                          >
                             <td className="px-8 py-4">
                               <div className="flex items-center gap-4">
                                 <div className="w-10 h-10 rounded-lg bg-[#30363d] flex items-center justify-center text-white font-black uppercase text-sm">
-                                  {sub.team?.name?.slice(0, 2)}
+                                  {(team.teamName || team.name || "??").slice(0, 2)}
                                 </div>
-                                <p className="text-sm font-bold text-white uppercase tracking-wider">{sub.team?.name || "Anonymous Entity"}</p>
+                                <p className="text-sm font-bold text-white uppercase tracking-wider">{team.teamName || team.name || "Anonymous Entity"}</p>
                               </div>
                             </td>
                             <td className="px-8 py-4">
-                              <span className="text-xs text-[#8b949e] font-bold tracking-widest">{sub.team?.members?.length || 0} Members</span>
+                              <span className="text-xs text-[#8b949e] font-bold tracking-widest">{team.members?.length || 0} Members</span>
                             </td>
                             <td className="px-8 py-4">
-                              <span className="text-[9px] font-black text-[#1f6feb] uppercase tracking-tighter bg-[#1f6feb]/10 px-2 py-1 rounded">{sub.status} active</span>
+                              <span className={`text-[9px] font-black uppercase tracking-tighter px-2 py-1 rounded border ${
+                                team.status === 'disqualified' ? 'bg-red-500/10 text-red-500 border-red-500/20' :
+                                team.status === 'forming' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                                'bg-green-500/10 text-green-500 border-green-500/20'
+                              }`}>
+                                {team.status}
+                              </span>
                             </td>
                             <td className="px-8 py-4 text-right">
-                              <button onClick={() => handleDisqualify(sub.team?._id)} className="text-[#8b949e] hover:text-red-500 transition-colors">
-                                <span className="material-symbols-outlined text-lg">person_remove</span>
-                              </button>
+                              {team.status !== 'disqualified' && (
+                                <button onClick={() => handleDisqualify(team._id)} className="text-[#8b949e] hover:text-red-500 transition-colors" title="Disqualify Team">
+                                  <span className="material-symbols-outlined text-lg">person_remove</span>
+                                </button>
+                              )}
                             </td>
                           </tr>
                         ))
@@ -400,6 +440,75 @@ export default function EventAdminDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Team Details Modal */}
+      {selectedTeam && (
+         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200">
+           <div className="bg-[#161b22] border border-[#30363d] rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden">
+             <div className="p-6 border-b border-[#30363d] flex justify-between items-center bg-[#0d1117]/50">
+               <div>
+                 <h2 className="text-xl font-bold text-white flex items-center gap-3">
+                   <span className="material-symbols-outlined text-[#1f6feb]">group</span>
+                   {selectedTeam.teamName || selectedTeam.name}
+                 </h2>
+                 <p className="text-[10px] text-[#8b949e] uppercase font-bold tracking-widest mt-1">
+                   Operational Signature: {selectedTeam._id}
+                 </p>
+               </div>
+               <button onClick={() => setSelectedTeam(null)} className="text-[#8b949e] hover:text-white transition-colors">
+                 <span className="material-symbols-outlined">close</span>
+               </button>
+             </div>
+             
+             <div className="p-8">
+               <div className="grid grid-cols-2 gap-8 mb-8 pb-8 border-b border-[#30363d]/50">
+                 <div>
+                   <label className="text-[10px] font-black text-[#8b949e] uppercase tracking-widest block mb-2">Current Status</label>
+                   <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border ${
+                     selectedTeam.status === 'disqualified' ? 'bg-red-500/10 text-red-500 border-red-500/20' : 'bg-green-500/10 text-green-500 border-green-500/20'
+                   }`}>
+                     {selectedTeam.status}
+                   </span>
+                 </div>
+                 <div>
+                   <label className="text-[10px] font-black text-[#8b949e] uppercase tracking-widest block mb-2">Member Count</label>
+                   <span className="text-xl font-bold text-white">{selectedTeam.members?.length || 0} Entities</span>
+                 </div>
+               </div>
+
+               <h3 className="text-[10px] font-black text-[#8b949e] uppercase tracking-widest mb-4">Active Member Roster</h3>
+               <div className="space-y-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                 {selectedTeam.members?.map(member => (
+                   <div key={member.userId?._id || member.userId} className="flex justify-between items-center p-3 bg-[#0d1117] border border-[#30363d] rounded-2xl group/m">
+                     <div className="flex items-center gap-4">
+                       <img 
+                         src={member.userId?.profile?.avatar || "/default-avatar.png"} 
+                         className="w-10 h-10 rounded-full border border-[#30363d]" 
+                         alt="" 
+                       />
+                       <div>
+                         <p className="text-sm font-bold text-white">{member.userId?.profile?.displayName || "Anonymous"}</p>
+                         <p className="text-[10px] text-[#8b949e] font-medium tracking-wide">{member.role === 'leader' ? "🔥 Team Leader" : "Member"}</p>
+                       </div>
+                     </div>
+                     <button 
+                       onClick={() => handleKickMember(selectedTeam._id, member.userId?._id || member.userId, member.userId?.profile?.displayName)}
+                       className="p-2 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all opacity-0 group-hover/m:opacity-100"
+                       title="Remove Member"
+                     >
+                       <span className="material-symbols-outlined text-lg">no_accounts</span>
+                     </button>
+                   </div>
+                 ))}
+               </div>
+             </div>
+
+             <div className="p-6 bg-[#0d1117]/50 border-t border-[#30363d] flex justify-end">
+               <Button variant="secondary" className="px-6" onClick={() => setSelectedTeam(null)}>Close Protocol</Button>
+             </div>
+           </div>
+         </div>
+      )}
     </div>
   );
 

@@ -80,7 +80,7 @@ export const getTeamById = async (eventId, teamId) => {
 };
 
 export const createTeam = async (eventId, data, io, requestUser) => {
-    const { teamName } = data;
+    const { teamName, password } = data;
     if (!teamName?.trim()) throw new ApiError(400, "teamName is required");
 
     const event = await findCompetitionById(eventId);
@@ -108,8 +108,12 @@ export const createTeam = async (eventId, data, io, requestUser) => {
     if (nameTaken) throw new ApiError(409, "Team name is already taken for this competition");
 
     const team = await EventTeam.create({
-        eventId: event._id, teamName: teamName.trim(), leader: requestUser._id,
-        members: [{ userId: requestUser._id, role: "leader", joinedAt: new Date() }], status: "forming",
+        eventId: event._id, 
+        teamName: teamName.trim(), 
+        password: password?.trim() || undefined,
+        leader: requestUser._id,
+        members: [{ userId: requestUser._id, role: "leader", joinedAt: new Date() }], 
+        status: "forming",
     });
 
     try {
@@ -176,16 +180,18 @@ export const deleteTeam = async (eventId, teamId, requestUser) => {
 };
 
 export const joinTeam = async (eventId, teamId, data, io, requestUser) => {
-    const { inviteCode } = data;
-    if (!inviteCode) throw new ApiError(400, "inviteCode is required");
+    const { password } = data;
 
     const event = await findCompetitionById(eventId);
     assertRegistrationOpen(event);
 
-    const team = await findTeamById(teamId, "eventId inviteCode leader members memberCount status chatId");
+    const team = await findTeamById(teamId, "eventId password leader members memberCount status chatId");
 
     if (team.eventId.toString() !== event._id.toString()) throw new ApiError(404, "Team not found in this competition");
-    if (team.inviteCode !== inviteCode.toUpperCase().trim()) throw new ApiError(400, "Invalid invite code");
+    
+    if (team.password && team.password !== password?.trim()) {
+        throw new ApiError(401, "Invalid team password");
+    }
 
     if (!team.isActive) throw new ApiError(400, "This team is no longer accepting members");
 

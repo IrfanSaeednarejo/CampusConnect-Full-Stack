@@ -292,7 +292,10 @@ const eventSlice = createSlice({
       .addCase(fetchRegistrationsThunk.pending, (state) => { state.loading = true; state.error = null; })
       .addCase(fetchRegistrationsThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.registrations = action.payload;
+        // Handle both direct array and paginated response
+        state.registrations = Array.isArray(action.payload) 
+          ? action.payload 
+          : (action.payload?.docs || []);
       })
       .addCase(fetchRegistrationsThunk.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
 

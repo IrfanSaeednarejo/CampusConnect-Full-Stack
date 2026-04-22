@@ -24,6 +24,10 @@ const eventTeamSchema = new Schema(
             minlength: [2, "Team name must be at least 2 characters"],
             maxlength: [60, "Team name cannot exceed 60 characters"],
         },
+        password: {
+            type: String,
+            trim: true,
+        },
         inviteCode: {
             type: String,
             unique: true,
@@ -68,7 +72,13 @@ const eventTeamSchema = new Schema(
     {
         timestamps: true,
         versionKey: false,
-        toJSON: { virtuals: true },
+        toJSON: { 
+            virtuals: true,
+            transform: (doc, ret) => {
+                delete ret.password;
+                return ret;
+            }
+        },
         toObject: { virtuals: true },
     }
 );
@@ -99,6 +109,14 @@ eventTeamSchema.pre("save", function (next) {
 
 eventTeamSchema.virtual("isActive").get(function () {
     return this.status === "forming" || this.status === "registered";
+});
+
+eventTeamSchema.virtual("requiresPassword").get(function () {
+    return !!this.password;
+});
+
+eventTeamSchema.virtual("name").get(function () {
+    return this.teamName;
 });
 eventTeamSchema.statics.isUserInEvent = async function (eventId, userId) {
     return this.exists({

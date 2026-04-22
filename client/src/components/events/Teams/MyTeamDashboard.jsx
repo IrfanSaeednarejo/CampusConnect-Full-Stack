@@ -2,10 +2,13 @@ import React from "react";
 import Button from "../../common/Button";
 import TeamRoleBadge from "./TeamRoleBadge";
 
-export default function MyTeamDashboard({ team, user, onLeave, loading }) {
+export default function MyTeamDashboard({ team, user, onLeave, onRemoveMember, loading }) {
   if (!team) return null;
 
-  const isLeader = team.members.some(m => (m.user?._id === user._id || m.userId === user._id) && m.role === 'leader');
+  const isLeader = team.members.some(m => {
+    const mId = m.userId?._id || m.userId || m.user?._id || m.user;
+    return mId === user._id && m.role === 'leader';
+  });
 
   return (
     <div className="bg-[#161b22] border border-[#30363d] rounded-xl overflow-hidden mt-6 shadow-xl">
@@ -38,11 +41,12 @@ export default function MyTeamDashboard({ team, user, onLeave, loading }) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {team.members.map(m => {
-              const profile = m.userId?.profile || m.user; // Support both populated and fallback
-              const isMe = (m.userId?._id || m.userId) === user._id;
+              const profile = m.userId?.profile || m.user; 
+              const mId = m.userId?._id || m.userId || m.user?._id || m.user;
+              const isMe = mId === user._id;
               
               return (
-                <div key={m.userId?._id || m.userId} className={`p-4 rounded-2xl border transition-all ${isMe ? 'bg-[#1f6feb]/5 border-[#1f6feb]/30 shadow-[0_0_20px_rgba(31,111,235,0.05)]' : 'bg-[#0d1117] border-[#30363d] hover:border-[#1f6feb]/50'}`}>
+                <div key={mId} className={`p-4 rounded-2xl border transition-all ${isMe ? 'bg-[#1f6feb]/5 border-[#1f6feb]/30 shadow-[0_0_20px_rgba(31,111,235,0.05)]' : 'bg-[#0d1117] border-[#30363d] hover:border-[#1f6feb]/50'}`}>
                   <div className="flex items-center gap-4">
                     <div className="relative group/avatar">
                       <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[#161b22] shadow-inner bg-[#161b22] flex items-center justify-center">
@@ -66,6 +70,16 @@ export default function MyTeamDashboard({ team, user, onLeave, loading }) {
                          {m.userId?.academic?.department || "Campus Member"}
                       </p>
                     </div>
+
+                    {isLeader && !isMe && (
+                       <button 
+                         onClick={() => onRemoveMember(mId, profile?.displayName)}
+                         className="p-2 text-[#8b949e] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                         title="Remove Member"
+                       >
+                         <span className="material-symbols-outlined text-lg">person_remove</span>
+                       </button>
+                    )}
                   </div>
                 </div>
               );

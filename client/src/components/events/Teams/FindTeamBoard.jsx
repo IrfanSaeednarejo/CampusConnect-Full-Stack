@@ -6,7 +6,10 @@ export default function FindTeamBoard({ teams, onJoinClick, onCreateClick, loadi
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredTeams = Array.isArray(teams) 
-    ? teams.filter(t => t.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    ? teams.filter(t => {
+        const teamName = t.name || t.teamName || "";
+        return teamName.toLowerCase().includes(searchTerm.toLowerCase());
+      })
     : [];
 
   return (
