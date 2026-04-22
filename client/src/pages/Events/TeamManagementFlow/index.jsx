@@ -23,23 +23,28 @@ import FindTeamBoard from "../../../components/events/Teams/FindTeamBoard";
 
 // Minor form modal inside orchestrator for password required
 const JoinTeamModal = ({ team, isOpen, onClose, onSubmit, loading }) => {
-  const [pwd, setPwd] = useState("");
+  const [code, setCode] = useState("");
   if (!isOpen || !team) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
       <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-sm shadow-2xl p-6">
-        <h2 className="text-xl font-bold text-white mb-2">Join {team.name}</h2>
-        {team.requiresPassword && (
-          <div className="mb-4">
-             <label className="block text-sm text-[#8b949e] mb-1">Team Password Required</label>
-             <input autoFocus type="password" value={pwd} onChange={e => setPwd(e.target.value)} className="w-full p-2 bg-[#0d1117] border border-[#30363d] rounded text-white outline-none focus:border-[#1f6feb]"/>
-          </div>
-        )}
-        {!team.requiresPassword && <p className="text-sm text-[#8b949e] mb-4">Are you sure you want to request to join this open team?</p>}
+        <h2 className="text-xl font-bold text-white mb-2">Join {team.name || team.teamName}</h2>
+        <div className="mb-4">
+           <label className="block text-sm text-[#8b949e] mb-1">Enter Team Invite Code</label>
+           <input 
+             autoFocus 
+             type="text" 
+             placeholder="e.g. A1B2C3D4"
+             value={code} 
+             onChange={e => setCode(e.target.value.toUpperCase())} 
+             className="w-full p-2 bg-[#0d1117] border border-[#30363d] rounded text-white outline-none focus:border-[#1f6feb] font-mono tracking-widest"
+           />
+           <p className="text-[10px] text-[#58a6ff] mt-2 italic">Ask the team leader for their unique 8-character invite code.</p>
+        </div>
         
         <div className="flex justify-end gap-3 mt-4">
           <button onClick={onClose} className="px-4 py-2 rounded border border-[#30363d] text-[#c9d1d9] hover:bg-[#30363d]">Cancel</button>
-          <button onClick={() => onSubmit(pwd)} disabled={loading || (team.requiresPassword && !pwd)} className="px-4 py-2 rounded bg-[#1f6feb] text-white hover:bg-[#58a6ff] disabled:opacity-50">Confirm</button>
+          <button onClick={() => onSubmit(code)} disabled={loading || !code} className="px-4 py-2 rounded bg-[#1f6feb] text-white hover:bg-[#58a6ff] disabled:opacity-50">Join Team</button>
         </div>
       </div>
     </div>
@@ -79,9 +84,9 @@ export default function TeamManagementFlow() {
     }
   };
 
-  const handleJoinTeam = async (password) => {
+  const handleJoinTeam = async (inviteCode) => {
     const { team } = joinModalConfig;
-    const resultAction = await dispatch(joinTeamThunk({ eventId, teamId: team._id, data: { password } }));
+    const resultAction = await dispatch(joinTeamThunk({ eventId, teamId: team._id, data: { inviteCode } }));
     if (joinTeamThunk.fulfilled.match(resultAction)) {
       setJoinModalConfig({ isOpen: false, team: null });
     }

@@ -27,47 +27,49 @@ export default function MyTeamDashboard({ team, user, onLeave, loading }) {
         </div>
       </div>
 
-      <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-4">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[#8b949e] border-b border-[#30363d] pb-2">Roster</h3>
-          <ul className="space-y-3">
+      <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="md:col-span-3 space-y-6">
+          <div className="flex items-center justify-between border-b border-[#30363d] pb-4">
+            <h3 className="text-sm font-black uppercase tracking-[0.2em] text-[#8b949e]">Active Roster</h3>
+            <span className="text-[10px] font-bold text-[#1f6feb] bg-[#1f6feb]/10 px-2 py-1 rounded">
+              Invite Code: {team.inviteCode}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
             {team.members.map(m => {
-              const isMe = m.user?._id === user._id || m.userId === user._id;
+              const profile = m.userId?.profile || m.user; // Support both populated and fallback
+              const isMe = (m.userId?._id || m.userId) === user._id;
+              
               return (
-                <li key={m.user?._id || m.userId} className={`flex justify-between items-center bg-[#0d1117] border ${isMe ? 'border-[#1f6feb]' : 'border-[#30363d]'} p-3 rounded-lg`}>
-                  <div className="flex items-center gap-3">
-                     <div className="w-10 h-10 rounded-full bg-[#161b22] flex items-center justify-center text-[#8b949e] border border-[#30363d]">
-                       {m.user?.avatar ? <img src={m.user.avatar} alt="avatar" className="w-full h-full rounded-full object-cover"/> : <span className="material-symbols-outlined">person</span>}
-                     </div>
-                     <div>
-                       <p className="font-semibold text-white flex items-center gap-2">
-                         {m.user?.displayName || "Anonymous User"}
-                         {isMe && <span className="text-[10px] bg-[#1f6feb]/20 text-[#58a6ff] px-1.5 py-0.5 rounded ml-1">YOU</span>}
-                       </p>
-                       <p className="text-xs text-[#8b949e]">{m.user?.email || "Email hidden"}</p>
-                     </div>
+                <div key={m.userId?._id || m.userId} className={`p-4 rounded-2xl border transition-all ${isMe ? 'bg-[#1f6feb]/5 border-[#1f6feb]/30 shadow-[0_0_20px_rgba(31,111,235,0.05)]' : 'bg-[#0d1117] border-[#30363d] hover:border-[#1f6feb]/50'}`}>
+                  <div className="flex items-center gap-4">
+                    <div className="relative group/avatar">
+                      <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-[#161b22] shadow-inner bg-[#161b22] flex items-center justify-center">
+                        {profile?.avatar ? (
+                          <img src={profile.avatar} alt={profile.displayName} className="w-full h-full object-cover"/>
+                        ) : (
+                          <span className="material-symbols-outlined text-[#30363d] text-2xl">person</span>
+                        )}
+                      </div>
+                      <div className="absolute -bottom-1 -right-1">
+                        <TeamRoleBadge role={m.role} />
+                      </div>
+                    </div>
+                    
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-white truncate flex items-center gap-2">
+                        {profile?.displayName || "Anonymous Researcher"}
+                        {isMe && <span className="w-1.5 h-1.5 rounded-full bg-[#1f6feb] animate-pulse"></span>}
+                      </p>
+                      <p className="text-[10px] text-[#8b949e] font-medium uppercase tracking-wider truncate">
+                         {m.userId?.academic?.department || "Campus Member"}
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <TeamRoleBadge role={m.role} />
-                    {/* Assuming kicking functionality can be wired up via a prop passed later, omit for simple layout */}
-                  </div>
-                </li>
+                </div>
               );
             })}
-          </ul>
-        </div>
-        
-        <div className="space-y-4">
-          <h3 className="text-sm font-bold uppercase tracking-wider text-[#8b949e] border-b border-[#30363d] pb-2">Actions</h3>
-          <div className="bg-[#0d1117] p-4 border border-[#30363d] rounded-lg text-center">
-            <span className="material-symbols-outlined text-4xl text-[#30363d] mb-2">share</span>
-            <p className="text-sm text-white font-semibold mb-1">Invite Members</p>
-            <p className="text-xs text-[#8b949e] mb-4">Share your team name {team.requiresPassword && "and password"} with others.</p>
-            {team.requiresPassword && (
-              <div className="bg-[#161b22] px-3 py-2 rounded text-[#e3b341] border border-[#d29922]/30 text-xs text-left mb-3">
-                <strong>Password required:</strong> Authorized users will need it to join.
-              </div>
-            )}
           </div>
         </div>
       </div>

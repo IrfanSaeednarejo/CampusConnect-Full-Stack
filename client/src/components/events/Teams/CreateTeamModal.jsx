@@ -13,7 +13,7 @@ export default function CreateTeamModal({ isOpen, onClose, onSubmit, minSize, ma
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit({
-      name: formData.name,
+      teamName: formData.name,
       password: formData.password || undefined,
     });
   };

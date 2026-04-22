@@ -156,7 +156,8 @@ router
 router.get("/:eventId/teams/my", verifyJWT, async (req, res, next) => {
     const event = await Event.findById(req.params.eventId);
     if (!event) return res.status(404).json({ message: "Competition not found" });
-    const team = await EventTeam.findUserTeam(event._id, req.user._id);
+    const team = await EventTeam.findUserTeam(event._id, req.user._id)
+        .populate("members.userId", "profile.displayName profile.avatar academic.department");
     const { ApiResponse } = await import("../utils/ApiResponse.js");
     return res.status(200).json(new ApiResponse(200, team, team ? "Team found" : "Not in a team"));
 });

@@ -124,12 +124,16 @@ const teamSlice = createSlice({
       .addCase(fetchTeams.pending, (state) => { state.loading = true; })
       .addCase(fetchTeams.fulfilled, (state, action) => {
         state.loading = false;
-        state.teams = action.payload;
+        // Handle both direct array and paginated response
+        state.teams = Array.isArray(action.payload) 
+          ? action.payload 
+          : (action.payload?.docs || []);
         state.error = null;
       })
       .addCase(fetchTeams.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+        state.teams = [];
       })
       
       // Fetch My Team

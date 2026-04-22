@@ -104,225 +104,304 @@ export default function EventAdminDashboard() {
   const pendingCount = registrations.filter(r => r.status === 'pending').length;
 
   return (
-    <div className="text-[#e6edf3] pb-10">
+    <div className="text-[#e6edf3] min-h-screen animate-in fade-in duration-500">
       
-      {/* Header */}
-      <div className="border-b border-[#30363d] py-6 px-4 sm:px-10 lg:px-20 bg-[#161b22]">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
-            <h1 className="text-3xl font-black text-white flex items-center gap-3">
-              <span className="material-symbols-outlined text-[#1f6feb] text-4xl">admin_panel_settings</span>
-              Organizer HQ
-            </h1>
-            <p className="text-[#8b949e] mt-1">{event.title}</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => navigate(`/events/${eventId}/edit`)}>
-              <span className="material-symbols-outlined mr-2">settings</span> Settings
-            </Button>
-            <Button className="bg-[#f85149]/10 text-[#f85149] hover:bg-[#f85149] hover:text-white border border-[#f85149]/20" onClick={handleDeleteEvent}>
-              <span className="material-symbols-outlined mr-2">delete</span> Delete
-            </Button>
-            <Button variant="primary" onClick={() => navigate(`/events/${eventId}/check-in`)}>
-              <span className="material-symbols-outlined mr-2">qr_code_scanner</span> Scanner
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Grid */}
-      <div className="max-w-7xl mx-auto px-4 mt-8 grid grid-cols-1 lg:grid-cols-4 gap-8">
+      {/* Top Section: Quick Stats & Essential Controls */}
+      <div className="py-6 space-y-8">
         
-        {/* Left Col: Lifecycle & KPIs */}
-        <div className="lg:col-span-1 space-y-6">
-           <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6 relative overflow-hidden">
-             <h3 className="font-bold text-white border-b border-[#30363d] pb-2 mb-4 flex justify-between">
-               Lifecycle controls
-               <span className={`text-xs px-2 py-0.5 rounded uppercase font-bold tracking-wider ${event.status === 'registration' ? 'bg-[#1dc964]/10 text-[#1dc964]' : 'bg-[#30363d] text-[#8b949e]'}`}>{event.status}</span>
-             </h3>
-             <ul className="space-y-4">
-               <li className="flex justify-between items-center text-sm">
-                 <span className="text-white">Push to Ongoing</span>
-                 <Button variant="outline" className="text-xs px-2 py-1" onClick={() => handleTransition("ongoing")}>Execute</Button>
-               </li>
-               <li className="flex justify-between items-center text-sm">
-                 <span className="text-white">Lock Submissions</span>
-                 <Button variant="outline" className="text-xs px-2 py-1 border-[#f85149] text-[#f85149] hover:bg-[#f85149] hover:text-white" onClick={() => handleTransition("judging")}>Lock</Button>
-               </li>
-               <li className="flex justify-between items-center text-sm">
-                 <span className="text-white">Publish Leaderboard</span>
-                 <Button variant="outline" className="text-xs px-2 py-1" onClick={handlePublishLeaderboard}>Publish</Button>
-               </li>
-             </ul>
-           </div>
-
-           <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6">
-             <h3 className="font-bold text-white border-b border-[#30363d] pb-2 mb-4">Event KPIs</h3>
-             <div className="grid grid-cols-2 gap-4">
-               <div className="bg-[#0d1117] border border-[#30363d] p-4 rounded-lg text-center">
-                 <p className="text-3xl font-black text-[#1f6feb]">{allSubmissions.length || 0}</p>
-                 <p className="text-xs text-[#8b949e] uppercase font-bold tracking-widest mt-1">Teams</p>
-               </div>
-               <div className="bg-[#0d1117] border border-[#30363d] p-4 rounded-lg text-center relative">
-                 <p className="text-3xl font-black text-[#e3b341]">{pendingCount}</p>
-                 <p className="text-xs text-[#8b949e] uppercase font-bold tracking-widest mt-1">Pending Regs</p>
-                 {pendingCount > 0 && <span className="absolute top-1 right-1 w-2 h-2 bg-[#e3b341] rounded-full animate-pulse"></span>}
-               </div>
-             </div>
-           </div>
-
-           <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6">
-             <h3 className="font-bold text-white border-b border-[#30363d] pb-2 mb-4">Assign Judges</h3>
-             <form onSubmit={handleAssignJudge} className="flex gap-2">
-                 <input 
-                   type="text" 
-                   required
-                   value={judgeIdInput}
-                   onChange={e => setJudgeIdInput(e.target.value)}
-                   placeholder="Enter User ID..." 
-                   className="flex-1 bg-[#0d1117] text-white p-2 text-sm rounded border border-[#30363d] focus:border-[#1f6feb] outline-none" 
-                 />
-                 <Button type="submit" variant="primary" className="text-sm px-3 py-2 whitespace-nowrap">Assign</Button>
-             </form>
-             <p className="text-xs text-[#8b949e] mt-2">Current Judges: {event.judgingConfig?.judges?.length || 0}</p>
-           </div>
+        {/* Header Section for Manage HQ */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-[#30363d] pb-8">
+          <div>
+            <h1 className="text-3xl font-black text-white tracking-tight flex items-center gap-3">
+              <span className="material-symbols-outlined text-[#1f6feb] text-4xl">analytics</span>
+              Operational Control
+            </h1>
+            <p className="text-[#8b949e] text-sm mt-1 flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              Live Event Management Engine — {event.title}
+            </p>
+          </div>
+          
+          <div className="flex flex-wrap gap-3">
+             <Button 
+              variant="secondary" 
+              className="bg-[#161b22] border-[#30363d] text-xs h-10 px-4 group"
+              onClick={() => navigate(`/events/${eventId}/check-in`)}
+            >
+              <span className="material-symbols-outlined text-lg mr-2 group-hover:rotate-12 transition-transform">qr_code_scanner</span> 
+              Live Check-in
+            </Button>
+            <Button 
+              variant="secondary" 
+              className="bg-[#161b22] border-[#30363d] text-xs h-10 px-4 group"
+              onClick={() => navigate(`/events/${eventId}/edit`)}
+            >
+              <span className="material-symbols-outlined text-lg mr-2 group-hover:scale-110 transition-transform">edit_square</span> 
+              Edit Details
+            </Button>
+            <Button 
+              className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/20 text-xs h-10 px-4" 
+              onClick={handleDeleteEvent}
+            >
+              <span className="material-symbols-outlined text-lg mr-2">delete_forever</span> 
+              Terminate Event
+            </Button>
+          </div>
         </div>
 
-        {/* Right Col: Admin tables & Tools */}
-        <div className="lg:col-span-3 space-y-6">
-           <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6">
-             <div className="flex border-b border-[#30363d] mb-6">
-               <button 
-                onClick={() => setActiveTab("registrations")}
-                className={`px-4 py-3 font-medium text-sm transition-colors relative ${activeTab === 'registrations' ? 'text-[#1dc964]' : 'text-[#8b949e] hover:text-[#c9d1d9]'}`}
-               >
-                 Registrations
-                 {pendingCount > 0 && <span className="ml-2 bg-[#e3b341] text-black text-[10px] font-black px-1.5 py-0.5 rounded-full">{pendingCount}</span>}
-                 {activeTab === 'registrations' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#1dc964]"></div>}
-               </button>
-               <button 
-                onClick={() => setActiveTab("teams")}
-                className={`px-4 py-3 font-medium text-sm transition-colors relative ${activeTab === 'teams' ? 'text-[#1dc964]' : 'text-[#8b949e] hover:text-[#c9d1d9]'}`}
-               >
-                 Approved Teams
-                 {activeTab === 'teams' && <div className="absolute bottom-0 left-0 w-full h-0.5 bg-[#1dc964]"></div>}
-               </button>
-             </div>
+        {/* Dash Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+          
+          {/* Node 1: Lifecycle */}
+          <div className="bg-[#161b22]/40 border border-[#30363d] rounded-2xl p-6 hover:border-[#1f6feb]/50 transition-all group">
+            <h3 className="text-[10px] font-black text-[#8b949e] uppercase tracking-[0.2em] mb-4">Lifecycle Node</h3>
+            <div className="flex items-center justify-between mb-6">
+              <span className="text-sm font-bold text-white capitalize">{event.status} mode</span>
+              <span className="w-2 h-2 rounded-full bg-[#1f6feb] shadow-[0_0_10px_#1f6feb]"></span>
+            </div>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => handleTransition("ongoing")}
+                disabled={event.status === 'ongoing'}
+                className="flex-1 bg-[#1f6feb] text-white text-[10px] font-black uppercase py-2.5 rounded-lg disabled:opacity-20 hover:brightness-110 transition-all"
+              >
+                Start
+              </button>
+              <button 
+                onClick={() => handleTransition("judging")}
+                disabled={event.status === 'judging' || event.status === 'completed'}
+                className="flex-1 border border-[#30363d] text-[#8b949e] text-[10px] font-black uppercase py-2.5 rounded-lg hover:border-red-500 hover:text-red-500 transition-all"
+              >
+                Lock
+              </button>
+            </div>
+          </div>
 
-             <div className="overflow-x-auto">
-               {activeTab === "registrations" ? (
-                 <table className="w-full text-left text-sm">
-                   <thead className="text-[#8b949e] border-b border-[#30363d] bg-[#0d1117]">
-                     <tr>
-                       <th className="p-3 font-semibold">Participant</th>
-                       <th className="p-3 font-semibold">Payment</th>
-                       <th className="p-3 font-semibold">Details</th>
-                       <th className="p-3 font-semibold">Status</th>
-                       <th className="p-3 font-semibold text-right">Actions</th>
-                     </tr>
-                   </thead>
-                   <tbody className="divide-y divide-[#30363d]">
-                     {registrations.length === 0 ? (
-                       <tr><td colSpan="5" className="p-4 text-center text-[#8b949e]">No registrations found.</td></tr>
-                     ) : (
-                       registrations.map(reg => (
-                         <tr key={reg._id} className="hover:bg-[#21262d] transition-colors">
-                           <td className="p-3">
-                             <div className="flex items-center gap-3">
-                               <img src={reg.userId?.profile?.avatar || "/default-avatar.png"} className="w-8 h-8 rounded-full border border-[#30363d]" />
-                               <div>
-                                 <p className="text-white font-medium">{reg.userId?.profile?.displayName}</p>
-                                 <p className="text-xs text-[#8b949e]">{reg.userId?.email}</p>
-                               </div>
-                             </div>
-                           </td>
-                           <td className="p-3">
-                             {reg.paymentScreenshot ? (
-                               <a href={reg.paymentScreenshot} target="_blank" rel="noreferrer" className="text-[#58a6ff] hover:underline flex items-center gap-1">
-                                 <span className="material-symbols-outlined text-sm">image</span> View Proof
-                               </a>
-                             ) : (
-                               <span className="text-[#8b949e]">N/A</span>
-                             )}
-                           </td>
-                           <td className="p-3">
-                             <p className="text-xs text-[#c9d1d9] italic line-clamp-1">{reg.additionalInfo?.note || "No notes"}</p>
-                           </td>
-                           <td className="p-3">
-                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase ${
-                               reg.status === 'pending' ? 'bg-[#e3b341]/10 text-[#e3b341]' :
-                               reg.status === 'approved' ? 'bg-[#1dc964]/10 text-[#1dc964]' :
-                               'bg-[#f85149]/10 text-[#f85149]'
-                             }`}>
-                               {reg.status}
-                             </span>
-                           </td>
-                           <td className="p-3 text-right">
-                             {reg.status === 'pending' && (
-                               <div className="flex justify-end gap-2">
-                                 <button onClick={() => handleApproveRegistration(reg.userId?._id)} className="w-8 h-8 rounded bg-[#1dc964]/10 text-[#1dc964] hover:bg-[#1dc964] hover:text-black transition-all flex items-center justify-center">
-                                   <span className="material-symbols-outlined text-sm">check</span>
-                                 </button>
-                                 <button onClick={() => handleRejectRegistration(reg.userId?._id)} className="w-8 h-8 rounded bg-[#f85149]/10 text-[#f85149] hover:bg-[#f85149] hover:text-white transition-all flex items-center justify-center">
-                                   <span className="material-symbols-outlined text-sm">close</span>
-                                 </button>
-                               </div>
-                             )}
-                           </td>
-                         </tr>
-                       ))
-                     )}
-                   </tbody>
-                 </table>
-               ) : (
-                 <table className="w-full text-left text-sm">
-                   <thead className="text-[#8b949e] border-b border-[#30363d] bg-[#0d1117]">
-                     <tr>
-                       <th className="p-3 font-semibold">Team Name</th>
-                       <th className="p-3 font-semibold">Members</th>
-                       <th className="p-3 font-semibold">Submission</th>
-                       <th className="p-3 font-semibold text-right">Actions</th>
-                     </tr>
-                   </thead>
-                   <tbody className="divide-y divide-[#30363d]">
-                     {allSubmissions.length === 0 ? (
-                       <tr><td colSpan="4" className="p-4 text-center text-[#8b949e]">No participating teams found.</td></tr>
-                     ) : (
-                       allSubmissions.map(sub => (
-                         <tr key={sub._id} className="hover:bg-[#21262d] transition-colors">
-                           <td className="p-3">
-                             <span className="text-white font-medium">{sub.team?.name || "Untitled"}</span>
-                           </td>
-                           <td className="p-3 text-[#c9d1d9]">{sub.team?.members?.length || 0}</td>
-                           <td className="p-3">
-                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-[#1f6feb]/10 text-[#1f6feb]`}>
-                               {sub.status}
-                             </span>
-                           </td>
-                           <td className="p-3 text-right">
-                             <button onClick={() => handleDisqualify(sub.team?._id)} title="Disqualify Team" className="text-[#8b949e] hover:text-[#f85149] transition-colors">
-                               <span className="material-symbols-outlined text-[20px]">person_remove</span>
-                             </button>
-                           </td>
-                         </tr>
-                       ))
-                     )}
-                   </tbody>
-                 </table>
-               )}
-             </div>
-           </div>
+          {/* Node 2: Participation */}
+          <div className="bg-[#161b22]/40 border border-[#30363d] rounded-2xl p-6">
+            <h3 className="text-[10px] font-black text-[#8b949e] uppercase tracking-[0.2em] mb-4">Registration Matrix</h3>
+            <div className="flex items-end justify-between">
+              <div>
+                <span className="block text-3xl font-black text-white">{pendingCount}</span>
+                <span className="text-[10px] text-amber-500 font-bold uppercase">Pending Verification</span>
+              </div>
+              <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center">
+                <span className="material-symbols-outlined text-amber-500">pending_actions</span>
+              </div>
+            </div>
+          </div>
 
-            <div className="bg-[#161b22] border border-[#30363d] rounded-xl p-6">
-             <h3 className="font-bold text-white border-b border-[#30363d] pb-2 mb-4">Broadcast Announcement</h3>
-             <form className="flex flex-col gap-3" onSubmit={handleBroadcast}>
-               <textarea rows="3" value={announcementText} onChange={(e) => setAnnouncementText(e.target.value)} placeholder="Push a live notification to all participants' screens..." className="w-full bg-[#0d1117] text-white p-3 rounded-lg border border-[#30363d] focus:border-[#1f6feb] outline-none resize-none"></textarea>
-               <Button type="submit" variant="primary" className="self-end" disabled={!announcementText.trim()}><span className="material-symbols-outlined mr-2 text-sm">campaign</span> Push Alert via WebSocket</Button>
-             </form>
-           </div>
+          {/* Node 3: Teams */}
+          <div className="bg-[#161b22]/40 border border-[#30363d] rounded-2xl p-6">
+            <h3 className="text-[10px] font-black text-[#8b949e] uppercase tracking-[0.2em] mb-4">Active Roster</h3>
+            <div className="flex items-end justify-between">
+              <div>
+                <span className="block text-3xl font-black text-white">{allSubmissions.length || 0}</span>
+                <span className="text-[10px] text-[#1f6feb] font-bold uppercase">Approved Entities</span>
+              </div>
+              <div className="w-12 h-12 bg-[#1f6feb]/10 rounded-full flex items-center justify-center">
+                <span className="material-symbols-outlined text-[#1f6feb]">dataset</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Node 4: Judges */}
+          <div className="bg-[#161b22]/40 border border-[#30363d] rounded-2xl p-6">
+            <h3 className="text-[10px] font-black text-[#8b949e] uppercase tracking-[0.2em] mb-4">Judging Module</h3>
+            <form onSubmit={handleAssignJudge} className="flex gap-2 mb-2">
+              <input 
+                type="text" 
+                required
+                value={judgeIdInput}
+                onChange={e => setJudgeIdInput(e.target.value)}
+                placeholder="User ID..." 
+                className="flex-1 bg-[#0d1117] text-white px-3 py-1.5 text-xs rounded-lg border border-[#30363d] focus:border-[#1f6feb] outline-none" 
+              />
+              <button type="submit" className="bg-[#161b22] border border-[#30363d] text-white p-1.5 rounded-lg hover:border-[#1f6feb] transition-all">
+                <span className="material-symbols-outlined text-sm">add</span>
+              </button>
+            </form>
+            <p className="text-[10px] text-[#8b949e] font-medium">{event.judgingConfig?.judges?.length || 0} Evaluators Active</p>
+          </div>
+
         </div>
 
+        {/* Data Persistence Area */}
+        <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+          
+          {/* Main List Module */}
+          <div className="xl:col-span-8">
+            <div className="bg-[#161b22]/30 border border-[#30363d] rounded-3xl overflow-hidden">
+              <div className="flex p-2 bg-[#0d1117]/50">
+                <button 
+                  onClick={() => setActiveTab("registrations")}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'registrations' ? 'bg-[#1f6feb] text-white' : 'text-[#8b949e] hover:text-white'}`}
+                >
+                  Registrations
+                  {pendingCount > 0 && <span className="bg-white text-[#1f6feb] px-1.5 py-0.5 rounded-md text-[9px]">{pendingCount}</span>}
+                </button>
+                <button 
+                  onClick={() => setActiveTab("teams")}
+                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'teams' ? 'bg-[#1f6feb] text-white' : 'text-[#8b949e] hover:text-white'}`}
+                >
+                  Teams Roster
+                </button>
+              </div>
+
+              <div className="overflow-x-auto min-h-[500px]">
+                {activeTab === "registrations" ? (
+                  <table className="w-full text-left">
+                    <thead className="bg-[#0d1117]/80 text-[10px] font-black uppercase tracking-[0.2em] text-[#8b949e]">
+                      <tr>
+                        <th className="px-8 py-5">Entity</th>
+                        <th className="px-8 py-5">Proof of Intake</th>
+                        <th className="px-8 py-5">Status</th>
+                        <th className="px-8 py-5 text-right">Operations</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#30363d]/50">
+                      {registrations.length === 0 ? (
+                        <tr><td colSpan="4" className="py-32 text-center text-[#8b949e] text-sm italic">No data records found</td></tr>
+                      ) : (
+                        registrations.map(reg => (
+                          <tr key={reg._id} className="hover:bg-[#1f6feb]/5 transition-colors group">
+                            <td className="px-8 py-4">
+                              <div className="flex items-center gap-4">
+                                <img src={reg.userId?.profile?.avatar || "/default-avatar.png"} className="w-10 h-10 rounded-full border border-[#30363d]" alt="" />
+                                <div>
+                                  <p className="text-sm font-bold text-white leading-tight">{reg.userId?.profile?.displayName}</p>
+                                  <p className="text-[10px] text-[#8b949e] font-medium tracking-wide uppercase">{reg.userId?.email}</p>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-8 py-4">
+                              {reg.paymentScreenshot ? (
+                                <a href={reg.paymentScreenshot} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 text-[#1f6feb] text-xs font-bold hover:underline">
+                                  <span className="material-symbols-outlined text-sm">attachment</span>
+                                  View Audit Image
+                                </a>
+                              ) : (
+                                <span className="text-[10px] text-[#484f58] uppercase font-bold italic">No data attached</span>
+                              )}
+                            </td>
+                            <td className="px-8 py-4">
+                              <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded border ${
+                                reg.status === 'pending' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                                reg.status === 'approved' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
+                                'bg-red-500/10 text-red-500 border-red-500/20'
+                              }`}>
+                                {reg.status}
+                              </span>
+                            </td>
+                            <td className="px-8 py-4">
+                              <div className="flex justify-end gap-2">
+                                {reg.status === 'pending' && (
+                                  <>
+                                    <button onClick={() => handleApproveRegistration(reg.userId?._id)} className="w-8 h-8 rounded-lg bg-[#1f6feb]/10 text-[#1f6feb] hover:bg-[#1f6feb] hover:text-white transition-all flex items-center justify-center border border-[#1f6feb]/20">
+                                      <span className="material-symbols-outlined text-sm">check</span>
+                                    </button>
+                                    <button onClick={() => handleRejectRegistration(reg.userId?._id)} className="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center border border-red-500/20">
+                                      <span className="material-symbols-outlined text-sm">close</span>
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                ) : (
+                  <table className="w-full text-left">
+                    <thead className="bg-[#0d1117]/80 text-[10px] font-black uppercase tracking-[0.2em] text-[#8b949e]">
+                      <tr>
+                        <th className="px-8 py-5">Team Identifier</th>
+                        <th className="px-8 py-5">Entity Count</th>
+                        <th className="px-8 py-5">Logistics</th>
+                        <th className="px-8 py-5 text-right">Sanctions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#30363d]/50">
+                      {allSubmissions.length === 0 ? (
+                        <tr><td colSpan="4" className="py-32 text-center text-[#8b949e] text-sm italic">Roster remains unpopulated</td></tr>
+                      ) : (
+                        allSubmissions.map(sub => (
+                          <tr key={sub._id} className="hover:bg-[#1f6feb]/5 transition-colors">
+                            <td className="px-8 py-4">
+                              <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-lg bg-[#30363d] flex items-center justify-center text-white font-black uppercase text-sm">
+                                  {sub.team?.name?.slice(0, 2)}
+                                </div>
+                                <p className="text-sm font-bold text-white uppercase tracking-wider">{sub.team?.name || "Anonymous Entity"}</p>
+                              </div>
+                            </td>
+                            <td className="px-8 py-4">
+                              <span className="text-xs text-[#8b949e] font-bold tracking-widest">{sub.team?.members?.length || 0} Members</span>
+                            </td>
+                            <td className="px-8 py-4">
+                              <span className="text-[9px] font-black text-[#1f6feb] uppercase tracking-tighter bg-[#1f6feb]/10 px-2 py-1 rounded">{sub.status} active</span>
+                            </td>
+                            <td className="px-8 py-4 text-right">
+                              <button onClick={() => handleDisqualify(sub.team?._id)} className="text-[#8b949e] hover:text-red-500 transition-colors">
+                                <span className="material-symbols-outlined text-lg">person_remove</span>
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Side Module: Broadcast & Logs */}
+          <div className="xl:col-span-4 space-y-6">
+            
+            {/* Real-time Broadcast Terminal */}
+            <div className="bg-[#161b22] border border-[#30363d] rounded-3xl p-8 relative overflow-hidden">
+               <h3 className="text-[10px] font-black text-[#8b949e] uppercase tracking-[0.2em] mb-6 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#1f6feb]"></span>
+                Live Broadcast Terminal
+              </h3>
+              <form className="space-y-4" onSubmit={handleBroadcast}>
+                <textarea 
+                  rows="5" 
+                  value={announcementText} 
+                  onChange={(e) => setAnnouncementText(e.target.value)} 
+                  placeholder="Push global system-wide notification to all active devices..." 
+                  className="w-full bg-[#0d1117] text-white p-4 rounded-2xl border border-[#30363d] focus:border-[#1f6feb] outline-none text-xs font-medium placeholder:text-[#484f58] transition-all"
+                ></textarea>
+                <Button 
+                  type="submit" 
+                  disabled={!announcementText.trim()}
+                  className="w-full bg-[#1f6feb] text-white text-[10px] font-black uppercase py-4 rounded-2xl shadow-lg shadow-blue-500/10 active:scale-95 transition-all"
+                >
+                  Initialize Global Push
+                </Button>
+              </form>
+              <div className="mt-8 pt-8 border-t border-[#30363d] space-y-4">
+                 <h4 className="text-[10px] font-black text-white uppercase tracking-widest">Protocol Audit</h4>
+                 <ul className="space-y-3">
+                   <li className="flex gap-2 items-start">
+                     <span className="w-1 h-1 rounded-full bg-[#1f6feb] mt-1.5"></span>
+                     <p className="text-[10px] text-[#8b949e] leading-relaxed uppercase">Verify all intake data against internal records before state transitions.</p>
+                   </li>
+                   <li className="flex gap-2 items-start">
+                     <span className="w-1 h-1 rounded-full bg-[#1f6feb] mt-1.5"></span>
+                     <p className="text-[10px] text-[#8b949e] leading-relaxed uppercase">Global broadcasts are permanent and immutable within the activity stream.</p>
+                   </li>
+                 </ul>
+              </div>
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
   );
+
+
 }

@@ -5,9 +5,9 @@ import TeamCard from "./TeamCard";
 export default function FindTeamBoard({ teams, onJoinClick, onCreateClick, loading }) {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredTeams = teams.filter(t => 
-    t.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredTeams = Array.isArray(teams) 
+    ? teams.filter(t => t.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    : [];
 
   return (
     <div className="mt-8 space-y-6">
