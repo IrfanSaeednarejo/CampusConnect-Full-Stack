@@ -3,7 +3,6 @@ import { ApiError } from "../utils/ApiError.js";
 import { Task } from "../models/task.model.js";
 import { paginate } from "../utils/paginate.js";
 import { emitEvent, EventTypes } from "../utils/eventBus.js";
-import { systemEvents } from "../utils/events.js";
 
 /**
  * Create a new task for the requesting user.

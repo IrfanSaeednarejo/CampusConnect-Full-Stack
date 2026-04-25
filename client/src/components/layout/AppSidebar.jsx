@@ -12,6 +12,8 @@ import {
 
 const CORE_NAV = [
   { label: 'Dashboard', to: '/dashboard', icon: 'grid_view' },
+  { label: 'Nexus AI', to: '/nexus', icon: 'auto_awesome', highlight: true },
+  { label: 'Tasks', to: '/tasks', icon: 'task_alt' },
   { label: 'Events', to: '/events', icon: 'event' },
   { label: 'Societies', to: '/societies', icon: 'diversity_3' },
   { label: 'Study Groups', to: '/study-groups', icon: 'groups' },
@@ -67,9 +69,14 @@ function NavItem({ item, collapsed }) {
       to={item.to}
       title={collapsed ? item.label : undefined}
       className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group relative
-        ${active
-          ? 'bg-[#238636]/20 text-[#3fb950]'
-          : 'text-[#8b949e] hover:bg-[#21262d] hover:text-[#e6edf3]'
+        ${
+          item.highlight
+            ? active
+              ? 'bg-gradient-to-r from-[#238636]/30 to-[#1a7f37]/10 border border-[#3fb950]/30 text-[#3fb950]'
+              : 'border border-[#3fb950]/20 text-[#3fb950] hover:bg-[#238636]/10'
+            : active
+              ? 'bg-[#238636]/20 text-[#3fb950]'
+              : 'text-[#8b949e] hover:bg-[#21262d] hover:text-[#e6edf3]'
         }`}
     >
       <span className={`material-symbols-outlined text-xl shrink-0 ${active ? 'text-[#3fb950]' : ''}`}>
@@ -77,6 +84,9 @@ function NavItem({ item, collapsed }) {
       </span>
       {!collapsed && (
         <span className="text-sm font-medium truncate flex-1">{item.label}</span>
+      )}
+      {!collapsed && item.highlight && !active && (
+        <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#3fb950]/15 text-[#3fb950] border border-[#3fb950]/20">AI</span>
       )}
       {!collapsed && item.badge > 0 && (
         <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-amber-500/20">

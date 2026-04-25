@@ -141,11 +141,9 @@ import AdminStudyGroupDetail from "../admin/pages/AdminStudyGroupDetail";
 // ── Payment (AppShell) ───────────────────────────────────────────────────────
 import PaymentHistory from "../pages/Payments/PaymentHistory";
 
-// ── AI Agents (AppShell) ─────────────────────────────────────────────────────
-import StudyAssistantAgent from "../pages/Agent/StudyAssistantAgent";
-import MentorMatchAgent    from "../pages/Agent/MentorMatchAgent";
-import WellbeingAgent      from "../pages/Agent/WellbeingAgent";
-import FeedbackAgent       from "../pages/Agent/FeedbackAgent";
+// ── Nexus AI + Tasks (AppShell) ─────────────────────────────────────────────
+import NexusPage from "../pages/Nexus/NexusPage";
+import TasksPage from "../pages/Student/TasksPage";
 
 // ── Error Pages (no layout) ──────────────────────────────────────────────────
 import NotFound          from "../pages/NotFound";
@@ -357,16 +355,21 @@ export default function AppRoutes() {
 
           {/* Admin routes migrated out of AppShell to their own AdminApp layout */}
 
-          {/* ── AI Agents ────────────────────────────── */}
-          <Route path="/agents/study"    element={<StudyAssistantAgent />} />
-          <Route path="/agents/mentor"   element={<MentorMatchAgent />} />
-          <Route path="/agents/wellbeing" element={<WellbeingAgent />} />
-          <Route path="/agents/feedback" element={<FeedbackAgent />} />
-          {/* Legacy agent routes */}
-          <Route path="/student/agents/study"    element={<Navigate to="/agents/study" replace />} />
-          <Route path="/student/agents/mentor"   element={<Navigate to="/agents/mentor" replace />} />
-          <Route path="/student/agents/wellbeing" element={<Navigate to="/agents/wellbeing" replace />} />
-          <Route path="/student/agents/feedback"  element={<Navigate to="/agents/feedback" replace />} />
+          {/* ── Nexus AI Assistant ────────────────── */}
+          <Route path="/nexus"       element={<NexusPage />} />
+
+          {/* ── Tasks ────────────────────────────── */}
+          <Route path="/tasks"       element={<TasksPage />} />
+
+          {/* Legacy agent redirects → Nexus */}
+          <Route path="/agents/study"     element={<Navigate to="/nexus" replace />} />
+          <Route path="/agents/mentor"    element={<Navigate to="/nexus" replace />} />
+          <Route path="/agents/wellbeing" element={<Navigate to="/nexus" replace />} />
+          <Route path="/agents/feedback"  element={<Navigate to="/nexus" replace />} />
+          <Route path="/student/agents/study"     element={<Navigate to="/nexus" replace />} />
+          <Route path="/student/agents/mentor"    element={<Navigate to="/nexus" replace />} />
+          <Route path="/student/agents/wellbeing" element={<Navigate to="/nexus" replace />} />
+          <Route path="/student/agents/feedback"  element={<Navigate to="/nexus" replace />} />
 
           {/* ── Payments ─────────────────────────────── */}
           <Route path="/payments/history"         element={<PaymentHistory />} />

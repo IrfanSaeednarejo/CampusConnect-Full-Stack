@@ -55,7 +55,6 @@ export const getMyNotes = async (queryParams, requestUser) => {
         page,
         limit,
         sort: { updatedAt: -1 },
-        populate: [{ path: "attachments" }],
     });
 };
 

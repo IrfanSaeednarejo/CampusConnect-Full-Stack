@@ -1,4 +1,4 @@
-import { generateStructuredJSON, startChat, trimHistory, estimateTokens } from "../utils/geminiClient.js";
+import { generateStructuredJSON, startChat, trimHistory } from "../utils/geminiClient.js";
 import { ApiError } from "../utils/ApiError.js";
 import { NexusConversation } from "../models/nexusConversation.model.js";
 import { NexusActionLog } from "../models/nexusActionLog.model.js";
@@ -6,6 +6,7 @@ import { createNote, searchNotesForContext, getRecentNotesForContext } from "./n
 import { createTask } from "./task.service.js";
 import { getMentors } from "./mentoring.service.js";
 import { emitEvent, EventTypes } from "../utils/eventBus.js";
+import { paginate } from "../utils/paginate.js";
 import mongoose from "mongoose";
 
 // ─────────────────────────────────────────────
@@ -447,20 +448,16 @@ export const processMessage = async (message, requestUser, conversationId = null
 // ─────────────────────────────────────────────
 
 export const getUserConversations = async (requestUser, queryParams = {}) => {
-    const { page = 1, limit = 20 } = queryParams;
-    const skip = (page - 1) * limit;
-
-    const [conversations, total] = await Promise.all([
-        NexusConversation.find({ userId: requestUser._id, isArchived: false })
-            .select("title messageCount createdAt updatedAt")
-            .sort({ updatedAt: -1 })
-            .skip(skip)
-            .limit(Number(limit))
-            .lean(),
-        NexusConversation.countDocuments({ userId: requestUser._id, isArchived: false }),
-    ]);
-
-    return { docs: conversations, total, page: Number(page), limit: Number(limit) };
+    return await paginate(
+        NexusConversation,
+        { userId: requestUser._id, isArchived: false },
+        {
+            page: queryParams.page || 1,
+            limit: queryParams.limit || 20,
+            sort: { updatedAt: -1 },
+            select: "title messageCount createdAt updatedAt",
+        }
+    );
 };
 
 export const getConversationById = async (conversationId, requestUser) => {
@@ -500,18 +497,14 @@ export const startNewConversation = async (requestUser) => {
 };
 
 export const getUserActionLog = async (requestUser, queryParams = {}) => {
-    const { page = 1, limit = 20 } = queryParams;
-    const skip = (page - 1) * limit;
-
-    const [logs, total] = await Promise.all([
-        NexusActionLog.find({ userId: requestUser._id })
-            .select("intent outcome targetModel targetId inputPrompt createdAt confidence")
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(Number(limit))
-            .lean(),
-        NexusActionLog.countDocuments({ userId: requestUser._id }),
-    ]);
-
-    return { docs: logs, total, page: Number(page), limit: Number(limit) };
+    return await paginate(
+        NexusActionLog,
+        { userId: requestUser._id },
+        {
+            page: queryParams.page || 1,
+            limit: queryParams.limit || 20,
+            sort: { createdAt: -1 },
+            select: "intent outcome targetModel targetId inputPrompt createdAt confidence",
+        }
+    );
 };
