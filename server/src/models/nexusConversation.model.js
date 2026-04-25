@@ -58,11 +58,18 @@ const nexusConversationSchema = new Schema(
             type: Boolean,
             default: false,
         },
-        // Tracks total messages for quick access without counting array
+        // Message Count for UI
         messageCount: {
             type: Number,
             default: 0,
             min: 0,
+        },
+        // STATE: Holds temporary data for multi-turn intent resolution (e.g. asking for missing fields)
+        pendingAction: {
+            intent: { type: String, default: null },
+            data: { type: Schema.Types.Mixed, default: {} },
+            missingFields: { type: [String], default: [] },
+            updatedAt: { type: Date, default: Date.now }
         },
     },
     {

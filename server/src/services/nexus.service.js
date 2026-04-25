@@ -20,6 +20,7 @@ const SUPPORTED_INTENTS = [
     "suggest_mentors",
     "study_explain",
     "general_chat",
+    "needs_clarification",
 ];
 
 // Per-user in-memory rate limiter (20 req/hour)
@@ -37,37 +38,28 @@ const INTENT_SYSTEM_PROMPT = `You are Nexus, an intelligent AI assistant embedde
 Your job is to analyse the user's message and return a structured JSON response.
 
 SUPPORTED INTENTS:
-- "create_note": User wants to save information as a note. Extract title and content.
-- "explain_notes": User wants you to explain or summarize their saved notes on a topic.
-- "create_task": User wants to create a reminder or task. Extract title, dueDate (ISO 8601), priority (low/medium/high/urgent), and description.
-- "suggest_mentors": User wants to find a mentor. Extract a search query / expertise keywords.
-- "study_explain": User wants a concept explained academically (not from their notes).
-- "general_chat": All other conversations, questions, help requests.
+- "create_note": User wants to save information. REQUIRED: "title", "content".
+- "create_task": User wants a reminder/task. REQUIRED: "title". OPTIONAL: "dueDate", "priority", "description".
+- "explain_notes": Summarize saved notes. REQUIRED: "topic".
+- "suggest_mentors": Find a mentor. REQUIRED: "query".
+- "study_explain": Academic explanation. REQUIRED: "topic".
+- "needs_clarification": Use this if user intent matches one of the above but a REQUIRED field is missing.
+- "general_chat": Small talk, questions about Nexus, or irrelevant topics.
 
-RESPONSE FORMAT (strict JSON, no markdown, no code fences):
+RESPONSE FORMAT (strict JSON):
 {
-  "intent": "<one of the SUPPORTED INTENTS>",
+  "intent": "<intent>",
   "confidence": <0.0–1.0>,
-  "reply": "<conversational response to show the user>",
-  "data": {
-    // intent-specific structured data — see below
-  }
+  "reply": "<conversational response>",
+  "data": { ... },
+  "missingFields": ["field1", "field2"] // Only if intent is "needs_clarification"
 }
 
-DATA FIELDS BY INTENT:
-- create_note: { "title": string, "content": string, "tags": string[] }
-- explain_notes: { "topic": string }
-- create_task: { "title": string, "description": string, "dueDate": "ISO8601 or null", "priority": "low|medium|high|urgent" }
-- suggest_mentors: { "query": string, "expertise": string[] }
-- study_explain: { "topic": string }
-- general_chat: {}
-
 RULES:
-- Always return valid JSON. Never wrap in markdown.
-- "reply" must always be a warm, helpful, human-readable string that you show the user.
-- For create_note and create_task: extract the actual content from the user's message — do not include generic placeholders.
-- For dueDate: parse natural language dates relative to today's date provided in the context. Use ISO 8601 format (e.g. "2026-04-26T17:00:00.000Z"). Return null if no date is mentioned.
-- Keep confidence honest — use < 0.7 only if genuinely ambiguous.`;
+- If a REQUIRED field is missing, set intent to "needs_clarification", list the missing field names in "missingFields", and ask a friendly follow-up question in "reply".
+- For "create_task", if no title is given (e.g. user says "Set a reminder"), ask "What would you like the reminder for?".
+- For "create_note", if only a title is given (e.g. "Save a note called Shopping List"), ask "What content should I add to the note?".
+- Always provide a conversational, helpful "reply".`;
 
 // ─────────────────────────────────────────────
 //  SYSTEM PROMPT (Chat)
@@ -162,8 +154,12 @@ const generateTitle = (message) => {
 const handleCreateNote = async (data, reply, requestUser) => {
     const { title, content, tags } = data;
 
-    if (!title?.trim() || !content?.trim()) {
-        return { success: false, reason: "Insufficient data to create note (title or content missing)" };
+    const missing = [];
+    if (!title?.trim()) missing.push("title");
+    if (!content?.trim()) missing.push("content");
+
+    if (missing.length > 0) {
+        return { success: false, missingFields: missing };
     }
 
     const note = await createNote(
@@ -189,7 +185,7 @@ const handleCreateTask = async (data, reply, requestUser) => {
     const { title, description, dueDate, priority } = data;
 
     if (!title?.trim()) {
-        return { success: false, reason: "Insufficient data to create task (title missing)" };
+        return { success: false, missingFields: ["title"] };
     }
 
     const task = await createTask(
@@ -291,160 +287,153 @@ export const processMessage = async (message, requestUser, conversationId = null
     if (!message?.trim()) throw new ApiError(400, "Message cannot be empty");
     if (message.length > 8000) throw new ApiError(400, "Message is too long (max 8000 characters)");
 
-    // Rate limit check
     checkRateLimit(requestUser._id);
-
-    // Load or create conversation
     const conversation = await resolveConversation(conversationId, requestUser);
 
-    // Auto-set title from first message
     if (conversation.messages.length === 0) {
         conversation.title = generateTitle(message);
     }
 
-    // Build Gemini history from stored messages
     const geminiHistory = buildGeminiHistory(conversation.messages);
 
-    // Step 1: Intent detection via structured JSON
-    let parsed;
-    const intentContext = `User message: "${message}"\nToday: ${new Date().toISOString()}\nUser department: ${requestUser.academic?.department || "unknown"}`;
+    // Step 1: Context Injection (include pending action if any)
+    let intentContext = `User message: "${message}"\nToday: ${new Date().toISOString()}\nUser department: ${requestUser.academic?.department || "unknown"}`;
+    if (conversation.pendingAction?.intent) {
+        intentContext += `\n\nPENDING CONTEXT: The user previously tried to "${conversation.pendingAction.intent}". 
+        Current partial data: ${JSON.stringify(conversation.pendingAction.data)}. 
+        Missing fields: ${conversation.pendingAction.missingFields.join(", ")}.
+        Please determine if this new message provides the missing information.`;
+    }
 
+    // Step 2: Intent Detection
+    let parsed;
     try {
         parsed = await generateStructuredJSON(intentContext, INTENT_SYSTEM_PROMPT);
     } catch (err) {
         console.error("[NexusService] Intent parsing failed:", err.message);
-        // Fall back to general chat if intent detection fails
         parsed = { intent: "general_chat", confidence: 0.5, reply: "", data: {} };
     }
 
-    const { intent, confidence, data: intentData, reply: intentReply } = parsed;
+    const { intent, confidence, data: intentData, reply: intentReply, missingFields } = parsed;
+    let resolvedIntent = SUPPORTED_INTENTS.includes(intent) ? intent : "general_chat";
 
-    // Validate intent is one we support
-    const resolvedIntent = SUPPORTED_INTENTS.includes(intent) ? intent : "general_chat";
+    // Step 3: Clarification Logic
+    if (resolvedIntent === "needs_clarification" || (missingFields && missingFields.length > 0)) {
+        // Save current data to pendingAction
+        conversation.pendingAction = {
+            intent: intentData?.intent || conversation.pendingAction?.intent || "general_chat",
+            data: { ...(conversation.pendingAction?.data || {}), ...(intentData || {}) },
+            missingFields: missingFields || [],
+            updatedAt: new Date()
+        };
+        await conversation.save();
 
-    // Step 2: Open a chat session for conversational replies
+        const modelMsg = {
+            role: "model",
+            content: intentReply || "Could you provide a bit more detail so I can help with that?",
+            intent: "needs_clarification",
+            timestamp: new Date(),
+        };
+        conversation.messages.push({ role: "user", content: message, timestamp: new Date() }, modelMsg);
+        await conversation.save();
+
+        return {
+            reply: modelMsg.content,
+            intent: "needs_clarification",
+            conversationId: conversation._id,
+        };
+    }
+
+    // Merge pending data if we are fulfilling a previous request
+    let finalData = intentData;
+    if (conversation.pendingAction?.intent && (resolvedIntent === conversation.pendingAction.intent || resolvedIntent === "general_chat")) {
+        finalData = { ...conversation.pendingAction.data, ...intentData };
+        resolvedIntent = conversation.pendingAction.intent;
+    }
+
     const chatSession = startChat(geminiHistory, buildChatSystemPrompt(requestUser));
-
     let finalReply = intentReply || "";
     let actionResult = null;
     let targetModel = null;
     let targetId = null;
 
-    // Step 3: Execute action based on intent
+    // Step 4: Action Execution
     try {
         if (resolvedIntent === "create_note") {
-            const result = await handleCreateNote(intentData, intentReply, requestUser);
+            const result = await handleCreateNote(finalData, finalReply, requestUser);
             if (result.success) {
                 actionResult = result.summary;
-                targetModel = result.targetModel;
-                targetId = result.targetId;
-                if (!finalReply) {
-                    finalReply = `✅ I've saved a note titled **"${result.summary.title}"** for you! You can find it in your Notes section.`;
-                }
+                targetModel = "Note";
+                targetId = result.summary.id;
+                finalReply = finalReply || `✅ I've saved your note: **"${result.summary.title}"**`;
+                conversation.pendingAction = null; // Success! Clear pending
             } else {
-                // Fall through to general chat
-                const r = await chatSession.sendMessage(message);
-                finalReply = r.response.text();
+                // Still missing fields? (Should have been caught by detector, but double check)
+                conversation.pendingAction = { intent: "create_note", data: finalData, missingFields: result.missingFields };
+                finalReply = `I need a bit more info to save that note. ${result.missingFields.includes('title') ? 'What should the title be?' : 'What content should I add?'}`;
             }
         } else if (resolvedIntent === "create_task") {
-            const result = await handleCreateTask(intentData, intentReply, requestUser);
+            const result = await handleCreateTask(finalData, finalReply, requestUser);
             if (result.success) {
                 actionResult = result.summary;
-                targetModel = result.targetModel;
-                targetId = result.targetId;
-                const due = result.summary.dueDate
-                    ? ` due **${new Date(result.summary.dueDate).toLocaleDateString("en-US", { dateStyle: "medium" })}**`
-                    : "";
-                if (!finalReply) {
-                    finalReply = `✅ Task **"${result.summary.title}"**${due} has been created! Check your Tasks page to manage it.`;
-                }
+                targetModel = "Task";
+                targetId = result.summary.id;
+                finalReply = finalReply || `✅ Task **"${result.summary.title}"** created!`;
+                conversation.pendingAction = null;
             } else {
-                const r = await chatSession.sendMessage(message);
-                finalReply = r.response.text();
+                conversation.pendingAction = { intent: "create_task", data: finalData, missingFields: result.missingFields };
+                finalReply = "What would you like the task title to be?";
             }
         } else if (resolvedIntent === "explain_notes") {
-            const result = await handleExplainNotes(intentData, requestUser, chatSession);
+            const result = await handleExplainNotes(finalData, requestUser, chatSession);
             finalReply = result.reply;
-            actionResult = result.actionTaken;
         } else if (resolvedIntent === "suggest_mentors") {
-            const result = await handleSuggestMentors(intentData, requestUser);
+            const result = await handleSuggestMentors(finalData, requestUser);
             actionResult = { mentors: result.mentors, count: result.count };
-            if (result.count === 0) {
-                finalReply = intentReply || "I couldn't find any mentors matching your criteria right now. Try broadening your search!";
-            } else {
-                finalReply = intentReply || `I found **${result.count} mentor${result.count > 1 ? "s" : ""}** that might be a great fit for you! Take a look below.`;
-            }
+            finalReply = finalReply || `I found **${result.count}** mentors for you.`;
         } else if (resolvedIntent === "study_explain") {
-            const result = await handleStudyExplain(intentData, chatSession);
+            const result = await handleStudyExplain(finalData, chatSession);
             finalReply = result.reply;
         } else {
-            // general_chat — pass directly to Gemini chat
             const r = await chatSession.sendMessage(message);
             finalReply = r.response.text();
         }
     } catch (err) {
-        console.error(`[NexusService] Action handler error for intent "${resolvedIntent}":`, err.message);
-        if (err.message?.includes("API key") || err.message?.includes("quota")) {
-            finalReply = "⚠️ The AI service is temporarily unavailable. Please check the server API key configuration.";
-        } else {
-            // Graceful fallback — still respond conversationally
-            try {
-                const r = await chatSession.sendMessage(message);
-                finalReply = r.response.text();
-            } catch (fallbackErr) {
-                console.error("[NexusService] Fallback chat also failed:", fallbackErr.message);
-                finalReply = "I'm having a moment — please try again shortly!";
-            }
-        }
+        console.error(`[NexusService] Action failed:`, err.message);
+        const r = await chatSession.sendMessage(message);
+        finalReply = r.response.text();
     }
 
-    // Step 4: Persist messages to conversation
-    const userMsg = {
-        role: "user",
-        content: message,
-        timestamp: new Date(),
-    };
+    // Step 5: Save & Return
+    const userMsg = { role: "user", content: message, timestamp: new Date() };
     const modelMsg = {
         role: "model",
         content: finalReply,
-        intent: resolvedIntent !== "general_chat" ? resolvedIntent : null,
-        actionTaken: actionResult || null,
+        intent: resolvedIntent,
+        actionTaken: actionResult,
         timestamp: new Date(),
     };
 
     conversation.messages.push(userMsg, modelMsg);
-    conversation.messageCount = conversation.messages.length;
     await conversation.save();
 
-    // Step 5: Write audit log for any system action
     if (actionResult && targetModel) {
         await NexusActionLog.create({
             userId: requestUser._id,
-            campusId: requestUser.campusId,
             conversationId: conversation._id,
             intent: resolvedIntent,
             inputPrompt: message.slice(0, 500),
-            resolvedAction: intentData,
             outcome: "success",
             targetModel,
             targetId,
-            confidence: confidence ?? null,
-        }).catch((err) => console.error("[NexusService] Failed to write action log:", err.message));
+        }).catch(() => {});
     }
-
-    // Step 6: Emit completion event
-    emitEvent(EventTypes.NEXUS_ACTION_COMPLETED, {
-        actorId: requestUser._id,
-        payload: { intent: resolvedIntent, conversationId: conversation._id },
-    });
 
     return {
         reply: finalReply,
         intent: resolvedIntent,
-        confidence: confidence ?? null,
-        actionTaken: actionResult || null,
+        actionTaken: actionResult,
         conversationId: conversation._id,
-        messageId: modelMsg._id ?? null,
     };
 };
 
@@ -513,3 +502,60 @@ export const getUserActionLog = async (requestUser, queryParams = {}) => {
         }
     );
 };
+
+// ─────────────────────────────────────────────
+//  FORM DRAFTING (AUTOFILL)
+// ─────────────────────────────────────────────
+
+/**
+ * Generates a structured JSON draft for complex forms based on a natural language prompt.
+ * @param {string} prompt The natural language description.
+ * @param {string} schemaType "event" or "society"
+ */
+export const generateFormDraft = async (prompt, schemaType) => {
+    if (!prompt?.trim()) throw new ApiError(400, "Draft prompt cannot be empty");
+    
+    let systemPrompt = `You are Nexus Draft, an AI that converts natural language into strict JSON for form autofilling.
+Current Date/Time context: ${new Date().toISOString()}
+
+Return ONLY a JSON object that matches the requested schema. If information is missing from the user's prompt, leave the field empty ("" or null) or use sensible defaults. DO NOT make up details like URLs or addresses if not provided.`;
+
+    if (schemaType === "event") {
+        systemPrompt += `
+SCHEMA REQUIRED FOR "event":
+{
+    "title": "string (extract a catchy title)",
+    "description": "string (extract or generate a short professional description based on the prompt)",
+    "category": "academic | cultural | sports | social | workshop | competition | networking | other",
+    "eventType": "general | hackathon | coding_competition | workshop | seminar",
+    "startAt": "ISO 8601 string (parse dates relative to current date, set to null if none mentioned)",
+    "endAt": "ISO 8601 string (typically 1-3 hours after start if not specified, null if no start)",
+    "venueType": "physical | online | hybrid",
+    "venueAddress": "string (extract physical address/room if mentioned)",
+    "venueOnlineUrl": "string (extract URL if mentioned)",
+    "tags": ["string array (generate 2-4 relevant tags)"]
+}`;
+    } else if (schemaType === "society") {
+        systemPrompt += `
+SCHEMA REQUIRED FOR "society":
+{
+    "name": "string (extract society name)",
+    "tag": "string (generate a URL-friendly tag, 3-20 chars, lowercase, letters/numbers/hyphens only)",
+    "category": "academic | cultural | sports | tech | social | arts | professional | other",
+    "description": "string (extract or generate a short mission statement)"
+}`;
+    } else {
+        throw new ApiError(400, "Invalid schema type for drafting");
+    }
+
+    const context = `User Prompt: "${prompt}"`;
+    
+    try {
+        const parsed = await generateStructuredJSON(context, systemPrompt);
+        return parsed;
+    } catch (err) {
+        console.error("[NexusService] Draft generation failed:", err.message);
+        throw new ApiError(500, "Failed to generate draft. Please try again.");
+    }
+};
+

@@ -6,3 +6,4 @@ export const getConversations = (params) => api.get('/nexus/conversations', { pa
 export const getConversation = (id) => api.get(`/nexus/conversations/${id}`);
 export const deleteConversation = (id) => api.delete(`/nexus/conversations/${id}`);
 export const getActionLog = (params) => api.get('/nexus/actions', { params });
+export const generateDraft = (data) => api.post('/nexus/draft', data);

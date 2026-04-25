@@ -5,6 +5,8 @@ import { createEventThunk, selectEventActionLoading, selectEventError } from "..
 import { selectUser } from "../../redux/slices/authSlice";
 import { ShieldX, CheckCircle2, CalendarPlus, Upload, X, Plus, Trash2 } from "lucide-react";
 
+import NexusDraftInput from "../../components/common/NexusDraftInput";
+
 const EVENT_CATEGORIES = ["academic","cultural","sports","social","workshop","competition","networking","other"];
 const EVENT_TYPES = ["general","hackathon","coding_competition","workshop","seminar"];
 const VENUE_TYPES = ["physical","online","hybrid"];
@@ -51,6 +53,32 @@ export default function CreateEventForm() {
   });
 
   const set = (k, v) => setForm(p => ({ ...p, [k]: v }));
+
+  const toLocalIso = (isoString) => {
+    if (!isoString) return "";
+    const d = new Date(isoString);
+    if (isNaN(d)) return "";
+    return new Date(d.getTime() - (d.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+  };
+
+  const handleNexusDraft = (draft) => {
+    setForm(prev => ({
+        ...prev,
+        title: draft.title || prev.title,
+        description: draft.description || prev.description,
+        category: draft.category || prev.category,
+        eventType: draft.eventType || prev.eventType,
+        startAt: draft.startAt ? toLocalIso(draft.startAt) : prev.startAt,
+        endAt: draft.endAt ? toLocalIso(draft.endAt) : prev.endAt,
+        venueType: draft.venueType || prev.venueType,
+        venueAddress: draft.venueAddress || prev.venueAddress,
+        venueOnlineUrl: draft.venueOnlineUrl || prev.venueOnlineUrl,
+    }));
+    
+    if (draft.tags && Array.isArray(draft.tags)) {
+        setTags(draft.tags.slice(0, 10)); // Max 10 tags
+    }
+  };
 
   const handleCover = (e) => {
     const f = e.target.files[0];
@@ -170,6 +198,8 @@ export default function CreateEventForm() {
           <p className="text-slate-500 text-sm">Submit for admin approval before going live</p>
         </div>
       </div>
+
+      <NexusDraftInput schemaType="event" onDraftComplete={handleNexusDraft} />
 
       {(error || sliceError) && (
         <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl text-red-400 text-sm">

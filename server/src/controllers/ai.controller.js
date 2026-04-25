@@ -64,4 +64,15 @@ const getActionLog = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, result, "Action log fetched"));
 });
 
-export { sendMessage, createConversation, getConversations, getConversation, removeConversation, getActionLog };
+/**
+ * POST /nexus/draft
+ * Generate structured data to autofill forms based on a natural language prompt.
+ */
+const generateDraft = asyncHandler(async (req, res) => {
+    const { prompt, schemaType } = req.body;
+    const { generateFormDraft } = await import("../services/nexus.service.js");
+    const result = await generateFormDraft(prompt, schemaType);
+    return res.status(200).json(new ApiResponse(200, result, "Draft generated successfully"));
+});
+
+export { sendMessage, createConversation, getConversations, getConversation, removeConversation, getActionLog, generateDraft };

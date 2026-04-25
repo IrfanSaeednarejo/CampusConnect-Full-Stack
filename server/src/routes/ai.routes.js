@@ -7,6 +7,7 @@ import {
     getConversation,
     removeConversation,
     getActionLog,
+    generateDraft,
 } from "../controllers/ai.controller.js";
 
 const router = Router();
@@ -14,9 +15,12 @@ const router = Router();
 // All Nexus routes require authentication
 router.use(verifyJWT);
 
-// ── Chat ──────────────────────────────────────
+// ── Chat & Drafting ─────────────────────────────
 // POST /api/v1/nexus/chat
 router.post("/chat", sendMessage);
+
+// POST /api/v1/nexus/draft
+router.post("/draft", generateDraft);
 
 // ── Conversations ─────────────────────────────
 // POST /api/v1/nexus/conversations  → start new thread

@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { getAdminUsers, adminCreateSociety } from "../../api/adminApi";
 import { getAllCampuses } from "../../api/campusApi";
 import { selectHasRole, selectUser } from "../../redux/slices/authSlice";
+import NexusDraftInput from "../../components/common/NexusDraftInput";
 
 const CreateSocietyModal = ({ onClose, onSuccess }) => {
     const isSuperAdmin = useSelector(selectHasRole("super_admin"));
@@ -26,6 +27,16 @@ const CreateSocietyModal = ({ onClose, onSuccess }) => {
     const [loadingCampuses, setLoadingCampuses] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
+
+    const handleNexusDraft = (draft) => {
+        setFormData(prev => ({
+            ...prev,
+            name: draft.name || prev.name,
+            tag: draft.tag || prev.tag,
+            category: draft.category || prev.category,
+            description: draft.description || prev.description
+        }));
+    };
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -102,6 +113,10 @@ const CreateSocietyModal = ({ onClose, onSuccess }) => {
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24 }}>
                     <h2 style={{ fontSize: 20, fontWeight: 800, color: "#f8fafc", margin: 0 }}>Create New Society</h2>
                     <button onClick={onClose} style={closeBtnStyle}>✕</button>
+                </div>
+
+                <div style={{ marginBottom: 24 }}>
+                    <NexusDraftInput schemaType="society" onDraftComplete={handleNexusDraft} />
                 </div>
 
                 <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
