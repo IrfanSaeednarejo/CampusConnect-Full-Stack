@@ -13,6 +13,9 @@ export const NOTIFICATION_TYPES = [
     "studygroup_update",
     "system",
     "admin",
+    "task_reminder",
+    "task_created",
+    "nexus_action",
 ];
 
 export const NOTIFICATION_REF_MODELS = [
@@ -22,6 +25,8 @@ export const NOTIFICATION_REF_MODELS = [
     "Chat",
     "StudyGroup",
     "User",
+    "Task",
+    "NexusConversation",
 ];
 
 const notificationSchema = new Schema(

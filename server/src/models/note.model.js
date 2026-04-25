@@ -50,6 +50,12 @@ const noteSchema = new Schema(
             type: Boolean,
             default: false,
         },
+        // Tracks whether this note was created manually or by Nexus AI
+        source: {
+            type: String,
+            enum: ["manual", "ai"],
+            default: "manual",
+        },
     },
     {
         timestamps: true,

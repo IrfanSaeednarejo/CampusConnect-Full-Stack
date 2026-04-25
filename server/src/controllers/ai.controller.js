@@ -1,29 +1,67 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import {
+    processMessage,
+    getUserConversations,
+    getConversationById,
+    deleteConversation,
+    startNewConversation,
+    getUserActionLog,
+} from "../services/nexus.service.js";
 
-const askAI = asyncHandler(async (req, res) => {
-    const { agentType, prompt, history } = req.body;
-
-    if (!prompt) {
-        throw new ApiError(400, "Prompt is required");
-    }
-
-    // Placeholder for AI logic. This could be extended with OpenAI or Gemini SDKs.
-    // For now, it returns a simulated helpful response.
-    const responses = {
-        study: `I've analyzed your question about "${prompt}". Breaking it down: 1) Focus on the core principles. 2) Look at related examples. 3) Practice active recall.`,
-        mentor: `Based on your query "${prompt}", I recommend connecting with seniors in the Computer Science department who have experience in this field.`,
-        wellbeing: `It's important to balance your studies. Regarding "${prompt}", make sure to take regular breaks and stay hydrated.`,
-        feedback: `Thank you for your feedback on "${prompt}". We've noted this and will use it to improve the platform experience.`
-    };
-
-    const response = responses[agentType] || `I'm here to help with your question: "${prompt}". Please provide more context if you'd like a more detailed answer.`;
-
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-
-    return res.status(200).json(new ApiResponse(200, { response }, "AI response generated"));
+/**
+ * POST /nexus/chat
+ * Main entry point — send a message to Nexus.
+ */
+const sendMessage = asyncHandler(async (req, res) => {
+    const { message, conversationId } = req.body;
+    const result = await processMessage(message, req.user, conversationId || null);
+    return res.status(200).json(new ApiResponse(200, result, "Nexus response generated"));
 });
 
-export { askAI };
+/**
+ * POST /nexus/conversations
+ * Start a new empty conversation thread.
+ */
+const createConversation = asyncHandler(async (req, res) => {
+    const conversation = await startNewConversation(req.user);
+    return res.status(201).json(new ApiResponse(201, conversation, "Conversation started"));
+});
+
+/**
+ * GET /nexus/conversations
+ * List all of the user's conversations (paginated, no messages payload).
+ */
+const getConversations = asyncHandler(async (req, res) => {
+    const result = await getUserConversations(req.user, req.query);
+    return res.status(200).json(new ApiResponse(200, result, "Conversations fetched"));
+});
+
+/**
+ * GET /nexus/conversations/:id
+ * Get a single conversation with its full message history.
+ */
+const getConversation = asyncHandler(async (req, res) => {
+    const conversation = await getConversationById(req.params.id, req.user);
+    return res.status(200).json(new ApiResponse(200, conversation, "Conversation fetched"));
+});
+
+/**
+ * DELETE /nexus/conversations/:id
+ * Delete a conversation — enforces ownership.
+ */
+const removeConversation = asyncHandler(async (req, res) => {
+    await deleteConversation(req.params.id, req.user);
+    return res.status(200).json(new ApiResponse(200, null, "Conversation deleted"));
+});
+
+/**
+ * GET /nexus/actions
+ * Get the user's Nexus AI action audit log.
+ */
+const getActionLog = asyncHandler(async (req, res) => {
+    const result = await getUserActionLog(req.user, req.query);
+    return res.status(200).json(new ApiResponse(200, result, "Action log fetched"));
+});
+
+export { sendMessage, createConversation, getConversations, getConversation, removeConversation, getActionLog };
