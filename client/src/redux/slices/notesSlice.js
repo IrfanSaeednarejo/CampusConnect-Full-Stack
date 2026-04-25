@@ -63,6 +63,8 @@ export const deleteNoteThunk = createAsyncThunk(
 
 const initialState = {
     notes: [],
+    total: 0,
+    page: 1,
     loading: false,
     error: null,
     selectedNote: null,
@@ -85,7 +87,9 @@ const notesSlice = createSlice({
                 state.loading = true;
             })
             .addCase(fetchNotes.fulfilled, (state, action) => {
-                state.notes = action.payload;
+                state.notes = action.payload.docs || [];
+                state.total = action.payload.totalDocs || action.payload.pagination?.total || 0;
+                state.page = action.payload.page || action.payload.pagination?.page || 1;
                 state.loading = false;
             })
             .addCase(fetchNotes.rejected, (state, action) => {

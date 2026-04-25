@@ -89,8 +89,8 @@ const taskSlice = createSlice({
       .addCase(fetchTasksThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.tasks = action.payload.docs || [];
-        state.total = action.payload.total || 0;
-        state.page = action.payload.page || 1;
+        state.total = action.payload.pagination?.total || 0;
+        state.page = action.payload.pagination?.page || 1;
       })
       .addCase(fetchTasksThunk.rejected, (state, action) => {
         state.loading = false;
