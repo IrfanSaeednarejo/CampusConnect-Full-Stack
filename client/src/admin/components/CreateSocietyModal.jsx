@@ -1,19 +1,29 @@
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { getAdminUsers, adminCreateSociety } from "../../api/adminApi";
+import { getAllCampuses } from "../../api/campusApi";
+import { selectHasRole, selectUser } from "../../redux/slices/authSlice";
 
 const CreateSocietyModal = ({ onClose, onSuccess }) => {
+    const isSuperAdmin = useSelector(selectHasRole("super_admin"));
+    const currentUser = useSelector(selectUser);
+
     const [formData, setFormData] = useState({
         name: "",
         tag: "",
         category: "academic",
         description: "",
-        headUserId: ""
+        headUserId: "",
+        campusId: ""
     });
+
     const [users, setUsers] = useState([]);
+    const [campuses, setCampuses] = useState([]);
     const [userSearchQ, setUserSearchQ] = useState("");
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [loadingUsers, setLoadingUsers] = useState(false);
+    const [loadingCampuses, setLoadingCampuses] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
 
@@ -21,9 +31,12 @@ const CreateSocietyModal = ({ onClose, onSuccess }) => {
         const fetchUsers = async () => {
             setLoadingUsers(true);
             try {
-                const { data } = await getAdminUsers({ status: "active", limit: 20, q: userSearchQ });
-                const eligible = (data.data?.docs || []).filter(u => !u.roles.includes("admin"));
+                const { data } = await getAdminUsers({ status: "active", limit: 10, q: userSearchQ });
+                // Filter out existing admins
+                const eligible = (data.data?.docs || []).filter(u => !u.roles.some(r => r.includes("admin")));
                 setUsers(eligible);
+            } catch (err) {
+                console.error("Failed to fetch users", err);
             } finally {
                 setLoadingUsers(false);
             }
@@ -33,9 +46,23 @@ const CreateSocietyModal = ({ onClose, onSuccess }) => {
         return () => clearTimeout(debounce);
     }, [userSearchQ]);
 
+    useEffect(() => {
+        if (isSuperAdmin) {
+            setLoadingCampuses(true);
+            getAllCampuses()
+                .then(({ data }) => setCampuses(data.data?.campuses || []))
+                .finally(() => setLoadingCampuses(false));
+        }
+    }, [isSuperAdmin]);
+
     const handleSelectUser = (user) => {
         setSelectedUser(user);
-        setFormData({ ...formData, headUserId: user._id });
+        // Default campus to user's campus if available
+        setFormData({ 
+            ...formData, 
+            headUserId: user._id, 
+            campusId: formData.campusId || user.campusId?._id || user.campusId || "" 
+        });
         setDropdownOpen(false);
         setUserSearchQ("");
     };
@@ -49,13 +76,21 @@ const CreateSocietyModal = ({ onClose, onSuccess }) => {
             return;
         }
 
+        // If not super admin, we'll let the backend resolve from current user
+        // If super admin, we must have a campusId
+        if (isSuperAdmin && !formData.campusId) {
+            setError("Super Admins must select a target campus");
+            return;
+        }
+
         setSubmitting(true);
         try {
             await adminCreateSociety(formData);
             onSuccess();
             onClose();
         } catch (err) {
-            setError(err.response?.data?.message || "Failed to create society");
+            const msg = err.response?.data?.message || "Failed to create society";
+            setError(msg);
         } finally {
             setSubmitting(false);
         }
@@ -92,29 +127,52 @@ const CreateSocietyModal = ({ onClose, onSuccess }) => {
                             <input 
                                 required
                                 value={formData.tag}
-                                onChange={(e) => setFormData({...formData, tag: e.target.value})}
-                                placeholder="e.g. css"
+                                onChange={(e) => setFormData({...formData, tag: e.target.value.toLowerCase().replace(/\s+/g, '-')})}
+                                placeholder="e.g. computer-science-society"
                                 style={inputStyle}
                             />
+                            <span style={{ fontSize: 10, color: "#64748b" }}>
+                                3-20 chars, alphanumeric & hyphens only.
+                            </span>
                         </div>
                     </div>
 
-                    <div style={fieldStyle}>
-                        <label style={labelStyle}>CATEGORY</label>
-                        <select 
-                            value={formData.category}
-                            onChange={(e) => setFormData({...formData, category: e.target.value})}
-                            style={inputStyle}
-                        >
-                            <option value="academic">Academic</option>
-                            <option value="cultural">Cultural</option>
-                            <option value="sports">Sports</option>
-                            <option value="tech">Tech</option>
-                            <option value="social">Social</option>
-                            <option value="arts">Arts</option>
-                            <option value="professional">Professional</option>
-                            <option value="other">Other</option>
-                        </select>
+                    <div style={gridStyle}>
+                        <div style={fieldStyle}>
+                            <label style={labelStyle}>CATEGORY</label>
+                            <select 
+                                value={formData.category}
+                                onChange={(e) => setFormData({...formData, category: e.target.value})}
+                                style={inputStyle}
+                            >
+                                <option value="academic">Academic</option>
+                                <option value="cultural">Cultural</option>
+                                <option value="sports">Sports</option>
+                                <option value="tech">Tech</option>
+                                <option value="social">Social</option>
+                                <option value="arts">Arts</option>
+                                <option value="professional">Professional</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        {isSuperAdmin && (
+                            <div style={fieldStyle}>
+                                <label style={labelStyle}>TARGET CAMPUS</label>
+                                <select 
+                                    required
+                                    value={formData.campusId}
+                                    onChange={(e) => setFormData({...formData, campusId: e.target.value})}
+                                    style={inputStyle}
+                                    disabled={loadingCampuses}
+                                >
+                                    <option value="">Select Campus...</option>
+                                    {campuses.map(c => (
+                                        <option key={c._id} value={c._id}>{c.name}</option>
+                                    ))}
+                                </select>
+                            </div>
+                        )}
                     </div>
 
                     <div style={fieldStyle}>
@@ -123,7 +181,7 @@ const CreateSocietyModal = ({ onClose, onSuccess }) => {
                         {selectedUser ? (
                             <div style={{ ...inputStyle, display: "flex", justifyContent: "space-between", alignItems: "center", background: "#1e293b", borderColor: "#6366f1" }}>
                                 <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                                    <div style={{ width: 24, height: 24, borderRadius: "50%", background: "#4f46e5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12 }}>
+                                    <div style={{ width: 32, height: 32, borderRadius: "50%", background: "#4f46e5", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 700 }}>
                                         {selectedUser.profile?.displayName?.charAt(0) || "U"}
                                     </div>
                                     <div>
@@ -134,7 +192,7 @@ const CreateSocietyModal = ({ onClose, onSuccess }) => {
                                 <button 
                                     type="button" 
                                     onClick={() => { setSelectedUser(null); setFormData({...formData, headUserId: ""}); }}
-                                    style={{ background: "transparent", border: "none", color: "#f43f5e", cursor: "pointer", fontSize: 12, fontWeight: 700 }}
+                                    style={{ background: "transparent", border: "none", color: "#f43f5e", cursor: "pointer", fontSize: 11, fontWeight: 800, padding: "4px 8px" }}
                                 >
                                     REMOVE
                                 </button>
@@ -171,7 +229,10 @@ const CreateSocietyModal = ({ onClose, onSuccess }) => {
                                                     onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
                                                 >
                                                     <div style={{ color: "#f1f5f9", fontWeight: 600, fontSize: 13 }}>{u.profile?.displayName}</div>
-                                                    <div style={{ color: "#94a3b8", fontSize: 11 }}>{u.email} {u.academic?.department ? `· ${u.academic.department}` : ""}</div>
+                                                    <div style={{ color: "#94a3b8", fontSize: 11 }}>
+                                                        {u.email} {u.academic?.department ? `· ${u.academic.department}` : ""}
+                                                        {u.campusId?.name && <span style={{ color: "#6366f1", marginLeft: 8 }}>({u.campusId.name})</span>}
+                                                    </div>
                                                 </div>
                                             ))
                                         ) : (
@@ -182,7 +243,7 @@ const CreateSocietyModal = ({ onClose, onSuccess }) => {
                             </div>
                         )}
                         <span style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>
-                            Search limits to active students (no admins).
+                            Search filters for active students. Head must have a campus assigned.
                         </span>
                     </div>
 
@@ -227,7 +288,7 @@ const labelStyle = { fontSize: 11, fontWeight: 800, color: "#4f46e5", letterSpac
 const inputStyle = {
     background: "#1e293b", border: "1px solid #334155", borderRadius: 12,
     padding: "12px 16px", color: "#f1f5f9", fontSize: 14, outline: "none",
-    transition: "border-color 0.2s"
+    transition: "border-color 0.2s", width: "100%"
 };
 
 const closeBtnStyle = { 

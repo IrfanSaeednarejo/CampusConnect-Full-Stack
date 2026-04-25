@@ -8,8 +8,17 @@ import * as societyService from "../services/society.admin.service.js";
  * POST /admin/societies
  */
 export const createSociety = asyncHandler(async (req, res) => {
-    const society = await societyService.adminCreateSociety(req.body, req.user, req);
-    return res.status(201).json(new ApiResponse(201, society, "Society created successfully"));
+    try {
+        const society = await societyService.adminCreateSociety(req.body, req.user, req);
+        return res.status(201).json(new ApiResponse(201, society, "Society created successfully"));
+    } catch (error) {
+        console.error("[SocietyAdmin] Creation failed:", {
+            body: req.body,
+            error: error.message,
+            stack: error.stack
+        });
+        throw error;
+    }
 });
 
 /**

@@ -24,28 +24,57 @@ const findSocietyById = async (id) => {
 export const adminCreateSociety = async (data, adminUser, req) => {
     const { name, tag, category, description, campusId, headUserId } = data;
 
-    if (!name?.trim() || !tag?.trim() || !headUserId) {
-        throw new ApiError(400, "Name, Tag, and Society Head are required");
-    }
+    if (!name?.trim()) throw new ApiError(400, "Society name is required");
+    if (!tag?.trim()) throw new ApiError(400, "Society tag is required");
+    if (!headUserId) throw new ApiError(400, "Society Head selection is required");
 
     // Check if society head exists and is active
     const head = await User.findById(headUserId);
-    if (!head || head.status !== "active") {
+    if (!head) {
+        throw new ApiError(404, "Selected Society Head user not found");
+    }
+    if (head.status !== "active") {
         throw new ApiError(400, "Selected Society Head must be an active user");
     }
 
-    const resolvedCampusId = campusId || adminUser.campusId || head.campusId;
-    if (!resolvedCampusId) throw new ApiError(400, "Campus ID is required and could not be resolved from user profiles");
+    // 2. Resolve Campus ID
+    // Check order: explicitly provided -> Head User's campus -> Admin's campus
+    let resolvedCampusId = campusId;
+    if (!resolvedCampusId || resolvedCampusId === "") {
+        resolvedCampusId = head.campusId?._id || head.campusId;
+    }
+    if (!resolvedCampusId || resolvedCampusId === "") {
+        resolvedCampusId = adminUser.campusId?._id || adminUser.campusId;
+    }
+
+    if (!resolvedCampusId) {
+        throw new ApiError(400, "Campus ID is required. Please ensure the Society Head has a campus assigned or provide one explicitly.");
+    }
+
+    // 3. Validation
+    if (!name?.trim()) throw new ApiError(400, "Society name is required");
+    if (!tag?.trim()) throw new ApiError(400, "Society tag is required");
+    
+    // Tag should be alphanumeric and 3-20 chars
+    const tagRegex = /^[a-zA-Z0-9-]{3,20}$/;
+    if (!tagRegex.test(tag.trim())) {
+        throw new ApiError(400, "Tag must be 3-20 characters long and contain only letters, numbers, and hyphens.");
+    }
 
     const existing = await Society.findOne({
         $or: [{ tag: tag.toLowerCase().trim() }, { name: name.trim() }],
-        campusId: resolvedCampusId,
     });
 
     if (existing) {
-        throw new ApiError(409, `A society with this ${existing.tag === tag.toLowerCase().trim() ? "tag" : "name"} already exists on this campus`);
+        if (existing.tag === tag.toLowerCase().trim()) {
+            throw new ApiError(409, `A society with tag "${tag}" already exists.`);
+        }
+        if (existing.name === name.trim()) {
+            throw new ApiError(409, `A society named "${name}" already exists.`);
+        }
     }
 
+    // 4. Create
     const society = await Society.create({
         name: name.trim(),
         tag: tag.toLowerCase().trim(),
