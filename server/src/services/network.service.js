@@ -2,6 +2,7 @@ import { Connection } from "../models/connection.model.js";
 import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { emitToUser } from "../sockets/index.js";
+import { systemEvents } from "../utils/events.js";
 
 const SAFE_SELECT = "profile.displayName profile.avatar profile.firstName profile.lastName profile.bio roles campusId interests";
 
@@ -56,6 +57,17 @@ export const sendRequest = async (requesterId, recipientId) => {
         
         const populated = await Connection.findById(existing._id).populate("requester", SAFE_SELECT).lean();
         emitToUser(recipientId.toString(), "CONNECTION_REQUEST_RECEIVED", { connection: populated });
+        
+        systemEvents.emit("notification:create", {
+            userId: recipientId,
+            type: "connection_request",
+            title: "New Connection Request",
+            body: `${populated.requester.profile.displayName} sent you a connection request.`,
+            ref: populated.requester._id,
+            refModel: "User",
+            actorId: requesterId
+        });
+
         return populated;
     }
 
@@ -68,6 +80,16 @@ export const sendRequest = async (requesterId, recipientId) => {
     const populated = await Connection.findById(newConnection._id).populate("requester", SAFE_SELECT).lean();
     emitToUser(recipientId.toString(), "CONNECTION_REQUEST_RECEIVED", { connection: populated });
     
+    systemEvents.emit("notification:create", {
+        userId: recipientId,
+        type: "connection_request",
+        title: "New Connection Request",
+        body: `${populated.requester.profile.displayName} sent you a connection request.`,
+        ref: populated.requester._id,
+        refModel: "User",
+        actorId: requesterId
+    });
+
     return populated;
 };
 
@@ -93,6 +115,17 @@ export const respondToRequest = async (userId, connectionId, action) => {
             .lean();
         
         emitToUser(connection.requester._id.toString(), "CONNECTION_ACCEPTED", { connection: populated });
+        
+        systemEvents.emit("notification:create", {
+            userId: connection.requester._id,
+            type: "connection_accepted",
+            title: "Connection Request Accepted",
+            body: `${populated.recipient.profile.displayName} accepted your connection request.`,
+            ref: populated.recipient._id,
+            refModel: "User",
+            actorId: userId
+        });
+
         return populated;
     } else if (action === "reject") {
         connection.status = "rejected";

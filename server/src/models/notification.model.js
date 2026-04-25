@@ -16,6 +16,8 @@ export const NOTIFICATION_TYPES = [
     "task_reminder",
     "task_created",
     "nexus_action",
+    "connection_request",
+    "connection_accepted",
 ];
 
 export const NOTIFICATION_REF_MODELS = [
