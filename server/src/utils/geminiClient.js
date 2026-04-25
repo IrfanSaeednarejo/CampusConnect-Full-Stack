@@ -8,7 +8,8 @@ if (!API_KEY) {
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-const MODEL_NAME = "gemini-2.5-flash-preview-04-17";
+// gemini-2.5-flash works on all API key tiers (free + paid).
+const MODEL_NAME = "gemini-2.5-flash";
 
 /**
  * Get the base generative model instance.
@@ -36,7 +37,7 @@ const getModel = (config = {}) => {
 export const generateContent = async (prompt, systemInstruction = "") => {
     const model = genAI.getGenerativeModel({
         model: MODEL_NAME,
-        systemInstruction: systemInstruction || undefined,
+        ...(systemInstruction ? { systemInstruction } : {}),
         generationConfig: {
             temperature: 0.7,
             topP: 0.95,
@@ -45,13 +46,15 @@ export const generateContent = async (prompt, systemInstruction = "") => {
     });
 
     const result = await model.generateContent(prompt);
-    const response = result.response;
-    return response.text();
+    return result.response.text();
 };
 
 /**
  * Generate a structured JSON response (intent parsing).
- * Forces the model to return valid JSON.
+ * NOTE: We do NOT use responseMimeType:"application/json" as it is restricted to
+ * specific model versions. Instead we instruct the model in the system prompt to
+ * return raw JSON and parse it ourselves.
+ *
  * @param {string} prompt - The structured prompt requesting JSON output.
  * @param {string} systemInstruction - System instruction that defines the JSON schema.
  * @returns {Promise<object>} - Parsed JSON object.
@@ -59,27 +62,44 @@ export const generateContent = async (prompt, systemInstruction = "") => {
 export const generateStructuredJSON = async (prompt, systemInstruction) => {
     const model = genAI.getGenerativeModel({
         model: MODEL_NAME,
-        systemInstruction,
+        ...(systemInstruction ? { systemInstruction } : {}),
         generationConfig: {
-            temperature: 0.2,      // Lower temp for deterministic JSON
+            temperature: 0.2,   // Low temp for deterministic JSON
             topP: 0.9,
             maxOutputTokens: 2048,
-            responseMimeType: "application/json",
+            // No responseMimeType here — not universally supported
         },
     });
 
     const result = await model.generateContent(prompt);
-    const rawText = result.response.text();
+    const rawText = result.response.text().trim();
 
+    // Try direct parse first
     try {
         return JSON.parse(rawText);
     } catch {
-        // Attempt to extract JSON from markdown code fences if model wrapped it
-        const jsonMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
-        if (jsonMatch) {
-            return JSON.parse(jsonMatch[1].trim());
+        // Strip markdown code fences if the model wrapped the JSON
+        const fenceMatch = rawText.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (fenceMatch) {
+            try {
+                return JSON.parse(fenceMatch[1].trim());
+            } catch {
+                // ignore, fall through to error
+            }
         }
-        throw new Error(`[GeminiClient] Failed to parse structured JSON. Raw: ${rawText.slice(0, 200)}`);
+
+        // Last resort: extract the first {...} block from the response
+        const braceMatch = rawText.match(/\{[\s\S]*\}/);
+        if (braceMatch) {
+            try {
+                return JSON.parse(braceMatch[0]);
+            } catch {
+                // ignore, fall through to error
+            }
+        }
+
+        console.error("[GeminiClient] Raw JSON response could not be parsed:", rawText.slice(0, 300));
+        throw new Error(`[GeminiClient] Failed to parse structured JSON.`);
     }
 };
 
@@ -92,7 +112,7 @@ export const generateStructuredJSON = async (prompt, systemInstruction) => {
 export const startChat = (history = [], systemInstruction = "") => {
     const model = genAI.getGenerativeModel({
         model: MODEL_NAME,
-        systemInstruction: systemInstruction || undefined,
+        ...(systemInstruction ? { systemInstruction } : {}),
         generationConfig: {
             temperature: 0.75,
             topP: 0.95,
@@ -105,7 +125,6 @@ export const startChat = (history = [], systemInstruction = "") => {
 
 /**
  * Count approximate tokens in a string (rough estimate: 4 chars ≈ 1 token).
- * Used for context window management.
  * @param {string} text
  * @returns {number}
  */

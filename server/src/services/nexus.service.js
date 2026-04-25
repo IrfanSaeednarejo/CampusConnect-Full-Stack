@@ -384,12 +384,17 @@ export const processMessage = async (message, requestUser, conversationId = null
         }
     } catch (err) {
         console.error(`[NexusService] Action handler error for intent "${resolvedIntent}":`, err.message);
-        // Graceful fallback — still respond conversationally
-        try {
-            const r = await chatSession.sendMessage(message);
-            finalReply = r.response.text();
-        } catch {
-            finalReply = "I'm having a moment — please try again shortly!";
+        if (err.message?.includes("API key") || err.message?.includes("quota")) {
+            finalReply = "⚠️ The AI service is temporarily unavailable. Please check the server API key configuration.";
+        } else {
+            // Graceful fallback — still respond conversationally
+            try {
+                const r = await chatSession.sendMessage(message);
+                finalReply = r.response.text();
+            } catch (fallbackErr) {
+                console.error("[NexusService] Fallback chat also failed:", fallbackErr.message);
+                finalReply = "I'm having a moment — please try again shortly!";
+            }
         }
     }
 
