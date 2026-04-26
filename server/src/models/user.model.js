@@ -70,6 +70,18 @@ const profileSchema = new Schema(
             maxlength: [300, "Bio cannot exceed 300 characters"],
             default: "",
         },
+        headline: {
+            type: String,
+            trim: true,
+            maxlength: [120, "Headline cannot exceed 120 characters"],
+            default: "",
+        },
+        location: {
+            type: String,
+            trim: true,
+            maxlength: [100, "Location cannot exceed 100 characters"],
+            default: "",
+        },
         phone: {
             type: String,
             trim: true,
@@ -81,6 +93,85 @@ const profileSchema = new Schema(
         },
     },
     { _id: false }
+);
+
+// ─── Experience ───────────────────────────────────────────────────────────────
+const experienceSchema = new Schema(
+    {
+        title:        { type: String, required: true, trim: true, maxlength: 100 },
+        organization: { type: String, required: true, trim: true, maxlength: 100 },
+        type: {
+            type: String,
+            enum: ["academic", "internship", "volunteer", "part_time", "full_time", "freelance", "other"],
+            default: "other",
+        },
+        startDate:   { type: Date, required: true },
+        endDate:     { type: Date, default: null },
+        isCurrent:   { type: Boolean, default: false },
+        description: { type: String, trim: true, maxlength: 600, default: "" },
+        skills:      { type: [String], default: [], validate: { validator: (a) => a.length <= 10, message: "Max 10 skills" } },
+        location:    { type: String, trim: true, maxlength: 100, default: "" },
+    },
+    { timestamps: true }
+);
+
+// ─── Project ───────────────────────────────────────────────────────────────────
+const projectSchema = new Schema(
+    {
+        title:          { type: String, required: true, trim: true, maxlength: 100 },
+        description:    { type: String, required: true, trim: true, maxlength: 400 },
+        details:        { type: String, trim: true, maxlength: 3000, default: "" },
+        images:         { type: [String], default: [], validate: { validator: (a) => a.length <= 3, message: "Max 3 images" } },
+        imagePublicIds: { type: [String], default: [], select: false },
+        link:           {
+            type: String, trim: true, default: "",
+            validate: { validator: (v) => !v || /^https?:\/\/.+/.test(v), message: "Must be a valid URL" },
+        },
+        techStack: { type: [String], default: [], validate: { validator: (a) => a.length <= 15, message: "Max 15 tech tags" } },
+        status:    { type: String, enum: ["ongoing", "completed", "paused"], default: "ongoing" },
+        startDate: { type: Date, default: null },
+        endDate:   { type: Date, default: null },
+        featured:  { type: Boolean, default: false },
+    },
+    { timestamps: true }
+);
+
+// ─── Event Participation ───────────────────────────────────────────────────────
+const eventParticipationSchema = new Schema(
+    {
+        eventName:   { type: String, required: true, trim: true, maxlength: 150 },
+        eventId:     { type: Schema.Types.ObjectId, ref: "Event", default: null },
+        role: {
+            type: String,
+            enum: ["participant", "winner", "runner_up", "organizer", "judge", "volunteer", "other"],
+            default: "participant",
+        },
+        achievement: { type: String, trim: true, maxlength: 200, default: "" },
+        description: { type: String, trim: true, maxlength: 600, default: "" },
+        date:        { type: Date, default: null },
+        verified:    { type: Boolean, default: false },
+    },
+    { timestamps: true }
+);
+
+// ─── Achievement Badge ─────────────────────────────────────────────────────────
+const achievementSchema = new Schema(
+    {
+        type: {
+            type: String,
+            enum: [
+                "event_rank_1", "event_rank_2", "event_participant",
+                "mentor_bronze", "mentor_silver", "mentor_gold",
+                "community", "study_group", "streak", "custom",
+            ],
+            required: true,
+        },
+        label:     { type: String, trim: true, maxlength: 100, required: true },
+        awardedAt: { type: Date, default: Date.now },
+        sourceId:  { type: Schema.Types.ObjectId, default: null },
+        icon:      { type: String, trim: true, default: "emoji_events" },
+    },
+    { _id: true }
 );
 
 const academicSchema = new Schema(
@@ -136,6 +227,12 @@ const preferencesSchema = new Schema(
                 enum: ["public", "campus", "connections"],
                 default: "campus",
             },
+            // Per-section visibility
+            showExperience:   { type: Boolean, default: true },
+            showProjects:     { type: Boolean, default: true },
+            showEventHistory: { type: Boolean, default: true },
+            showAchievements: { type: Boolean, default: true },
+            showActivity:     { type: Boolean, default: true },
         },
         theme: { type: String, enum: ["light", "dark", "system"], default: "system" },
         language: { type: String, default: "en" },
@@ -232,6 +329,30 @@ const userSchema = new Schema(
         preferences: { type: preferencesSchema, default: () => ({}) },
 
         onboarding: { type: onboardingSchema, default: () => ({}) },
+
+        // ── New Profile Sections ───────────────────────────────────────────────
+        experience: {
+            type: [experienceSchema],
+            default: [],
+            validate: { validator: (a) => a.length <= 20, message: "Max 20 experience entries" },
+        },
+        projects: {
+            type: [projectSchema],
+            default: [],
+            validate: { validator: (a) => a.length <= 20, message: "Max 20 projects" },
+        },
+        eventParticipation: {
+            type: [eventParticipationSchema],
+            default: [],
+            validate: { validator: (a) => a.length <= 50, message: "Max 50 event participation entries" },
+        },
+        achievements: {
+            type: [achievementSchema],
+            default: [],
+            validate: { validator: (a) => a.length <= 100, message: "Max 100 achievements" },
+        },
+        profileViews: { type: Number, default: 0, min: 0 },
+        // ──────────────────────────────────────────────────────────────────────
 
         status: {
             type: String,
@@ -359,6 +480,27 @@ userSchema.virtual("isVerifiedMentor").get(function () {
 
 userSchema.virtual("isVerifiedSocietyHead").get(function () {
     return this.societyHeadVerification?.isVerified ?? false;
+});
+
+/**
+ * profileCompleteness — computed 0–100 score.
+ * Weights: avatar(10) + coverImage(5) + bio(10) + headline(10) +
+ *          academic(10) + socialLinks(10) + interests(10) +
+ *          experience(15) + projects(10) + emailVerified(10)
+ */
+userSchema.virtual("profileCompleteness").get(function () {
+    let score = 0;
+    if (this.profile?.avatar)                    score += 10;
+    if (this.profile?.coverImage)                score += 5;
+    if (this.profile?.bio?.trim())               score += 10;
+    if (this.profile?.headline?.trim())          score += 10;
+    if (this.academic?.degree || this.academic?.department) score += 10;
+    if (this.socialLinks?.length > 0)            score += 10;
+    if (this.interests?.length >= 3)             score += 10;
+    if (this.experience?.length > 0)             score += 15;
+    if (this.projects?.length > 0)               score += 10;
+    if (this.emailVerified)                      score += 10;
+    return Math.min(100, score);
 });
 
 export const User = mongoose.model("User", userSchema);

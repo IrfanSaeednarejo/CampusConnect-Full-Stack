@@ -28,6 +28,20 @@ import {
     updateOnboarding,
 } from "../controllers/user.controller.js";
 
+import {
+    trackProfileView,
+    getVisitors,
+    addExperienceHandler,
+    updateExperienceHandler,
+    deleteExperienceHandler,
+    addProjectHandler,
+    updateProjectHandler,
+    deleteProjectHandler,
+    addEventParticipationHandler,
+    updateEventParticipationHandler,
+    deleteEventParticipationHandler,
+} from "../controllers/profile.controller.js";
+
 const router = Router();
 router.route("/update-onboarding").patch(verifyJWT, updateOnboarding);
 
@@ -105,5 +119,26 @@ router
 router
     .route("/me/societies")
     .get(verifyJWT, getUserSocieties);
+
+// ── Profile View Tracking ─────────────────────────────────────────────────────
+// POST /api/v1/users/profile/:userId/view  → record a visit
+router.post("/profile/:userId/view",      verifyJWT, trackProfileView);
+// GET  /api/v1/users/profile/:userId/visitors → who viewed my profile (owner only)
+router.get("/profile/:userId/visitors",   verifyJWT, getVisitors);
+
+// ── Experience CRUD ───────────────────────────────────────────────────────────
+router.post("/me/experience",                      verifyJWT, addExperienceHandler);
+router.patch("/me/experience/:entryId",            verifyJWT, updateExperienceHandler);
+router.delete("/me/experience/:entryId",           verifyJWT, deleteExperienceHandler);
+
+// ── Projects CRUD ────────────────────────────────────────────────────────────
+router.post("/me/projects",                        verifyJWT, upload.array("images", 3), addProjectHandler);
+router.patch("/me/projects/:projectId",            verifyJWT, upload.array("images", 3), updateProjectHandler);
+router.delete("/me/projects/:projectId",           verifyJWT, deleteProjectHandler);
+
+// ── Event Participation CRUD ──────────────────────────────────────────────────
+router.post("/me/event-participation",             verifyJWT, addEventParticipationHandler);
+router.patch("/me/event-participation/:entryId",   verifyJWT, updateEventParticipationHandler);
+router.delete("/me/event-participation/:entryId",  verifyJWT, deleteEventParticipationHandler);
 
 export default router;

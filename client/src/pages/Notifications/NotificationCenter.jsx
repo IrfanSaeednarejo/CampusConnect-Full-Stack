@@ -53,7 +53,8 @@ export default function NotificationCenter() {
         'mentor_booking', 'mentor_reminder', 'mentor_review',
         'studygroup_invite', 'studygroup_update',
         'task_reminder', 'task_created',
-        'connection_request', 'connection_accepted'
+        'connection_request', 'connection_accepted',
+        'profile_view'
       ].includes(notif.type);
     }
     
@@ -114,6 +115,9 @@ export default function NotificationCenter() {
           break;
         case 'User':
           navigate(`/users/${notif.ref}`);
+          break;
+        case 'ProfileView':
+          navigate(`/users/${notif.actorId}`); // Go to the visitor's profile
           break;
         default:
           break;

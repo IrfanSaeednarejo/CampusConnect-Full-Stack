@@ -55,6 +55,7 @@ import PrivacySettings         from "../pages/Profile/PrivacySettings";
 import NotificationPreferences from "../pages/Profile/NotificationPreferences";
 import DeleteAccount           from "../pages/Profile/DeleteAccount";
 import PublicUserProfile       from "../pages/Profile/PublicUserProfile";
+import ProfileManagement       from "../pages/Profile/ProfileManagement";
 import Network                 from "../pages/Network";
 
 // ── Society Pages (AppShell) ─────────────────────────────────────────────────
@@ -267,11 +268,13 @@ export default function AppRoutes() {
 
           {/* ── Profile ────────────────────────────── */}
           <Route path="/profile/view"                  element={<ViewProfile />} />
+          <Route path="/profile/manage"                element={<ProfileManagement />} />
           <Route path="/profile/edit"                  element={<EditProfile />} />
           <Route path="/profile/account-settings"      element={<AccountSettings />} />
           <Route path="/profile/privacy-settings"      element={<PrivacySettings />} />
           <Route path="/profile/notification-preferences" element={<NotificationPreferences />} />
           <Route path="/profile/delete-account"        element={<DeleteAccount />} />
+          <Route path="/users/:id"                     element={<PublicUserProfile />} />
           
           {/* ── Network ────────────────────────────── */}
           {/* ── Network & Discovery (Unified) ────── */}

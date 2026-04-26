@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import * as postApi from "../../api/postApi";
+import { aiDraftPost, aiImprovePost, aiSuggestHashtags, aiGeneratePoll, aiModeratePost } from "../../api/nexusApi";
 
 // ── Async Thunks ──────────────────────────────────────────────────────────────
 
@@ -93,6 +94,53 @@ export const fetchTrendingHashtags = createAsyncThunk("feed/fetchTrendingHashtag
     }
 });
 
+// ── Post AI Thunks ─────────────────────────────────────────────────────────────
+
+export const draftPostThunk = createAsyncThunk("feed/ai/draft", async ({ topic, tone }, { rejectWithValue }) => {
+    try {
+        const { data } = await aiDraftPost(topic, tone);
+        return data.data;
+    } catch (err) {
+        return rejectWithValue(err.response?.data?.message || err.message);
+    }
+});
+
+export const improvePostThunk = createAsyncThunk("feed/ai/improve", async ({ body, tone }, { rejectWithValue }) => {
+    try {
+        const { data } = await aiImprovePost(body, tone);
+        return data.data;
+    } catch (err) {
+        return rejectWithValue(err.response?.data?.message || err.message);
+    }
+});
+
+export const suggestHashtagsThunk = createAsyncThunk("feed/ai/hashtags", async (body, { rejectWithValue }) => {
+    try {
+        const { data } = await aiSuggestHashtags(body);
+        return data.data;
+    } catch (err) {
+        return rejectWithValue(err.response?.data?.message || err.message);
+    }
+});
+
+export const generatePollThunk = createAsyncThunk("feed/ai/poll", async (question, { rejectWithValue }) => {
+    try {
+        const { data } = await aiGeneratePoll(question);
+        return data.data;
+    } catch (err) {
+        return rejectWithValue(err.response?.data?.message || err.message);
+    }
+});
+
+export const moderatePostThunk = createAsyncThunk("feed/ai/moderate", async (body, { rejectWithValue }) => {
+    try {
+        const { data } = await aiModeratePost(body);
+        return data.data;
+    } catch (err) {
+        return rejectWithValue(err.response?.data?.message || err.message);
+    }
+});
+
 // ── Slice ─────────────────────────────────────────────────────────────────────
 
 const initialState = {
@@ -120,6 +168,22 @@ const initialState = {
 
     // Trending
     trendingHashtags: [],
+
+    // Post AI Assistant
+    ai: {
+        drafting:          false,
+        improving:         false,
+        tagging:           false,
+        pollingGen:        false,
+        moderating:        false,
+        suggestions: {
+            hashtags:    [],
+            pollOptions: [],
+        },
+        suggestion:        null,   // { body: string } — pending draft/improve result
+        moderationResult:  null,   // { safe, score, reason }
+        error:             null,
+    },
 };
 
 const feedSlice = createSlice({
@@ -144,6 +208,19 @@ const feedSlice = createSlice({
         },
         setActivePost(state, action) { state.activePostId = action.payload; },
         clearActivePost(state) { state.activePostId = null; },
+        clearAiSuggestion(state) {
+            state.ai.suggestion       = null;
+            state.ai.error            = null;
+        },
+        clearAiHashtags(state) {
+            state.ai.suggestions.hashtags = [];
+        },
+        clearAiPollOptions(state) {
+            state.ai.suggestions.pollOptions = [];
+        },
+        clearModerationResult(state) {
+            state.ai.moderationResult = null;
+        },
         // Optimistic reaction update for snappy UX
         optimisticReact(state, { payload: { postId, reactionType, userId } }) {
             const post = state.docs.find((p) => p._id === postId);
@@ -260,6 +337,37 @@ const feedSlice = createSlice({
         builder.addCase(fetchTrendingHashtags.fulfilled, (state, { payload }) => {
             state.trendingHashtags = payload;
         });
+
+        // ── Post AI ──
+        // draft
+        builder
+            .addCase(draftPostThunk.pending,   (state) => { state.ai.drafting = true;  state.ai.error = null; state.ai.suggestion = null; })
+            .addCase(draftPostThunk.fulfilled, (state, { payload }) => { state.ai.drafting = false; state.ai.suggestion = payload; })
+            .addCase(draftPostThunk.rejected,  (state, { payload }) => { state.ai.drafting = false; state.ai.error = payload; });
+
+        // improve
+        builder
+            .addCase(improvePostThunk.pending,   (state) => { state.ai.improving = true;  state.ai.error = null; state.ai.suggestion = null; })
+            .addCase(improvePostThunk.fulfilled, (state, { payload }) => { state.ai.improving = false; state.ai.suggestion = payload; })
+            .addCase(improvePostThunk.rejected,  (state, { payload }) => { state.ai.improving = false; state.ai.error = payload; });
+
+        // hashtags
+        builder
+            .addCase(suggestHashtagsThunk.pending,   (state) => { state.ai.tagging = true;  state.ai.error = null; })
+            .addCase(suggestHashtagsThunk.fulfilled, (state, { payload }) => { state.ai.tagging = false; state.ai.suggestions.hashtags = payload?.hashtags || []; })
+            .addCase(suggestHashtagsThunk.rejected,  (state, { payload }) => { state.ai.tagging = false; state.ai.error = payload; });
+
+        // poll generation
+        builder
+            .addCase(generatePollThunk.pending,   (state) => { state.ai.pollingGen = true;  state.ai.error = null; })
+            .addCase(generatePollThunk.fulfilled, (state, { payload }) => { state.ai.pollingGen = false; state.ai.suggestions.pollOptions = payload?.options || []; })
+            .addCase(generatePollThunk.rejected,  (state, { payload }) => { state.ai.pollingGen = false; state.ai.error = payload; });
+
+        // moderation
+        builder
+            .addCase(moderatePostThunk.pending,   (state) => { state.ai.moderating = true;  state.ai.moderationResult = null; })
+            .addCase(moderatePostThunk.fulfilled, (state, { payload }) => { state.ai.moderating = false; state.ai.moderationResult = payload; })
+            .addCase(moderatePostThunk.rejected,  (state) => { state.ai.moderating = false; state.ai.moderationResult = { safe: true, score: 0, reason: null }; });
     },
 });
 
@@ -267,6 +375,7 @@ export const {
     setFeedType, openComposer, closeComposer,
     openRepostComposer, closeRepostComposer,
     setActivePost, clearActivePost, optimisticReact,
+    clearAiSuggestion, clearAiHashtags, clearAiPollOptions, clearModerationResult,
 } = feedSlice.actions;
 
 export default feedSlice.reducer;

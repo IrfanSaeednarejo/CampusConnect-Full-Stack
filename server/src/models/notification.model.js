@@ -22,6 +22,7 @@ export const NOTIFICATION_TYPES = [
     "post_comment",
     "post_mention",
     "post_repost",
+    "profile_view",
 ];
 
 export const NOTIFICATION_REF_MODELS = [
@@ -35,6 +36,7 @@ export const NOTIFICATION_REF_MODELS = [
     "NexusConversation",
     "Post",
     "PostComment",
+    "ProfileView",
 ];
 
 const notificationSchema = new Schema(
