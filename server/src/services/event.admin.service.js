@@ -262,3 +262,39 @@ export const rejectEvent = async (eventId, reason, adminUser, req) => {
 
     return event;
 };
+
+export const getEventAnalytics = async (eventId) => {
+    if (!mongoose.isValidObjectId(eventId)) throw new ApiError(400, "Invalid event ID");
+
+    const event = await Event.findById(eventId)
+        .populate("societyId", "name tag")
+        .populate("createdBy", "profile.displayName profile.avatar email")
+        .select("-announcements");
+
+    if (!event) throw new ApiError(404, "Event not found");
+
+    // Calculate RSVP stats
+    const stats = {
+        totalRegistrations: event.registrations.length,
+        registered: 0,
+        waitlisted: 0,
+        attended: 0,
+        cancelled: 0,
+        dropOffRate: 0,
+    };
+
+    event.registrations.forEach(r => {
+        if (stats[r.status] !== undefined) {
+            stats[r.status]++;
+        }
+    });
+
+    if (stats.registered + stats.attended > 0) {
+        stats.dropOffRate = ((stats.registered / (stats.registered + stats.attended)) * 100).toFixed(1);
+    }
+
+    return {
+        event,
+        analytics: stats
+    };
+};

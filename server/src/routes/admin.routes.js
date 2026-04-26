@@ -42,6 +42,8 @@ import {
     suspendMentor as suspendMentorAdmin,
     overrideMentorTier,
     getMentorSessions,
+    getMentorOverview,
+    mentorAdminAction,
 } from "../controllers/mentor.admin.controller.js";
 
 // ── Society admin ─────────────────────────────────────────────────────────────
@@ -67,6 +69,7 @@ import {
     listPendingEvents,
     approveEvent,
     rejectEvent,
+    getEventAnalytics,
 } from "../controllers/event.admin.controller.js";
 
 // ── StudyGroup admin ──────────────────────────────────────────────────────────
@@ -109,6 +112,12 @@ import {
     toggleMaintenance,
 } from "../controllers/system.admin.controller.js";
 
+// ── Moderation ──────────────────────────────────────────────────────────────────
+import {
+    listReports,
+    resolveReport,
+} from "../controllers/moderation.admin.controller.js";
+
 const router = Router();
 
 // All routes: JWT + minimum any-admin role
@@ -137,6 +146,8 @@ router.patch("/mentors/:mentorId/verify", requireWriteAdmin, requireCampusAdmin(
 router.patch("/mentors/:mentorId/reject", requireWriteAdmin, requireCampusAdmin("mentorId"), rejectMentor);
 router.patch("/mentors/:mentorId/suspend", requireWriteAdmin, requireCampusAdmin("mentorId"), suspendMentorAdmin);
 router.patch("/mentors/:mentorId/tier", requireSuperAdmin, overrideMentorTier);
+router.get("/mentors/:mentorId/overview", getMentorOverview);
+router.post("/mentors/:mentorId/action", requireWriteAdmin, requireCampusAdmin("mentorId"), mentorAdminAction);
 
 // ─── Societies ────────────────────────────────────────────────────────────────
 router.get("/societies", listSocieties);
@@ -154,6 +165,7 @@ router.delete("/societies/:id", requireSuperAdmin, deleteSociety);
 router.get("/events", listEvents);
 router.get("/events/pending", listPendingEvents);           // NOTE: /pending before /:eventId
 router.get("/events/:eventId/registrations", getEventRegistrations);
+router.get("/events/:eventId/analytics", getEventAnalytics);
 router.patch("/events/:eventId/cancel", requireWriteAdmin, requireCampusAdmin(), forceCancelEvent);
 router.patch("/events/:eventId/status", requireSuperAdmin, forceEventStatus);
 router.patch("/events/:eventId/approve", requireWriteAdmin, requireCampusAdmin(), approveEvent);
@@ -178,6 +190,10 @@ router.get("/notifications/logs", getNotificationLogs);
 
 // ─── Analytics ────────────────────────────────────────────────────────────────
 router.get("/analytics/overview", getOverview);
+
+// ─── Moderation ───────────────────────────────────────────────────────────────
+router.get("/reports", listReports);
+router.patch("/reports/:reportId", requireWriteAdmin, resolveReport);
 router.get("/analytics/users/growth", getUserGrowth);
 router.get("/analytics/mentors/engagement", getMentorEngagement);
 router.get("/analytics/events/participation", getEventParticipation);

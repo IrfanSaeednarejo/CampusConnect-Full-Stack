@@ -29,6 +29,7 @@ const NAV_GROUPS = [
             { to: "/admin/users", label: "Users", icon: "👥" },
             { to: "/admin/mentors", label: "Mentors", icon: "🎓", badge: "mentors" },
             { to: "/admin/societies", label: "Societies", icon: "🏛️", badge: "societies" },
+            { to: "/admin/moderation", label: "Moderation", icon: "🛡️" },
         ]
     },
     {

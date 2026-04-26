@@ -13,8 +13,8 @@ import { scopeQuery } from "../middlewares/adminAuth.middleware.js";
 // ─── Notifications ────────────────────────────────────────────────────────────
 
 export const broadcastNotification = ah(async (req, res) => {
-    const { title, body, filter: audienceFilter = {} } = req.body;
-    const result = await combinedService.broadcastNotification(title, body, audienceFilter, req.user, req);
+    const { title, body, filter: audienceFilter = {}, channels = ["in_app"] } = req.body;
+    const result = await combinedService.broadcastNotification(title, body, audienceFilter, channels, req.user, req);
     return res.status(200).json(new ApiResponse(200, result, result.recipientCount === 0 ? "No users matched the filter" : `Broadcast sent to ${result.recipientCount} users`));
 });
 

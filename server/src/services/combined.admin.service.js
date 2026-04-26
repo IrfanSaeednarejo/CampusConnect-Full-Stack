@@ -10,6 +10,7 @@ import { paginate } from "../utils/paginate.js";
 import { writeAuditLog } from "../utils/auditLog.js";
 import { systemEvents } from "../utils/events.js";
 import { emitEvent } from "../utils/eventBus.js";
+import { sendEmail } from "./email.service.js";
 
 // ─── StudyGroup Logic ─────────────────────────────────────────────────────────
 
@@ -17,7 +18,7 @@ import { emitEvent } from "../utils/eventBus.js";
 
 // ─── Notification Logic ───────────────────────────────────────────────────────
 
-export const broadcastNotification = async (title, body, audienceFilter, adminUser, req) => {
+export const broadcastNotification = async (title, body, audienceFilter, channels = ["in_app"], adminUser, req) => {
     if (!title?.trim()) throw new ApiError(400, "title is required");
     if (!body?.trim()) throw new ApiError(400, "body is required");
 
@@ -33,24 +34,46 @@ export const broadcastNotification = async (title, body, audienceFilter, adminUs
         userFilter.roles = { $in: audienceFilter.roles };
     }
 
-    const users = await User.find(userFilter).select("_id").lean();
+    const users = await User.find(userFilter).select("_id email profile.firstName").lean();
     const userIds = users.map((u) => u._id);
 
     if (userIds.length === 0) return { recipientCount: 0 };
+
+    const sendInApp = channels.includes("in_app");
+    const sendViaEmail = channels.includes("email");
 
     const BATCH = 500;
     let inserted = 0;
     for (let i = 0; i < userIds.length; i += BATCH) {
         const batch = userIds.slice(i, i + BATCH);
-        const docs = batch.map((userId) => ({
-            userId,
-            type: "system",
-            title: title.trim(),
-            body: body.trim(),
-            actorId: adminUser._id,
-            priority: audienceFilter.priority || "normal",
-        }));
-        await Notification.insertMany(docs, { ordered: false });
+        
+        if (sendInApp) {
+            const docs = batch.map((userId) => ({
+                userId,
+                type: "system",
+                title: title.trim(),
+                body: body.trim(),
+                actorId: adminUser._id,
+                priority: audienceFilter.priority || "normal",
+            }));
+            await Notification.insertMany(docs, { ordered: false });
+        }
+
+        if (sendViaEmail) {
+            const batchUsers = users.slice(i, i + BATCH);
+            // In a real system, you'd batch emails via SES/SendGrid. For Resend, we loop or use Batch API.
+            // But we will just loop for now, fire and forget.
+            batchUsers.forEach(u => {
+                if (u.email) {
+                    sendEmail(u.email, "system_broadcast", {
+                        firstName: u.profile?.firstName || "User",
+                        title: title.trim(),
+                        body: body.trim()
+                    }).catch(err => console.error("Broadcast email failed:", err));
+                }
+            });
+        }
+
         inserted += batch.length;
         if (i + BATCH < userIds.length) await new Promise((r) => setTimeout(r, 100));
     }

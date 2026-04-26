@@ -125,13 +125,16 @@ import AdminRoute          from "../admin/guards/AdminRoute";
 import AdminApp            from "../admin/AdminApp";
 import AdminDashboard      from "../admin/pages/AdminDashboard";
 import AdminUsers          from "../admin/pages/AdminUsers";
-import AdminMentors        from "../admin/pages/AdminMentors";
-import AdminSocieties      from "../admin/pages/AdminSocieties";
+import AdminMentors           from "../admin/pages/AdminMentors";
+import AdminMentorDetail      from "../admin/pages/AdminMentorDetail";
+import AdminSocieties         from "../admin/pages/AdminSocieties";
 import AdminEvents         from "../admin/pages/AdminEvents";
+import AdminEventDetail    from "../admin/pages/AdminEventDetail";
 import AdminStudyGroups    from "../admin/pages/AdminStudyGroups";
 import AdminNotifications  from "../admin/pages/AdminNotifications";
 import AdminAuditLogs      from "../admin/pages/AdminAuditLogs";
 import AdminSystem         from "../admin/pages/AdminSystem";
+import AdminModeration     from "../admin/pages/AdminModeration";
 import AdminUserDetail     from "../admin/pages/AdminUserDetail";
 import AdminSocietyDetail  from "../admin/pages/AdminSocietyDetail";
 import AdminAnalytics      from "../admin/pages/AdminAnalytics";
@@ -390,12 +393,15 @@ export default function AppRoutes() {
           <Route path="users/:userId" element={<AdminUserDetail />} />
           <Route path="requests" element={<AdminRequests />} />
           <Route path="mentors" element={<AdminMentors />} />
+          <Route path="mentors/:id" element={<AdminMentorDetail />} />
           <Route path="societies" element={<AdminSocieties />} />
           <Route path="societies/:id" element={<AdminSocietyDetail />} />
           <Route path="events" element={<AdminEvents />} />
+          <Route path="events/:id" element={<AdminEventDetail />} />
           <Route path="study-groups" element={<AdminStudyGroups />} />
           <Route path="study-groups/:id" element={<AdminStudyGroupDetail />} />
           <Route path="notifications" element={<AdminNotifications />} />
+          <Route path="moderation" element={<AdminModeration />} />
           <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="audit-logs" element={<AdminAuditLogs />} />
           <Route path="system" element={<AdminSystem />} />

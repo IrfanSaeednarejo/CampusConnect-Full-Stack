@@ -76,3 +76,20 @@ export const getMentorSessions = asyncHandler(async (req, res) => {
     const result = await mentorService.getMentorSessions(mentorId, status, { page, limit });
     return res.status(200).json(new ApiResponse(200, result, "Mentor sessions fetched"));
 });
+
+/**
+ * GET /admin/mentors/:mentorId/overview
+ */
+export const getMentorOverview = asyncHandler(async (req, res) => {
+    const result = await mentorService.getMentorOverview(req.params.mentorId);
+    return res.status(200).json(new ApiResponse(200, result, "Mentor overview fetched successfully"));
+});
+
+/**
+ * POST /admin/mentors/:mentorId/action
+ */
+export const mentorAdminAction = asyncHandler(async (req, res) => {
+    const { action, reason } = req.body;
+    const result = await mentorService.mentorAdminAction(req.params.mentorId, action, reason, req.user, req);
+    return res.status(200).json(new ApiResponse(200, result, result.message));
+});

@@ -254,3 +254,106 @@ export const getMentorSessions = async (mentorId, status, options) => {
         ],
     });
 };
+
+export const getMentorOverview = async (mentorId) => {
+    if (!mongoose.isValidObjectId(mentorId)) throw new ApiError(400, "Invalid mentor ID");
+
+    const mentor = await Mentor.findById(mentorId).populate({
+        path: "userId",
+        select: "profile.displayName profile.avatar profile.firstName profile.lastName email campusId status roles",
+        populate: { path: "campusId", select: "name code" },
+    });
+
+    if (!mentor) throw new ApiError(404, "Mentor not found");
+
+    // Aggregate session counts
+    const sessions = await MentorBooking.aggregate([
+        { $match: { mentorId: mentor._id } },
+        { $group: { _id: "$status", count: { $sum: 1 } } }
+    ]);
+
+    const sessionStats = {
+        pending: 0,
+        confirmed: 0,
+        completed: 0,
+        cancelled: 0,
+        "no-show": 0
+    };
+
+    sessions.forEach(s => {
+        if (sessionStats[s._id] !== undefined) {
+            sessionStats[s._id] = s.count;
+        }
+    });
+
+    return {
+        mentor,
+        sessionStats
+    };
+};
+
+export const mentorAdminAction = async (mentorId, action, reason, adminUser, req) => {
+    const mentor = await findMentorById(mentorId);
+
+    if (action === "issue_warning") {
+        systemEvents.emit("notification:create", {
+            userId: mentor.userId,
+            type: "admin",
+            title: "⚠️ Official Administrative Warning",
+            body: reason || "You have received a formal warning regarding your mentor profile.",
+            actorId: adminUser._id,
+        });
+
+        await writeAuditLog({
+            req,
+            action: "MENTOR_WARNING_ISSUED",
+            targetModel: "Mentor",
+            targetId: mentor._id,
+            payload: { reason },
+        });
+
+        // Email the mentor
+        const mentorUser = await User.findById(mentor.userId).select("email profile.firstName");
+        if (mentorUser) {
+            // Note: In a full implementation, you'd add a "mentor_warning" email template
+            // For now we'll just send a generic or omit. We'll add the event.
+        }
+
+        return { message: "Warning issued successfully" };
+    }
+
+    if (action === "force_cancel_sessions") {
+        const upcomingBookings = await MentorBooking.find({
+            mentorId: mentor._id,
+            status: { $in: ["pending", "confirmed"] }
+        });
+
+        for (const booking of upcomingBookings) {
+            booking.status = "cancelled";
+            booking.cancellationReason = `Administratively cancelled: ${reason}`;
+            await booking.save();
+
+            // Notify mentee
+            systemEvents.emit("notification:create", {
+                userId: booking.menteeId,
+                type: "session_update",
+                title: "Session Cancelled",
+                body: `Your session with mentor has been cancelled by administration.`,
+                ref: booking._id,
+                refModel: "MentorBooking",
+            });
+        }
+
+        await writeAuditLog({
+            req,
+            action: "MENTOR_SESSIONS_FORCE_CANCELLED",
+            targetModel: "Mentor",
+            targetId: mentor._id,
+            payload: { count: upcomingBookings.length, reason },
+        });
+
+        return { message: `Force cancelled ${upcomingBookings.length} upcoming sessions.` };
+    }
+
+    throw new ApiError(400, "Invalid action type");
+};

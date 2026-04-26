@@ -85,3 +85,12 @@ export const rejectEvent = asyncHandler(async (req, res) => {
     await eventService.rejectEvent(eventId, reason, req.user, req);
     return res.status(200).json(new ApiResponse(200, null, "Event rejected"));
 });
+
+/**
+ * GET /admin/events/:eventId/analytics
+ */
+export const getEventAnalytics = asyncHandler(async (req, res) => {
+    const { eventId } = req.params;
+    const result = await eventService.getEventAnalytics(eventId);
+    return res.status(200).json(new ApiResponse(200, result, "Event analytics fetched"));
+});

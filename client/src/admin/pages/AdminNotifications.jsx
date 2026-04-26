@@ -13,6 +13,7 @@ const ROLE_OPTIONS = ["student", "mentor", "society_head", "admin"];
 const AdminNotifications = () => {
     const [audience, setAudience] = useState("all");
     const [form, setForm] = useState({ title: "", body: "", campusId: "", roles: [], userIds: "" });
+    const [channels, setChannels] = useState(["in_app", "email"]);
     const [sending, setSending] = useState(false);
     const [result, setResult] = useState(null);
     const [logs, setLogs] = useState([]);
@@ -30,7 +31,7 @@ const AdminNotifications = () => {
     };
 
     const handleSend = async () => {
-        if (!form.title.trim() || !form.body.trim()) return;
+        if (!form.title.trim() || !form.body.trim() || channels.length === 0) return;
 
         setSending(true);
         setResult(null);
@@ -38,12 +39,14 @@ const AdminNotifications = () => {
             let res;
             if (audience === "custom") {
                 const userIds = form.userIds.split(",").map((s) => s.trim()).filter(Boolean);
+                // Note: targetedNotification currently doesn't support channels via UI payload in this implementation,
+                // but we could add it. We'll leave it as is since plan specifically targets broadcast.
                 res = await targetedNotification({ userIds, title: form.title, body: form.body });
             } else {
                 const filter = {};
                 if (audience === "campus" && form.campusId) filter.campusId = form.campusId;
                 if (audience === "role" && form.roles.length > 0) filter.roles = form.roles;
-                res = await broadcastNotification({ title: form.title, body: form.body, filter });
+                res = await broadcastNotification({ title: form.title, body: form.body, filter, channels });
             }
             setResult({ success: true, count: res.data?.data?.recipientCount });
             setForm({ title: "", body: "", campusId: "", roles: [], userIds: "" });
@@ -144,6 +147,30 @@ const AdminNotifications = () => {
                                 />
                             </div>
                         )}
+                    </div>
+
+                    {/* Channel Selection */}
+                    <div style={{ marginBottom: 24 }}>
+                        <label style={labelStyle}>Delivery Channels</label>
+                        <div style={{ display: "flex", gap: 12 }}>
+                            {["in_app", "email"].map((ch) => (
+                                <label key={ch} style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer", color: "#e2e8f0", fontSize: 14 }}>
+                                    <input 
+                                        type="checkbox" 
+                                        checked={channels.includes(ch)}
+                                        onChange={() => {
+                                            if (channels.includes(ch)) {
+                                                setChannels(channels.filter(c => c !== ch));
+                                            } else {
+                                                setChannels([...channels, ch]);
+                                            }
+                                        }}
+                                        style={{ accentColor: "#6366f1", width: 16, height: 16 }}
+                                    />
+                                    {ch === "in_app" ? "In-App / Socket" : "Email"}
+                                </label>
+                            ))}
+                        </div>
                     </div>
 
                     {/* Message Payload */}
