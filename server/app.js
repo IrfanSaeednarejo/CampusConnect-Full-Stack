@@ -37,6 +37,7 @@ import dashboardRouter from "./src/routes/dashboard.routes.js";
 import adminRouter from "./src/routes/admin.routes.js";
 import networkRouter from "./src/routes/network.routes.js";
 import taskRouter from "./src/routes/task.routes.js";
+import postRouter  from "./src/routes/post.routes.js";
 
 app.get("/", (_req, res) => res.json({ status: "ok", service: "CampusConnect API" }));
 app.get("/api/v1", (_req, res) => res.json({ status: "ok", version: "1.0.0" }));
@@ -58,6 +59,7 @@ app.use("/api/v1/dashboard", dashboardRouter);
 app.use("/api/v1/admin", adminRouter);
 app.use("/api/v1/network", networkRouter);
 app.use("/api/v1/tasks", taskRouter);
+app.use("/api/v1/posts", postRouter);
 
 app.use((err, _req, _res, next) => {
     if (err instanceof SyntaxError && err.status === 400 && "body" in err) {

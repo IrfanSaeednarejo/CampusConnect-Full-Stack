@@ -14,7 +14,7 @@ const reportSchema = new Schema(
         targetModel: {
             type: String,
             required: true,
-            enum: ["User", "Event", "Society", "StudyGroup", "MentorBooking", "Message"],
+            enum: ["User", "Event", "Society", "StudyGroup", "MentorBooking", "Message", "Post", "PostComment"],
         },
         reason: {
             type: String,

@@ -19,6 +19,7 @@ import agentReducer from './slices/agentSlice';
 import paymentReducer from './slices/paymentSlice';
 import sessionReducer from './slices/sessionSlice';
 import nexusReducer from './slices/nexusSlice';
+import feedReducer  from './slices/feedSlice';
 
 // Event Sub-System Slices
 import teamReducer from './slices/teamSlice';
@@ -46,6 +47,7 @@ const rootReducer = combineReducers({
   payments: paymentReducer,
   session: sessionReducer,
   nexus: nexusReducer,
+  feed:  feedReducer,
   
   // Event Engine Modules
   teams: teamReducer,

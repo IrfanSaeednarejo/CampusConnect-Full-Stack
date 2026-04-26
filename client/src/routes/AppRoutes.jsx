@@ -147,6 +147,7 @@ import PaymentHistory from "../pages/Payments/PaymentHistory";
 // ── Nexus AI + Tasks (AppShell) ─────────────────────────────────────────────
 import NexusPage from "../pages/Nexus/NexusPage";
 import TasksPage from "../pages/Student/TasksPage";
+import FeedPage  from "../pages/Feed/FeedPage";
 
 // ── Error Pages (no layout) ──────────────────────────────────────────────────
 import NotFound          from "../pages/NotFound";
@@ -254,6 +255,10 @@ export default function AppRoutes() {
 
           {/* ── Unified Dashboard ──────────────────── */}
           <Route path="/dashboard" element={<UnifiedDashboard />} />
+
+          {/* ── Feed ──────────────────────────────── */}
+          <Route path="/feed"                    element={<FeedPage />} />
+          <Route path="/feed/hashtag/:tag"        element={<FeedPage />} />
 
           {/* Legacy dashboard redirects → unified dashboard */}
           <Route path="/student/dashboard"  element={<Navigate to="/dashboard" replace />} />

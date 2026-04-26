@@ -11,17 +11,18 @@ import {
 /* ─── Nav item data ──────────────────────────────────────────────────────── */
 
 const CORE_NAV = [
-  { label: 'Dashboard', to: '/dashboard', icon: 'grid_view' },
-  { label: 'Nexus AI', to: '/nexus', icon: 'auto_awesome', highlight: true },
-  { label: 'Tasks', to: '/tasks', icon: 'task_alt' },
-  { label: 'Events', to: '/events', icon: 'event' },
-  { label: 'Societies', to: '/societies', icon: 'diversity_3' },
-  { label: 'Study Groups', to: '/study-groups', icon: 'groups' },
-  { label: 'Mentors', to: '/mentors', icon: 'school' },
+  { label: 'Dashboard',   to: '/dashboard', icon: 'grid_view' },
+  { label: 'Feed',        to: '/feed',      icon: 'dynamic_feed' },
+  { label: 'Nexus AI',   to: '/nexus',     icon: 'auto_awesome', highlight: true },
+  { label: 'Tasks',       to: '/tasks',     icon: 'task_alt' },
+  { label: 'Events',      to: '/events',    icon: 'event' },
+  { label: 'Societies',   to: '/societies', icon: 'diversity_3' },
+  { label: 'Study Groups',to: '/study-groups', icon: 'groups' },
+  { label: 'Mentors',     to: '/mentors',   icon: 'school' },
   { label: 'My Sessions', to: '/my-sessions', icon: 'calendar_month' },
-  { label: 'Network', to: '/network', icon: 'hub' },
-  { label: 'Notes', to: '/notes', icon: 'sticky_note_2' },
-  { label: 'Messages', to: '/messages', icon: 'chat_bubble' },
+  { label: 'Network',     to: '/network',   icon: 'hub' },
+  { label: 'Notes',       to: '/notes',     icon: 'sticky_note_2' },
+  { label: 'Messages',    to: '/messages',  icon: 'chat_bubble' },
   { label: 'Notifications', to: '/notifications', icon: 'notifications' },
 ];
 

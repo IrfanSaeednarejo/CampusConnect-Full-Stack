@@ -18,6 +18,10 @@ export const NOTIFICATION_TYPES = [
     "nexus_action",
     "connection_request",
     "connection_accepted",
+    "post_reaction",
+    "post_comment",
+    "post_mention",
+    "post_repost",
 ];
 
 export const NOTIFICATION_REF_MODELS = [
@@ -29,6 +33,8 @@ export const NOTIFICATION_REF_MODELS = [
     "User",
     "Task",
     "NexusConversation",
+    "Post",
+    "PostComment",
 ];
 
 const notificationSchema = new Schema(
