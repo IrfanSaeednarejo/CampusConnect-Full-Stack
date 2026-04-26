@@ -8,6 +8,7 @@ import { Event } from "../models/event.model.js";
 import { paginate } from "../utils/paginate.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
 import { systemEvents } from "../utils/events.js";
+import { sendEmail } from "./email.service.js";
 
 const uploadFile = async (localPath) => {
     if (!localPath) return null;
@@ -408,6 +409,17 @@ export const approveMember = async (societyId, memberId, requestUser) => {
         actorId: requestUser._id
     });
 
+    // Email the approved member
+    const memberUser = await User.findById(memberId).select("email profile.firstName");
+    if (memberUser) {
+        sendEmail(memberUser.email, "join_request_resolved", {
+            firstName: memberUser.profile.firstName,
+            societyName: society.name,
+            accepted: true,
+            societyId: society._id.toString(),
+        });
+    }
+
     return { memberId, status: "approved" };
 };
 
@@ -432,6 +444,17 @@ export const rejectMember = async (societyId, memberId, requestUser) => {
         refModel: "Society",
         actorId: requestUser._id
     });
+
+    // Email the rejected member
+    const memberUser = await User.findById(memberId).select("email profile.firstName");
+    if (memberUser) {
+        sendEmail(memberUser.email, "join_request_resolved", {
+            firstName: memberUser.profile.firstName,
+            societyName: society.name,
+            accepted: false,
+            societyId: society._id.toString(),
+        });
+    }
 
     return { memberId, status: "rejected" };
 };

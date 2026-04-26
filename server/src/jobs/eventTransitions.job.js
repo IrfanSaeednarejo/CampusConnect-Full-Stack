@@ -1,7 +1,8 @@
 import { Event } from "../models/event.model.js";
 import { systemEvents } from "../utils/events.js";
 import { emitStatusChange } from "../sockets/event.socket.js";
-
+import { User } from "../models/user.model.js";
+import { sendEmail } from "../services/email.service.js";
 
 const JOB_INTERVAL_MS = 60 * 1000;
 
@@ -103,7 +104,8 @@ export const runEventTransitions = async (app) => {
                 $gt: now,
                 $lte: in24Hours,
             },
-        }).select("_id title submissionDeadline _reminderSent");
+            _reminderSent: { $ne: true }, // IMPORTANT: Prevent spam
+        }).select("_id title submissionDeadline _reminderSent registrations venue startAt");
 
         for (const event of approaching) {
             systemEvents.emit("notification:create:bulk", {
@@ -115,6 +117,32 @@ export const runEventTransitions = async (app) => {
                 refModel: "Event",
                 actorId: null,
             });
+
+            // Email all registered participants
+            if (event.registrations && event.registrations.length > 0) {
+                const userIds = event.registrations.map(r => r.userId);
+                const participants = await User.find({ _id: { $in: userIds } }).select("email profile.firstName");
+                
+                const eventDate = event.startAt 
+                    ? new Date(event.startAt).toLocaleString("en-US", { dateStyle: "full", timeStyle: "short" })
+                    : "TBD";
+                const venueStr = event.venue?.type === "online" 
+                    ? (event.venue?.onlineUrl || "Online") 
+                    : (event.venue?.address || "See event page");
+
+                for (const user of participants) {
+                    sendEmail(user.email, "event_reminder", {
+                        firstName: user.profile.firstName,
+                        eventTitle: event.title,
+                        eventDate,
+                        venue: venueStr,
+                        eventId: event._id.toString(),
+                    });
+                }
+            }
+
+            // Mark reminder as sent so we don't spam them every minute
+            await Event.findByIdAndUpdate(event._id, { $set: { _reminderSent: true } });
         }
 
     } catch (err) {

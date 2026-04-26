@@ -266,15 +266,6 @@ userSchema.index(
     { createdAt: -1 },
     { partialFilterExpression: { status: "active" } }
 );
-userSchema.index(
-    { emailVerificationExpiry: 1 },
-    { expireAfterSeconds: 0, sparse: true }
-);
-
-userSchema.index(
-    { passwordResetExpiry: 1 },
-    { expireAfterSeconds: 0, sparse: true }
-);
 userSchema.pre("save", async function (next) {
     if (!this.isModified("password")) return next();
     this.password = await bcrypt.hash(this.password, 12);

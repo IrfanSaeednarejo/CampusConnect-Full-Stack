@@ -3,6 +3,7 @@ import { User } from "../models/user.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { emitToUser } from "../sockets/index.js";
 import { systemEvents } from "../utils/events.js";
+import { sendEmail } from "./email.service.js";
 
 const SAFE_SELECT = "profile.displayName profile.avatar profile.firstName profile.lastName profile.bio roles campusId interests";
 
@@ -68,6 +69,16 @@ export const sendRequest = async (requesterId, recipientId) => {
             actorId: requesterId
         });
 
+        // Email the recipient
+        const recipientUserDoc = await User.findById(recipientId).select("email profile.firstName");
+        if (recipientUserDoc) {
+            sendEmail(recipientUserDoc.email, "connection_request", {
+                firstName: recipientUserDoc.profile.firstName,
+                senderName: populated.requester.profile.displayName,
+                profileUrl: `${process.env.CLIENT_URL || "http://localhost:5173"}/users/${requesterId}`,
+            });
+        }
+
         return populated;
     }
 
@@ -89,6 +100,16 @@ export const sendRequest = async (requesterId, recipientId) => {
         refModel: "User",
         actorId: requesterId
     });
+
+    // Email the recipient
+    const recipientUserDoc = await User.findById(recipientId).select("email profile.firstName");
+    if (recipientUserDoc) {
+        sendEmail(recipientUserDoc.email, "connection_request", {
+            firstName: recipientUserDoc.profile.firstName,
+            senderName: populated.requester.profile.displayName,
+            profileUrl: `${process.env.CLIENT_URL || "http://localhost:5173"}/users/${requesterId}`,
+        });
+    }
 
     return populated;
 };

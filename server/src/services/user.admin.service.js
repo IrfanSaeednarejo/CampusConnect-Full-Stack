@@ -7,6 +7,7 @@ import { paginate } from "../utils/paginate.js";
 import { writeAuditLog } from "../utils/auditLog.js";
 import { emitEvent } from "../utils/eventBus.js";
 import { emitToUser } from "../sockets/index.js";
+import { sendEmail } from "./email.service.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -129,9 +130,14 @@ export const updateUserStatus = async (userId, status, reason, adminUser, req) =
         payload: { status, reason: reason?.trim() || "" }
     });
 
-    // Real-time Socket Trigger
+    // Real-time Socket Trigger & Email
     if (status === "suspended") {
-        emitToUser(target._id, "user:suspension", { reason: reason?.trim() || "Administrative suspension" });
+        const suspendMessage = reason?.trim() || "Administrative suspension";
+        emitToUser(target._id, "user:suspension", { reason: suspendMessage });
+        sendEmail(target.email, "user_suspended", {
+            firstName: target.profile?.firstName || target.profile?.displayName,
+            reason: suspendMessage,
+        });
     }
 
     return updated;
@@ -213,6 +219,7 @@ export const bulkSuspend = async (userIds, reason, adminUser, req) => {
         const batch = filteredIds.slice(i, i + BATCH_SIZE);
 
         try {
+            const suspendMessage = reason?.trim() || "Bulk suspension";
             const result = await User.updateMany(
                 {
                     _id: { $in: batch },
@@ -225,13 +232,23 @@ export const bulkSuspend = async (userIds, reason, adminUser, req) => {
                 {
                     $set: {
                         status: "suspended",
-                        suspendReason: reason?.trim() || "Bulk suspension",
+                        suspendReason: suspendMessage,
                         suspendedAt: new Date(),
                         suspendedBy: adminUser._id,
                     },
                     $inc: { tokenVersion: 1 },
                 }
             );
+
+            // Fetch the successfully suspended users to send them an email
+            const suspendedUsers = await User.find({ _id: { $in: batch }, status: "suspended" }).select("email profile.firstName profile.displayName");
+            for (const user of suspendedUsers) {
+                sendEmail(user.email, "user_suspended", {
+                    firstName: user.profile?.firstName || user.profile?.displayName,
+                    reason: suspendMessage,
+                });
+            }
+
             succeeded.push(...batch.slice(0, result.modifiedCount));
         } catch (err) {
             failed.push(...batch);

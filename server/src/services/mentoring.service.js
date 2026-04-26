@@ -6,6 +6,7 @@ import { MentorReview } from "../models/mentorReview.model.js";
 import { MentorSession } from "../models/mentorSession.model.js";
 import { ChatMessage } from "../models/chatMessage.model.js";
 import { emitEvent, EventTypes } from "../utils/eventBus.js";
+import { sendEmail } from "./email.service.js";
 import crypto from "crypto";
 import { User } from "../models/user.model.js";
 import { paginate } from "../utils/paginate.js";
@@ -286,6 +287,19 @@ export const bookSession = async (mentorId, data, requestUser) => {
             date: start.toDateString()
         }
     });
+
+    // Email the mentor about the new booking request
+    const mentorUserDoc = await User.findById(mentor.userId).select("email profile.firstName");
+    if (mentorUserDoc) {
+        sendEmail(mentorUserDoc.email, "mentor_booking_request", {
+            mentorFirstName: mentorUserDoc.profile.firstName,
+            studentName: requestUser.profile.displayName,
+            sessionDate: start.toLocaleString("en-US", { dateStyle: "full", timeStyle: "short" }),
+            topic: topic?.trim() || "General mentoring session",
+            bookingId: booking._id.toString(),
+        });
+    }
+
     return created;
 };
 
@@ -328,6 +342,17 @@ export const confirmBooking = async (bookingId, data, requestUser) => {
             bookingId: updated._id
         }
     });
+
+    // Email the mentee about the confirmed booking
+    const menteeUserDoc = await User.findById(booking.menteeId).select("email profile.firstName");
+    if (menteeUserDoc) {
+        sendEmail(menteeUserDoc.email, "mentor_booking_status", {
+            studentFirstName: menteeUserDoc.profile.firstName,
+            mentorName: requestUser.profile.displayName,
+            sessionDate: booking.startAt.toLocaleString("en-US", { dateStyle: "full", timeStyle: "short" }),
+            status: "confirmed",
+        });
+    }
 
     return updated;
 };

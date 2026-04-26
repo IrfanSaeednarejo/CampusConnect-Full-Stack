@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Society } from "../models/society.model.js";
 import { EntityRequest } from "../models/entityRequest.model.js";
+import { sendEmail } from "./email.service.js";
 import { Event } from "../models/event.model.js";
 import { Chat } from "../models/chat.model.js";
 import { User } from "../models/user.model.js";
@@ -105,6 +106,23 @@ export const adminCreateSociety = async (data, adminUser, req) => {
         actorId: adminUser._id,
         targetId: society._id,
         payload: { name: society.name, headUserId }
+    });
+
+    // Notify the user they are now the society head
+    systemEvents.emit("notification:create", {
+        userId: headUserId,
+        type: "society_update",
+        title: "Society Head Role Assigned",
+        body: `You have been assigned as the head of "${society.name}".`,
+        ref: society._id,
+        refModel: "Society",
+        actorId: adminUser._id,
+    });
+
+    sendEmail(head.email, "society_head_assigned", {
+        firstName: head.profile?.firstName || head.profile?.displayName,
+        societyName: society.name,
+        societyId: society._id.toString(),
     });
 
     return society;
@@ -322,6 +340,13 @@ export const reassignSocietyHead = async (societyId, newHeadUserId, adminUser, r
         ref: society._id,
         refModel: "Society",
         actorId: adminUser._id,
+    });
+
+    // Email the new head
+    sendEmail(newHead.email, "society_head_assigned", {
+        firstName: newHead.profile?.firstName || newHead.profile?.displayName,
+        societyName: society.name,
+        societyId: society._id.toString(),
     });
 
     // Optional: Notify the previous head if needed

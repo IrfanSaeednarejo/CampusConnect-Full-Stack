@@ -8,6 +8,7 @@ import { writeAuditLog } from "../utils/auditLog.js";
 import { ADMIN_ACTIONS } from "../models/adminAuditLog.model.js";
 import { systemEvents } from "../utils/events.js";
 import { emitEvent } from "../utils/eventBus.js";
+import { sendEmail } from "./email.service.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -104,6 +105,15 @@ export const verifyMentor = async (mentorId, adminUser, req) => {
         payload: { userId: mentor.userId }
     });
 
+    // Email the verified mentor
+    const mentorUserVerified = await User.findById(mentor.userId).select("email profile.firstName");
+    if (mentorUserVerified) {
+        sendEmail(mentorUserVerified.email, "mentor_application", {
+            firstName: mentorUserVerified.profile.firstName,
+            status: "approved",
+        });
+    }
+
     return updated;
 };
 
@@ -137,6 +147,15 @@ export const rejectMentor = async (mentorId, reason, adminUser, req) => {
         targetId: mentor._id,
         payload: { reason: reason?.trim() || "", userId: mentor.userId }
     });
+
+    // Email the rejected applicant
+    const mentorUser = await User.findById(mentor.userId).select("email profile.firstName");
+    if (mentorUser) {
+        sendEmail(mentorUser.email, "mentor_application", {
+            firstName: mentorUser.profile.firstName,
+            status: "rejected",
+        });
+    }
 
     // Delete the application so the user can reapply and it's removed from pending queues
     await Mentor.findByIdAndDelete(mentor._id);

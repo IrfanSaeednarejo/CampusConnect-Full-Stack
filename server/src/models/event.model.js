@@ -204,6 +204,7 @@ const eventSchema = new Schema(
         scoringPublished: { type: Boolean, default: false },
         prizePool: { type: [prizeSchema], default: [] },
         announcements: { type: [announcementSchema], default: [] },
+        _reminderSent: { type: Boolean, default: false },
 
         // ── Admin Approval Layer ───────────────────────────────────────────────
         approvalStatus: {

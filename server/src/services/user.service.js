@@ -6,7 +6,7 @@ import { User } from "../models/user.model.js";
 import { Society } from "../models/society.model.js";
 import { Connection } from "../models/connection.model.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
-// import { sendEmail } from "../utils/mailer.js"; // Uncomment when mailer is implemented
+import { sendEmail } from "./email.service.js";
 
 export const SAFE_SELECT =
     "-password -refreshToken -tokenVersion " +
@@ -101,13 +101,11 @@ export const register = async (data, files) => {
     const rawVerifyToken = user.generateEmailVerificationToken();
     await user.save({ validateBeforeSave: false });
 
-    // TODO: uncomment when mailer is wired up
-    // await sendEmail({
-    //     to: user.email,
-    //     subject: "Verify your CampusConnect account",
-    //     template: "emailVerification",
-    //     data: { token: rawVerifyToken, firstName: user.profile.firstName },
-    // });
+    const verifyUrl = `${process.env.CLIENT_URL || "http://localhost:5173"}/verify-email?token=${rawVerifyToken}`;
+    sendEmail(user.email, "welcome_verification", {
+        firstName: user.profile.firstName,
+        verifyUrl,
+    });
 
     const created = await User.findById(user._id).select(SAFE_SELECT);
     const { accessToken, refreshToken } = await issueTokens(user);
@@ -238,7 +236,11 @@ export const forgotPassword = async (email) => {
         const rawToken = user.generatePasswordResetToken();
         await user.save({ validateBeforeSave: false });
 
-        // TODO: await sendEmail
+        const resetUrl = `${process.env.CLIENT_URL || "http://localhost:5173"}/reset-password/${rawToken}`;
+        sendEmail(user.email, "password_reset", {
+            firstName: user.profile.firstName,
+            resetUrl,
+        });
     }
     return true;
 };
@@ -254,6 +256,7 @@ export const resetPassword = async (token, passwords) => {
     const user = await User.findByPasswordResetToken(token);
     if (!user) throw new ApiError(400, "Reset token is invalid or has expired — please request a new one");
 
+    const resetUser = user; // capture before clearing
     user.password = password;
     user.passwordResetToken = undefined;
     user.passwordResetExpiry = undefined;
@@ -261,6 +264,7 @@ export const resetPassword = async (token, passwords) => {
     user.refreshToken = undefined;
 
     await user.save();
+    sendEmail(resetUser.email, "password_changed", { firstName: resetUser.profile.firstName });
     return true;
 };
 
@@ -288,6 +292,7 @@ export const changePassword = async (userId, passwords) => {
     user.tokenVersion += 1;
     user.refreshToken = undefined;
     await user.save();
+    sendEmail(user.email, "password_changed", { firstName: user.profile.firstName });
     return true;
 };
 

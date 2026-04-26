@@ -8,6 +8,8 @@ import { EventScore } from "../models/eventScore.model.js";
 import { paginate } from "../utils/paginate.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
 import { systemEvents } from "../utils/events.js";
+import { User } from "../models/user.model.js";
+import { sendEmail } from "./email.service.js";
 import {
     emitStatusChange,
     emitAnnouncement,
@@ -414,6 +416,22 @@ export const transitionState = async (eventId, data, io, requestUser) => {
         actorId: requestUser._id,
     });
 
+    // Email registered participants if the event is cancelled or registration opens
+    if (["cancelled", "registration"].includes(newStatus) && event.registrations?.length > 0) {
+        const userIds = event.registrations.map(r => r.userId);
+        const participants = await User.find({ _id: { $in: userIds } }).select("email profile.firstName");
+        for (const user of participants) {
+            sendEmail(user.email, "event_update", {
+                firstName: user.profile.firstName,
+                eventTitle: event.title,
+                changeNote: newStatus === "cancelled" 
+                    ? `This event has been cancelled. Reason: ${reason || "Not provided."}`
+                    : "Registration is now officially open! Make sure your team is formed.",
+                eventId: event._id.toString()
+            });
+        }
+    }
+
     return updated;
 };
 
@@ -462,6 +480,20 @@ export const postAnnouncement = async (eventId, data, io, requestUser) => {
         refModel: "Event",
         actorId: requestUser._id,
     });
+
+    // Email participants about the announcement
+    if (event.registrations && event.registrations.length > 0) {
+        const userIds = event.registrations.map(r => r.userId);
+        const participants = await User.find({ _id: { $in: userIds } }).select("email profile.firstName");
+        for (const user of participants) {
+            sendEmail(user.email, "event_update", {
+                firstName: user.profile.firstName,
+                eventTitle: event.title,
+                changeNote: `New Announcement: ${content.trim()}`,
+                eventId: event._id.toString()
+            });
+        }
+    }
 
     return newAnnouncement;
 };
@@ -628,6 +660,25 @@ export const registerForEvent = async (eventId, data, file, requestUser) => {
         { $push: { registrations: newRegistration } },
         { new: true, runValidators: true }
     );
+
+    // Send confirmation email (fire-and-forget)
+    const registrantUser = await User.findById(requestUser._id).select("email profile.firstName");
+    if (registrantUser) {
+        const eventDate = event.startAt
+            ? new Date(event.startAt).toLocaleString("en-US", { dateStyle: "full", timeStyle: "short" })
+            : "TBD";
+        const venue = event.venue?.type === "online"
+            ? (event.venue?.onlineUrl || "Online — see event page")
+            : (event.venue?.address || "See event page");
+
+        sendEmail(registrantUser.email, "event_registration", {
+            firstName: registrantUser.profile.firstName,
+            eventTitle: event.title,
+            eventDate,
+            venue,
+            eventId: event._id.toString(),
+        });
+    }
 
     return updated.registrations[updated.registrations.length - 1];
 };

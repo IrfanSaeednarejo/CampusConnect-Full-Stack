@@ -180,6 +180,7 @@ export default function AppRoutes() {
         <Route path="/forgot-password" element={<ForgotPassword />} />
       </Route>
       <Route path="/reset-password/:token" element={<ResetPassword />} />
+      <Route path="/suspended" element={<SuspendedPage />} />
       <Route path="/logout"          element={<Logout />} />
 
       {/* ══════════════════════════════════════════════════
