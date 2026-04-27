@@ -30,7 +30,8 @@ export const issueTokens = async (user) => {
     return { accessToken, refreshToken };
 };
 
-const applyPrivacyFilter = (target, requestingUserId) => {
+const applyPrivacyFilter = (targetDoc, requestingUserId) => {
+    const target = targetDoc.toObject ? targetDoc.toObject() : targetDoc;
     const isSelf = target._id?.toString() === requestingUserId?.toString();
     if (isSelf) return target;
 
@@ -38,7 +39,9 @@ const applyPrivacyFilter = (target, requestingUserId) => {
     const filtered = { ...target };
 
     if (!prefs.showEmail) delete filtered.email;
-    if (!prefs.showPhone) delete filtered.profile?.phone;
+    if (!prefs.showPhone) {
+        if (filtered.profile) delete filtered.profile.phone;
+    }
     if (!prefs.showOnlineStatus) delete filtered.lastLoginAt;
 
     delete filtered.preferences;
@@ -297,7 +300,7 @@ export const changePassword = async (userId, passwords) => {
 };
 
 export const getCurrentUser = async (userId) => {
-    const user = await User.findById(userId).select(SAFE_SELECT).lean();
+    const user = await User.findById(userId).select(SAFE_SELECT);
     return user;
 };
 
@@ -306,9 +309,8 @@ export const getProfile = async (targetId, requestUser) => {
         .select(
             "profile academic interests socialLinks roles campusId " +
             "preferences.privacy lastLoginAt status mentorVerification " +
-            "societyHeadVerification createdAt"
-        )
-        .lean();
+            "societyHeadVerification createdAt experience projects eventParticipation achievements"
+        );
 
     if (!target || target.status === "deleted") {
         throw new ApiError(404, "User not found");
@@ -328,7 +330,7 @@ export const getProfile = async (targetId, requestUser) => {
 };
 
 export const updateAccount = async (userId, userObj, updatesData) => {
-    const { firstName, lastName, displayName, bio, phone, email } = updatesData;
+    const { firstName, lastName, displayName, bio, phone, email, headline, location } = updatesData;
 
     const updates = {};
 
@@ -336,6 +338,8 @@ export const updateAccount = async (userId, userObj, updatesData) => {
     if (lastName) updates["profile.lastName"] = lastName.trim().toLowerCase();
     if (bio !== undefined) updates["profile.bio"] = bio.trim();
     if (phone !== undefined) updates["profile.phone"] = phone.trim();
+    if (headline !== undefined) updates["profile.headline"] = headline.trim();
+    if (location !== undefined) updates["profile.location"] = location.trim();
 
     if (displayName) {
         const dn = displayName.trim().toLowerCase();

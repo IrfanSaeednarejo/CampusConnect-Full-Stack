@@ -375,6 +375,8 @@ const userSchema = new Schema(
     {
         timestamps: true,
         versionKey: false,
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true }
     }
 );
 

@@ -190,7 +190,7 @@ export default function MentorPublicProfile() {
   return (
     <div className="flex flex-col h-full overflow-y-auto bg-[#0d1117]">
       {/* ── Hero Section ── */}
-      <div className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, #0d1117 0%, #111827 50%, #0d1117 100%)" }}>
+      <div className="relative" style={{ background: "linear-gradient(135deg, #0d1117 0%, #111827 50%, #0d1117 100%)" }}>
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-slate-500/5 rounded-full blur-3xl pointer-events-none" />
 
@@ -231,7 +231,11 @@ export default function MentorPublicProfile() {
                 )}
               </div>
               <p className="text-emerald-400 font-medium capitalize mt-1">{mentor.categories?.join(", ")} Mentor</p>
-              {academic?.department && <p className="text-slate-500 text-sm mt-1">{academic.department} {academic.degree && `· ${academic.degree}`}</p>}
+              {profile.headline && <p className="text-slate-300 text-sm mt-1">{profile.headline}</p>}
+              <div className="flex items-center gap-2 flex-wrap mt-1 text-slate-500 text-sm">
+                  {profile.location && <span className="flex items-center gap-1"><span className="material-symbols-outlined text-[14px]">location_on</span>{profile.location}</span>}
+                  {academic?.department && <span>{profile.location ? "· " : ""}{academic.department} {academic.degree && `· ${academic.degree}`}</span>}
+              </div>
 
               {/* Rating row */}
               <div className="flex items-center gap-3 mt-3">
