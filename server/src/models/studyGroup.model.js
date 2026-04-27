@@ -139,7 +139,7 @@ const studyGroupSchema = new Schema(
             type: Number,
             default: 20,
             min: [2, "A study group needs at least 2 members"],
-            max: [100, "A study group cannot exceed 100 members"],
+            max: [1000, "A study group cannot exceed 1000 members"],
         },
 
         groupResources: {

@@ -17,7 +17,6 @@ const postCommentSchema = new Schema(
             required: [true, "Author is required"],
         },
 
-        // null = top-level comment, ObjectId = reply
         parentId: {
             type: Schema.Types.ObjectId,
             ref: "PostComment",
@@ -37,16 +36,16 @@ const postCommentSchema = new Schema(
         reactions: [
             {
                 userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
-                type:   { type: String, enum: REACTION_TYPES, required: true },
-                _id:    false,
+                type: { type: String, enum: REACTION_TYPES, required: true },
+                _id: false,
             },
         ],
 
         replyCount: { type: Number, default: 0, min: 0 },
-        isEdited:   { type: Boolean, default: false },
+        isEdited: { type: Boolean, default: false },
 
         // Soft delete — body replaced with "[deleted]"
-        isDeleted:  { type: Boolean, default: false },
+        isDeleted: { type: Boolean, default: false },
     },
     { timestamps: true, versionKey: false }
 );
