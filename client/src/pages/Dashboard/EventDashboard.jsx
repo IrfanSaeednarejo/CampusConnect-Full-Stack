@@ -133,7 +133,7 @@ export default function EventDashboard() {
       {/* Sidebar */}
       <aside className="fixed left-0 top-0 h-full w-64 bg-[#0D1117] border-r border-[#30363D] p-4 flex flex-col hidden lg:flex">
         <h2 className="text-xl font-bold text-[#E6EDF3] mb-6 mt-4">
-          CampusConnect
+          CampusNexus
         </h2>
         <div className="flex flex-col gap-4">
           {/* Search */}

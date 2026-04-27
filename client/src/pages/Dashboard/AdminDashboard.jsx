@@ -85,7 +85,7 @@ export default function AdminDashboard() {
         <header className="mb-10 text-center md:text-left">
           <h1 className="text-4xl font-extrabold text-white tracking-tight mb-2">Central Admin Control</h1>
           <p className="text-gray-400 max-w-2xl text-lg">
-            Welcome to the CampusConnect Master Interface. Monitor, manage, and scale your institutional ecosystem from one central hub.
+            Welcome to the CampusNexus Master Interface. Monitor, manage, and scale your institutional ecosystem from one central hub.
           </p>
         </header>
 

@@ -1,5 +1,5 @@
 export default function LoadingScreen({
-  title = "Loading CampusConnect...",
+  title = "Loading CampusNexus...",
   message = "Bringing campus life to your screen!",
   footer = "This should only take a moment.",
 }) {

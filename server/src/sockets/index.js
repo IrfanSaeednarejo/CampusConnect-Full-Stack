@@ -24,7 +24,7 @@ export const initializeSocket = (httpServer) => {
     const io = new Server(httpServer, {
         cors: {
             origin: [
-                "https://campus-connect-full-stack.vercel.app",
+                "https://campus-nexus-full-stack.vercel.app",
                 "http://localhost:5173",
             ],
             credentials: true,

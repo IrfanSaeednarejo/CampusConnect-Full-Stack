@@ -139,7 +139,7 @@ const AdminApp = () => {
                         WebkitBackgroundClip: "text",
                         WebkitTextFillColor: "transparent"
                     }}>
-                        CampusConnect
+                        CampusNexus
                     </div>
                     <div style={{ color: "#64748b", fontSize: 10, fontWeight: 800, marginTop: 4, letterSpacing: "0.1em" }}>
                         ADMINISTRATIVE PORTAL

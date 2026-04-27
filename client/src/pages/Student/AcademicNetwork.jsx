@@ -101,7 +101,7 @@ export default function AcademicNetwork() {
               ></path>
             </svg>
             <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-              CampusConnect
+              CampusNexus
             </h2>
           </div>
           <div className="hidden md:flex flex-1 justify-end gap-8">

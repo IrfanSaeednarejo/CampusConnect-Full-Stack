@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import Button from "../common/Button";
 
 /**
- * A reusable, premium confirmation modal for CampusConnect.
+ * A reusable, premium confirmation modal for CampusNexus.
  * 
  * @param {boolean} isOpen - Controls visibility
  * @param {string} title - The heading of the modal
@@ -98,7 +98,7 @@ const ConfirmModal = ({
 
         <div className="bg-[#161b22]/50 p-4 border-t border-[#30363d]/50 text-center">
           <p className="text-[10px] text-[#484f58] font-bold uppercase tracking-[0.2em]">
-            CampusConnect Secure Operation Gate
+            CampusNexus Secure Operation Gate
           </p>
         </div>
       </div>

@@ -9,7 +9,7 @@ export default function FeatureTour() {
 			<PageContent maxWidth="max-w-4xl" className="py-12">
 				<SectionHeader
 					title="Feature Tour"
-					subtitle="A guided walk through the best of CampusConnect is coming soon."
+					subtitle="A guided walk through the best of CampusNexus is coming soon."
 				/>
 				<Card className="mt-10" padding="p-10">
 					<EmptyState

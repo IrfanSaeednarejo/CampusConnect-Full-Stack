@@ -62,14 +62,14 @@ export default function GlobalNavbar({ onMenuToggle }) {
       <Link
         to="/dashboard"
         className="flex items-center gap-2 shrink-0"
-        aria-label="CampusConnect Dashboard"
+        aria-label="CampusNexus Dashboard"
       >
         <span className="w-7 h-7 rounded-md bg-[#238636] flex items-center justify-center text-white font-bold text-sm">
           CC
         </span>
         <div className="hidden sm:flex items-center">
           <span className="text-[#e6edf3] font-semibold text-sm tracking-tight">
-            CampusConnect
+            CampusNexus
           </span>
           {activeCampus && (
             <span className="inline-flex items-center px-1.5 py-0.5 ml-2 rounded text-[10px] font-medium bg-[#1f6feb]/20 text-[#58a6ff] uppercase tracking-wider">

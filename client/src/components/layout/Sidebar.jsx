@@ -12,7 +12,7 @@ export default function Sidebar() {
                 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuByHDKs6VLKKg0tivmOOz9TQ-8vono2ty3KY16w06RsABgFGlPaZBbajp_j7DnJ8M2TWVe9YUs_ziqa5E1inc09THc6UAqVQpNASwI1BAPi-du_2FupZ21f-RAAHcnZdVlgytCuoAILhOCB7Op93usaVvDKvYhPdJDKDxMdnVNYB7gSi_c6jZuNe67pgvBT9L6vc4htdTQ6s4lXm7w6g3jooaDixQvdx8VJwcO2ZUQ0ILQly30bWli-W6oMNM_8tzX6_8haj1KXJUk")',
             }}
           ></div>
-          <h1 className="text-white text-lg font-semibold">CampusConnect</h1>
+          <h1 className="text-white text-lg font-semibold">CampusNexus</h1>
         </div>
         <nav className="flex flex-col gap-2">
           <Link

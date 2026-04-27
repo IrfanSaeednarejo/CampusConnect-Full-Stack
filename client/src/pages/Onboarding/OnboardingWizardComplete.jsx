@@ -20,7 +20,7 @@ export default function OnboardingWizardComplete() {
         roleSelected: role || 'student'
       });
 
-      showSuccess(`Welcome to CampusConnect, ${user?.profile?.firstName || 'User'}!`);
+      showSuccess(`Welcome to CampusNexus, ${user?.profile?.firstName || 'User'}!`);
       
       // All users go to the unified dashboard
       navigate("/dashboard", { replace: true });

@@ -61,7 +61,7 @@ export default function EventReminderEmail({ studentName, eventTitle, eventDate,
 
         <div style={ctaContainerStyle}>
           <a
-            href="https://campusconnect.com/events"
+            href="https://campusnexus.com/events"
             style={ctaButtonStyle}
           >
             View Event Details
@@ -69,14 +69,14 @@ export default function EventReminderEmail({ studentName, eventTitle, eventDate,
         </div>
 
         <p style={paragraphStyle}>
-          We look forward to seeing you there! If you have any questions about the event, feel free to contact the event organizers through the CampusConnect platform.
+          We look forward to seeing you there! If you have any questions about the event, feel free to contact the event organizers through the CampusNexus platform.
         </p>
 
         <hr style={dividerStyle} />
 
         <p style={footerStyle}>
           Best regards,<br />
-          <strong>CampusConnect Events Team</strong>
+          <strong>CampusNexus Events Team</strong>
         </p>
 
         <p style={disclaimerStyle}>

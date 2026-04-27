@@ -103,7 +103,7 @@ export default function MembersSection({ members, isCoordinator, groupId }) {
                             <span className="bg-[#238636]/20 text-[#3fb950] text-[10px] px-2 py-0.5 rounded-full border border-[#238636]/30 font-bold uppercase">Leader</span>
                         )}
                     </div>
-                    <p className="text-xs text-[#8b949e] mt-0.5">{m.memberId?.academic?.department || "Campus Connect Student"}</p>
+                    <p className="text-xs text-[#8b949e] mt-0.5">{m.memberId?.academic?.department || "Campus Nexus Student"}</p>
                 </div>
              </div>
           ))}

@@ -87,7 +87,7 @@ export default function Login() {
             </svg>
             <div className="flex flex-col gap-2">
               <p className="text-[#c9d1d9] text-2xl font-semibold leading-tight tracking-[-0.033em]">
-                Sign In to CampusConnect
+                Sign In to CampusNexus
               </p>
               <p className="text-[#8b949e] text-sm font-normal leading-normal">
                 Enter your credentials to access your personalized campus
@@ -143,7 +143,7 @@ export default function Login() {
 
           <div className="flex justify-center mt-6 p-4 border border-[#30363d] rounded-lg">
             <p className="text-[#8b949e] text-sm">
-              New to CampusConnect?{" "}
+              New to CampusNexus?{" "}
               <button
                 type="button"
                 onClick={() => navigate("/signup")}

@@ -26,7 +26,7 @@ export default function NoResults() {
                 </svg>
               </div>
               <h2 className="text-text-primary-dark text-lg font-bold leading-tight tracking-[-0.015em]">
-                CampusConnect
+                CampusNexus
               </h2>
             </div>
 
@@ -230,7 +230,7 @@ export default function NoResults() {
           </div>
 
           <p className="text-text-secondary-dark text-xs font-normal leading-normal">
-            © 2024 CampusConnect. All rights reserved.
+            © 2024 CampusNexus. All rights reserved.
           </p>
         </footer>
       </div>

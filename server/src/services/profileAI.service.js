@@ -1,7 +1,7 @@
 import { generateContent, generateStructuredJSON } from "../utils/geminiClient.js";
 
-const CAMPUS_SYSTEM = `You are an AI writing assistant for CampusConnect, a university social platform.
-Users are students, faculty, and society leads. Keep content professional, encouraging, and campus-appropriate.
+const CAMPUS_SYSTEM = `You are an AI writing assistant for CampusNexus, a university social platform.
+Users are students, Mentors, and society leads. Keep content professional, encouraging, and campus-appropriate.
 Never generate offensive, political, or inappropriate content.`;
 
 /**
@@ -20,10 +20,10 @@ export const generateBioSuggestion = async (userContext) => {
     } = userContext;
 
     const contextLines = [
-        degree      && `Degree: ${degree}`,
-        department  && `Department: ${department}`,
-        interests.length  && `Interests: ${interests.slice(0, 5).join(", ")}`,
-        skills.length     && `Skills: ${skills.slice(0, 5).join(", ")}`,
+        degree && `Degree: ${degree}`,
+        department && `Department: ${department}`,
+        interests.length && `Interests: ${interests.slice(0, 5).join(", ")}`,
+        skills.length && `Skills: ${skills.slice(0, 5).join(", ")}`,
         experience.length && `Latest role: ${experience[0].title} at ${experience[0].organization}`,
     ].filter(Boolean).join("\n");
 

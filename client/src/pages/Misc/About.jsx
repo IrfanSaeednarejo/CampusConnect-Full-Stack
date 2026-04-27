@@ -11,7 +11,7 @@ export default function AboutUs() {
         {/* Header */}
         <div className="mb-12">
           <SectionHeader
-            title="About CampusConnect"
+            title="About CampusNexus"
             subtitle="Connecting students, mentors, and societies to create a thriving campus ecosystem."
             align="left"
           />
@@ -22,7 +22,7 @@ export default function AboutUs() {
           <Card padding="p-6">
             <h2 className="text-2xl font-bold mb-4">Our Mission</h2>
             <p className="text-[#8b949e] leading-relaxed">
-              CampusConnect is dedicated to breaking down barriers and fostering
+              CampusNexus is dedicated to breaking down barriers and fostering
               meaningful connections across campus. We believe that every
               student deserves access to mentorship, opportunities, and a
               community that supports their growth. By uniting students,
@@ -81,7 +81,7 @@ export default function AboutUs() {
         <Card className="text-center">
           <h2 className="text-2xl font-bold mb-4">Join Our Team</h2>
           <p className="text-[#8b949e] mb-6">
-            Interested in joining the CampusConnect team? We're always looking
+            Interested in joining the CampusNexus team? We're always looking
             for passionate individuals to help us build the future of campus
             connectivity.
           </p>

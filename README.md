@@ -1,12 +1,12 @@
-# 🎓 CampusConnect
+# 🎓 CampusNexus
 
-**CampusConnect** is an advanced university management web application crafted to unify and elevate the student, mentor, and society experience. Featuring a visually elegant, developer-friendly dark theme, the platform integrates key campus workflows, event and society management, academic collaboration, mentoring, and real-time communication—all powered by scalable modern technologies.
+**CampusNexus** is an advanced university management web application crafted to unify and elevate the student, mentor, and society experience. Featuring a visually elegant, developer-friendly dark theme, the platform integrates key campus workflows, event and society management, academic collaboration, mentoring, and real-time communication—all powered by scalable modern technologies.
 
 ---
 
 ## 🚀 Overview
 
-CampusConnect sets a high bar for campus engagement, combining robust technology, intelligent automation, and a beautiful, accessible design system. The application provides an ecosystem where students, mentors, and administrators collaborate seamlessly in an intelligent digital environment.
+CampusNexus sets a high bar for campus engagement, combining robust technology, intelligent automation, and a beautiful, accessible design system. The application provides an ecosystem where students, mentors, and administrators collaborate seamlessly in an intelligent digital environment.
 
 ---
 
@@ -69,7 +69,7 @@ Create a .env file in both client and server directories:
 ---
 
 🤝 Contributing as a Collaborator
-If someone adds you as a collaborator to the CampusConnect repository, you gain direct write access.
+If someone adds you as a collaborator to the CampusNexus repository, you gain direct write access.
 This means you can:
 
    - Clone and push changes directly to branches.

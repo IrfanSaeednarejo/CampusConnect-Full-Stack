@@ -1,6 +1,6 @@
 // InviteStudentEmail.jsx
 // Email template for student invitations to join societies/study groups
-// Used to invite students to join communities on CampusConnect
+// Used to invite students to join communities on CampusNexus
 
 import React from 'react';
 
@@ -17,7 +17,7 @@ export default function InviteStudentEmail({ invitedStudentName, inviterName, in
         </p>
 
         <p style={paragraphStyle}>
-          <strong>{inviterName}</strong> ({inviterRole}) has invited you to join <strong>{communityName}</strong> on CampusConnect!
+          <strong>{inviterName}</strong> ({inviterRole}) has invited you to join <strong>{communityName}</strong> on CampusNexus!
         </p>
 
         {customMessage && (
@@ -46,7 +46,7 @@ export default function InviteStudentEmail({ invitedStudentName, inviterName, in
         </div>
 
         <p style={paragraphStyle}>
-          CampusConnect communities help you:
+          CampusNexus communities help you:
         </p>
 
         <ul style={listStyle}>
@@ -72,18 +72,18 @@ export default function InviteStudentEmail({ invitedStudentName, inviterName, in
         <p style={linkStyle}>{joinLink}</p>
 
         <p style={paragraphStyle}>
-          If you're not interested in joining, you can simply ignore this email or decline the invitation in your CampusConnect account.
+          If you're not interested in joining, you can simply ignore this email or decline the invitation in your CampusNexus account.
         </p>
 
         <hr style={dividerStyle} />
 
         <p style={footerStyle}>
           Best regards,<br />
-          <strong>CampusConnect Community Team</strong>
+          <strong>CampusNexus Community Team</strong>
         </p>
 
         <p style={disclaimerStyle}>
-          You received this email because you were invited to a community on CampusConnect. 
+          You received this email because you were invited to a community on CampusNexus. 
           You can manage your invitations in your account settings.
         </p>
       </div>

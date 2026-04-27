@@ -39,7 +39,7 @@ import networkRouter from "./src/routes/network.routes.js";
 import taskRouter from "./src/routes/task.routes.js";
 import postRouter  from "./src/routes/post.routes.js";
 
-app.get("/", (_req, res) => res.json({ status: "ok", service: "CampusConnect API" }));
+app.get("/", (_req, res) => res.json({ status: "ok", service: "CampusNexus API" }));
 app.get("/api/v1", (_req, res) => res.json({ status: "ok", version: "1.0.0" }));
 
 

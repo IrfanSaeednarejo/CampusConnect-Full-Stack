@@ -1,5 +1,5 @@
 
-> campus-connect@0.0.1 build
+> campus-nexus@0.0.1 build
 > vite build
 
 [36mvite v5.4.21 [32mbuilding for production...[36m[39m

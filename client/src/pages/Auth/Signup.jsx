@@ -93,7 +93,7 @@ export default function Signup() {
             Create Your Account
           </p>
           <p className="text-[#9eb7a9] text-sm">
-            Join CampusConnect and unlock your potential.
+            Join CampusNexus and unlock your potential.
           </p>
         </div>
 

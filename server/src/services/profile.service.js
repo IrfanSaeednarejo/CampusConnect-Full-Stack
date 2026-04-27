@@ -1,7 +1,7 @@
-import { User }        from "../models/user.model.js";
+import { User } from "../models/user.model.js";
 import { ProfileView } from "../models/profileView.model.js";
 import { Notification } from "../models/notification.model.js";
-import { ApiError }    from "../utils/ApiError.js";
+import { ApiError } from "../utils/ApiError.js";
 import { v2 as cloudinary } from "cloudinary";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -24,7 +24,7 @@ export const uploadProjectImages = async (files = []) => {
         )
     );
     return {
-        urls:      results.map((r) => r.secure_url),
+        urls: results.map((r) => r.secure_url),
         publicIds: results.map((r) => r.public_id),
     };
 };
@@ -54,8 +54,8 @@ export const recordProfileView = async (profileOwnerId, viewerId) => {
     const view = await ProfileView.findOneAndUpdate(
         { profileOwner: profileOwnerId, viewer: viewerId },
         {
-            $set:  { viewedAt: now },
-            $inc:  { viewCount: 1 },
+            $set: { viewedAt: now },
+            $inc: { viewCount: 1 },
             $setOnInsert: { lastNotifiedAt: null },
         },
         { upsert: true, new: true }
@@ -73,12 +73,12 @@ export const recordProfileView = async (profileOwnerId, viewerId) => {
         const viewer = await User.findById(viewerId).select("profile.displayName profile.avatar").lean();
         if (viewer) {
             await Notification.create({
-                userId:   profileOwnerId,
-                type:     "profile_view",
-                title:    "Someone viewed your profile",
-                body:     `${viewer.profile?.displayName || "A user"} visited your profile.`,
-                actorId:  viewerId,
-                ref:      view._id,
+                userId: profileOwnerId,
+                type: "profile_view",
+                title: "Someone viewed your profile",
+                body: `${viewer.profile?.displayName || "A user"} visited your profile.`,
+                actorId: viewerId,
+                ref: view._id,
                 refModel: "ProfileView",
                 priority: "low",
             });
@@ -147,7 +147,7 @@ export const addProject = async (userId, data, files = []) => {
 
     user.projects.push({
         ...data,
-        images:         imageData.urls,
+        images: imageData.urls,
         imagePublicIds: imageData.publicIds,
     });
     await user.save();
@@ -163,7 +163,7 @@ export const updateProject = async (userId, projectId, data, files = []) => {
     if (files.length > 0) {
         await deleteCloudinaryImages(project.imagePublicIds);
         const imageData = await uploadProjectImages(files);
-        data.images         = imageData.urls;
+        data.images = imageData.urls;
         data.imagePublicIds = imageData.publicIds;
     }
 
@@ -217,7 +217,7 @@ export const deleteEventParticipation = async (userId, entryId) => {
 export const awardAchievement = async (userId, { type, label, icon, sourceId }) => {
     const exists = await User.findOne({
         _id: userId,
-        "achievements.type":     type,
+        "achievements.type": type,
         "achievements.sourceId": sourceId,
     });
     if (exists) return; // already awarded

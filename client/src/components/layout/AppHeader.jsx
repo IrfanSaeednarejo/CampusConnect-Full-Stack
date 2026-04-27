@@ -18,7 +18,7 @@ export default function AppHeader({ searchPlaceholder = "Search" }) {
             </svg>
           </div>
           <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-            CampusConnect
+            CampusNexus
           </h2>
         </div>
         <div className="hidden md:flex items-center gap-9">

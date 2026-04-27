@@ -17,7 +17,7 @@ export default function PasswordResetEmail({ userEmail, resetLink, expiryTime })
         </p>
 
         <p style={paragraphStyle}>
-          We received a request to reset the password for your CampusConnect account associated with <strong>{userEmail}</strong>.
+          We received a request to reset the password for your CampusNexus account associated with <strong>{userEmail}</strong>.
         </p>
 
         <div style={ctaContainerStyle}>
@@ -47,7 +47,7 @@ export default function PasswordResetEmail({ userEmail, resetLink, expiryTime })
 
         <p style={footerStyle}>
           Best regards,<br />
-          <strong>CampusConnect Team</strong>
+          <strong>CampusNexus Team</strong>
         </p>
 
         <p style={disclaimerStyle}>

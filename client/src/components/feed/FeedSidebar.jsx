@@ -27,7 +27,7 @@ export default function FeedSidebar() {
                         className="w-14 h-14 rounded-full border-4 border-slate-900 -mt-7 object-cover"
                     />
                     <h3 className="font-bold text-white text-sm mt-2">{user?.profile?.displayName}</h3>
-                    <p className="text-xs text-slate-500 mt-0.5">{user?.campusId?.name || user?.academic?.department || "CampusConnect"}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{user?.campusId?.name || user?.academic?.department || "CampusNexus"}</p>
                     <Link to={`/users/${user?._id}`}
                         className="mt-3 block text-center text-xs font-semibold text-green-400 hover:text-green-300 bg-green-500/10 hover:bg-green-500/20 border border-green-500/20 rounded-lg py-1.5 transition-colors">
                         View Profile

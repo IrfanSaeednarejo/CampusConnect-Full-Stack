@@ -80,7 +80,7 @@ const DashboardIndex = () => {
                 </svg>
               </div>
               <h2 className="text-text-primary-dark text-lg font-bold tracking-[-0.015em]">
-                CampusConnect
+                CampusNexus
               </h2>
             </div>
           </div>

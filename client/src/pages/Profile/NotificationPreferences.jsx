@@ -70,7 +70,7 @@ export default function NotificationPreferences() {
               />
               <ToggleRow
                 label="In-App Notifications"
-                description="Receive alerts inside the CampusConnect app"
+                description="Receive alerts inside the CampusNexus app"
                 checked={notifications.inApp}
                 onChange={() => handleToggle("inApp")}
               />

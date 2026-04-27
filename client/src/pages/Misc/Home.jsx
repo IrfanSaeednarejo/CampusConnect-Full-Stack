@@ -82,7 +82,7 @@ export default function Home() {
       <div className="flex flex-col gap-6 px-4 py-10 md:px-10">
         <SectionHeader
           title="How It Works"
-          subtitle="Getting started with CampusConnect is simple. Follow these steps to join our community."
+          subtitle="Getting started with CampusNexus is simple. Follow these steps to join our community."
         />
 
         <div className="flex flex-col gap-2 border-l border-[#30363d] pl-4">
@@ -108,7 +108,7 @@ export default function Home() {
       <div className="flex flex-col gap-6 px-4 py-10 md:px-10">
         <SectionHeader
           title="Unlock Your University Potential"
-          subtitle="Discover the tools you need to succeed. CampusConnect offers a suite of features designed to enhance your academic and social life."
+          subtitle="Discover the tools you need to succeed. CampusNexus offers a suite of features designed to enhance your academic and social life."
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-0">

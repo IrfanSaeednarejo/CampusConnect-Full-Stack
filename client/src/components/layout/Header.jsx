@@ -39,10 +39,10 @@ const Header = () => {
         <div
           className="flex items-center gap-4 text-[#e6edf3] cursor-pointer"
           onClick={() => navigate("/")}
-          aria-label="CampusConnect Home"
+          aria-label="CampusNexus Home"
         >
           <Logo />
-          <h2 className="text-lg font-bold tracking-tight">CampusConnect</h2>
+          <h2 className="text-lg font-bold tracking-tight">CampusNexus</h2>
         </div>
 
         {!isLoginPage && (

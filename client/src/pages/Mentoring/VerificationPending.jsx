@@ -22,7 +22,7 @@ export default function VerificationPending() {
             </svg>
           </div>
           <h2 className="text-lg font-bold leading-tight tracking-[-0.015em]">
-            CampusConnect
+            CampusNexus
           </h2>
         </div>
         <div className="flex items-center gap-4">

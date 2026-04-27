@@ -15,12 +15,12 @@
 import { resend } from "../config/resend.js";
 import * as T from "../utils/emailTemplates.js";
 
-const FROM = process.env.EMAIL_FROM || "CampusConnect <onboarding@resend.dev>";
+const FROM = process.env.EMAIL_FROM || "CampusNexus <onboarding@resend.dev>";
 
 // ─── Registry ────────────────────────────────────────────────────────────────
 const EMAIL_MAP = {
-    welcome_verification:    { subject: "✅ Verify your CampusConnect email",            template: T.welcomeVerificationEmail },
-    password_reset:          { subject: "🔑 Reset your CampusConnect password",          template: T.passwordResetEmail },
+    welcome_verification:    { subject: "✅ Verify your CampusNexus email",            template: T.welcomeVerificationEmail },
+    password_reset:          { subject: "🔑 Reset your CampusNexus password",          template: T.passwordResetEmail },
     password_changed:        { subject: "🔒 Your password was changed",                   template: T.passwordChangedEmail },
     society_head_assigned:   { subject: "🏛️ You are now a Society Head!",               template: T.societyHeadAssignedEmail },
     join_request_resolved:   { subject: "📬 Society join request update",                 template: T.joinRequestResolutionEmail },
@@ -30,8 +30,8 @@ const EMAIL_MAP = {
     mentor_application:      { subject: "🎓 Mentor application update",                   template: T.mentorApplicationEmail },
     mentor_booking_request:  { subject: "📚 New session booking request",                 template: T.mentorBookingRequestEmail },
     mentor_booking_status:   { subject: "📆 Your session booking update",                 template: T.mentorBookingStatusEmail },
-    connection_request:      { subject: "🤝 New connection request on CampusConnect",     template: T.connectionRequestEmail },
-    user_suspended:          { subject: "🚫 Notice regarding your CampusConnect account", template: T.userSuspendedEmail },
+    connection_request:      { subject: "🤝 New connection request on CampusNexus",     template: T.connectionRequestEmail },
+    user_suspended:          { subject: "🚫 Notice regarding your CampusNexus account", template: T.userSuspendedEmail },
 };
 
 // ─── Dispatcher ──────────────────────────────────────────────────────────────

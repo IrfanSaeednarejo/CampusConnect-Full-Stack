@@ -37,7 +37,7 @@ export default function ApplicationRejected() {
             </svg>
           </div>
           <h2 className="text-white text-lg font-bold leading-tight tracking-[-0.015em]">
-            CampusConnect
+            CampusNexus
           </h2>
         </div>
 

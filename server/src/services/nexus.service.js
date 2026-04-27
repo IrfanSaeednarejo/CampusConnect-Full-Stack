@@ -33,7 +33,7 @@ const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 //  SYSTEM PROMPT (Intent Detector)
 // ─────────────────────────────────────────────
 
-const INTENT_SYSTEM_PROMPT = `You are Nexus, an intelligent AI assistant embedded in CampusConnect — a university productivity and academic platform.
+const INTENT_SYSTEM_PROMPT = `You are Nexus, an intelligent AI assistant embedded in CampusNexus — a university productivity and academic platform.
 
 Your job is to analyse the user's message and return a structured JSON response.
 
@@ -65,7 +65,7 @@ RULES:
 //  SYSTEM PROMPT (Chat)
 // ─────────────────────────────────────────────
 
-const buildChatSystemPrompt = (user) => `You are Nexus, an intelligent AI assistant for CampusConnect — a university productivity platform.
+const buildChatSystemPrompt = (user) => `You are Nexus, an intelligent AI assistant for CampusNexus — a university productivity platform.
 
 You are talking to ${user.profile?.displayName || "a student"} who studies ${user.academic?.department || "at university"}.
 

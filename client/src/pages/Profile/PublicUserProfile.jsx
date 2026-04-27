@@ -103,7 +103,7 @@ function AboutTab({ profile, privacy }) {
                         <h2 className="text-amber-300 font-bold text-base">Available for Mentoring</h2>
                     </div>
                     <p className="text-[#8b949e] text-xs mb-3">
-                        {profile.profile?.displayName} is a verified mentor on CampusConnect.
+                        {profile.profile?.displayName} is a verified mentor on CampusNexus.
                     </p>
                     <ConnectionButton targetUserId={profile._id} variant="mentor" />
                 </div>

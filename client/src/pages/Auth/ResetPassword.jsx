@@ -94,7 +94,7 @@ export default function ResetPassword() {
               ></path>
             </svg>
             <h1 className="mt-6 text-3xl font-black tracking-tighter text-[#e6edf3]">
-              CampusConnect
+              CampusNexus
             </h1>
           </div>
 

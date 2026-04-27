@@ -1,7 +1,7 @@
 /**
  * emailTemplates.js
  * 
- * Central HTML template factory for all CampusConnect transactional emails.
+ * Central HTML template factory for all CampusNexus transactional emails.
  * Design system: dark-themed, matching the platform's #0d1117 / #161b22 / #1dc964 palette.
  * Each export is a pure function: (data) => html string
  */
@@ -23,7 +23,7 @@ const layout = (content) => `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>CampusConnect</title>
+  <title>CampusNexus</title>
 </head>
 <body style="margin:0;padding:0;background:${BG};font-family:'Segoe UI',Arial,sans-serif;">
   <table width="100%" cellpadding="0" cellspacing="0" style="background:${BG};">
@@ -51,7 +51,7 @@ const layout = (content) => `<!DOCTYPE html>
         <tr>
           <td style="padding:20px 36px;border-top:1px solid ${BORDER};text-align:center;">
             <p style="margin:0;font-size:11px;color:${MUTED};line-height:1.6;">
-              © ${YEAR} CampusConnect · You received this because you have an account on CampusConnect.<br>
+              © ${YEAR} CampusNexus · You received this because you have an account on CampusNexus.<br>
               If you didn't expect this email, you can safely ignore it.
             </p>
           </td>
@@ -92,7 +92,7 @@ const infoBox = (rows) => `
  */
 export const welcomeVerificationEmail = ({ firstName, verifyUrl }) =>
   layout(`
-    ${h1(`Welcome to CampusConnect, ${firstName}! 🎉`)}
+    ${h1(`Welcome to CampusNexus, ${firstName}! 🎉`)}
     ${p("You're almost there! Click below to verify your email address and activate your account.")}
     ${btn(verifyUrl, "Verify My Email")}
     ${divider()}
@@ -105,7 +105,7 @@ export const welcomeVerificationEmail = ({ firstName, verifyUrl }) =>
 export const passwordResetEmail = ({ firstName, resetUrl }) =>
   layout(`
     ${h1("Password Reset Request 🔑")}
-    ${p(`Hi <strong>${firstName}</strong>, we received a request to reset the password for your CampusConnect account.`)}
+    ${p(`Hi <strong>${firstName}</strong>, we received a request to reset the password for your CampusNexus account.`)}
     ${btn(resetUrl, "Reset My Password")}
     ${divider()}
     ${p("This link expires in <strong>1 hour</strong>. If you didn't request a reset, your account is safe — no action needed.")}
@@ -117,7 +117,7 @@ export const passwordResetEmail = ({ firstName, resetUrl }) =>
 export const passwordChangedEmail = ({ firstName }) =>
   layout(`
     ${h1("Password Changed ✅")}
-    ${p(`Hi <strong>${firstName}</strong>, your CampusConnect password was successfully changed.`)}
+    ${p(`Hi <strong>${firstName}</strong>, your CampusNexus password was successfully changed.`)}
     ${p("If this was you, no further action is needed.")}
     ${p("If you did <strong>not</strong> make this change, please secure your account immediately.")}
     ${btn(`${CLIENT}/forgot-password`, "Secure My Account")}
@@ -129,7 +129,7 @@ export const passwordChangedEmail = ({ firstName }) =>
 export const societyHeadAssignedEmail = ({ firstName, societyName, societyId }) =>
   layout(`
     ${h1(`Congratulations, ${firstName}! 🏛️`)}
-    ${p(`You have been appointed as the <strong>Society Head</strong> of <strong>${societyName}</strong> on CampusConnect.`)}
+    ${p(`You have been appointed as the <strong>Society Head</strong> of <strong>${societyName}</strong> on CampusNexus.`)}
     ${p("You can now manage members, create events, and configure your society from the Society HQ.")}
     ${btn(`${CLIENT}/society/${societyId}/manage`, "Open Society HQ")}
   `);
@@ -257,7 +257,7 @@ export const mentorBookingStatusEmail = ({ studentFirstName, mentorName, session
 export const connectionRequestEmail = ({ firstName, senderName, profileUrl }) =>
   layout(`
     ${h1("New Connection Request 🤝")}
-    ${p(`Hi <strong>${firstName}</strong>, <strong>${senderName}</strong> wants to connect with you on CampusConnect.`)}
+    ${p(`Hi <strong>${firstName}</strong>, <strong>${senderName}</strong> wants to connect with you on CampusNexus.`)}
     ${p("Visit their profile to accept or decline the request.")}
     ${btn(profileUrl, "View Profile & Respond")}
   `);
@@ -268,7 +268,7 @@ export const connectionRequestEmail = ({ firstName, senderName, profileUrl }) =>
 export const userSuspendedEmail = ({ firstName, reason }) =>
   layout(`
     ${h1("Account Suspended 🚫")}
-    ${p(`Hi <strong>${firstName}</strong>, your CampusConnect account has been suspended by an administrator.`)}
+    ${p(`Hi <strong>${firstName}</strong>, your CampusNexus account has been suspended by an administrator.`)}
     ${infoBox(`
       ${infoRow("📋 Reason", reason || "Violating platform guidelines.")}
     `)}

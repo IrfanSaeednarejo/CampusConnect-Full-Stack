@@ -200,7 +200,7 @@ export default function Mentors() {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 px-2.5 py-1 rounded-full bg-emerald-400/10 border border-emerald-400/20">
-                  CampusConnect
+                  CampusNexus
                 </span>
               </div>
               <h1 className="text-3xl sm:text-4xl font-bold text-slate-100 mb-2">

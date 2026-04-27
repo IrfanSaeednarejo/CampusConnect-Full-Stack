@@ -59,7 +59,7 @@ export default function ForgotPassword() {
           >
             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2ZM8.41 17.41 12 13.83l3.59 3.58L17 16l-3.59-3.59L17 8.83 15.59 7.41 12 11.01 8.41 7.41 7 8.83l3.59 3.58L7 16l1.41 1.41Z"></path>
           </svg>
-          <p className="font-bold text-[#c9d1d9] text-lg">CampusConnect</p>
+          <p className="font-bold text-[#c9d1d9] text-lg">CampusNexus</p>
         </div>
 
         {/* Form Container */}

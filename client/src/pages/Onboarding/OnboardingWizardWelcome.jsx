@@ -57,7 +57,7 @@ export default function OnboardingWizardWelcome() {
             Nice to meet you, <span className="text-[#58a6ff] capitalize">{user?.profile?.firstName || 'there'}!</span>
           </h1>
           <p className="mt-3 text-[#8b949e] text-base font-normal leading-normal">
-            Let’s personalize your experience on CampusConnect.
+            Let’s personalize your experience on CampusNexus.
           </p>
         </div>
 

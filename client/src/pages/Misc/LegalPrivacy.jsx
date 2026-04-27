@@ -19,7 +19,7 @@ export default function LegalPrivacy() {
         <div className="flex flex-col gap-10">
           <LegalIntro
             title="Privacy Policy"
-            subtitle="Learn how we manage and protect your data on CampusConnect."
+            subtitle="Learn how we manage and protect your data on CampusNexus."
             titleClassName="text-4xl sm:text-5xl font-black leading-tight tracking-[-0.033em]"
             subtitleClassName="text-[#8b949e] text-lg"
             className="mb-2"
@@ -27,7 +27,7 @@ export default function LegalPrivacy() {
 
           <LegalSection
             title="Introduction"
-            content="Welcome to CampusConnect. We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about our policy, or our practices with regards to your personal information, please contact us. This privacy policy applies to all information collected through our website and/or any related services, sales, marketing or events."
+            content="Welcome to CampusNexus. We are committed to protecting your personal information and your right to privacy. If you have any questions or concerns about our policy, or our practices with regards to your personal information, please contact us. This privacy policy applies to all information collected through our website and/or any related services, sales, marketing or events."
             titleClassName="text-2xl font-bold leading-tight tracking-[-0.015em] text-[#e6edf3] pb-3 border-b border-[#30363d]"
             contentClassName="text-base leading-relaxed pt-4"
           />
@@ -95,7 +95,7 @@ export default function LegalPrivacy() {
       <footer className="border-t border-[#30363d] mt-16 py-8">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-center gap-4">
           <p className="text-sm text-[#8b949e]">
-            © 2024 CampusConnect. All rights reserved.
+            © 2024 CampusNexus. All rights reserved.
           </p>
           <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
             <button

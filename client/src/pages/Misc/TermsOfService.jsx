@@ -33,7 +33,7 @@ export default function TermsOfService() {
             >
               <path d="M6 6H42L36 24L42 42H6L12 24L6 6Z" fill="currentColor" />
             </svg>
-            <h2 className="text-lg font-bold tracking-tight">CampusConnect</h2>
+            <h2 className="text-lg font-bold tracking-tight">CampusNexus</h2>
           </div>
 
           {/* Desktop Nav */}
@@ -98,7 +98,7 @@ export default function TermsOfService() {
         {/* Heading */}
         <LegalIntro
           title="Terms of Service"
-          subtitle="Please read our terms and conditions before using CampusConnect."
+          subtitle="Please read our terms and conditions before using CampusNexus."
           meta="Last updated: October 26, 2023"
           className="p-4"
           titleClassName="text-white"
@@ -110,13 +110,13 @@ export default function TermsOfService() {
         <div className="space-y-8 pt-8">
           <LegalSection
             title="1. Introduction"
-            content="Welcome to CampusConnect. These Terms of Service govern your use of our website and services. By accessing or using the service, you agree to be bound by these Terms. If you disagree with any part of the terms, you do not have permission to access the service."
+            content="Welcome to CampusNexus. These Terms of Service govern your use of our website and services. By accessing or using the service, you agree to be bound by these Terms. If you disagree with any part of the terms, you do not have permission to access the service."
             titleClassName="text-[#c9d1d9] text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
             contentClassName="text-[#c9d1d9] text-base px-4 pt-1 pb-3"
           />
           <LegalSection
             title="2. User Responsibilities"
-            content="You are responsible for your use of the CampusConnect services and for any content you provide, including compliance with applicable laws."
+            content="You are responsible for your use of the CampusNexus services and for any content you provide, including compliance with applicable laws."
             list={[
               "Provide accurate information when creating your account.",
               "Safeguard your account and password and not share it with others.",
@@ -142,7 +142,7 @@ export default function TermsOfService() {
           />
           <LegalSection
             title="4. Intellectual Property"
-            content="By submitting content, you grant CampusConnect a worldwide, non-exclusive, royalty-free license to use, copy, and distribute such content."
+            content="By submitting content, you grant CampusNexus a worldwide, non-exclusive, royalty-free license to use, copy, and distribute such content."
             titleClassName="text-[#c9d1d9] text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
             contentClassName="text-[#c9d1d9] text-base px-4 pt-1 pb-3"
           />
@@ -154,7 +154,7 @@ export default function TermsOfService() {
           />
           <LegalSection
             title="6. Disclaimers and Limitation of Liability"
-            content="Services are provided 'AS IS' without warranties. CampusConnect is not liable for any indirect or consequential damages."
+            content="Services are provided 'AS IS' without warranties. CampusNexus is not liable for any indirect or consequential damages."
             titleClassName="text-[#c9d1d9] text-2xl font-bold tracking-tight px-4 pt-5 pb-3"
             contentClassName="text-[#c9d1d9] text-base px-4 pt-1 pb-3"
           />
@@ -165,9 +165,9 @@ export default function TermsOfService() {
                 Contact us at{" "}
                 <a
                   className="text-blue-400 hover:underline"
-                  href="mailto:support@campusconnect.com"
+                  href="mailto:support@campusnexus.com"
                 >
-                  support@campusconnect.com
+                  support@campusnexus.com
                 </a>
                 .
               </span>

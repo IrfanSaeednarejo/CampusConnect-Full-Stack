@@ -35,7 +35,7 @@ const SuspendedPage = () => {
                 {/* Actions */}
                 <div className="flex flex-col gap-3">
                     <a
-                        href={`mailto:support@campusconnect.com?subject=Appeal Suspension for User ${user?.email}`}
+                        href={`mailto:support@campusnexus.com?subject=Appeal Suspension for User ${user?.email}`}
                         className="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white py-4 px-6 rounded-xl font-bold text-base transition-all active:scale-[0.98]"
                     >
                         <Mail className="w-5 h-5" />
