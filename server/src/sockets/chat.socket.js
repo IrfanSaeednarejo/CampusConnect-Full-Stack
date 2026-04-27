@@ -63,22 +63,7 @@ const logSocket = (level, event, userId, msg, err = null) => {
 export const registerChatHandlers = (io, socket) => {
     const userId = socket.userId;
 
-    socket.on("chat:join", async (data) => {
-        const chatId = data?.chatId;
-        if (!chatId || !mongoose.isValidObjectId(chatId)) return;
 
-        try {
-            const isMember = await Chat.exists({ _id: chatId, "members.userId": userId });
-            if (!isMember) {
-                logSocket("warn", "chat:join", userId, `Unauthorized join attempt to chat ${chatId}`);
-                return;
-            }
-            socket.join(`chat:${chatId}`);
-            logSocket("info", "chat:join", userId, `Dynamic join to chat:${chatId}`);
-        } catch (err) {
-            logSocket("error", "chat:join", userId, "Join failed", err);
-        }
-    });
 
     socket.on("chat:leave", (data) => {
         const chatId = data?.chatId;
@@ -609,8 +594,30 @@ export const registerChatHandlers = (io, socket) => {
         const chatId = data?.chatId;
         try {
             if (!chatId || !mongoose.isValidObjectId(chatId)) return;
-            const chat = await Chat.findById(chatId).select("members");
-            if (!chat || !chat.hasMember(userId)) {
+            const chat = await Chat.findById(chatId).select("members type contextId");
+            if (!chat) return socket.emit("error:chat", { message: "Chat not found", event: "chat:join" });
+
+            let canJoin = chat.hasMember(userId);
+
+            if (!canJoin && chat.type === "studygroup" && chat.contextId) {
+                const { StudyGroup } = await import("../models/studyGroup.model.js");
+                const group = await StudyGroup.findById(chat.contextId).select("groupMembers coordinatorId");
+                if (group) {
+                    const isCoordinator = group.coordinatorId.toString() === userId;
+                    const isApproved = group.groupMembers.some(
+                        m => m.memberId.toString() === userId && m.status === "approved"
+                    );
+                    if (isCoordinator || isApproved) {
+                        canJoin = true;
+                        const memberRole = isCoordinator ? "admin" : "member";
+                        await Chat.findByIdAndUpdate(chatId, {
+                            $addToSet: { members: { userId, role: memberRole, joinedAt: new Date() } }
+                        });
+                    }
+                }
+            }
+
+            if (!canJoin) {
                 return socket.emit("error:chat", { message: "Not a member", event: "chat:join" });
             }
             socket.join(`chat:${chatId}`);

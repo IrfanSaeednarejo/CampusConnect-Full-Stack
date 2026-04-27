@@ -36,7 +36,7 @@ const ALLOWED_MIME_TYPES = new Set([
 ]);
 
 // ── Size limit ──────────────────────────────────────────────────────────────
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+const MAX_FILE_SIZE = 30 * 1024 * 1024; // 30 MB
 
 // ── Storage config ──────────────────────────────────────────────────────────
 const storage = multer.diskStorage({

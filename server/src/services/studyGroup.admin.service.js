@@ -54,6 +54,23 @@ export const createStudyGroup = async (data, adminUser, req) => {
         memberCount: 1,
     });
 
+    // 3.5 Create Linked Chat for real-time discussion
+    try {
+        const chat = await Chat.create({
+            type: "studygroup", 
+            name: studyGroup.name, 
+            description: studyGroup.description, 
+            campusId: resolvedCampusId,
+            createdBy: adminUser._id, 
+            contextId: studyGroup._id, 
+            members: [{ userId: coordinatorId, role: "admin", joinedAt: new Date() }],
+        });
+        studyGroup.chatId = chat._id;
+        await studyGroup.save();
+    } catch (err) {
+        console.error("[StudyGroupAdmin] Failed to create linked chat:", err.message);
+    }
+
     // 4. Register Audit Log
     await writeAuditLog({
         req,

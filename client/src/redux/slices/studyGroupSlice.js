@@ -53,10 +53,11 @@ export const createStudyGroupThunk = createAsyncThunk(
 
 export const joinStudyGroupThunk = createAsyncThunk(
   'studyGroups/join',
-  async (id, { rejectWithValue }) => {
+  async (id, { rejectWithValue, getState }) => {
     try {
       const { data } = await studyGroupApi.joinStudyGroup(id);
-      return { id, ...data.data };
+      const userId = getState().auth?.user?._id;
+      return { id, ...data.data, userId };
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message || 'Failed to join group');
     }
@@ -65,10 +66,11 @@ export const joinStudyGroupThunk = createAsyncThunk(
 
 export const leaveStudyGroupThunk = createAsyncThunk(
   'studyGroups/leave',
-  async (id, { rejectWithValue }) => {
+  async (id, { rejectWithValue, getState }) => {
     try {
       await studyGroupApi.leaveStudyGroup(id);
-      return id;
+      const userId = getState().auth?.user?._id;
+      return { id, userId };
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message || 'Failed to leave group');
     }
@@ -80,9 +82,33 @@ export const addResourceThunk = createAsyncThunk(
   async ({ id, formData }, { rejectWithValue }) => {
     try {
       const { data } = await studyGroupApi.addResource(id, formData);
-      return data.data; // This is the new resource object
+      return { groupId: id, resource: data.data };
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || err.message || 'Failed to upload resource');
+    }
+  }
+);
+
+export const removeResourceThunk = createAsyncThunk(
+  'studyGroups/removeResource',
+  async ({ groupId, resourceId }, { rejectWithValue }) => {
+    try {
+      await studyGroupApi.removeResource(groupId, resourceId);
+      return { groupId, resourceId };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to remove resource');
+    }
+  }
+);
+
+export const fetchResourcesThunk = createAsyncThunk(
+  'studyGroups/fetchResources',
+  async (groupId, { rejectWithValue }) => {
+    try {
+      const { data } = await studyGroupApi.getResources(groupId);
+      return { groupId, resources: data.data };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to fetch resources');
     }
   }
 );
@@ -135,6 +161,18 @@ export const rejectMemberThunk = createAsyncThunk(
   }
 );
 
+export const removeMemberThunk = createAsyncThunk(
+  'studyGroups/removeMember',
+  async ({ groupId, memberId }, { rejectWithValue }) => {
+    try {
+      await studyGroupApi.removeMember(groupId, memberId);
+      return { groupId, memberId };
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to remove member');
+    }
+  }
+);
+
 // ── Initial State ─────────────────────────────────────────────────────────────
 
 const initialState = {
@@ -146,6 +184,7 @@ const initialState = {
   pagination: { page: 1, total: 0, pages: 1 },
   loading: false,
   actionLoading: false,
+  resourcesLoading: false,
   error: null,
 };
 
@@ -157,20 +196,14 @@ const studyGroupSlice = createSlice({
   reducers: {
     clearSelectedGroup: (state) => { state.selectedGroup = null; state.messages = []; state.resources = []; },
     clearError: (state) => { state.error = null; },
-    addLocalMessage: (state, action) => {
-      state.messages.push(action.payload);
-    },
-    setGroupResources: (state, action) => {
-      const { groupId, resources } = action.payload;
-      state.resources = resources;
-    }
+    addLocalMessage: (state, action) => { state.messages.push(action.payload); },
+    setGroupResources: (state, action) => { state.resources = action.payload.resources; },
   },
   extraReducers: (builder) => {
     const pending = (state) => { state.loading = true; state.error = null; };
     const rejected = (state, action) => { state.loading = false; state.error = action.payload; };
 
     builder
-      // fetchStudyGroups
       .addCase(fetchStudyGroups.pending, pending)
       .addCase(fetchStudyGroups.fulfilled, (state, action) => {
         state.loading = false;
@@ -183,12 +216,10 @@ const studyGroupSlice = createSlice({
       })
       .addCase(fetchStudyGroups.rejected, rejected)
 
-      // fetchMyStudyGroups
       .addCase(fetchMyStudyGroups.fulfilled, (state, action) => {
         state.myGroups = Array.isArray(action.payload) ? action.payload : (action.payload?.docs || []);
       })
 
-      // fetchStudyGroupById
       .addCase(fetchStudyGroupById.pending, pending)
       .addCase(fetchStudyGroupById.fulfilled, (state, action) => {
         state.loading = false;
@@ -196,7 +227,6 @@ const studyGroupSlice = createSlice({
       })
       .addCase(fetchStudyGroupById.rejected, rejected)
 
-      // createStudyGroupThunk
       .addCase(createStudyGroupThunk.pending, (state) => { state.actionLoading = true; })
       .addCase(createStudyGroupThunk.fulfilled, (state, action) => {
         state.actionLoading = false;
@@ -206,30 +236,69 @@ const studyGroupSlice = createSlice({
       })
       .addCase(createStudyGroupThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
 
-      // joinStudyGroupThunk
+      // Fix: properly update groupMembers array for immediate UI feedback
+      .addCase(joinStudyGroupThunk.pending, (state) => { state.actionLoading = true; })
       .addCase(joinStudyGroupThunk.fulfilled, (state, action) => {
-        const id = action.payload.id;
-        const group = state.groups.find(g => (g._id || g.id) === id);
-        if (group && !state.myGroups.some(g => (g._id || g.id) === id)) {
-          state.myGroups.push({ ...group, isMember: true });
-        }
+        state.actionLoading = false;
+        const { id, status, memberCount, userId } = action.payload;
         if (state.selectedGroup?._id === id) {
-          state.selectedGroup = { ...state.selectedGroup, isMember: true };
+          const alreadyIn = state.selectedGroup.groupMembers?.find(
+            m => (m.memberId?._id || m.memberId) === userId
+          );
+          if (!alreadyIn && userId) {
+            state.selectedGroup.groupMembers = [
+              ...(state.selectedGroup.groupMembers || []),
+              { memberId: userId, status, role: 'member', joinedAt: new Date().toISOString() }
+            ];
+          }
+          if (memberCount !== undefined) state.selectedGroup.memberCount = memberCount;
+        }
+        if (status === 'approved') {
+          const group = state.groups.find(g => (g._id || g.id) === id);
+          if (group && !state.myGroups.some(g => (g._id || g.id) === id)) {
+            state.myGroups.push(group);
+          }
         }
       })
+      .addCase(joinStudyGroupThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
 
-      // leaveStudyGroupThunk
+      .addCase(leaveStudyGroupThunk.pending, (state) => { state.actionLoading = true; })
       .addCase(leaveStudyGroupThunk.fulfilled, (state, action) => {
-        const id = action.payload;
+        state.actionLoading = false;
+        const { id, userId } = action.payload;
         state.myGroups = state.myGroups.filter(g => (g._id || g.id) !== id);
-        if (state.selectedGroup?._id === id) {
-          state.selectedGroup = { ...state.selectedGroup, isMember: false };
+        if (state.selectedGroup?._id === id && userId) {
+          state.selectedGroup.groupMembers = state.selectedGroup.groupMembers?.filter(
+            m => (m.memberId?._id || m.memberId) !== userId
+          ) || [];
+          state.selectedGroup.memberCount = Math.max(0, (state.selectedGroup.memberCount || 1) - 1);
         }
       })
+      .addCase(leaveStudyGroupThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
 
+      .addCase(fetchResourcesThunk.pending, (state) => { state.resourcesLoading = true; })
+      .addCase(fetchResourcesThunk.fulfilled, (state, action) => {
+        state.resourcesLoading = false;
+        state.resources = action.payload.resources || [];
+      })
+      .addCase(fetchResourcesThunk.rejected, (state) => { state.resourcesLoading = false; })
+
+      .addCase(addResourceThunk.pending, (state) => { state.actionLoading = true; })
+      .addCase(addResourceThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const { resource } = action.payload;
+        if (resource) state.resources.push(resource);
+      })
       .addCase(addResourceThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
 
-      // updateStudyGroupThunk
+      .addCase(removeResourceThunk.pending, (state) => { state.actionLoading = true; })
+      .addCase(removeResourceThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const { resourceId } = action.payload;
+        state.resources = state.resources.filter(r => (r._id || r.id) !== resourceId);
+      })
+      .addCase(removeResourceThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
+
       .addCase(updateStudyGroupThunk.pending, (state) => { state.actionLoading = true; })
       .addCase(updateStudyGroupThunk.fulfilled, (state, action) => {
         state.actionLoading = false;
@@ -243,54 +312,71 @@ const studyGroupSlice = createSlice({
       })
       .addCase(updateStudyGroupThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
 
-      // deleteStudyGroupThunk
       .addCase(deleteStudyGroupThunk.pending, (state) => { state.actionLoading = true; })
       .addCase(deleteStudyGroupThunk.fulfilled, (state, action) => {
         state.actionLoading = false;
         const id = action.payload;
         state.groups = state.groups.filter(g => (g._id || g.id) !== id);
         state.myGroups = state.myGroups.filter(g => (g._id || g.id) !== id);
-        if (state.selectedGroup?._id === id || state.selectedGroup?.id === id) {
-          state.selectedGroup = null;
-        }
+        if (state.selectedGroup?._id === id || state.selectedGroup?.id === id) state.selectedGroup = null;
       })
       .addCase(deleteStudyGroupThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
 
-      // approveMemberThunk
       .addCase(approveMemberThunk.pending, (state) => { state.actionLoading = true; })
       .addCase(approveMemberThunk.fulfilled, (state, action) => {
         state.actionLoading = false;
         const { memberUserId } = action.payload;
         if (state.selectedGroup) {
-          const index = state.selectedGroup.groupMembers.findIndex(m => (m.memberId._id || m.memberId) === memberUserId);
+          const index = state.selectedGroup.groupMembers.findIndex(
+            m => (m.memberId?._id || m.memberId) === memberUserId
+          );
           if (index !== -1) {
-            state.selectedGroup.groupMembers[index].status = 'approved';
-            state.selectedGroup.memberCount += 1;
+            state.selectedGroup.groupMembers[index] = {
+              ...state.selectedGroup.groupMembers[index],
+              status: 'approved',
+              joinedAt: new Date().toISOString(),
+            };
+            state.selectedGroup.memberCount = (state.selectedGroup.memberCount || 0) + 1;
           }
         }
       })
       .addCase(approveMemberThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
 
-      // rejectMemberThunk
       .addCase(rejectMemberThunk.pending, (state) => { state.actionLoading = true; })
       .addCase(rejectMemberThunk.fulfilled, (state, action) => {
         state.actionLoading = false;
         const { memberUserId } = action.payload;
         if (state.selectedGroup) {
-          state.selectedGroup.groupMembers = state.selectedGroup.groupMembers.filter(m => (m.memberId._id || m.memberId) !== memberUserId);
+          state.selectedGroup.groupMembers = state.selectedGroup.groupMembers.filter(
+            m => (m.memberId?._id || m.memberId) !== memberUserId
+          );
         }
       })
-      .addCase(rejectMemberThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
+      .addCase(rejectMemberThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; })
+
+      .addCase(removeMemberThunk.pending, (state) => { state.actionLoading = true; })
+      .addCase(removeMemberThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const { memberId } = action.payload;
+        if (state.selectedGroup) {
+          state.selectedGroup.groupMembers = state.selectedGroup.groupMembers.filter(
+            m => (m.memberId?._id || m.memberId) !== memberId
+          );
+          state.selectedGroup.memberCount = Math.max(0, (state.selectedGroup.memberCount || 1) - 1);
+        }
+      })
+      .addCase(removeMemberThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
   },
 });
 
-export const { 
-  clearSelectedGroup, 
+export const {
+  clearSelectedGroup,
   clearError,
   addLocalMessage,
   setGroupResources,
 } = studyGroupSlice.actions;
 
+// Backwards-compat aliases
 export const joinGroup = joinStudyGroupThunk;
 export const updateStudyGroup = updateStudyGroupThunk;
 export const deleteStudyGroup = deleteStudyGroupThunk;
@@ -300,14 +386,15 @@ export const selectMyStudyGroups = (state) => state.studyGroups.myGroups;
 export const selectSelectedStudyGroup = (state) => state.studyGroups.selectedGroup;
 export const selectStudyGroupLoading = (state) => state.studyGroups.loading;
 export const selectStudyGroupActionLoading = (state) => state.studyGroups.actionLoading;
+export const selectStudyGroupResourcesLoading = (state) => state.studyGroups.resourcesLoading;
 export const selectStudyGroupError = (state) => state.studyGroups.error;
 export const selectStudyGroupPagination = (state) => state.studyGroups.pagination;
+export const selectGroupResources = (state) => state.studyGroups.resources;
 
-export const selectStudyGroupById = (id) => (state) => 
-  state.studyGroups.groups.find(g => String(g._id || g.id) === String(id)) || 
+export const selectStudyGroupById = (id) => (state) =>
+  state.studyGroups.groups.find(g => String(g._id || g.id) === String(id)) ||
   state.studyGroups.myGroups.find(g => String(g._id || g.id) === String(id)) ||
-  (state.studyGroups.selectedGroup?._id === id || state.studyGroups.selectedGroup?.id === id ? state.studyGroups.selectedGroup : null);
-
-export const selectGroupResources = (id) => (state) => state.studyGroups.resources;
+  (state.studyGroups.selectedGroup?._id === id || state.studyGroups.selectedGroup?.id === id
+    ? state.studyGroups.selectedGroup : null);
 
 export default studyGroupSlice.reducer;

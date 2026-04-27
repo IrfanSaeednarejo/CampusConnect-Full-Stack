@@ -4,6 +4,7 @@ import { Chat } from "../models/chat.model.js";
 import { Message } from "../models/message.model.js";
 import { User } from "../models/user.model.js";
 import { File } from "../models/file.model.js";
+import { StudyGroup } from "../models/studyGroup.model.js";
 
 const CHAT_SELECT = "-members.unreadCount";
 
@@ -234,9 +235,29 @@ export const removeMemberFromChat = async (chatId, userId, requestUser) => {
 export const sendMessage = async (chatId, data = {}, requestUser) => {
     const { content, type = "text", attachmentId, replyToId } = data;
 
-    const chat = await findChatById(chatId, "members isArchived type");
+    const chat = await findChatById(chatId, "members isArchived type contextId");
 
-    requireMember(chat, requestUser._id);
+    // For studygroup chats, verify via StudyGroup membership (auto-heal Chat membership if missing)
+    if (chat.type === "studygroup" && chat.contextId) {
+        const group = await StudyGroup.findById(chat.contextId).select("groupMembers coordinatorId status");
+        if (group) {
+            const uid = requestUser._id.toString();
+            const isCoordinator = group.coordinatorId.toString() === uid;
+            const isApproved = group.groupMembers.some(m => m.memberId.toString() === uid && m.status === "approved");
+            if (!isCoordinator && !isApproved) {
+                throw new ApiError(403, "You must be an approved member of this study group to send messages");
+            }
+            // Auto-heal: ensure this user is in the Chat.members array
+            if (!chat.hasMember(requestUser._id)) {
+                const memberRole = isCoordinator ? "admin" : "member";
+                await Chat.findByIdAndUpdate(chatId, {
+                    $addToSet: { members: { userId: requestUser._id, role: memberRole, joinedAt: new Date() } }
+                });
+            }
+        }
+    } else {
+        requireMember(chat, requestUser._id);
+    }
 
     if (chat.isArchived) {
         throw new ApiError(400, "Cannot send messages to an archived chat");
@@ -272,8 +293,30 @@ export const sendMessage = async (chatId, data = {}, requestUser) => {
 export const getChatMessages = async (chatId, queryParams, requestUser) => {
     const { before, limit = 50 } = queryParams;
 
-    const chat = await findChatById(chatId, "members");
-    requireMember(chat, requestUser._id);
+    const chat = await findChatById(chatId, "members type contextId");
+
+    // For studygroup chats, verify via StudyGroup membership (auto-heal Chat membership if missing)
+    if (chat.type === "studygroup" && chat.contextId) {
+        const group = await StudyGroup.findById(chat.contextId).select("groupMembers coordinatorId");
+        if (group) {
+            const uid = requestUser._id.toString();
+            const isCoordinator = group.coordinatorId.toString() === uid;
+            const isApproved = group.groupMembers.some(m => m.memberId.toString() === uid && m.status === "approved");
+            if (!isCoordinator && !isApproved) {
+                throw new ApiError(403, "You must be an approved member of this study group to view messages");
+            }
+            // Auto-heal: ensure this user is in the Chat.members array
+            if (!chat.hasMember(requestUser._id)) {
+                const memberRole = isCoordinator ? "admin" : "member";
+                await Chat.findByIdAndUpdate(chatId, {
+                    $addToSet: { members: { userId: requestUser._id, role: memberRole, joinedAt: new Date() } }
+                });
+            }
+        }
+    } else {
+        requireMember(chat, requestUser._id);
+    }
+
     if (before && !mongoose.isValidObjectId(before)) {
         throw new ApiError(400, "Invalid cursor format for 'before' parameter");
     }

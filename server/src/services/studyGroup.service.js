@@ -7,6 +7,7 @@ import { Chat } from "../models/chat.model.js";
 import { File } from "../models/file.model.js";
 import { paginate } from "../utils/paginate.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
+import { systemEvents } from "../utils/events.js";
 
 const uploadFile = async (localPath) => {
     if (!localPath) return null;
@@ -33,8 +34,8 @@ const requireCoordinatorOrAdmin = (group, user) => {
 const requireActiveMember = (group, userId) => {
     const id = userId.toString();
     const isCoordinator = group.coordinatorId.toString() === id;
-    const isMember = group.groupMembers.some((m) => m.memberId.toString() === id);
-    if (!isCoordinator && !isMember) throw new ApiError(403, "You must be a member of this study group");
+    const isMember = group.groupMembers.some((m) => m.memberId.toString() === id && m.status === "approved");
+    if (!isCoordinator && !isMember) throw new ApiError(403, "You must be an approved member of this study group");
 };
 
 export const getStudyGroups = async (queryParams, requestUser) => {
@@ -53,8 +54,10 @@ export const getStudyGroups = async (queryParams, requestUser) => {
         filter.status = "active";
         filter.$or = [
             { isPrivate: false },
-            { "groupMembers.memberId": requestUser._id },
-            { coordinatorId: requestUser._id },
+            ...(requestUser?._id ? [
+                { "groupMembers.memberId": requestUser._id },
+                { coordinatorId: requestUser._id },
+            ] : []),
         ];
     } else {
         if (status !== "all") filter.status = status;
@@ -74,18 +77,26 @@ export const getStudyGroups = async (queryParams, requestUser) => {
 };
 
 export const getMyStudyGroups = async (queryParams, requestUser) => {
-    const { page = 1, limit = 10 } = queryParams;
+    if (!requestUser?._id) throw new ApiError(401, "Authentication required");
+
+    const { page = 1, limit = 12 } = queryParams;
+    const userId = requestUser._id;
 
     const filter = {
-        status: "active",
-        $or: [{ coordinatorId: requestUser._id }, { "groupMembers.memberId": requestUser._id }],
+        status: { $ne: "deleted" },
+        $or: [
+            { coordinatorId: userId },
+            { "groupMembers.memberId": userId, "groupMembers.status": "approved" }
+        ]
     };
 
     return await paginate(StudyGroup, filter, {
-        page, limit, select: "-groupResources", sort: { updatedAt: -1 },
+        page, limit,
+        sort: { createdAt: -1 },
         populate: [{ path: "coordinatorId", select: "profile.displayName profile.avatar" }],
     });
 };
+
 
 export const getStudyGroupById = async (groupId, requestUser) => {
     if (!mongoose.isValidObjectId(groupId)) throw new ApiError(400, "Invalid study group ID format");
@@ -126,19 +137,21 @@ export const createStudyGroup = async (data, requestUser) => {
     const isAdmin = requestUser.roles?.includes("admin");
     const forcedStatus = isAdmin ? (data.status || "active") : "pending";
 
+    const resolvedCoordinatorId = isAdmin && data.coordinatorId ? data.coordinatorId : requestUser._id;
+
     const groupData = {
         name: name.trim(), 
         description: description?.trim() || "", 
         subject: subject?.trim() || "",
         course: course?.trim() || "", 
         campusId: resolvedCampusId, 
-        coordinatorId: requestUser._id,
+        coordinatorId: resolvedCoordinatorId,
         tags: parsedTags, 
         maxMembers: parseInt(maxMembers, 10) || 20, 
         isPrivate: isPrivate === "true" || isPrivate === true,
         requireJoinApproval: requireJoinApproval === "true" || requireJoinApproval === true,
         schedule: parsedSchedule, 
-        groupMembers: [{ memberId: requestUser._id, role: "coordinator", status: "approved", joinedAt: new Date() }],
+        groupMembers: [{ memberId: resolvedCoordinatorId, role: "coordinator", status: "approved", joinedAt: new Date() }],
         memberCount: 1, 
         status: forcedStatus,
         requestedBy: requestUser._id,
@@ -171,7 +184,7 @@ export const createStudyGroup = async (data, requestUser) => {
     try {
         const chat = await Chat.create({
             type: "studygroup", name: group.name, description: group.description, campusId: resolvedCampusId,
-            createdBy: requestUser._id, contextId: group._id, members: [{ userId: requestUser._id, role: "admin", joinedAt: new Date() }],
+            createdBy: requestUser._id, contextId: group._id, members: [{ userId: resolvedCoordinatorId, role: "admin", joinedAt: new Date() }],
         });
         group.chatId = chat._id;
         await group.save();
@@ -281,6 +294,20 @@ export const joinStudyGroup = async (groupId, requestUser) => {
         }).catch((err) => console.error("[StudyGroup] Failed to add member to chat:", err.message));
     }
 
+    // Notify coordinator of pending request
+    if (newMemberStatus === "pending") {
+        systemEvents.emit("notification:create", {
+            userId: group.coordinatorId,
+            type: "studygroup_invite",
+            title: "New Join Request",
+            body: `${requestUser.profile?.displayName || "A user"} wants to join "${group.name || "your group"}".`,
+            actorId: requestUser._id,
+            ref: group._id,
+            refModel: "StudyGroup",
+            priority: "normal",
+        });
+    }
+
     return { 
         status: newMemberStatus,
         memberCount: group.memberCount 
@@ -316,7 +343,22 @@ export const handleMembershipRequest = async (groupId, memberUserId, action, req
     }
 
     await group.save();
-    return { status: member.status, action };
+
+    // Notify the member of the decision
+    systemEvents.emit("notification:create", {
+        userId: memberUserId,
+        type: "studygroup_update",
+        title: action === "accept" ? "🎉 Join Request Approved!" : "Join Request Not Approved",
+        body: action === "accept"
+            ? `You have been approved to join "${group.name || "a study group"}".`
+            : `Your request to join "${group.name || "a study group"}" was not approved.`,
+        actorId: requestUser._id,
+        ref: group._id,
+        refModel: "StudyGroup",
+        priority: action === "accept" ? "high" : "normal",
+    });
+
+    return { status: action === "accept" ? "approved" : "rejected", action };
 };
 
 export const leaveStudyGroup = async (groupId, requestUser) => {
@@ -359,6 +401,18 @@ export const removeMember = async (groupId, memberId, requestUser) => {
         Chat.findByIdAndUpdate(group.chatId, { $pull: { members: { userId: new mongoose.Types.ObjectId(memberId) } } })
             .catch((err) => console.error("[StudyGroup] Failed to remove member from chat:", err.message));
     }
+
+    // Notify removed member
+    systemEvents.emit("notification:create", {
+        userId: memberId,
+        type: "studygroup_update",
+        title: "Removed from Study Group",
+        body: `You have been removed from "${group.name || "a study group"}".`,
+        actorId: requestUser._id,
+        ref: group._id,
+        refModel: "StudyGroup",
+        priority: "normal",
+    });
 
     return { removedMemberId: memberId };
 };
@@ -427,10 +481,9 @@ export const removeResource = async (groupId, resourceId, requestUser) => {
     const userId = requestUser._id.toString();
     const isAdmin = requestUser.roles?.includes("admin");
     const isCoordinator = group.coordinatorId.toString() === userId;
-    const isUploader = resource.uploadedBy.toString() === userId;
 
-    if (!isAdmin && !isCoordinator && !isUploader) {
-        throw new ApiError(403, "Only the coordinator, original uploader, or an admin can remove this resource");
+    if (!isAdmin && !isCoordinator) {
+        throw new ApiError(403, "Only the coordinator or an admin can remove this resource");
     }
 
     const fileDoc = await File.findById(resource.fileId).select("publicId");
