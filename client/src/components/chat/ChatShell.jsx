@@ -1,12 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Menu, X, ArrowLeft } from "lucide-react";
 import ChatSidebar from "./ChatSidebar";
 import ChatHeader from "./ChatHeader";
 import ChatInput from "./ChatInput";
 import MessageBubble from "./MessageBubble";
 import { useAutoScroll } from "../../hooks";
-import "../../styles/components/chat.scss";
 
 const quickReactions = ["👍", "❤️", "😂", "😮", "😢", "🙏"];
 
@@ -69,7 +68,9 @@ export default function ChatShell({
 }) {
 	const navigate = useNavigate();
 	const [showArchived, setShowArchived] = useState(false);
+	const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 	const searchInputRef = useRef(null);
+    
 	const selectedConversation = conversations.find(
 		(conversation) => conversation.id === selectedConversationId
 	);
@@ -99,7 +100,7 @@ export default function ChatShell({
 
 	const filteredMessages = searchQuery
 		? visibleMessages.filter((message) =>
-			(message.content || message.text)?.toLowerCase().includes(searchQuery.toLowerCase())
+			(message.content || message.text || '').toLowerCase().includes(searchQuery.toLowerCase())
 		)
 		: visibleMessages;
 
@@ -150,273 +151,186 @@ export default function ChatShell({
 		}
 	}, [searchQuery]);
 
+	// Responsive sidebar handling
+	useEffect(() => {
+		const handleResize = () => {
+			if (window.innerWidth < 768) {
+				setIsSidebarOpen(false);
+			} else {
+				setIsSidebarOpen(true);
+			}
+		};
+		handleResize();
+		window.addEventListener('resize', handleResize);
+		return () => window.removeEventListener('resize', handleResize);
+	}, []);
+
+	const handleSelectConversation = (id) => {
+		onSelectConversation(id);
+		if (window.innerWidth < 768) {
+			setIsSidebarOpen(false);
+		}
+	};
+
 	const handleSend = useCallback(() => {
-		if (!selectedConversationId) return;
-		if (!draft.text.trim()) return;
+		if (!selectedConversationId || !draft.text.trim()) return;
 		if (draft.editingMessageId) {
-			onApplyEditMessage({
-				conversationId: selectedConversationId,
-				messageId: draft.editingMessageId,
-				text: draft.text.trim(),
-			});
+			onApplyEditMessage({ conversationId: selectedConversationId, messageId: draft.editingMessageId, text: draft.text.trim() });
 			onClearEditingMessage({ conversationId: selectedConversationId });
 			onSetDraft({ conversationId: selectedConversationId, text: "" });
 			return;
 		}
-		onSendMessage(selectedConversationId, draft.text, {
-			replyToId: draft.replyToId,
-		});
+		onSendMessage(selectedConversationId, draft.text, { replyToId: draft.replyToId });
 		onSetDraft({ conversationId: selectedConversationId, text: "" });
 		onClearReplyTo({ conversationId: selectedConversationId });
-	}, [
-		draft,
-		onApplyEditMessage,
-		onClearEditingMessage,
-		onClearReplyTo,
-		onSendMessage,
-		onSetDraft,
-		selectedConversationId,
-	]);
-
-	const handleRetry = useCallback((message) => {
-		if (!selectedConversationId) return;
-		onRetryMessage({ conversationId: selectedConversationId, messageId: message.id });
-		onSendMessage(selectedConversationId, message.text, { messageId: message.id });
-	}, [onRetryMessage, onSendMessage, selectedConversationId]);
-
-	const handleSearchChange = (value) => {
-		if (!selectedConversationId) return;
-		onSetSearchQuery({ conversationId: selectedConversationId, query: value });
-	};
-
-	const handleInputChange = (value) => {
-		if (!selectedConversationId) return;
-		onSetDraft({ conversationId: selectedConversationId, text: value });
-		onSetTypingStatus({
-			conversationId: selectedConversationId,
-			isTyping: value.length > 0,
-			userName: "You",
-		});
-		onHandleTyping();
-	};
-
-	const handleReply = (message) => {
-		if (!selectedConversationId) return;
-		onSetReplyTo({ conversationId: selectedConversationId, messageId: message.id });
-	};
-
-	const handleEdit = (message) => {
-		if (!selectedConversationId) return;
-		onSetEditingMessage({ conversationId: selectedConversationId, messageId: message.id });
-		onSetDraft({ conversationId: selectedConversationId, text: message.text });
-	};
-
-	const handleForward = (message) => {
-		onSetForwardingMessage({
-			message: {
-				...message,
-				senderId: "current",
-				senderName: "You",
-			},
-		});
-	};
-
-	const handleDelete = (message, deleteForAll) => {
-		if (!selectedConversationId) return;
-		if (deleteForAll) {
-			onDeleteMessageForAll({ conversationId: selectedConversationId, messageId: message.id });
-			return;
-		}
-		onDeleteMessageForMe({ conversationId: selectedConversationId, messageId: message.id });
-	};
-
-	const handleReact = (message, emoji) => {
-		if (!selectedConversationId) return;
-		onToggleReaction({
-			conversationId: selectedConversationId,
-			messageId: message.id,
-			emoji,
-			userId: "current",
-		});
-	};
-
-	const handleCloseChat = () => {
-		onCloseConversation();
-		onSetSearchQuery({ conversationId: selectedConversationId, query: "" });
-		navigate("/student/dashboard");
-	};
-
-	const handleArchive = () => {
-		if (!selectedConversationId) return;
-		onToggleArchiveConversation({ conversationId: selectedConversationId });
-		onCloseConversation();
-	};
-
-	const handleMute = () => {
-		if (!selectedConversationId) return;
-		onToggleMuteConversation({ conversationId: selectedConversationId });
-	};
-
-	const handlePin = () => {
-		if (!selectedConversationId) return;
-		onTogglePinConversation({ conversationId: selectedConversationId });
-	};
-
-	const handleClearChat = () => {
-		if (!selectedConversationId) return;
-		onClearConversation({ conversationId: selectedConversationId });
-	};
-
-    const handleDisconnectChat = () => {
-        if (!selectedConversationId) return;
-        onDisconnect(selectedConversationId);
-    };
-
-	const handleCancelForward = () => {
-		onClearForwardingMessage();
-	};
+	}, [draft, onApplyEditMessage, onClearEditingMessage, onClearReplyTo, onSendMessage, onSetDraft, selectedConversationId]);
 
 	return (
-		<div className="messaging-container">
-			<ChatSidebar
-				conversations={visibleConversations}
-				selectedId={selectedConversationId}
-				onSelectConversation={onSelectConversation}
-				archivedCount={archivedConversations.length}
-				showArchived={showArchived}
-				onToggleArchived={() => setShowArchived((prev) => !prev)}
-			/>
-
-			{selectedConversation ? (
-				<div className="chat-window">
-					<ChatHeader
-						conversation={selectedConversation}
-						avatarColor={selectedConversation.avatarColor}
-						isMuted={selectedConversation.isMuted}
-						isArchived={selectedConversation.isArchived}
-						isPinned={selectedConversation.isPinned}
-						isTyping={typingStatus?.isTyping}
-						typingName={typingStatus?.userName}
-						lastSeen={selectedConversation.lastSeen}
-						searchQuery={searchQuery}
-						searchInputRef={searchInputRef}
-						onSearch={handleSearchChange}
-						onClose={handleCloseChat}
-						onArchive={handleArchive}
-						onMute={handleMute}
-						onPin={handlePin}
-						onClearChat={handleClearChat}
-                        onDisconnect={handleDisconnectChat}
+		<div className="flex h-full w-full bg-[#0d1117] overflow-hidden relative">
+			{/* Sidebar - Responsive Drawer */}
+			<div className={`
+				fixed inset-0 z-40 md:relative md:inset-auto md:z-10
+				transition-transform duration-300 ease-in-out
+				${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+				${!isSidebarOpen ? 'md:hidden' : 'md:flex md:w-[350px]'}
+			`}>
+				{/* Mobile Overlay */}
+				{isSidebarOpen && (
+					<div 
+						className="absolute inset-0 bg-black/60 md:hidden z-[-1]" 
+						onClick={() => setIsSidebarOpen(false)}
 					/>
+				)}
+				<ChatSidebar
+					conversations={visibleConversations}
+					selectedId={selectedConversationId}
+					onSelectConversation={handleSelectConversation}
+					archivedCount={archivedConversations.length}
+					showArchived={showArchived}
+					onToggleArchived={() => setShowArchived((prev) => !prev)}
+				/>
+			</div>
 
-					{forwardingMessage && (
-						<div className="forward-banner">
-							<span>Forwarding message - select a chat</span>
-							<button onClick={handleCancelForward}>Cancel</button>
-						</div>
-					)}
-
-					<div className="message-list" ref={scrollRef}>
-						<div className="conversation-start"></div>
-						{filteredMessages.length > visibleCount && (
-							<button
-								className="load-earlier"
-								onClick={() => setVisibleCount((prev) => prev + 40)}
-							>
-								Load earlier messages
-							</button>
-						)}
-						{messagesWithSeparators.map((entry) =>
-							entry.type === "separator" ? (
-								<div key={entry.id} className="day-separator">
-									<span>{entry.label}</span>
-								</div>
-							) : (
-								<MessageBubble
-									key={entry.id}
-									message={entry.message}
-									isCurrentUser={
-										entry.message.senderId === "current" ||
-										entry.message.senderId === currentUser?._id?.toString() ||
-										entry.message.sender === currentUser?._id?.toString() ||
-										entry.message.sender?._id?.toString() === currentUser?._id?.toString() ||
-                                        entry.message.sender?._id === currentUser?._id
-									}
-									userColor={selectedConversation.avatarColor}
-                                    currentUser={currentUser}
-									quickReactions={quickReactions}
-									replyMessage={
-										entry.message.replyToId
-											? visibleMessages.find((msg) => (msg._id || msg.id) === entry.message.replyToId)
-											: null
-									}
-									onReply={() => handleReply(entry.message)}
-									onEdit={() => handleEdit(entry.message)}
-									onForward={() => handleForward(entry.message)}
-									onDelete={(deleteForAll) => handleDelete(entry.message, deleteForAll)}
-									onReact={(emoji) => handleReact(entry.message, emoji)}
-									onRetry={() => handleRetry(entry.message)}
-									isSearchMatch={
-										searchQuery &&
-										(entry.message.content || entry.message.text)
-											?.toLowerCase()
-											.includes(searchQuery.toLowerCase())
-									}
-								/>
-							)
-						)}
-					</div>
-					{typingStatus?.isTyping && (
-						<div className="typing-indicator-floating">
-							<div className="typing-bubble">
-								<span className="dot"></span>
-								<span className="dot"></span>
-								<span className="dot"></span>
-							</div>
-							<span className="typing-label">{typingStatus.userName || 'Someone'} is typing...</span>
-						</div>
-					)}
-					{canSend && (
-						<ChatInput
-							value={draft.text}
-							onChange={handleInputChange}
-							onSend={handleSend}
-							replyMessage={
-								draft.replyToId
-									? visibleMessages.find((msg) => (msg._id || msg.id) === draft.replyToId)
-									: null
-							}
-							onCancelReply={() =>
-								onClearReplyTo({ conversationId: selectedConversationId })
-							}
-							isEditing={!!draft.editingMessageId}
-							onCancelEdit={() =>
-								onClearEditingMessage({ conversationId: selectedConversationId })
-							}
+			{/* Main Chat Window */}
+			<div className="flex-1 flex flex-col min-w-0 bg-[#0d1117] relative">
+				{selectedConversation ? (
+					<>
+						<ChatHeader
+							conversation={selectedConversation}
+							avatarColor={selectedConversation.avatarColor}
+							isMuted={selectedConversation.isMuted}
+							isArchived={selectedConversation.isArchived}
+							isPinned={selectedConversation.isPinned}
+							isTyping={typingStatus?.isTyping}
+							typingName={typingStatus?.userName}
+							lastSeen={selectedConversation.lastSeen}
+							searchQuery={searchQuery}
+							searchInputRef={searchInputRef}
+							onSearch={(query) => onSetSearchQuery({ conversationId: selectedConversationId, query })}
+							onClose={() => setIsSidebarOpen(true)}
+							onArchive={() => onToggleArchiveConversation({ conversationId: selectedConversationId })}
+							onMute={() => onToggleMuteConversation({ conversationId: selectedConversationId })}
+							onPin={() => onTogglePinConversation({ conversationId: selectedConversationId })}
+							onClearChat={() => onClearConversation({ conversationId: selectedConversationId })}
+							onDisconnect={() => onDisconnect(selectedConversationId)}
 						/>
-					)}
-				</div>
-			) : (
-				<div className="chat-window no-conversation-selected">
-					<div className="placeholder-content">
-						<div className="placeholder-icon">
-							<MessageSquare size={64} />
+
+						{forwardingMessage && (
+							<div className="bg-emerald-600/10 border-b border-emerald-500/20 px-4 py-2 flex items-center justify-between text-emerald-400 text-xs font-medium">
+								<span className="flex items-center gap-2">
+									<MessageSquare size={14} />
+									Forwarding message... select a contact
+								</span>
+								<button onClick={onClearForwardingMessage} className="hover:text-white transition-colors">Cancel</button>
+							</div>
+						)}
+
+						<div className="flex-1 overflow-y-auto p-4 md:p-6 custom-scrollbar space-y-4" ref={scrollRef}>
+							{filteredMessages.length > visibleCount && (
+								<button
+									className="mx-auto block bg-[#161b22] border border-[#30363d] text-[#8b949e] hover:text-white px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all"
+									onClick={() => setVisibleCount((prev) => prev + 40)}
+								>
+									Load earlier messages
+								</button>
+							)}
+							
+							<div className="flex flex-col">
+								{messagesWithSeparators.map((entry) =>
+									entry.type === "separator" ? (
+										<div key={entry.id} className="flex items-center justify-center my-6">
+											<span className="bg-[#161b22] text-[#8b949e] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest border border-[#30363d]">
+												{entry.label}
+											</span>
+										</div>
+									) : (
+										<MessageBubble
+											key={entry.id}
+											message={entry.message}
+											isCurrentUser={
+												entry.message.senderId === "current" ||
+												entry.message.senderId === currentUser?._id?.toString() ||
+                                                entry.message.sender?._id === currentUser?._id
+											}
+											userColor={selectedConversation.avatarColor}
+											onReply={() => onSetReplyTo({ conversationId: selectedConversationId, messageId: entry.message.id })}
+											onEdit={() => {
+												onSetEditingMessage({ conversationId: selectedConversationId, messageId: entry.message.id });
+												onSetDraft({ conversationId: selectedConversationId, text: entry.message.text || entry.message.content });
+											}}
+											onForward={() => onSetForwardingMessage({ message: entry.message })}
+											onDelete={(deleteForAll) => {
+												if (deleteForAll) onDeleteMessageForAll({ conversationId: selectedConversationId, messageId: entry.message.id });
+												else onDeleteMessageForMe({ conversationId: selectedConversationId, messageId: entry.message.id });
+											}}
+											onReact={(emoji) => onToggleReaction({ conversationId: selectedConversationId, messageId: entry.message.id, emoji, userId: "current" })}
+											isSearchMatch={searchQuery && (entry.message.content || entry.message.text || '').toLowerCase().includes(searchQuery.toLowerCase())}
+										/>
+									)
+								)}
+							</div>
 						</div>
-						<h3>Select a conversation</h3>
-						<p>Choose a chat from the sidebar to start messaging</p>
+
+						{typingStatus?.isTyping && (
+							<div className="px-6 py-2 text-[11px] text-emerald-400 font-medium italic animate-pulse">
+								{typingStatus.userName || 'Someone'} is typing...
+							</div>
+						)}
+
+						{canSend && (
+							<ChatInput
+								value={draft.text}
+								onChange={(val) => {
+									onSetDraft({ conversationId: selectedConversationId, text: val });
+									onSetTypingStatus({ conversationId: selectedConversationId, isTyping: val.length > 0, userName: "You" });
+									onHandleTyping();
+								}}
+								onSend={handleSend}
+								replyMessage={draft.replyToId ? rawMessages.find(m => (m._id || m.id) === draft.replyToId) : null}
+								onCancelReply={() => onClearReplyTo({ conversationId: selectedConversationId })}
+								isEditing={!!draft.editingMessageId}
+								onCancelEdit={() => onClearEditingMessage({ conversationId: selectedConversationId })}
+							/>
+						)}
+					</>
+				) : (
+					<div className="flex-1 flex flex-col items-center justify-center p-8 text-center bg-[#0d1117]">
+						<div className="w-24 h-24 bg-[#161b22] border border-[#30363d] rounded-full flex items-center justify-center text-emerald-500 mb-6 shadow-2xl shadow-emerald-500/5">
+							<MessageSquare size={48} className="opacity-50" />
+						</div>
+						<h3 className="text-2xl font-bold text-white mb-2">Your Conversations</h3>
+						<p className="text-[#8b949e] max-w-sm mb-8 leading-relaxed">
+							Select a chat from the sidebar to start messaging. Your chats are encrypted and secure.
+						</p>
 						<button
-							className="start-chat-button"
-							onClick={() => {
-								if (conversations.length > 0) {
-									onSelectConversation(conversations[0].id);
-								}
-							}}
+							onClick={() => conversations.length > 0 && handleSelectConversation(conversations[0].id)}
+							className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-2xl font-bold transition-all hover:-translate-y-1 shadow-lg shadow-emerald-900/20"
 						>
-							Open any Chat
+							Open Recent Chat
 						</button>
 					</div>
-				</div>
-			)}
+				)}
+			</div>
 		</div>
 	);
 }

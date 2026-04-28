@@ -7,16 +7,11 @@ import {
   Bell,
   Trash2,
   MoreVertical,
-  UserMinus
+  UserMinus,
+  ArrowLeft
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
-import MutualConnectionsPreview from '../network/MutualConnectionsPreview';
 
-/**
- * Chat Header Component
- * Top bar of the chat window showing current conversation details
- * Displays contact name, online status, and action menu
- */
 const formatLastSeen = (value) => {
   if (!value) return '';
   const date = new Date(value);
@@ -49,9 +44,9 @@ const ChatHeader = ({
   onDisconnect
 }) => {
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
   const moreMenuRef = useRef(null);
 
-  // Close menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (moreMenuRef.current && !moreMenuRef.current.contains(event.target)) {
@@ -66,6 +61,7 @@ const ChatHeader = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showMoreMenu]);
+
   const statusLine = () => {
     if (conversation.type === 'group') {
       return `${conversation.members || 0} members`;
@@ -82,173 +78,132 @@ const ChatHeader = ({
     return 'offline';
   };
 
+  const avatarGradients = {
+    blue: 'from-blue-500 to-blue-700',
+    teal: 'from-teal-500 to-teal-700',
+    pink: 'from-pink-500 to-pink-700',
+    indigo: 'from-indigo-500 to-indigo-700',
+    cyan: 'from-cyan-500 to-cyan-700',
+    emerald: 'from-emerald-500 to-emerald-700',
+    rose: 'from-rose-500 to-rose-700',
+    violet: 'from-violet-500 to-violet-700',
+    amber: 'from-amber-500 to-amber-700',
+    lime: 'from-lime-500 to-lime-700',
+    fuchsia: 'from-fuchsia-500 to-fuchsia-700',
+    sky: 'from-sky-500 to-sky-700',
+    red: 'from-red-500 to-red-700',
+    green: 'from-green-500 to-green-700',
+    purple: 'from-purple-500 to-purple-700',
+    group: 'from-violet-600 to-indigo-600',
+  };
+
   return (
-    <div className="chat-header shadow-sm">
-      <div className="header-info">
-        <div className="avatar-container">
-          <div className={`avatar ${avatarColor} circular-avatar shadow-sm`}>
+    <div className="flex items-center justify-between px-4 py-3 bg-[#161b22] border-b border-[#30363d] shadow-sm z-20">
+      <div className="flex items-center gap-3">
+        <button onClick={onClose} className="md:hidden p-1.5 hover:bg-[#1f2937] rounded-lg text-[#8b949e]">
+          <ArrowLeft size={20} />
+        </button>
+        
+        <div className="relative flex-shrink-0">
+          <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${avatarGradients[avatarColor] || avatarGradients.blue} flex items-center justify-center text-white font-bold text-xs overflow-hidden shadow-md border border-white/10`}>
             {conversation.avatar && conversation.avatar.length > 2 ? (
-              <img src={conversation.avatar} alt={conversation.name} />
+              <img src={conversation.avatar} alt={conversation.name} className="w-full h-full object-cover" />
             ) : (
-              conversation.avatar
+              conversation.avatar || conversation.name[0].toUpperCase()
             )}
           </div>
           {conversation.type === 'user' && conversation.status === 'online' && (
-            <span className="status-indicator online"></span>
+            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-[#161b22] rounded-full"></span>
           )}
         </div>
-        <div className="user-details">
-          <div className="flex items-center gap-2">
-            <h3 className="font-bold">{conversation.name}</h3>
+
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <h3 className="text-[15px] font-bold text-white truncate leading-tight">{conversation.name}</h3>
             {isPinned && <Pin size={12} className="text-emerald-500 fill-emerald-500" />}
           </div>
-          <div className="status-container flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 mt-0.5">
             {conversation.type === 'user' && (
-               <span className={`status-dot ${conversation.status === 'online' ? 'online' : 'offline'}`}></span>
+               <span className={`w-1.5 h-1.5 rounded-full ${conversation.status === 'online' ? 'bg-emerald-500' : 'bg-gray-500'}`}></span>
             )}
-            <p className="status-text">{statusLine()}</p>
+            <p className={`text-[11px] font-medium tracking-wide uppercase ${isTyping ? 'text-emerald-400 animate-pulse' : 'text-[#8b949e]'}`}>
+              {statusLine()}
+            </p>
           </div>
         </div>
       </div>
-      <div className="header-actions">
-        <div className="header-search">
-          <Search size={16} />
+
+      <div className="flex items-center gap-1 md:gap-2">
+        <div className={`hidden lg:flex items-center bg-[#0d1117] border border-[#30363d] rounded-lg px-2.5 py-1.5 transition-all focus-within:border-emerald-500/50 ${showSearch ? 'w-64' : 'w-48'}`}>
+          <Search size={14} className="text-[#8b949e]" />
           <input
             ref={searchInputRef}
             type="text"
-            placeholder="Search in chat"
+            placeholder="Search messages..."
             value={searchQuery}
             onChange={(event) => onSearch?.(event.target.value)}
+            className="bg-transparent border-none text-xs text-white placeholder-[#484f58] outline-none ml-2 w-full"
+            onFocus={() => setShowSearch(true)}
+            onBlur={() => setShowSearch(false)}
           />
         </div>
-        <div className="header-buttons">
-          <button onClick={onPin} title={isPinned ? 'Unpin' : 'Pin'}>
-            <Pin size={18} className={isPinned ? 'active' : ''} />
+
+        <div className="flex items-center">
+          <button onClick={onPin} className={`p-2 rounded-lg transition-colors ${isPinned ? 'text-emerald-500' : 'text-[#8b949e] hover:bg-[#1f2937]'}`} title={isPinned ? 'Unpin' : 'Pin'}>
+            <Pin size={18} className={isPinned ? 'fill-emerald-500' : ''} />
           </button>
-          <button onClick={onMute} title={isMuted ? 'Unmute' : 'Mute'}>
+          
+          <button onClick={onMute} className="p-2 rounded-lg text-[#8b949e] hover:bg-[#1f2937] transition-colors" title={isMuted ? 'Unmute' : 'Mute'}>
             {isMuted ? <Bell size={18} /> : <BellOff size={18} />}
           </button>
-          <button onClick={onArchive} title={isArchived ? 'Unarchive' : 'Archive'}>
-            <Archive size={18} />
-          </button>
-          <button onClick={onClearChat} title="Clear chat">
-            <Trash2 size={18} />
-          </button>
-          <button onClick={onClose} title="Close">
-            <X size={18} />
-          </button>
-          <div style={{ position: 'relative' }} ref={moreMenuRef}>
+
+          <div className="relative" ref={moreMenuRef}>
             <button 
-              title="More options" 
               onClick={() => setShowMoreMenu(!showMoreMenu)}
+              className={`p-2 rounded-lg transition-colors ${showMoreMenu ? 'bg-[#1f2937] text-white' : 'text-[#8b949e] hover:bg-[#1f2937]'}`}
+              title="More options" 
             >
               <MoreVertical size={18} />
             </button>
-            {/* More options dropdown menu */}
+
             {showMoreMenu && (
-              <div style={{
-                position: 'absolute',
-                right: 0,
-                top: '100%',
-                backgroundColor: '#161b22',
-                border: '1px solid #30363d',
-                borderRadius: '8px',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                zIndex: 1000,
-                minWidth: '180px',
-              }}>
+              <div className="absolute right-0 top-full mt-2 w-56 bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl z-50 overflow-hidden py-1.5 backdrop-blur-sm bg-opacity-95">
                 <button
-                  onClick={() => {
-                    onClearChat?.();
-                    setShowMoreMenu(false);
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '10px 16px',
-                    border: 'none',
-                    backgroundColor: 'transparent',
-                    color: '#c9d1d9',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    borderBottom: '1px solid #30363d',
-                  }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#0d1117'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  onClick={() => { onClearChat?.(); setShowMoreMenu(false); }}
+                  className="w-full px-4 py-2 text-sm text-[#c9d1d9] text-left hover:bg-[#1f2937] flex items-center gap-2.5 transition-colors"
                 >
-                  Clear Chat History
+                  <Trash2 size={16} className="text-[#8b949e]" />
+                  Clear History
+                </button>
+                <button
+                  onClick={() => { onArchive?.(); setShowMoreMenu(false); }}
+                  className="w-full px-4 py-2 text-sm text-[#c9d1d9] text-left hover:bg-[#1f2937] flex items-center gap-2.5 transition-colors"
+                >
+                  <Archive size={16} className="text-[#8b949e]" />
+                  {isArchived ? 'Unarchive' : 'Archive'} Chat
                 </button>
                 <button
                   onClick={() => {
-                    onArchive?.();
-                    setShowMoreMenu(false);
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '10px 16px',
-                    border: 'none',
-                    backgroundColor: 'transparent',
-                    color: '#c9d1d9',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    borderBottom: '1px solid #30363d',
-                  }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#0d1117'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                >
-                  {isArchived ? 'Unarchive' : 'Archive'}
-                </button>
-                <button
-                  onClick={() => {
-                    if (window.confirm("Are you sure you want to disconnect? You will need to send a new request to message again.")) {
+                    if (window.confirm("Disconnect? You will need to send a new request to message again.")) {
                         onDisconnect?.();
                     }
                     setShowMoreMenu(false);
                   }}
-                  style={{
-                    width: '100%',
-                    padding: '10px 16px',
-                    border: 'none',
-                    backgroundColor: 'transparent',
-                    color: '#f87171',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#1f2937'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                  className="w-full px-4 py-2 text-sm text-red-400 text-left hover:bg-red-500/10 flex items-center gap-2.5 transition-colors border-t border-[#30363d] mt-1 pt-3"
                 >
-                  <UserMinus size={16} /> Disconnect Connection
-                </button>
-                <button
-                  onClick={() => {
-                    setShowMoreMenu(false);
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '10px 16px',
-                    border: 'none',
-                    backgroundColor: 'transparent',
-                    color: '#c9d1d9',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                  }}
-                  onMouseEnter={(e) => e.target.style.backgroundColor = '#1f2937'}
-                  onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
-                >
-                  Report
+                  <UserMinus size={16} /> Disconnect
                 </button>
               </div>
             )}
           </div>
+          
+          <button onClick={onClose} className="p-2 rounded-lg text-[#8b949e] hover:bg-red-500/10 hover:text-red-400 transition-colors ml-1" title="Close">
+            <X size={18} />
+          </button>
         </div>
       </div>
     </div>
   );
 };
+
 export default ChatHeader;
