@@ -158,10 +158,10 @@ export const useChatPageState = ({ allowedTypes }) => {
 
 			if (conversation.type === "dm") {
 				const otherMember = (conversation.members || []).find(
-					(m) => m.userId?._id?.toString() !== user?._id?.toString() && 
-						   m.userId?.toString() !== user?._id?.toString()
+					(m) => m.userId?._id?.toString() !== user?._id?.toString() &&
+						m.userId?.toString() !== user?._id?.toString()
 				);
-				
+
 				if (otherMember) {
 					const userData = otherMember.userId?.profile || otherMember.userId || {};
 					computedName = userData.displayName || `${userData.firstName || ''} ${userData.lastName || ''}`.trim() || "User";
@@ -181,22 +181,22 @@ export const useChatPageState = ({ allowedTypes }) => {
 				isArchived: archivedConversations.includes(conversation.id || conversation._id),
 				isMuted: mutedConversations.includes(conversation.id || conversation._id),
 				lastSeen,
-				otherUserId: conversation.type === "dm" 
-					? ((conversation.members || []).find(m => m.userId?._id?.toString() !== user?._id?.toString() && m.userId?.toString() !== user?._id?.toString())?.userId?._id || 
-					   (conversation.members || []).find(m => m.userId?._id?.toString() !== user?._id?.toString() && m.userId?.toString() !== user?._id?.toString())?.userId)
+				otherUserId: conversation.type === "dm"
+					? ((conversation.members || []).find(m => m.userId?._id?.toString() !== user?._id?.toString() && m.userId?.toString() !== user?._id?.toString())?.userId?._id ||
+						(conversation.members || []).find(m => m.userId?._id?.toString() !== user?._id?.toString() && m.userId?.toString() !== user?._id?.toString())?.userId)
 					: null,
 				...meta,
 			};
 		}), [
-			directConversations,
-			messagesByConversation,
-			unreadByConversation,
-			pinnedConversations,
-			archivedConversations,
-			mutedConversations,
-			lastSeenByConversation,
-			user?._id
-		]
+		directConversations,
+		messagesByConversation,
+		unreadByConversation,
+		pinnedConversations,
+		archivedConversations,
+		mutedConversations,
+		lastSeenByConversation,
+		user?._id
+	]
 	);
 
 	const groupList = useMemo(() =>
@@ -219,13 +219,13 @@ export const useChatPageState = ({ allowedTypes }) => {
 				...meta,
 			};
 		}), [
-			myGroups,
-			messagesByConversation,
-			unreadByConversation,
-			pinnedConversations,
-			archivedConversations,
-			mutedConversations,
-		]
+		myGroups,
+		messagesByConversation,
+		unreadByConversation,
+		pinnedConversations,
+		archivedConversations,
+		mutedConversations,
+	]
 	);
 
 	const eventSource = registeredEvents.length > 0
@@ -253,13 +253,13 @@ export const useChatPageState = ({ allowedTypes }) => {
 				lastMessage: meta.lastMessage,
 			};
 		}), [
-			eventSource,
-			messagesByConversation,
-			unreadByConversation,
-			pinnedConversations,
-			archivedConversations,
-			mutedConversations,
-		]
+		eventSource,
+		messagesByConversation,
+		unreadByConversation,
+		pinnedConversations,
+		archivedConversations,
+		mutedConversations,
+	]
 	);
 
 	const combined = useMemo(() => {
@@ -296,9 +296,10 @@ export const useChatPageState = ({ allowedTypes }) => {
 
 	const handleSendMessage = useCallback((conversationId, text, options = {}) => {
 		if (!conversationId || !text?.trim()) return;
-		const messageId = options.messageId || `msg-${Date.now()}`;
+		const tempId = options.messageId || `msg-${Date.now()}`;
 		const message = {
-			_id: messageId,
+			tempId: tempId, // Track via tempId
+			_id: tempId,    // Use as _id for key rendering
 			content: text.trim(),
 			timestamp: new Date().toISOString(),
 			senderId: user?._id || "current",
@@ -325,17 +326,17 @@ export const useChatPageState = ({ allowedTypes }) => {
 				content: message.content,
 				type: "text",
 				replyToId: message.replyToId,
-				idempotencyKey: messageId,
+				idempotencyKey: tempId,
 			},
 			(ack) => {
 				if (ack?.success && ack.message) {
 					dispatch(replaceOptimisticMessage({
 						conversationId,
-						tempId: messageId,
+						tempId: tempId,
 						realMessage: ack.message,
 					}));
 				} else {
-					dispatch(markMessageFailed({ conversationId, messageId }));
+					dispatch(markMessageFailed({ conversationId, messageId: tempId }));
 				}
 			}
 		);

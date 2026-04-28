@@ -180,6 +180,13 @@ export const registerChatHandlers = (io, socket) => {
                 mentions
             });
 
+            // IMPORTANT: Attach the idempotencyKey to the populated object so the sender's 
+            // other listeners can deduplicate it correctly.
+            const broadcastMessage = populated.toObject ? populated.toObject() : { ...populated };
+            if (idempotencyKey) {
+                broadcastMessage.idempotencyKey = idempotencyKey;
+            }
+
             if (idempotencyKey && typeof idempotencyKey === "string") {
                 processedMessages.set(idempotencyKey, {
                     expiresAt: Date.now() + IDEMPOTENCY_EXPIRY_MS,
@@ -191,9 +198,9 @@ export const registerChatHandlers = (io, socket) => {
                 .filter(m => m.userId.toString() !== userId)
                 .map(m => `user:${m.userId.toString()}`);
             // Broadcast to chat room AND target user rooms, but NOT back to sender
-            socket.to(`chat:${chatId}`).emit("message:new", populated);
+            socket.to(`chat:${chatId}`).emit("message:new", broadcastMessage);
             if (targetMembers.length > 0) {
-                io.to(targetMembers).emit("message:new", populated);
+                io.to(targetMembers).emit("message:new", broadcastMessage);
             }
             logSocket("info", "message:send", userId, `Successfully sent message ${populated._id} to chat ${chatId}`);
 

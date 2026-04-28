@@ -139,7 +139,20 @@ const chatSlice = createSlice({
 			const conversationId = action.payload;
 			state.selectedConversationId = conversationId;
 			if (conversationId) {
-						state.unreadByConversation[conversationId] = 0;
+				state.unreadByConversation[conversationId] = 0;
+				const conversation = state.conversations.find(
+					(c) => c.id === conversationId || c._id === conversationId
+				);
+				if (conversation) {
+					conversation.unreadCount = 0;
+					conversation.myUnreadCount = 0;
+				}
+			}
+		},
+		setChatRead: (state, action) => {
+			const conversationId = action.payload?.conversationId || action.payload;
+			if (!conversationId) return;
+			state.unreadByConversation[conversationId] = 0;
 			const conversation = state.conversations.find(
 				(c) => c.id === conversationId || c._id === conversationId
 			);
@@ -147,21 +160,8 @@ const chatSlice = createSlice({
 				conversation.unreadCount = 0;
 				conversation.myUnreadCount = 0;
 			}
-		}
 		},
-		setChatRead: (state, action) => {
-		const conversationId = action.payload?.conversationId || action.payload;
-		if (!conversationId) return;
-		state.unreadByConversation[conversationId] = 0;
-		const conversation = state.conversations.find(
-			(c) => c.id === conversationId || c._id === conversationId
-		);
-		if (conversation) {
-			conversation.unreadCount = 0;
-			conversation.myUnreadCount = 0;
-		}
-	},
-	closeConversation: (state) => {
+		closeConversation: (state) => {
 			state.selectedConversationId = null;
 		},
 		newMessage: (state, action) => {
@@ -170,10 +170,12 @@ const chatSlice = createSlice({
 			if (!state.messagesByConversation[conversationId]) {
 				state.messagesByConversation[conversationId] = [];
 			}
-			// Dedup by real _id OR by idempotencyKey/tempId
+			// Dedup by real _id OR by tempId/idempotencyKey
 			const exists = state.messagesByConversation[conversationId].some(
 				(m) => (m._id && message._id && m._id === message._id) ||
-                       (m.tempId && message.idempotencyKey && m.tempId === message.idempotencyKey)
+                       (m.tempId && message.tempId && m.tempId === message.tempId) ||
+                       (m.tempId && message.idempotencyKey && m.tempId === message.idempotencyKey) ||
+                       (m._id && message.tempId && m._id === message.tempId) // Matches tempId saved as _id
 			);
 			if (!exists) {
 				state.messagesByConversation[conversationId].push(message);

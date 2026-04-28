@@ -117,7 +117,8 @@ export default function NotificationCenter() {
           navigate(`/users/${notif.ref}`);
           break;
         case 'ProfileView':
-          navigate(`/users/${notif.actorId}`); // Go to the visitor's profile
+          const targetId = notif.actorId?._id || notif.actorId;
+          navigate(`/users/${targetId}`); // Go to the visitor's profile
           break;
         default:
           break;

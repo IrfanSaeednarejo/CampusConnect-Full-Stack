@@ -7,6 +7,8 @@ import {
   selectMySocieties,
   selectMemberRequests,
 } from '../../redux/slices/societySlice';
+import { selectUnreadCount } from '../../redux/slices/notificationSlice';
+import { selectUnreadByConversation } from '../../redux/slices/chatSlice';
 
 /* ─── Nav item data ──────────────────────────────────────────────────────── */
 
@@ -90,12 +92,12 @@ function NavItem({ item, collapsed }) {
         <span className="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-[#3fb950]/15 text-[#3fb950] border border-[#3fb950]/20">AI</span>
       )}
       {!collapsed && item.badge > 0 && (
-        <span className="bg-amber-500/10 text-amber-500 text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-amber-500/20">
+        <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full border ${item.badgeClasses || 'bg-amber-500/10 text-amber-500 border-amber-500/20'}`}>
           {item.badge}
         </span>
       )}
       {collapsed && item.badge > 0 && (
-        <div className="absolute top-1 right-1 w-2 h-2 bg-amber-500 rounded-full border border-[#0d1117]" />
+        <div className={`absolute top-1 right-1 w-2 h-2 rounded-full border border-[#0d1117] ${item.badgeDot || 'bg-amber-500'}`} />
       )}
       {collapsed && (
         <span className="absolute left-full ml-2 px-2 py-1 rounded-md bg-[#30363d] text-[#e6edf3] text-xs whitespace-nowrap
@@ -237,6 +239,9 @@ export default function AppSidebar({ open, onClose }) {
   const [collapsed, setCollapsed] = useState(false);
   const mySocieties = useSelector(selectMySocieties);
   const memberRequests = useSelector(selectMemberRequests);
+  const unreadNotificationsCount = useSelector(selectUnreadCount) || 0;
+  const unreadByConversation = useSelector(selectUnreadByConversation) || {};
+  const unreadChatsCount = Object.values(unreadByConversation).reduce((acc, curr) => acc + (Number(curr) || 0), 0);
 
   // Determine active society from URL
   const societyMatch = location.pathname.match(/\/society\/([^/]+)/);
@@ -299,9 +304,23 @@ export default function AppSidebar({ open, onClose }) {
         <nav className="flex-1 overflow-y-auto overflow-x-hidden py-2 px-2 flex flex-col gap-0.5 custom-scrollbar">
 
           {!collapsed && <SectionHeader label="General" collapsed={collapsed} />}
-          {CORE_NAV.map((item) => (
-            <NavItem key={item.to} item={item} collapsed={collapsed} />
-          ))}
+          {CORE_NAV.map((item) => {
+            let badge = item.badge;
+            let badgeClasses = 'bg-amber-500/10 text-amber-500 border-amber-500/20'; // Default
+            let badgeDot = 'bg-amber-500';
+            
+            if (item.label === 'Notifications' && unreadNotificationsCount > 0) {
+              badge = unreadNotificationsCount;
+              badgeClasses = 'bg-[#3fb950]/10 text-[#3fb950] border-[#3fb950]/20'; // Green
+              badgeDot = 'bg-[#3fb950]';
+            } else if (item.label === 'Messages' && unreadChatsCount > 0) {
+              badge = unreadChatsCount;
+              badgeClasses = 'bg-[#3fb950]/10 text-[#3fb950] border-[#3fb950]/20'; // Green
+              badgeDot = 'bg-[#3fb950]';
+            }
+
+            return <NavItem key={item.to} item={{...item, badge, badgeClasses, badgeDot}} collapsed={collapsed} />;
+          })}
 
           {(isMentor || mentorPending) && (
             <>

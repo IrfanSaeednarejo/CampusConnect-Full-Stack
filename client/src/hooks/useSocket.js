@@ -22,7 +22,15 @@ export const useSocket = () => {
     }
 
     const socket = getSocket();
-    if (!socket || registeredRef.current) return;
+    if (!socket) return;
+    
+    // GUARD: Only register global handlers once per socket instance
+    if (!socket._handlersRegistered) {
+      injectGetState(store.getState);
+      registerChatHandlers(socket, dispatch);
+      registerNotificationHandlers(socket, dispatch);
+      socket._handlersRegistered = true;
+    }
 
     const onConnect = () => setIsConnected(true);
     const onDisconnect = () => setIsConnected(false);
@@ -54,10 +62,6 @@ export const useSocket = () => {
     socket.on('user:logout', onForceLogout);
     socket.on('user:suspension', onSuspension);
 
-    injectGetState(store.getState);
-    registerChatHandlers(socket, dispatch);
-    registerNotificationHandlers(socket, dispatch);
-    registeredRef.current = true;
     setIsConnected(socket.connected);
 
     return () => {
@@ -67,9 +71,6 @@ export const useSocket = () => {
         socket.off('connect_error', onConnectError);
         socket.off('user:logout', onForceLogout);
         socket.off('user:suspension', onSuspension);
-        unregisterChatHandlers(socket);
-        unregisterNotificationHandlers(socket);
-        registeredRef.current = false;
       }
     };
   }, [isAuthenticated, dispatch, store]);
@@ -99,7 +100,7 @@ export const useSocketListener = (event, callback, deps = []) => {
     return () => {
       socket.off(event, listener);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket, event, ...deps]);
 };
 
