@@ -3,11 +3,17 @@ import MemberCard from "../common/MemberCard";
 import Card from "../common/Card";
 import Input from "../common/Input";
 import { searchUsers } from "../../api/userApi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchNetworkState } from "../../redux/slices/networkSlice";
+import { selectUser } from "../../redux/slices/authSlice";
+import { MemberListRow } from "./NetworkTabs";
+import { useNavigate } from "react-router-dom";
+import { createOrGetDMThunk } from "../../redux/slices/chatSlice";
 
-export default function MemberDiscovery() {
+export default function MemberDiscovery({ view = 'grid' }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const currentUser = useSelector(selectUser);
   const [members, setMembers] = useState([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
@@ -43,6 +49,8 @@ export default function MemberDiscovery() {
     }, 500);
   };
 
+  const displayedMembers = members.filter(m => m._id !== currentUser?._id);
+
   return (
     <div className="flex flex-col gap-6">
       <Card className="bg-[#161b22] border-[#30363d]">
@@ -63,16 +71,15 @@ export default function MemberDiscovery() {
           </div>
         </div>
       </Card>
-
       {loading ? (
         <div className="text-center text-slate-400 py-10">Searching community...</div>
-      ) : members.length === 0 ? (
+      ) : displayedMembers.length === 0 ? (
         <div className="text-center text-slate-400 py-10 bg-[#161b22] rounded-lg border border-dashed border-[#30363d]">
-          No members found matching your search.
+          {query ? 'No members found matching your search.' : 'No other members discovered yet.'}
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {members.map((member) => (
+      ) : view === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 nt-stagger">
+          {displayedMembers.map((member) => (
             <MemberCard
               key={member._id}
               userId={member._id}
@@ -84,6 +91,25 @@ export default function MemberDiscovery() {
               interests={member.interests}
               sharedInterests={member.sharedInterests}
               isConnected={member.isConnected}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="nt-stagger" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {displayedMembers.map((member) => (
+            <MemberListRow
+              key={member._id}
+              item={member}
+              isConnected={member.isConnected}
+              isSuggested={false}
+              onMessage={async (userId, name) => {
+                try {
+                  const result = await dispatch(createOrGetDMThunk(userId)).unwrap();
+                  navigate(`/messages/${result._id}`);
+                } catch (err) {
+                  console.error("Failed to open message", err);
+                }
+              }}
             />
           ))}
         </div>

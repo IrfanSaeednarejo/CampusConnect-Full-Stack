@@ -4,6 +4,9 @@ import { fetchNetworkState, fetchSuggestedMembers } from '../../redux/slices/net
 import MemberCard from '../common/MemberCard';
 import SectionHeader from '../common/SectionHeader';
 import MemberDiscovery from './MemberDiscovery';
+import ConnectionButton from './ConnectionButton';
+import { useNavigate } from 'react-router-dom';
+import { createOrGetDMThunk } from '../../redux/slices/chatSlice';
 
 /* ─── Inline styles injected once ─────────────────────────────────────────── */
 const STYLES = `
@@ -65,7 +68,7 @@ const STYLES = `
     border: 1px solid #21262d;
     background: #161b22;
     transition: border-color 0.18s, background 0.18s;
-    cursor: default;
+    cursor: pointer;
   }
   .nt-list-row:hover { border-color: #30363d; background: #1c2128; }
 
@@ -207,7 +210,7 @@ function useStyles() {
 }
 
 /* ─── Avatar helper ────────────────────────────────────────────────────────── */
-function Avatar({ url, name, size = 42 }) {
+export function Avatar({ url, name, size = 42 }) {
   const [err, setErr] = useState(false);
   const initial = (name || '?')[0];
   if (url && !err) {
@@ -228,7 +231,8 @@ function Avatar({ url, name, size = 42 }) {
 }
 
 /* ─── List row for a single member ────────────────────────────────────────── */
-function MemberListRow({ item, isConnected, isSuggested, onMessage }) {
+export function MemberListRow({ item, isConnected, isSuggested, onMessage }) {
+  const navigate = useNavigate();
   const user = item.user || item;
   const name = user.profile?.displayName || 'Unknown';
   const role = user.roles?.[0];
@@ -238,15 +242,14 @@ function MemberListRow({ item, isConnected, isSuggested, onMessage }) {
   const mutualCount = item.mutualCount || user.mutualCount;
   const sharedInterests = item.sharedInterests || user.sharedInterests;
 
-  const handleMessage = (e) => {
-    e.stopPropagation();
-    if (onMessage) onMessage(userId, name);
-    // fallback: navigate to messages — wire this to your router
-    // e.g. navigate(`/messages/${userId}`)
-  };
-
   return (
-    <div className="nt-list-row">
+    <div 
+      className="nt-list-row"
+      onClick={(e) => {
+        if (e.target.closest('[data-no-nav]')) return;
+        navigate(`/users/${userId}`);
+      }}
+    >
       <Avatar url={avatarUrl} name={name} size={42} />
 
       <div style={{ minWidth: 0, flex: 1 }}>
@@ -273,14 +276,10 @@ function MemberListRow({ item, isConnected, isSuggested, onMessage }) {
         )}
       </div>
 
-      {isConnected ? (
-        <button className="nt-list-action-message" onClick={handleMessage} title={`Message ${name}`}>
-          <span className="material-symbols-outlined nt-msg-icon">chat</span>
-          Message
-        </button>
-      ) : isSuggested ? (
-        <button className="nt-list-action">Connect</button>
-      ) : null}
+      {/* Action Button */}
+      <div className="flex-shrink-0 ml-auto" data-no-nav>
+        <ConnectionButton targetUserId={userId} />
+      </div>
     </div>
   );
 }
@@ -407,6 +406,7 @@ export default function NetworkTabs() {
   useStyles();
 
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('network');
   const [searchQuery, setSearchQuery] = useState('');
   const [view, setView] = useState('grid'); // 'grid' | 'list'
@@ -548,10 +548,13 @@ export default function NetworkTabs() {
                 showSearch
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
-                onMessage={(userId, name) => {
-                  // Navigate to direct message thread — wire to your router
-                  // e.g. navigate(`/messages/${userId}`)
-                  console.log('Open message thread with', name, userId);
+                onMessage={async (userId, name) => {
+                  try {
+                    const result = await dispatch(createOrGetDMThunk(userId)).unwrap();
+                    navigate(`/messages/${result._id}`);
+                  } catch (err) {
+                    console.error("Failed to open message", err);
+                  }
                 }}
               />
             </>
