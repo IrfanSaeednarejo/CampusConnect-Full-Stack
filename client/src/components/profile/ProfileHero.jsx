@@ -1,8 +1,10 @@
 import { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { Camera, MapPin, Edit2, Sparkles, BadgeCheck, Star, MessageCircle } from "lucide-react";
+import { Camera, MapPin, Edit2, Sparkles, BadgeCheck, Star, MessageCircle, Users } from "lucide-react";
 import ConnectionButton from "../network/ConnectionButton";
+import ConnectionsModal from "../network/ConnectionsModal";
+import { useState } from "react";
 
 const ROLE_CONFIG = {
     student:       { label: "Student",        color: "bg-blue-500/15 text-blue-400 border-blue-500/25" },
@@ -47,6 +49,7 @@ export default function ProfileHero({ profile, isOwner = false, onEditCover, onE
     const navigate  = useNavigate();
     const coverRef  = useRef(null);
     const avatarRef = useRef(null);
+    const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
 
     const fullName  = profile?.profile?.displayName
         || `${profile?.profile?.firstName || ""} ${profile?.profile?.lastName || ""}`.trim()
@@ -197,17 +200,29 @@ export default function ProfileHero({ profile, isOwner = false, onEditCover, onE
                 {/* ── Stats row ────────────────────────────────────────────── */}
                 <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-[#30363d]">
                     {[
-                        { label: "Connections", value: profile?.connectionCount },
+                        { label: "Connections", value: profile?.connectionCount || 0, clickable: true },
                         { label: "Profile Views", value: profile?.profileViews },
                         { label: "Projects",     value: profile?.projects?.length },
                         { label: "Experience",   value: profile?.experience?.length },
-                    ].filter((s) => s.value > 0).map((s) => (
-                        <div key={s.label} className="text-center">
+                    ].filter((s) => s.value > 0 || s.label === "Connections" || s.label === "Profile Views").map((s) => (
+                        <div 
+                            key={s.label} 
+                            className={`text-center ${s.clickable ? 'cursor-pointer hover:bg-[#30363d]/50 px-3 py-1 rounded-xl transition-all' : ''}`}
+                            onClick={s.clickable ? () => setIsConnectionsModalOpen(true) : undefined}
+                        >
                             <p className="text-white font-bold text-lg leading-none">{s.value}</p>
                             <p className="text-[#8b949e] text-[10px] uppercase tracking-wider mt-0.5">{s.label}</p>
                         </div>
                     ))}
                 </div>
+
+                {/* Connections Modal */}
+                <ConnectionsModal 
+                    isOpen={isConnectionsModalOpen} 
+                    onClose={() => setIsConnectionsModalOpen(false)} 
+                    userId={profile?._id}
+                    userName={fullName}
+                />
 
                 {/* ── Become a Mentor CTA (own profile, not yet mentor) ─────── */}
                 {isOwner && !isMentor && (

@@ -8,3 +8,4 @@ export const sendConnectionRequest = (targetUserId) => api.post('/network/reques
 export const respondToConnectionRequest = (connectionId, action) => api.patch(`/network/request/${connectionId}/respond`, { action });
 export const cancelConnectionRequest = (connectionId) => api.delete(`/network/request/${connectionId}/cancel`);
 export const removeConnection = (connectionId) => api.delete(`/network/${connectionId}`);
+export const getUserConnections = (userId) => api.get(`/network/connections/${userId}`);

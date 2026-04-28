@@ -309,12 +309,17 @@ export const getProfile = async (targetId, requestUser) => {
         .select(
             "profile academic interests socialLinks roles campusId " +
             "preferences.privacy lastLoginAt status mentorVerification " +
-            "societyHeadVerification createdAt experience projects eventParticipation achievements"
+            "societyHeadVerification createdAt experience projects eventParticipation achievements profileViews"
         );
 
     if (!target || target.status === "deleted") {
         throw new ApiError(404, "User not found");
     }
+
+    const connectionCount = await Connection.countDocuments({
+        $or: [{ requester: targetId }, { recipient: targetId }],
+        status: "accepted"
+    });
 
     const prefs = target.preferences?.privacy || {};
     if (prefs.profileVisibility === "campus") {
@@ -326,7 +331,7 @@ export const getProfile = async (targetId, requestUser) => {
     }
 
     const filtered = applyPrivacyFilter(target, requestUser?._id);
-    return filtered;
+    return { ...filtered, connectionCount };
 };
 
 export const updateAccount = async (userId, userObj, updatesData) => {

@@ -305,6 +305,22 @@ export const getMutualConnections = async (userId, targetId, limit = 3) => {
     };
 };
 
+export const getUserConnections = async (targetUserId) => {
+    const connections = await Connection.find({
+        $or: [{ requester: targetUserId }, { recipient: targetUserId }],
+        status: "accepted"
+    }).populate("requester", SAFE_SELECT)
+      .populate("recipient", SAFE_SELECT)
+      .lean();
+
+    const result = connections.map((conn) => {
+        const peer = conn.requester._id.toString() === targetUserId.toString() ? conn.recipient : conn.requester;
+        return { connectionId: conn._id, user: peer, connectedAt: conn.updatedAt };
+    });
+
+    return result;
+};
+
 export const getConnectionStatus = async (userId, targetId) => {
     const connection = await Connection.findOne({
         $or: [

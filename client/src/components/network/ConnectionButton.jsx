@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { sendConnectionRequest, respondToConnectionRequest, cancelConnectionRequest, removeConnection } from '../../api/networkApi';
 import { fetchNetworkState } from '../../redux/slices/networkSlice';
 import { createOrGetDMThunk } from '../../redux/slices/chatSlice';
+import { selectUser } from '../../redux/slices/authSlice';
 import Button from '../common/Button';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -11,7 +12,10 @@ export default function ConnectionButton({ targetUserId, fullWidth = false }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  const currentUser = useSelector(selectUser);
   const { connected, pendingSent, pendingReceived } = useSelector((state) => state.network);
+  
+  if (currentUser?._id === targetUserId) return null;
 
   const isConnected = connected.find((c) => c.user._id === targetUserId);
   const isPendingSent = pendingSent.find((c) => c.user._id === targetUserId);

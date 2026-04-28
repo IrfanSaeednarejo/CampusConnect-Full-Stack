@@ -8,7 +8,8 @@ import {
     removeConnection,
     getSuggestedMembers,
     getMutualConnections,
-    getConnectionStatus
+    getConnectionStatus,
+    getUserConnections
 } from "../controllers/network.controller.js";
 
 const router = Router();
@@ -19,6 +20,7 @@ router.route("/state").get(getNetworkState);
 router.route("/suggested").get(getSuggestedMembers);
 router.route("/mutual/:targetUserId").get(getMutualConnections);
 router.route("/status/:targetUserId").get(getConnectionStatus);
+router.route("/connections/:userId").get(getUserConnections);
 
 router.route("/request").post(sendConnectionRequest);
 router.route("/request/:connectionId/respond").patch(respondToConnectionRequest);

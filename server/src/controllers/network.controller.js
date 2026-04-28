@@ -45,3 +45,8 @@ export const getConnectionStatus = asyncHandler(async (req, res) => {
     const status = await networkService.getConnectionStatus(req.user._id, req.params.targetUserId);
     return res.status(200).json(new ApiResponse(200, status, "Connection status fetched"));
 });
+
+export const getUserConnections = asyncHandler(async (req, res) => {
+    const connections = await networkService.getUserConnections(req.params.userId);
+    return res.status(200).json(new ApiResponse(200, connections, "User connections fetched"));
+});

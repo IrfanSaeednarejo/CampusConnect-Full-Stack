@@ -216,22 +216,25 @@ export function Avatar({ url, name, size = 42 }) {
   if (url && !err) {
     return (
       <img
-        className="nt-list-avatar"
         src={url} alt={name}
-        style={{ width: size, height: size }}
+        className="nt-list-avatar"
+        style={{ width: size, height: size, borderRadius: '50%', objectFit: 'cover' }}
         onError={() => setErr(true)}
       />
     );
   }
   return (
-    <div className="nt-list-avatar-placeholder" style={{ width: size, height: size, fontSize: size * 0.38 }}>
+    <div 
+      className="nt-list-avatar-placeholder" 
+      style={{ width: size, height: size, fontSize: size * 0.38, borderRadius: '50%' }}
+    >
       {initial}
     </div>
   );
 }
 
 /* ─── List row for a single member ────────────────────────────────────────── */
-export function MemberListRow({ item, isConnected, isSuggested, onMessage }) {
+export function MemberListRow({ item, isConnected, isSuggested, onMessage, actionSlot }) {
   const navigate = useNavigate();
   const user = item.user || item;
   const name = user.profile?.displayName || 'Unknown';
@@ -277,8 +280,8 @@ export function MemberListRow({ item, isConnected, isSuggested, onMessage }) {
       </div>
 
       {/* Action Button */}
-      <div className="flex-shrink-0 ml-auto" data-no-nav>
-        <ConnectionButton targetUserId={userId} />
+      <div className="flex-shrink-0" data-no-nav style={{ marginLeft: 'auto' }}>
+        {actionSlot || <ConnectionButton targetUserId={userId} />}
       </div>
     </div>
   );
