@@ -294,11 +294,8 @@ export default function ConnectionsModal({ isOpen, onClose, userId, userName }) 
                 className="cm-panel"
                 style={{
                     position: 'relative',
-                    width: '100%', 
-                    maxWidth: '850px', // Fallback for very large screens
-                    width: 'min(92%, 850px)', // Mobile responsive width
-                    width: '60vw', // Target width
-                    maxWidth: 'min(95vw, 900px)', // Max constraints
+                    width: 'min(92%, 60vw)',
+                    maxWidth: '900px',
                     maxHeight: '85vh',
                     background: '#0d1117',
                     border: '1px solid #21262d',
