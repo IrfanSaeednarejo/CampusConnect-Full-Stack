@@ -9,6 +9,7 @@ import { paginate } from "../utils/paginate.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
 import { systemEvents } from "../utils/events.js";
 import { sendEmail } from "./email.service.js";
+import { safeAwardForAction } from "./gamification.service.js";
 
 const uploadFile = async (localPath) => {
     if (!localPath) return null;
@@ -210,6 +211,31 @@ export const createSociety = async (data, file, requestUser) => {
             campusId: resolvedCampusId,
             createdEntityId: society._id,
         }).catch(err => console.error("[Society] Failed to create EntityRequest:", err.message));
+
+        const adminUsers = await User.find({
+            status: "active",
+            roles: { $in: ["admin", "super_admin", "campus_admin", "read_only_admin"] },
+        }).select("_id");
+
+        adminUsers.forEach((admin) => {
+            systemEvents.emit("notification:create", {
+                userId: admin._id,
+                type: "admin",
+                title: "New Society Request",
+                body: `${requestUser.profile.displayName} submitted "${nameTrimmed}" for approval.`,
+                ref: society._id,
+                refModel: "Society",
+                actorId: requestUser._id,
+                priority: "high",
+            });
+        });
+
+        systemEvents.emit("admin:society_created", {
+            societyId: society._id,
+            title: nameTrimmed,
+            campusId: resolvedCampusId,
+            createdAt: society.createdAt,
+        });
     }
 
     return await Society.findById(society._id).populate("createdBy", "profile.displayName profile.avatar");
@@ -419,6 +445,15 @@ export const approveMember = async (societyId, memberId, requestUser) => {
             societyId: society._id.toString(),
         });
     }
+
+    await safeAwardForAction({
+        actionKey: "society.join_approved",
+        actorId: memberId,
+        refModel: "Society",
+        refId: society._id,
+        context: { reason: `Joined society ${society.name}` },
+        awardedBy: requestUser._id,
+    });
 
     return { memberId, status: "approved" };
 };

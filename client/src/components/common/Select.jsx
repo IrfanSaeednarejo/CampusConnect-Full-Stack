@@ -1,8 +1,6 @@
 import React from 'react';
+import useHomeTheme from '../../hooks/useHomeTheme';
 
-/**
- * Reusable Select component for dropdown inputs.
- */
 const Select = ({ 
   label, 
   value, 
@@ -14,10 +12,19 @@ const Select = ({
   placeholder = "Select an option",
   className = ""
 }) => {
+  const isDark = useHomeTheme();
+
+  const labelClass = isDark ? 'text-text-secondary-dark' : 'text-slate-600';
+  const fieldClass = isDark
+    ? `${error ? 'border-danger' : 'border-border-dark'} bg-background-dark text-text-primary-dark focus:border-info focus:ring-info/20`
+    : `${error ? 'border-danger' : 'border-slate-200'} bg-white text-slate-900 focus:border-info focus:ring-info/20`;
+  const iconClass = isDark ? 'text-text-secondary-dark' : 'text-slate-400';
+  const errorClass = isDark ? 'text-red-300' : 'text-red-600';
+
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <label className="block text-sm font-medium text-gray-400">
+        <label className={`block text-sm font-medium ${labelClass}`}>
           {label} {required && <span className="text-red-500">*</span>}
         </label>
       )}
@@ -27,9 +34,7 @@ const Select = ({
           onChange={onChange}
           disabled={disabled}
           required={required}
-          className={`w-full bg-[#0d1117] border ${
-            error ? 'border-red-500' : 'border-[#30363d]'
-          } rounded-lg p-2.5 text-white outline-none focus:ring-2 focus:ring-[#1f6feb]/30 focus:border-[#1f6feb] transition-all appearance-none disabled:opacity-50 disabled:cursor-not-allowed`}
+          className={`w-full appearance-none rounded-lg border p-2.5 outline-none transition-all disabled:cursor-not-allowed disabled:opacity-50 ${fieldClass}`}
         >
           {placeholder && <option value="" disabled>{placeholder}</option>}
           {options.map((option) => (
@@ -38,11 +43,11 @@ const Select = ({
             </option>
           ))}
         </select>
-        <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+        <div className={`pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 ${iconClass}`}>
           <span className="material-symbols-outlined text-lg">expand_more</span>
         </div>
       </div>
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+      {error && <p className={`mt-1 text-xs ${errorClass}`}>{error}</p>}
     </div>
   );
 };

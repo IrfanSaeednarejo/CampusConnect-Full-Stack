@@ -1,8 +1,5 @@
-/**
- * FormField Component
- * Reusable form input field with label, validation, and error display
- * Consolidates repeated form field patterns across 30+ pages
- */
+import useHomeTheme from "../../hooks/useHomeTheme";
+
 export default function FormField({
   label,
   name,
@@ -21,22 +18,31 @@ export default function FormField({
   step,
   className = "",
   inputClassName = "",
+  isDark,
   ...rest
 }) {
-  const baseInputClasses =
-    "w-full px-4 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-[#c9d1d9] placeholder-[#8b949e] focus:outline-none focus:ring-2 focus:ring-[#238636] focus:border-transparent transition-colors disabled:opacity-50 disabled:cursor-not-allowed";
+  const themeIsDark = useHomeTheme();
+  const resolvedIsDark = typeof isDark === "boolean" ? isDark : themeIsDark;
+
+  const baseInputClasses = `w-full rounded-xl border px-4 py-3 transition-all duration-300 disabled:cursor-not-allowed disabled:opacity-50 ${
+    resolvedIsDark
+      ? "border-border-dark bg-surface-dark text-text-primary-dark placeholder:text-text-secondary-dark focus:ring-info"
+      : "border-border-light bg-surface-light text-text-primary-light placeholder:text-text-secondary-light shadow-sm focus:ring-info"
+  } focus:outline-none focus:ring-2 focus:border-transparent`;
 
   const errorClasses = error ? "border-red-500 focus:ring-red-500" : "";
+  const labelClasses = resolvedIsDark ? "text-text-primary-dark" : "text-text-primary-light";
+  const helpTextClasses = resolvedIsDark ? "text-text-secondary-dark" : "text-text-secondary-light";
 
   return (
     <div className={`flex flex-col gap-2 ${className}`}>
       {label && (
         <label
           htmlFor={name}
-          className="block text-sm font-medium text-[#c9d1d9]"
+          className={`block text-sm font-medium transition-colors duration-300 ${labelClasses}`}
         >
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="ml-1 text-red-500">*</span>}
         </label>
       )}
 
@@ -88,7 +94,9 @@ export default function FormField({
       )}
 
       {helpText && !error && (
-        <p className="text-xs text-[#8b949e]">{helpText}</p>
+        <p className={`text-xs transition-colors duration-300 ${helpTextClasses}`}>
+          {helpText}
+        </p>
       )}
 
       {error && <p className="text-xs text-red-500">{error}</p>}

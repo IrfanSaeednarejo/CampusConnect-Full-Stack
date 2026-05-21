@@ -1,13 +1,16 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  selectAllMembers,
-  setMembers,
-} from "../../redux/slices/memberSlice";
+import useHomeTheme from "../../hooks/useHomeTheme";
+import { selectAllMembers, setMembers } from "../../redux/slices/memberSlice";
 import SocietyPageHeader from "../../components/societies/SocietyPageHeader";
+import IconButton from "../../components/common/IconButton";
+import { getButtonClassName } from "../../components/common/Button";
+import { cn, getSocietyTheme } from "./societyTheme";
 
 export default function SocietyNetworking() {
   const dispatch = useDispatch();
+  const isDark = useHomeTheme();
+  const theme = getSocietyTheme(isDark);
   const [filter, setFilter] = useState("all");
   const connections = useSelector(selectAllMembers);
 
@@ -94,106 +97,87 @@ export default function SocietyNetworking() {
 
   const filteredConnections = useMemo(
     () =>
-      connections.filter((conn) => {
+      connections.filter((connection) => {
         if (filter === "all") return true;
-        if (filter === "online") return conn.status === "online";
+        if (filter === "online") return connection.status === "online";
         return true;
       }),
     [connections, filter]
   );
 
   return (
-    <div className="min-h-screen bg-[#111714] text-white">
-      {/* Header */}
+    <div className={cn("min-h-screen", theme.page)}>
       <SocietyPageHeader
         title="Networking Hub"
-        subtitle="Connect with society members and alumni"
+        subtitle="Connect with society members and alumni."
         icon="lan"
         backPath="/society/dashboard"
         action={
-          <div className="relative">
+          <div className="relative w-full max-w-xs">
             <input
               type="text"
               placeholder="Search connections..."
-              className="px-4 py-2 rounded-lg bg-[#111714] border border-[#29382f] text-white placeholder-[#9eb7a9] focus:outline-none focus:border-[#1dc964] w-64"
+              className={cn("w-full rounded-2xl border py-2.5 pl-4 pr-11 text-sm outline-none transition-colors", theme.field)}
             />
-            <span className="material-symbols-outlined absolute right-3 top-2.5 text-[#9eb7a9]">
+            <span className={cn("material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-base", theme.muted)}>
               search
             </span>
           </div>
         }
       />
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Filter Tabs */}
-        <div className="mb-6">
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => setFilter("all")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === "all"
-                  ? "bg-[#1dc964] text-[#111714]"
-                  : "bg-[#1a241e] text-[#9eb7a9] hover:bg-[#1a241e]/80 hover:text-white"
-              }`}
-            >
-              All Members ({connections.length})
-            </button>
-            <button
-              onClick={() => setFilter("online")}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                filter === "online"
-                  ? "bg-[#1dc964] text-[#111714]"
-                  : "bg-[#1a241e] text-[#9eb7a9] hover:bg-[#1a241e]/80 hover:text-white"
-              }`}
-            >
-              Online Now (
-              {connections.filter((c) => c.status === "online").length})
-            </button>
-          </div>
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-6 flex flex-wrap gap-2">
+          <button
+            onClick={() => setFilter("all")}
+            className={getButtonClassName({ variant: filter === "all" ? "primary" : "secondary", size: "sm", isDark })}
+          >
+            All Members ({connections.length})
+          </button>
+          <button
+            onClick={() => setFilter("online")}
+            className={getButtonClassName({ variant: filter === "online" ? "primary" : "secondary", size: "sm", isDark })}
+          >
+            Online Now ({connections.filter((connection) => connection.status === "online").length})
+          </button>
         </div>
 
-        {/* Connections Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {filteredConnections.map((connection) => (
-            <div
-              key={connection.id}
-              className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6 hover:border-[#1dc964]/50 transition-colors"
-            >
-              <div className="flex items-start justify-between mb-4">
+            <div key={connection.id} className={cn("rounded-3xl border p-6", theme.card)}>
+              <div className="mb-4 flex items-start justify-between">
                 <div className="relative">
                   <div
-                    className="w-16 h-16 rounded-full bg-cover bg-center"
+                    className="h-16 w-16 rounded-full bg-cover bg-center"
                     style={{ backgroundImage: `url("${connection.image}")` }}
                   />
                   {connection.status === "online" && (
-                    <div className="absolute bottom-0 right-0 w-4 h-4 bg-[#1dc964] rounded-full border-2 border-[#1a241e]" />
+                    <div className={cn("absolute bottom-0 right-0 h-4 w-4 rounded-full border-2", isDark ? "border-[#161b22] bg-emerald-400" : "border-white bg-emerald-500")} />
                   )}
                 </div>
-                <button className="text-[#9eb7a9] hover:text-white">
-                  <span className="material-symbols-outlined">more_vert</span>
-                </button>
+                <IconButton icon="more_vert" title="More actions" variant="ghost" size="icon-sm" className={cn(theme.muted)} />
               </div>
-              <h3 className="text-white font-bold text-lg mb-1">
-                {connection.name}
-              </h3>
-              <p className="text-[#9eb7a9] text-sm mb-1">{connection.role}</p>
-              <p className="text-[#9eb7a9] text-xs mb-3">
-                {connection.company}
-              </p>
-              <div className="flex items-center gap-2 text-xs text-[#9eb7a9] mb-4">
-                <span className="material-symbols-outlined text-sm">group</span>
-                <span>{connection.connections} connections</span>
+
+              <h3 className={cn("text-lg font-medium", theme.text)}>{connection.name}</h3>
+              <p className={cn("mt-1 text-sm", theme.muted)}>{connection.role}</p>
+              <p className={cn("mt-1 text-xs", theme.muted)}>{connection.company}</p>
+
+              <div className="mt-4 space-y-2 text-xs">
+                <div className={cn("flex items-center gap-2", theme.muted)}>
+                  <span className="material-symbols-outlined text-sm">group</span>
+                  <span>{connection.connections} connections</span>
+                </div>
+                <div className={cn("flex items-center gap-2", theme.muted)}>
+                  <span className="material-symbols-outlined text-sm">badge</span>
+                  <span className="truncate">{connection.society}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-xs text-[#9eb7a9] mb-4">
-                <span className="material-symbols-outlined text-sm">badge</span>
-                <span className="truncate">{connection.society}</span>
-              </div>
-              <div className="flex gap-2">
-                <button className="flex-1 px-4 py-2 rounded-lg bg-[#1dc964] text-[#111714] text-sm font-medium hover:bg-[#1dc964]/90 transition-colors">
+
+              <div className="mt-5 flex gap-2">
+                <button className={getButtonClassName({ variant: "primary", size: "md", isDark, className: "flex-1" })}>
                   Message
                 </button>
-                <button className="px-4 py-2 rounded-lg bg-[#29382f] text-white text-sm font-medium hover:bg-[#29382f]/80 transition-colors">
+                <button className={getButtonClassName({ variant: "secondary", size: "md", isDark })}>
                   View Profile
                 </button>
               </div>
@@ -201,45 +185,24 @@ export default function SocietyNetworking() {
           ))}
         </div>
 
-        {/* Networking Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[#9eb7a9] text-sm mb-1">Total Connections</p>
-                <p className="text-3xl font-bold text-white">
-                  {connections.length}
-                </p>
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          {[
+            { label: "Total Connections", value: connections.length, icon: "group" },
+            { label: "Online Now", value: connections.filter((connection) => connection.status === "online").length, icon: "wifi" },
+            { label: "New This Month", value: 12, icon: "trending_up" },
+          ].map((stat) => (
+            <div key={stat.label} className={cn("rounded-3xl border p-6", theme.card)}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className={cn("text-sm", theme.muted)}>{stat.label}</p>
+                  <p className={cn("mt-2 text-3xl font-bold", theme.text)}>{stat.value}</p>
+                </div>
+                <span className={cn("material-symbols-outlined text-4xl", isDark ? "text-emerald-400" : "text-slate-900")}>
+                  {stat.icon}
+                </span>
               </div>
-              <span className="material-symbols-outlined text-[#1dc964] text-4xl">
-                group
-              </span>
             </div>
-          </div>
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[#9eb7a9] text-sm mb-1">Online Now</p>
-                <p className="text-3xl font-bold text-white">
-                  {connections.filter((c) => c.status === "online").length}
-                </p>
-              </div>
-              <span className="material-symbols-outlined text-[#1dc964] text-4xl">
-                wifi
-              </span>
-            </div>
-          </div>
-          <div className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-[#9eb7a9] text-sm mb-1">New This Month</p>
-                <p className="text-3xl font-bold text-white">12</p>
-              </div>
-              <span className="material-symbols-outlined text-[#1dc964] text-4xl">
-                trending_up
-              </span>
-            </div>
-          </div>
+          ))}
         </div>
       </main>
     </div>

@@ -29,7 +29,9 @@ import {
     registerForEvent,
     getRegistrations,
     approveRegistration,
-    rejectRegistration
+    rejectRegistration,
+    markAttendance,
+    submitEventFeedback
 } from "../controllers/event.controller.js";
 
 import {
@@ -144,6 +146,19 @@ router.patch(
     verifyJWT,
     authorize("society_head", "admin"),
     rejectRegistration
+);
+
+router.patch(
+    "/:eventId/registrations/:userId/attendance",
+    verifyJWT,
+    authorize("society_head", "admin"),
+    markAttendance
+);
+
+router.post(
+    "/:eventId/feedback",
+    verifyJWT,
+    submitEventFeedback
 );
 
 

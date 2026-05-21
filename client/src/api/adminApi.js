@@ -22,6 +22,7 @@ export const getMentorSessions = (mentorId, p) => axiosInstance.get(`/admin/ment
 export const verifyMentor = (mentorId) => axiosInstance.patch(`/admin/mentors/${mentorId}/verify`);
 export const rejectMentor = (mentorId, data) => axiosInstance.patch(`/admin/mentors/${mentorId}/reject`, data);
 export const suspendMentor = (mentorId, data) => axiosInstance.patch(`/admin/mentors/${mentorId}/suspend`, data);
+export const reactivateMentor = (mentorId) => axiosInstance.patch(`/admin/mentors/${mentorId}/reactivate`);
 export const overrideMentorTier = (mentorId, data) => axiosInstance.patch(`/admin/mentors/${mentorId}/tier`, data);
 
 // ── Society Management ───────────────────────────────────────────────────────
@@ -68,6 +69,8 @@ export const getEventParticipation = (params) => axiosInstance.get("/admin/analy
 export const getSocietyActivity = (params) => axiosInstance.get("/admin/analytics/societies/activity", { params });
 export const getSessionsAnalytics = (params) => axiosInstance.get("/admin/analytics/sessions", { params });
 export const getDashboardStats = () => axiosInstance.get("/admin/dashboard/stats");
+export const getDashboardFeed = () => axiosInstance.get("/admin/dashboard/feed");
+export const getAdminRequests = (params) => axiosInstance.get("/admin/requests", { params });
 
 // ── Audit Logs ───────────────────────────────────────────────────────────────
 export const getAuditLogs = (params) => axiosInstance.get("/admin/audit-logs", { params });

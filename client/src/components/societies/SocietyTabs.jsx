@@ -1,3 +1,6 @@
+import useHomeTheme from "../../hooks/useHomeTheme";
+import { cn, getSocietyTheme } from "../../pages/Societies/societyTheme";
+
 export default function SocietyTabs({
   tabs,
   activeTab,
@@ -5,28 +8,36 @@ export default function SocietyTabs({
   className = "",
   containerClassName = "",
 }) {
+  const isDark = useHomeTheme();
+  const theme = getSocietyTheme(isDark);
+
   return (
-    <div className={`bg-[#1a241e] border-b border-[#29382f] ${containerClassName}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className={`flex gap-6 ${className}`}>
+    <div className={cn("border-b", theme.header, containerClassName)}>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className={cn("flex flex-wrap gap-2 py-3", className)}>
           {tabs.map((tab) => {
             const value = typeof tab === "string" ? tab : tab.value;
             const label = typeof tab === "string" ? tab : tab.label;
             const badge = typeof tab === "string" ? null : tab.badge;
+            const isActive = activeTab === value;
 
             return (
               <button
                 key={value}
                 onClick={() => onChange(value)}
-                className={`px-4 py-3 text-sm font-medium capitalize border-b-2 transition-colors ${
-                  activeTab === value
-                    ? "border-[#1dc964] text-white"
-                    : "border-transparent text-[#9eb7a9] hover:text-white"
-                }`}
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-2xl border px-4 py-2 text-sm font-medium capitalize transition-colors",
+                  isActive ? theme.tabActive : theme.tabInactive
+                )}
               >
-                {label}
+                <span>{label}</span>
                 {badge ? (
-                  <span className="ml-2 px-2 py-0.5 rounded-full bg-[#1dc964] text-[#111714] text-xs font-bold">
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-[11px] font-semibold",
+                      isActive ? theme.badge : theme.badgeMuted
+                    )}
+                  >
                     {badge}
                   </span>
                 ) : null}

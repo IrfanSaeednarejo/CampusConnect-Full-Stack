@@ -1,8 +1,10 @@
 import React, { useState } from "react";
-import Button from "../../common/Button";
+import Button, { getButtonClassName } from "../../common/Button";
 import FormField from "../../common/FormField";
+import useHomeTheme from "../../../hooks/useHomeTheme";
 
 export default function CreateTeamModal({ isOpen, onClose, onSubmit, minSize, maxSize, loading }) {
+  const isDark = useHomeTheme();
   const [formData, setFormData] = useState({
     name: "",
     password: "",
@@ -23,7 +25,17 @@ export default function CreateTeamModal({ isOpen, onClose, onSubmit, minSize, ma
       <div className="bg-[#161b22] border border-[#30363d] rounded-xl w-full max-w-md shadow-2xl">
         <div className="flex justify-between items-center p-6 border-b border-[#30363d]">
           <h2 className="text-xl font-bold text-white">Form a Team</h2>
-          <button onClick={onClose} className="text-[#8b949e] hover:text-white transition-colors">
+          <button
+            type="button"
+            onClick={onClose}
+            className={getButtonClassName({
+              variant: "ghost",
+              size: "icon-sm",
+              isDark,
+              className: "rounded-lg shadow-none",
+              iconOnly: true,
+            })}
+          >
             <span className="material-symbols-outlined">close</span>
           </button>
         </div>

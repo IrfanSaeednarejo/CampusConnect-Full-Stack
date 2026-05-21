@@ -5,6 +5,7 @@ import { selectSelectedEvent, registerForEventThunk } from "../../redux/slices/e
 import { selectUser } from "../../redux/slices/authSlice";
 import CircularProgress from "../../components/common/CircularProgress";
 import { toast } from "react-hot-toast";
+import Button from "../../components/common/Button";
 
 export default function RegisterEvent() {
   const { id } = useParams();
@@ -75,12 +76,9 @@ export default function RegisterEvent() {
           Your registration status is currently <span className="text-white font-bold uppercase">{myRegistration?.status}</span>.
           {myRegistration?.status === 'pending' && " The society head will review your details soon."}
         </p>
-        <button 
-          onClick={() => navigate(`/events/${id}`)}
-          className="bg-[#21262d] text-white px-6 py-2 rounded-lg border border-[#30363d] hover:bg-[#30363d] transition-colors"
-        >
+        <Button onClick={() => navigate(`/events/${id}`)} variant="secondary">
           Back to Overview
-        </button>
+        </Button>
       </div>
     );
   }
@@ -182,24 +180,26 @@ export default function RegisterEvent() {
 
         {/* Action Buttons */}
         <div className="flex gap-4 pt-4">
-          <button
+          <Button
             type="button"
             onClick={() => navigate(-1)}
-            className="flex-1 px-6 py-3 rounded-lg border border-[#30363d] text-white font-bold hover:bg-[#21262d] transition-colors"
+            variant="secondary"
+            className="flex-1 py-3 font-bold"
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          <Button
             type="submit"
             disabled={loading}
-            className="flex-[2] bg-[#1dc964] text-black px-6 py-3 rounded-lg font-bold hover:bg-[#1fb15b] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            variant="primary"
+            className="flex-[2] py-3 font-bold"
           >
             {loading ? (
               <><CircularProgress size={20} color="black" /> Submitting...</>
             ) : (
               'Confirm Registration'
             )}
-          </button>
+          </Button>
         </div>
       </form>
     </div>

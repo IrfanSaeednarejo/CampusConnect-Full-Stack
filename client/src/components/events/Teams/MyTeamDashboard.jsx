@@ -1,8 +1,10 @@
 import React from "react";
-import Button from "../../common/Button";
+import Button, { getButtonClassName } from "../../common/Button";
 import TeamRoleBadge from "./TeamRoleBadge";
+import useHomeTheme from "../../../hooks/useHomeTheme";
 
 export default function MyTeamDashboard({ team, user, onLeave, onRemoveMember, loading }) {
+  const isDark = useHomeTheme();
   if (!team) return null;
 
   const isLeader = team.members.some(m => {
@@ -72,9 +74,16 @@ export default function MyTeamDashboard({ team, user, onLeave, onRemoveMember, l
                     </div>
 
                     {isLeader && !isMe && (
-                       <button 
+                       <button
+                         type="button"
                          onClick={() => onRemoveMember(mId, profile?.displayName)}
-                         className="p-2 text-[#8b949e] hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-all"
+                         className={getButtonClassName({
+                           variant: "ghost",
+                           size: "icon-sm",
+                           isDark,
+                           className: "rounded-lg text-[#8b949e] hover:text-red-500 hover:bg-red-500/10",
+                           iconOnly: true,
+                         })}
                          title="Remove Member"
                        >
                          <span className="material-symbols-outlined text-lg">person_remove</span>

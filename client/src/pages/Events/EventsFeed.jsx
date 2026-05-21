@@ -10,20 +10,21 @@ import {
 import { selectUser } from '../../redux/slices/authSlice';
 import { selectHasRole } from '../../redux/slices/authSlice';
 import PageHeader from '../../components/common/PageHeader';
-import Button from '../../components/common/Button';
+import Button, { getButtonClassName } from '../../components/common/Button';
 import Card from '../../components/common/Card';
 import EmptyState from '../../components/common/EmptyState';
+import useHomeTheme from '../../hooks/useHomeTheme';
 
 const STATE_COLORS = {
-  draft:               'bg-[#8b949e]/20 text-[#8b949e]',
-  registration_open:   'bg-[#238636]/20 text-[#238636]',
-  registration_closed: 'bg-yellow-500/20 text-yellow-400',
-  ongoing:             'bg-[#1f6feb]/20 text-[#58a6ff]',
-  submission_open:     'bg-purple-500/20 text-purple-400',
-  submission_closed:   'bg-[#8b949e]/20 text-[#8b949e]',
-  judging:             'bg-orange-500/20 text-orange-400',
-  results_published:   'bg-[#238636]/20 text-[#238636]',
-  archived:            'bg-[#30363d]/60 text-[#8b949e]',
+  draft:               'bg-slate-500/10 text-slate-500',
+  registration_open:   'bg-primary/10 text-primary',
+  registration_closed: 'bg-warning/10 text-warning',
+  ongoing:             'bg-info/10 text-info',
+  submission_open:     'bg-info/10 text-info',
+  submission_closed:   'bg-slate-500/10 text-slate-500',
+  judging:             'bg-info/10 text-info',
+  results_published:   'bg-success/10 text-success',
+  archived:            'bg-slate-600/30 text-slate-500',
 };
 
 const TYPE_ICONS = {
@@ -42,7 +43,7 @@ const CATEGORY_FILTERS = [
   { value: 'competition', label: 'Competitions' },
 ];
 
-function EventCard({ event, onClick }) {
+function EventCard({ event, onClick, isDark }) {
   const status     = event.status ?? 'draft';
   const colorClass = STATE_COLORS[status] ?? STATE_COLORS.draft;
   const icon       = TYPE_ICONS[event.eventType] ?? 'event';
@@ -52,18 +53,21 @@ function EventCard({ event, onClick }) {
   return (
     <div
       onClick={onClick}
-      className="group bg-[#161b22] border border-[#30363d] rounded-2xl overflow-hidden hover:border-[#238636]/60 hover:shadow-lg hover:shadow-[#238636]/5 transition-all cursor-pointer flex flex-col"
+      className={`group flex cursor-pointer flex-col overflow-hidden rounded-2xl border transition-all ${
+        isDark
+          ? "border-border-dark bg-surface-dark hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5"
+          : "border-border-light bg-surface-light hover:border-info/35 hover:shadow-lg hover:shadow-info/5"
+      }`}
     >
       {/* Cover / Hero */}
-      <div className="h-36 relative bg-[#0d1117] flex items-center justify-center overflow-hidden">
+      <div className={`relative flex h-36 items-center justify-center overflow-hidden ${isDark ? "bg-background-dark" : "bg-slate-100"}`}>
         {event.coverImage ? (
           <img src={event.coverImage} alt={event.title} className="w-full h-full object-cover opacity-70 group-hover:opacity-90 group-hover:scale-105 transition-all duration-500" />
         ) : (
-          <span className="material-symbols-outlined text-6xl text-[#30363d] group-hover:text-[#238636]/40 transition-colors">
+          <span className={`material-symbols-outlined text-6xl transition-colors ${isDark ? "text-border-dark group-hover:text-primary/40" : "text-slate-300 group-hover:text-info/40"}`}>
             {icon}
           </span>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#161b22] to-transparent" />
         <span className={`absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${colorClass}`}>
           {status.replace(/_/g, ' ')}
         </span>
@@ -72,23 +76,23 @@ function EventCard({ event, onClick }) {
       {/* Body */}
       <div className="p-5 flex flex-col flex-1">
         <div className="mb-1">
-          <span className="text-xs text-[#8b949e] capitalize">{event.category ?? event.eventType ?? 'general'}</span>
+          <span className={`text-xs capitalize ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>{event.category ?? event.eventType ?? 'general'}</span>
         </div>
-        <h3 className="text-base font-bold text-white mb-2 line-clamp-2 group-hover:text-[#58a6ff] transition-colors">
+        <h3 className={`mb-2 line-clamp-2 text-base font-bold transition-colors ${isDark ? "text-text-primary-dark group-hover:text-info" : "text-text-primary-light group-hover:text-info"}`}>
           {event.title}
         </h3>
-        <p className="text-sm text-[#8b949e] line-clamp-2 flex-1 mb-4">
+        <p className={`mb-4 flex-1 line-clamp-2 text-sm ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>
           {event.description ?? 'No description provided.'}
         </p>
 
         {/* Footer */}
-        <div className="pt-3 border-t border-[#30363d] flex items-center justify-between">
-          <div className="flex items-center gap-1 text-xs text-[#8b949e]">
+        <div className={`flex items-center justify-between border-t pt-3 ${isDark ? "border-border-dark" : "border-border-light"}`}>
+          <div className={`flex items-center gap-1 text-xs ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>
             <span className="material-symbols-outlined text-sm">calendar_today</span>
             {startDate}
           </div>
           {event.maxCapacity > 0 && (
-            <div className="flex items-center gap-1 text-xs text-[#8b949e]">
+            <div className={`flex items-center gap-1 text-xs ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>
               <span className="material-symbols-outlined text-sm">people</span>
               {event.registrationCount ?? 0}/{event.maxCapacity}
             </div>
@@ -97,8 +101,14 @@ function EventCard({ event, onClick }) {
 
         {regOpen && (
           <button
+            type="button"
             onClick={(e) => { e.stopPropagation(); onClick(); }}
-            className="mt-3 w-full py-1.5 text-xs font-semibold bg-[#238636] hover:bg-[#2ea043] text-white rounded-lg transition-colors"
+            className={getButtonClassName({
+              variant: "primary",
+              size: "sm",
+              isDark,
+              className: "mt-3 w-full py-1.5 text-xs font-semibold",
+            })}
           >
             Register Now
           </button>
@@ -109,6 +119,7 @@ function EventCard({ event, onClick }) {
 }
 
 export default function EventsFeed() {
+  const isDark = useHomeTheme();
   const dispatch  = useNavigate ? useNavigate : null; // satisfy lint
   const nav       = useNavigate();
   const dispatchR = useDispatch();
@@ -146,7 +157,7 @@ export default function EventsFeed() {
   );
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#e6edf3] pb-16">
+    <div className={`min-h-screen pb-16 ${isDark ? "bg-background-dark text-text-primary-dark" : "bg-background-light text-text-primary-light"}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
         <PageHeader
@@ -177,14 +188,14 @@ export default function EventsFeed() {
             {/* Search + Filters */}
             <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e] text-xl">search</span>
+                <span className={`material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-xl ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>search</span>
                 <input
                   id="event-search"
                   type="text"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search events…"
-                  className="w-full pl-10 pr-4 py-2.5 bg-[#161b22] border border-[#30363d] rounded-lg text-[#c9d1d9] placeholder-[#8b949e] focus:outline-none focus:border-[#238636] transition-colors"
+                  className={`w-full rounded-lg border py-2.5 pl-10 pr-4 transition-colors focus:outline-none ${isDark ? "border-border-dark bg-surface-dark text-text-primary-dark placeholder:text-text-secondary-dark focus:border-primary" : "border-border-light bg-surface-light text-text-primary-light placeholder:text-text-secondary-light focus:border-primary"}`}
                 />
               </div>
             </div>
@@ -193,14 +204,16 @@ export default function EventsFeed() {
             <div className="flex gap-2 flex-wrap">
               {CATEGORY_FILTERS.map((f) => (
                 <button
+                  type="button"
                   key={f.value}
                   id={`filter-${f.value}`}
                   onClick={() => setActiveFilter(f.value)}
-                  className={`px-3 py-1.5 text-xs font-medium rounded-full transition-colors ${
-                    activeFilter === f.value
-                      ? 'bg-[#238636] text-white'
-                      : 'bg-[#161b22] border border-[#30363d] text-[#8b949e] hover:text-white hover:border-[#238636]/50'
-                  }`}
+                  className={getButtonClassName({
+                    variant: activeFilter === f.value ? "primary" : "secondary",
+                    size: "sm",
+                    isDark,
+                    className: "rounded-full px-3 py-1.5 text-xs font-medium",
+                  })}
                 >
                   {f.label}
                 </button>
@@ -209,7 +222,7 @@ export default function EventsFeed() {
 
             {/* Error */}
             {error && (
-              <div className="p-4 bg-[#f85149]/10 border border-[#f85149]/30 rounded-lg text-[#f85149] text-sm">
+              <div className="rounded-lg border border-danger/30 bg-danger/10 p-4 text-sm text-danger">
                 {error}
               </div>
             )}
@@ -218,7 +231,7 @@ export default function EventsFeed() {
             {loading && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="h-72 bg-[#161b22] border border-[#30363d] rounded-2xl animate-pulse" />
+                  <div key={i} className={`h-72 rounded-2xl border animate-pulse ${isDark ? "border-border-dark bg-surface-dark" : "border-border-light bg-surface-light"}`} />
                 ))}
               </div>
             )}
@@ -248,6 +261,7 @@ export default function EventsFeed() {
                   <EventCard
                     key={event._id}
                     event={event}
+                    isDark={isDark}
                     onClick={() => nav(`/events/${event._id}`)}
                   />
                 ))}
@@ -259,13 +273,13 @@ export default function EventsFeed() {
           <div className="space-y-5">
 
             {/* Upcoming registrations */}
-            <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-5">
-              <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#238636] text-lg">local_fire_department</span>
+            <div className={`rounded-2xl border p-5 ${isDark ? "border-border-dark bg-surface-dark" : "border-border-light bg-surface-light"}`}>
+              <h3 className={`mb-4 flex items-center gap-2 text-sm font-bold ${isDark ? "text-text-primary-dark" : "text-text-primary-light"}`}>
+                <span className="material-symbols-outlined text-lg text-primary">local_fire_department</span>
                 Registration Open
               </h3>
               {upcoming.length === 0 ? (
-                <p className="text-xs text-[#8b949e]">No open registrations right now.</p>
+                <p className={`text-xs ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>No open registrations right now.</p>
               ) : (
                 <div className="space-y-4">
                   {upcoming.map((e) => (
@@ -274,14 +288,14 @@ export default function EventsFeed() {
                       onClick={() => nav(`/events/${e._id}`)}
                       className="flex gap-3 group cursor-pointer"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-[#0d1117] border border-[#30363d] flex items-center justify-center group-hover:border-[#238636] transition-all flex-shrink-0">
-                        <span className="material-symbols-outlined text-[#8b949e] text-base">
+                      <div className={`h-10 w-10 flex-shrink-0 rounded-xl border transition-all ${isDark ? "border-border-dark bg-background-dark group-hover:border-primary" : "border-border-light bg-slate-50 group-hover:border-info"} flex items-center justify-center`}>
+                        <span className={`material-symbols-outlined text-base ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>
                           {TYPE_ICONS[e.eventType] ?? 'event'}
                         </span>
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-semibold text-white truncate group-hover:text-[#58a6ff] transition-colors">{e.title}</p>
-                        <p className="text-[10px] text-[#8b949e] mt-0.5">
+                        <p className={`truncate text-xs font-semibold transition-colors ${isDark ? "text-text-primary-dark group-hover:text-info" : "text-text-primary-light group-hover:text-info"}`}>{e.title}</p>
+                        <p className={`mt-0.5 text-[10px] ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>
                           {e.startAt ? new Date(e.startAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : '—'}
                           {e.registrationCount !== undefined ? ` · ${e.registrationCount} registered` : ''}
                         </p>
@@ -294,12 +308,12 @@ export default function EventsFeed() {
 
             {/* Host CTA */}
             {(isHead || isAdmin) && (
-              <div className="bg-gradient-to-br from-[#1f6feb]/20 to-[#238636]/20 border border-[#30363d] rounded-2xl p-5 text-center">
-                <div className="w-12 h-12 rounded-2xl bg-[#0d1117] border-2 border-[#1f6feb] flex items-center justify-center text-[#1f6feb] mx-auto mb-3">
+              <div className={`rounded-2xl border p-5 text-center ${isDark ? "border-border-dark bg-container-dark" : "border-border-light bg-surface-light"}`}>
+                <div className={`mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl border-2 ${isDark ? "border-info bg-background-dark text-info" : "border-info/30 bg-info/5 text-info"}`}>
                   <span className="material-symbols-outlined text-2xl">emoji_events</span>
                 </div>
-                <h3 className="text-sm font-bold text-white mb-1">Host an Event</h3>
-                <p className="text-xs text-[#8b949e] mb-4">Inspire your community. Create a hackathon, workshop, or seminar today.</p>
+                <h3 className={`mb-1 text-sm font-bold ${isDark ? "text-text-primary-dark" : "text-text-primary-light"}`}>Host an Event</h3>
+                <p className={`mb-4 text-xs ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>Inspire your community. Create a hackathon, workshop, or seminar today.</p>
                 <Button
                   onClick={() => nav('/events/create')}
                   variant="primary"
@@ -312,14 +326,20 @@ export default function EventsFeed() {
 
             {/* My events link */}
             <button
+              type="button"
               onClick={() => nav('/my-events')}
-              className="w-full flex items-center justify-between p-4 bg-[#161b22] border border-[#30363d] rounded-xl hover:border-[#238636]/50 transition-colors text-left group"
+              className={getButtonClassName({
+                variant: "secondary",
+                size: "md",
+                isDark,
+                className: "w-full justify-between p-4 text-left group",
+              })}
             >
               <div className="flex items-center gap-3">
-                <span className="material-symbols-outlined text-[#238636]">event_available</span>
-                <span className="text-sm font-medium text-white group-hover:text-[#58a6ff] transition-colors">My Events</span>
+                <span className="material-symbols-outlined text-primary">event_available</span>
+                <span className={`text-sm font-medium transition-colors ${isDark ? "text-text-primary-dark group-hover:text-info" : "text-text-primary-light group-hover:text-info"}`}>My Events</span>
               </div>
-              <span className="material-symbols-outlined text-[#8b949e] text-lg">chevron_right</span>
+              <span className={`material-symbols-outlined text-lg ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>chevron_right</span>
             </button>
           </div>
         </div>

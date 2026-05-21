@@ -16,7 +16,7 @@ const INTENT_CONFIG = {
   suggest_mentors: {
     icon: '🎓',
     label: 'Mentors Found',
-    color: 'text-purple-400 border-purple-500/30 bg-purple-500/10',
+    color: 'text-info border-info/30 bg-info/10',
     action: { label: 'Browse Mentors', to: '/mentors' },
   },
 };

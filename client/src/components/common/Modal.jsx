@@ -1,10 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import ReactDOM from 'react-dom';
-import Button from './Button';
+import useHomeTheme from '../../hooks/useHomeTheme';
+import IconButton from './IconButton';
 
-/**
- * Reusable Modal component for interactive overlays.
- */
 const Modal = ({ 
   isOpen, 
   onClose, 
@@ -13,6 +11,9 @@ const Modal = ({
   footer,
   size = 'md' 
 }) => {
+  const isDark = useHomeTheme();
+  const closeButtonRef = useRef(null);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
@@ -22,7 +23,28 @@ const Modal = ({
     return () => { document.body.style.overflow = 'unset'; };
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return undefined;
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        onClose?.();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    closeButtonRef.current?.focus();
+
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
+
+  const panelClass = 'border-border bg-surface';
+  const headerClass = 'border-border';
+  const titleClass = 'text-text-primary';
+  const bodyTextClass = 'text-text-primary';
+  const footerClass = 'border-border bg-background';
 
   const sizes = {
     sm: 'max-w-md',
@@ -33,35 +55,33 @@ const Modal = ({
 
   return ReactDOM.createPortal(
     <div className="fixed inset-0 z-[999] flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/70 backdrop-blur-sm animate-in fade-in" 
         onClick={onClose} 
       />
       
-      {/* Container */}
-      <div className={`relative w-full ${sizes[size]} bg-[#161b22] border border-[#30363d] rounded-2xl shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200`}>
-        {/* Header */}
-        <div className="px-6 py-4 border-b border-[#30363d] flex items-center justify-between">
-          <h2 className="text-xl font-bold text-white tracking-tight">{title}</h2>
-          <button 
+      <div className={`relative w-full overflow-hidden rounded-2xl border animate-in zoom-in-95 duration-200 ${sizes[size]} ${panelClass}`}>
+        <div className={`flex items-center justify-between border-b px-6 py-4 ${headerClass}`}>
+          <h2 className={`text-xl font-semibold tracking-tight ${titleClass}`}>{title}</h2>
+          <IconButton
+            ref={closeButtonRef}
             onClick={onClose}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
-          >
-            <span className="material-symbols-outlined text-xl">close</span>
-          </button>
+            className="shrink-0"
+            label="Close modal"
+            icon="close"
+            variant="ghost"
+            size="sm"
+          />
         </div>
         
-        {/* Body */}
         <div className="px-6 py-6 max-h-[70vh] overflow-y-auto custom-scrollbar">
-          <div className="text-[#c9d1d9]">
+          <div className={bodyTextClass}>
             {children}
           </div>
         </div>
         
-        {/* Footer */}
         {footer && (
-          <div className="px-6 py-4 bg-[#0d1117] border-t border-[#30363d] flex justify-end gap-3">
+          <div className={`flex justify-end gap-3 border-t px-6 py-4 ${footerClass}`}>
             {footer}
           </div>
         )}

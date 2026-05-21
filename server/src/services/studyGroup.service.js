@@ -8,6 +8,8 @@ import { File } from "../models/file.model.js";
 import { paginate } from "../utils/paginate.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
 import { systemEvents } from "../utils/events.js";
+import { safeAwardForAction } from "./gamification.service.js";
+import { User } from "../models/user.model.js";
 
 const uploadFile = async (localPath) => {
     if (!localPath) return null;
@@ -179,6 +181,24 @@ export const createStudyGroup = async (data, requestUser) => {
             campusId: resolvedCampusId,
             createdEntityId: group._id,
         }).catch(err => console.error("[StudyGroup] Failed to create EntityRequest:", err.message));
+
+        const adminUsers = await User.find({
+            status: "active",
+            roles: { $in: ["admin", "super_admin", "campus_admin", "read_only_admin"] },
+        }).select("_id");
+
+        adminUsers.forEach((admin) => {
+            systemEvents.emit("notification:create", {
+                userId: admin._id,
+                type: "admin",
+                title: "New Study Group Request",
+                body: `${requestUser.profile.displayName} submitted "${group.name}" for approval.`,
+                ref: group._id,
+                refModel: "StudyGroup",
+                actorId: requestUser._id,
+                priority: "high",
+            });
+        });
     }
 
     try {
@@ -192,9 +212,20 @@ export const createStudyGroup = async (data, requestUser) => {
         console.error("[StudyGroup] Failed to create linked chat:", err.message);
     }
 
-    return await StudyGroup.findById(group._id)
+    const populated = await StudyGroup.findById(group._id)
         .populate("coordinatorId", "profile.displayName profile.avatar")
         .select("-groupResources");
+
+    await safeAwardForAction({
+        actionKey: "study_group.created",
+        actorId: resolvedCoordinatorId,
+        refModel: "StudyGroup",
+        refId: group._id,
+        context: { reason: `Created study group "${group.name}"` },
+        awardedBy: requestUser._id,
+    });
+
+    return populated;
 };
 
 export const updateStudyGroup = async (groupId, data, requestUser) => {
@@ -358,6 +389,17 @@ export const handleMembershipRequest = async (groupId, memberUserId, action, req
         priority: action === "accept" ? "high" : "normal",
     });
 
+    if (action === "accept") {
+        await safeAwardForAction({
+            actionKey: "study_group.join_approved",
+            actorId: memberUserId,
+            refModel: "StudyGroup",
+            refId: group._id,
+            context: { reason: `Approved into study group "${group.name || "Study Group"}"` },
+            awardedBy: requestUser._id,
+        });
+    }
+
     return { status: action === "accept" ? "approved" : "rejected", action };
 };
 
@@ -463,6 +505,14 @@ export const addResource = async (groupId, data, file, requestUser) => {
     await group.save();
 
     const lastResource = group.groupResources[group.groupResources.length - 1];
+
+    await safeAwardForAction({
+        actionKey: "study_group.resource_uploaded",
+        actorId: requestUser._id,
+        refModel: "File",
+        refId: fileDoc._id,
+        context: { reason: `Uploaded a resource to "${group.name || "study group"}"` },
+    });
 
     return {
         resource: lastResource,

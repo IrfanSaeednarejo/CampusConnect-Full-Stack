@@ -8,6 +8,7 @@ import { File } from "../models/file.model.js";
 import { paginate } from "../utils/paginate.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
 import { emitToEventStaff } from "../sockets/event.socket.js";
+import { safeAwardForAction } from "./gamification.service.js";
 
 const uploadFile = async (localPath) => {
     if (!localPath) return null;
@@ -97,6 +98,16 @@ export const upsertSubmission = async (eventId, data, io, requestUser) => {
         emitToEventStaff(io, event._id.toString(), "event:submission_received", {
             submissionId: submission._id, title: submission.title, isLate,
             teamId: teamId || null, userId, version: submission.version,
+        });
+    }
+
+    if (isCreated) {
+        await safeAwardForAction({
+            actionKey: "competition.submission_submitted",
+            actorId: requestUser._id,
+            refModel: "EventSubmission",
+            refId: submission._id,
+            context: { reason: `Submitted work for ${event.title}` },
         });
     }
 

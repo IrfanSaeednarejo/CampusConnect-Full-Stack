@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { ApiError } from "../utils/ApiError.js";
 import { Note } from "../models/note.model.js";
 import { paginate } from "../utils/paginate.js";
+import { safeAwardForAction } from "./gamification.service.js";
 
 /**
  * Create a new note for the requesting user.
@@ -24,6 +25,14 @@ export const createNote = async (data, requestUser) => {
         source: source || "manual",
         userId: requestUser._id,
         campusId: requestUser.campusId,
+    });
+
+    await safeAwardForAction({
+        actionKey: "note.created",
+        actorId: requestUser._id,
+        refModel: "Note",
+        refId: note._id,
+        context: { reason: `Created note "${note.title}"` },
     });
 
     return note;

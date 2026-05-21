@@ -247,6 +247,8 @@ export const getDashboardStats = async (campusId) => {
 
     const [
         totalUsers,
+        totalSocieties,
+        activeSocieties,
         pendingMentors,
         pendingSocieties,
         pendingEvents,
@@ -254,11 +256,34 @@ export const getDashboardStats = async (campusId) => {
         activeSessionsProjected,
     ] = await Promise.all([
         User.countDocuments({ ...scope, status: "active" }),
+        Society.countDocuments({ ...scope }),
+        Society.countDocuments({ ...scope, status: "approved" }),
         Mentor.countDocuments({ ...scope, verified: false, isActive: true }),
         Society.countDocuments({ ...scope, status: "pending" }),
-        Event.countDocuments({ ...scope, status: "pending" }),
+        Event.countDocuments({ ...scope, approvalStatus: "pending_admin_review" }),
         StudyGroup.countDocuments({ ...scope, status: "pending" }),
-        MentorBooking.countDocuments({ ...scope, status: "confirmed", startAt: { $lte: new Date() }, endAt: { $gte: new Date() } }),
+        campusId
+            ? MentorBooking.aggregate([
+                {
+                    $match: {
+                        status: "confirmed",
+                        startAt: { $lte: new Date() },
+                        endAt: { $gte: new Date() },
+                    },
+                },
+                {
+                    $lookup: {
+                        from: "mentors",
+                        localField: "mentorId",
+                        foreignField: "_id",
+                        as: "mentor",
+                    },
+                },
+                { $unwind: "$mentor" },
+                { $match: { "mentor.campusId": new mongoose.Types.ObjectId(campusId) } },
+                { $count: "count" },
+            ]).then((rows) => rows[0]?.count || 0)
+            : MentorBooking.countDocuments({ status: "confirmed", startAt: { $lte: new Date() }, endAt: { $gte: new Date() } }),
     ]);
 
     return {
@@ -269,5 +294,115 @@ export const getDashboardStats = async (campusId) => {
         pendingEvents,
         pendingStudyGroups,
         activeSessions: activeSessionsProjected,
+        totalSocieties,
+        activeSocieties,
     };
+};
+
+export const getDashboardFeed = async (campusId) => {
+    const scope = campusMatch(campusId);
+    const limit = 5;
+
+    const [
+        recentUsers,
+        recentMentors,
+        recentSocieties,
+        recentEvents,
+        recentBookings,
+    ] = await Promise.all([
+        User.find({ ...scope, status: { $ne: "deleted" } })
+            .select("profile.displayName campusId createdAt")
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .lean(),
+        Mentor.find({ ...scope, verified: false, isActive: true })
+            .select("userId campusId createdAt")
+            .populate("userId", "profile.displayName")
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .lean(),
+        Society.find({ ...scope, status: "pending" })
+            .select("name campusId createdAt")
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .lean(),
+        Event.find({ ...scope, approvalStatus: "pending_admin_review" })
+            .select("title campusId createdAt")
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .lean(),
+        campusId
+            ? MentorBooking.aggregate([
+                { $sort: { createdAt: -1 } },
+                {
+                    $lookup: {
+                        from: "mentors",
+                        localField: "mentorId",
+                        foreignField: "_id",
+                        as: "mentor",
+                    },
+                },
+                { $unwind: "$mentor" },
+                { $match: { "mentor.campusId": new mongoose.Types.ObjectId(campusId) } },
+                { $limit: limit },
+                {
+                    $project: {
+                        _id: 1,
+                        topic: 1,
+                        createdAt: 1,
+                        campusId: "$mentor.campusId",
+                    },
+                },
+            ])
+            : MentorBooking.find({})
+                .select("topic createdAt")
+                .sort({ createdAt: -1 })
+                .limit(limit)
+                .lean(),
+    ]);
+
+    return [
+        ...recentUsers.map((user) => ({
+            _id: `user-${user._id}`,
+            type: "admin:user_registered",
+            displayName: user.profile?.displayName || "New user",
+            summary: "A new user joined the platform.",
+            campusId: user.campusId || null,
+            _ts: user.createdAt,
+        })),
+        ...recentMentors.map((mentor) => ({
+            _id: `mentor-${mentor._id}`,
+            type: "admin:mentor_applied",
+            displayName: mentor.userId?.profile?.displayName || "Mentor application",
+            summary: "A mentor application is waiting for review.",
+            campusId: mentor.campusId || null,
+            _ts: mentor.createdAt,
+        })),
+        ...recentSocieties.map((society) => ({
+            _id: `society-${society._id}`,
+            type: "admin:society_created",
+            title: society.name,
+            summary: "A society request is waiting for approval.",
+            campusId: society.campusId || null,
+            _ts: society.createdAt,
+        })),
+        ...recentEvents.map((event) => ({
+            _id: `event-${event._id}`,
+            type: "admin:event_created",
+            title: event.title,
+            summary: "An event has been submitted for admin review.",
+            campusId: event.campusId || null,
+            _ts: event.createdAt,
+        })),
+        ...recentBookings.map((booking) => ({
+            _id: `booking-${booking._id}`,
+            type: "admin:booking_created",
+            title: booking.topic || "Mentor session booking",
+            summary: "A new mentoring booking was created.",
+            campusId: booking.campusId || null,
+            _ts: booking.createdAt,
+        })),
+    ]
+        .sort((a, b) => new Date(b._ts) - new Date(a._ts))
+        .slice(0, 12);
 };

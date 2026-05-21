@@ -22,6 +22,7 @@ import CreateTeamModal from "../../../components/events/Teams/CreateTeamModal";
 import MyTeamDashboard from "../../../components/events/Teams/MyTeamDashboard";
 import FindTeamBoard from "../../../components/events/Teams/FindTeamBoard";
 import ConfirmModal from "../../../components/common/ConfirmModal";
+import Button from "../../../components/common/Button";
 
 // Minor form modal inside orchestrator for password required
 const JoinTeamModal = ({ team, isOpen, onClose, onSubmit, loading }) => {
@@ -53,14 +54,14 @@ const JoinTeamModal = ({ team, isOpen, onClose, onSubmit, loading }) => {
         )}
         
         <div className="flex justify-end gap-3 mt-4">
-          <button onClick={onClose} className="px-4 py-2 rounded border border-[#30363d] text-[#c9d1d9] hover:bg-[#30363d]">Cancel</button>
-          <button 
+          <Button onClick={onClose} variant="secondary" type="button">Cancel</Button>
+          <Button 
             onClick={() => onSubmit(password)} 
             disabled={loading || (isProtected && !password)} 
-            className="px-4 py-2 rounded bg-[#1f6feb] text-white hover:bg-[#58a6ff] disabled:opacity-50"
+            variant="primary"
           >
             {isProtected ? "Verify & Join" : "Join Directly"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

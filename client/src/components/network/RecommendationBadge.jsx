@@ -1,20 +1,28 @@
-import React from 'react';
+import React from "react";
+import useHomeTheme from "../../hooks/useHomeTheme";
 
 export default function RecommendationBadge({ matchType }) {
+  const isDark = useHomeTheme();
+
   if (!matchType || matchType === "New") return null;
 
   const isStrong = matchType === "Strong match";
-  
+  const classes = isStrong
+    ? isDark
+      ? "border border-primary/25 bg-primary/10 text-primary"
+      : "border border-emerald-200 bg-emerald-50 text-emerald-700"
+    : isDark
+      ? "border border-[#d29922]/20 bg-[#d29922]/10 text-[#d29922]"
+      : "border border-amber-200 bg-amber-50 text-amber-700";
+
   return (
-    <div className={`mt-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-      isStrong 
-        ? "bg-[#2ea043]/10 text-[#2ea043] border border-[#2ea043]/20" 
-        : "bg-[#d29922]/10 text-[#d29922] border border-[#d29922]/20"
-    }`}>
-      <span className="material-symbols-outlined text-[12px]">
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[11px] font-medium ${classes}`}
+    >
+      <span className="material-symbols-outlined text-[13px]">
         {isStrong ? "star" : "bolt"}
       </span>
       {matchType}
-    </div>
+    </span>
   );
 }

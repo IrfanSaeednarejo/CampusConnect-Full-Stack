@@ -1,232 +1,243 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
+import useHomeTheme from "@/hooks/useHomeTheme";
+
+const primaryLinks = [
+  { to: "/events", icon: "calendar_month", label: "Events" },
+  { to: "/student/notifications", icon: "notifications", label: "Notifications" },
+  { to: "/network", icon: "hub", label: "Network" },
+  { to: "/mentors", icon: "groups", label: "Mentors" },
+  { to: "/societies", icon: "diversity_3", label: "Societies" },
+];
+
+const societyLinks = [{ to: "/society/manage", icon: "article", label: "Content Management" }];
+
+const societyNestedLinks = [
+  {
+    icon: "group",
+    label: "Manage Members",
+    links: [
+      { to: "/society/member-requests", label: "Member Requests" },
+      { to: "/society/profile", label: "Society Profile" },
+      { to: "/society/settings", label: "Society Settings" },
+    ],
+  },
+  {
+    icon: "how_to_reg",
+    label: "Event Registrations",
+    links: [
+      { to: "/society/events", label: "All Events" },
+      { to: "/society/create", label: "Create Event" },
+    ],
+  },
+];
+
+const mentorNestedLinks = [
+  { to: "/mentor/dashboard", icon: "school", label: "Mentor Dashboard" },
+  {
+    icon: "person_add",
+    label: "Manage Mentees",
+    links: [
+      { to: "/mentor-mentees", label: "All Mentees" },
+      { to: "/mentor-events", label: "Mentor Events" },
+    ],
+  },
+  {
+    icon: "forum",
+    label: "Mentorship Sessions",
+    links: [
+      { to: "/mentor-sessions", label: "Mentor Sessions" },
+      { to: "/my-sessions", label: "My Sessions" },
+    ],
+  },
+];
+
+const footerLinks = [
+  { to: "/profile/view", icon: "settings", label: "Settings" },
+  { to: "/logout", icon: "logout", label: "Logout" },
+];
+
+function SectionLabel({ children, isDark }) {
+  return (
+    <p
+      className={`px-1 text-xs font-semibold uppercase tracking-[0.16em] ${
+        isDark ? "text-[#8b949e]" : "text-[#6b7280]"
+      }`}
+    >
+      {children}
+    </p>
+  );
+}
+
+function getNavItemClasses(isDark, isActive) {
+  if (isActive) {
+    return isDark
+      ? "border-[#30363d] bg-[#21262d] text-[#e6edf3] shadow-[0_10px_24px_rgba(0,0,0,0.18)]"
+      : "border-[#dbe4ee] bg-[#f8fafc] text-[#0f172a] shadow-[0_10px_24px_rgba(15,23,42,0.06)]";
+  }
+
+  return isDark
+    ? "border-transparent text-[#c9d1d9] hover:border-[#30363d] hover:bg-[#161b22] hover:text-[#e6edf3]"
+    : "border-transparent text-[#475569] hover:border-[#e2e8f0] hover:bg-[#f8fafc] hover:text-[#0f172a]";
+}
+
+function getIconClasses(isDark, isActive) {
+  if (isActive) {
+    return isDark ? "text-[#58a6ff]" : "text-[#0f172a]";
+  }
+
+  return isDark ? "text-[#8b949e] group-hover:text-[#e6edf3]" : "text-[#94a3b8] group-hover:text-[#0f172a]";
+}
+
+function SurfaceCard({ children, isDark, className = "" }) {
+  return (
+    <div
+      className={`rounded-[26px] border ${
+        isDark
+          ? "border-[#30363d] bg-[#161b22] shadow-[0_18px_42px_rgba(0,0,0,0.22)]"
+          : "border-[#dbe4ee] bg-white shadow-[0_14px_32px_rgba(15,23,42,0.05)]"
+      } ${className}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function NavItem({ to, icon, label, isDark }) {
+  return (
+    <NavLink
+      to={to}
+      className={({ isActive }) =>
+        `group flex items-center gap-3 rounded-2xl border px-3.5 py-3 text-sm font-medium transition-all duration-200 ${getNavItemClasses(
+          isDark,
+          isActive
+        )}`
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <span className={`material-symbols-outlined text-[20px] ${getIconClasses(isDark, isActive)}`}>{icon}</span>
+          <span className="truncate">{label}</span>
+        </>
+      )}
+    </NavLink>
+  );
+}
+
+function NestedGroup({ icon, label, links, isDark }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <div
+        className={`flex items-center gap-3 rounded-2xl px-3.5 py-3 text-sm font-medium ${
+          isDark ? "text-[#c9d1d9]" : "text-[#0f172a]"
+        }`}
+      >
+        <span className={`material-symbols-outlined text-[20px] ${isDark ? "text-[#8b949e]" : "text-[#94a3b8]"}`}>
+          {icon}
+        </span>
+        <span className="truncate">{label}</span>
+      </div>
+
+      <div className={`ml-5 flex flex-col gap-1 border-l pl-4 ${isDark ? "border-[#30363d]" : "border-[#e2e8f0]"}`}>
+        {links.map((link) => (
+          <NavLink
+            key={link.to}
+            to={link.to}
+            className={({ isActive }) =>
+              `rounded-xl border px-3 py-2.5 text-sm transition-all duration-200 ${getNavItemClasses(isDark, isActive)}`
+            }
+          >
+            {link.label}
+          </NavLink>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function Sidebar() {
+  const isDark = useHomeTheme();
+
   return (
-    <aside className="w-64 bg-[#0d1117] flex flex-col justify-between p-4 text-[#c9d1d9]">
-      <div className="flex flex-col gap-6">
-        <div className="flex items-center gap-2 px-2 pt-2">
-          <div
-            className="bg-center bg-no-repeat aspect-square bg-cover rounded-full size-8"
-            style={{
-              backgroundImage:
-                'url("https://lh3.googleusercontent.com/aida-public/AB6AXuByHDKs6VLKKg0tivmOOz9TQ-8vono2ty3KY16w06RsABgFGlPaZBbajp_j7DnJ8M2TWVe9YUs_ziqa5E1inc09THc6UAqVQpNASwI1BAPi-du_2FupZ21f-RAAHcnZdVlgytCuoAILhOCB7Op93usaVvDKvYhPdJDKDxMdnVNYB7gSi_c6jZuNe67pgvBT9L6vc4htdTQ6s4lXm7w6g3jooaDixQvdx8VJwcO2ZUQ0ILQly30bWli-W6oMNM_8tzX6_8haj1KXJUk")',
-            }}
-          ></div>
-          <h1 className="text-white text-lg font-semibold">CampusNexus</h1>
-        </div>
+    <aside
+      className={`hidden shrink-0 lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-[288px] lg:flex-col lg:justify-between lg:overflow-y-auto lg:p-5 xl:w-72 ${
+        isDark ? "bg-[#0d1117] text-[#c9d1d9]" : "bg-[#f8fafc] text-[#0f172a]"
+      }`}
+    >
+      <div className="flex flex-col gap-5">
+        <SurfaceCard isDark={isDark} className="p-5">
+          <div className="flex items-center gap-3">
+            <div
+              className="size-11 rounded-2xl bg-cover bg-center bg-no-repeat"
+              style={{
+                backgroundImage:
+                  'url("https://lh3.googleusercontent.com/aida-public/AB6AXuByHDKs6VLKKg0tivmOOz9TQ-8vono2ty3KY16w06RsABgFGlPaZBbajp_j7DnJ8M2TWVe9YUs_ziqa5E1inc09THc6UAqVQpNASwI1BAPi-du_2FupZ21f-RAAHcnZdVlgytCuoAILhOCB7Op93usaVvDKvYhPdJDKDxMdnVNYB7gSi_c6jZuNe67pgvBT9L6vc4htdTQ6s4lXm7w6g3jooaDixQvdx8VJwcO2ZUQ0ILQly30bWli-W6oMNM_8tzX6_8haj1KXJUk")',
+              }}
+            />
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <h1 className={`text-lg font-semibold ${isDark ? "text-white" : "text-[#0f172a]"}`}>CampusNexus</h1>
+                <span
+                  className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold tracking-[0.12em] ${
+                    isDark
+                      ? "border-[#30363d] bg-[#0d1117] text-[#58a6ff]"
+                      : "border-[#dbe4ee] bg-[#f8fafc] text-[#475569]"
+                  }`}
+                >
+                  HUB
+                </span>
+              </div>
+              <p className={`mt-1 text-xs ${isDark ? "text-[#8b949e]" : "text-[#6b7280]"}`}>Dashboard navigation</p>
+            </div>
+          </div>
+        </SurfaceCard>
+
+        <SurfaceCard isDark={isDark} className="p-4">
+          <nav className="flex flex-col gap-2">
+            {primaryLinks.map((link) => (
+              <NavItem key={link.to} {...link} isDark={isDark} />
+            ))}
+          </nav>
+        </SurfaceCard>
+
+        <SurfaceCard isDark={isDark} className="p-4">
+          <div className="space-y-6">
+            <div className="space-y-3">
+              <SectionLabel isDark={isDark}>Society HQ</SectionLabel>
+              <div className="flex flex-col gap-2">
+                {societyLinks.map((link) => (
+                  <NavItem key={link.to} {...link} isDark={isDark} />
+                ))}
+                {societyNestedLinks.map((group) => (
+                  <NestedGroup key={group.label} {...group} isDark={isDark} />
+                ))}
+              </div>
+            </div>
+
+            <div className={`border-t pt-5 ${isDark ? "border-[#30363d]" : "border-[#e2e8f0]"}`}>
+              <div className="space-y-3">
+                <SectionLabel isDark={isDark}>Mentor HQ</SectionLabel>
+                <div className="flex flex-col gap-2">
+                  {mentorNestedLinks.map((item) =>
+                    item.to ? (
+                      <NavItem key={item.to} {...item} isDark={isDark} />
+                    ) : (
+                      <NestedGroup key={item.label} {...item} isDark={isDark} />
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        </SurfaceCard>
+      </div>
+
+      <SurfaceCard isDark={isDark} className="p-4">
         <nav className="flex flex-col gap-2">
-          <Link
-            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#21262d] transition-colors"
-            to="/events"
-          >
-            <span className="material-symbols-outlined text-xl text-[#8b949e]">
-              calendar_month
-            </span>
-            <span className="text-sm font-medium">Events</span>
-          </Link>
-          <Link
-            className="flex items-center justify-between gap-3 px-3 py-2 rounded-lg hover:bg-[#21262d] transition-colors"
-            to="/student/notifications"
-          >
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-xl text-[#8b949e]">
-                notifications
-              </span>
-              <span className="text-sm font-medium">Notifications</span>
-            </div>
-          </Link>
-          <Link
-            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#21262d] transition-colors"
-            to="/network"
-          >
-            <span className="material-symbols-outlined text-xl text-[#8b949e]">
-              hub
-            </span>
-            <span className="text-sm font-medium">Network</span>
-          </Link>
-          <Link
-            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#21262d] transition-colors"
-            to="/mentors"
-          >
-            <span className="material-symbols-outlined text-xl text-[#8b949e]">
-              groups
-            </span>
-            <span className="text-sm font-medium">Mentors</span>
-          </Link>
-          <Link
-            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#21262d] transition-colors"
-            to="/societies"
-          >
-            <span className="material-symbols-outlined text-xl text-[#8b949e]">
-              diversity_3
-            </span>
-            <span className="text-sm font-medium">Societies</span>
-          </Link>
+          {footerLinks.map((link) => (
+            <NavItem key={link.to} {...link} isDark={isDark} />
+          ))}
         </nav>
-      </div>
-
-      <div className="flex-grow">
-        <hr className="border-t border-[#21262d] my-4" />
-        <div className="flex flex-col gap-1 mb-6">
-          <h2 className="px-3 text-xs font-semibold uppercase text-[#8b949e] tracking-wider mb-1">
-            Society HQ
-          </h2>
-          <nav className="flex flex-col gap-1">
-            <Link
-              className="flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-[#21262d] transition-colors"
-              to="/society/manage"
-            >
-              <span className="material-symbols-outlined text-lg text-[#8b949e]">
-                article
-              </span>
-              <span>Content Management</span>
-            </Link>
-            <div className="flex flex-col">
-              <p className="flex items-center gap-3 px-3 py-2 text-sm text-[#c9d1d9]">
-                <span className="material-symbols-outlined text-lg text-[#8b949e]">
-                  group
-                </span>
-                <span>Manage Members</span>
-              </p>
-              <div className="flex flex-col mt-1 pl-4 border-l border-[#21262d] ml-4">
-                <Link
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-[#21262d] transition-colors text-[#8b949e] hover:text-[#c9d1d9]"
-                  to="/society/member-requests"
-                >
-                  <span>-</span>
-                  <span>Member Requests</span>
-                </Link>
-                <Link
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-[#21262d] transition-colors text-[#8b949e] hover:text-[#c9d1d9]"
-                  to="/society/profile"
-                >
-                  <span>-</span>
-                  <span>Society Profile</span>
-                </Link>
-                <Link
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-[#21262d] transition-colors text-[#8b949e] hover:text-[#c9d1d9]"
-                  to="/society/settings"
-                >
-                  <span>-</span>
-                  <span>Society Settings</span>
-                </Link>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <p className="flex items-center gap-3 px-3 py-2 text-sm text-[#c9d1d9]">
-                <span className="material-symbols-outlined text-lg text-[#8b949e]">
-                  how_to_reg
-                </span>
-                <span>Event Registrations</span>
-              </p>
-              <div className="flex flex-col mt-1 pl-4 border-l border-[#21262d] ml-4">
-                <Link
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-[#21262d] transition-colors text-[#8b949e] hover:text-[#c9d1d9]"
-                  to="/society/events"
-                >
-                  <span>-</span>
-                  <span>All Events</span>
-                </Link>
-                <Link
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-[#21262d] transition-colors text-[#8b949e] hover:text-[#c9d1d9]"
-                  to="/society/create"
-                >
-                  <span>-</span>
-                  <span>Create Event</span>
-                </Link>
-              </div>
-            </div>
-          </nav>
-        </div>
-        <div className="flex flex-col gap-1">
-          <h2 className="px-3 text-xs font-semibold uppercase text-[#8b949e] tracking-wider mb-1">
-            Mentor HQ
-          </h2>
-          <nav className="flex flex-col gap-1">
-            <Link
-              className="flex items-center gap-3 px-3 py-2 text-sm rounded-lg hover:bg-[#21262d] transition-colors"
-              to="/mentor/dashboard"
-            >
-              <span className="material-symbols-outlined text-lg text-[#8b949e]">
-                school
-              </span>
-              <span>Mentor Dashboard</span>
-            </Link>
-            <div className="flex flex-col">
-              <p className="flex items-center gap-3 px-3 py-2 text-sm text-[#c9d1d9]">
-                <span className="material-symbols-outlined text-lg text-[#8b949e]">
-                  person_add
-                </span>
-                <span>Manage Mentees</span>
-              </p>
-              <div className="flex flex-col mt-1 pl-4 border-l border-[#21262d] ml-4">
-                <Link
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-[#21262d] transition-colors text-[#8b949e] hover:text-[#c9d1d9]"
-                  to="/mentor-mentees"
-                >
-                  <span>-</span>
-                  <span>All Mentees</span>
-                </Link>
-                <Link
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-[#21262d] transition-colors text-[#8b949e] hover:text-[#c9d1d9]"
-                  to="/mentor-events"
-                >
-                  <span>-</span>
-                  <span>Mentor Events</span>
-                </Link>
-              </div>
-            </div>
-            <div className="flex flex-col">
-              <p className="flex items-center gap-3 px-3 py-2 text-sm text-[#c9d1d9]">
-                <span className="material-symbols-outlined text-lg text-[#8b949e]">
-                  forum
-                </span>
-                <span>Mentorship Sessions</span>
-              </p>
-              <div className="flex flex-col mt-1 pl-4 border-l border-[#21262d] ml-4">
-                <Link
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-[#21262d] transition-colors text-[#8b949e] hover:text-[#c9d1d9]"
-                  to="/mentor-sessions"
-                >
-                  <span>-</span>
-                  <span>Mentor Sessions</span>
-                </Link>
-                <Link
-                  className="flex items-center gap-2 px-3 py-2 text-sm rounded-lg hover:bg-[#21262d] transition-colors text-[#8b949e] hover:text-[#c9d1d9]"
-                  to="/my-sessions"
-                >
-                  <span>-</span>
-                  <span>My Sessions</span>
-                </Link>
-              </div>
-            </div>
-          </nav>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <hr className="border-t border-[#21262d] my-4" />
-        <nav className="flex flex-col gap-1">
-          <Link
-            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#21262d] transition-colors"
-            to="/profile/view"
-          >
-            <span className="material-symbols-outlined text-xl text-[#8b949e]">
-              settings
-            </span>
-            <span className="text-sm font-medium">Settings</span>
-          </Link>
-          <Link
-            className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#21262d] transition-colors"
-            to="/logout"
-          >
-            <span className="material-symbols-outlined text-xl text-[#8b949e]">
-              logout
-            </span>
-            <span className="text-sm font-medium">Logout</span>
-          </Link>
-        </nav>
-      </div>
+      </SurfaceCard>
     </aside>
   );
 }

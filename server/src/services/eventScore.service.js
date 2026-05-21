@@ -5,6 +5,7 @@ import { EventSubmission } from "../models/eventsSubmission.model.js";
 import { EventScore } from "../models/eventScore.model.js";
 import { EventTeam } from "../models/eventTeam.model.js";
 import { paginate } from "../utils/paginate.js";
+import { safeAwardForAction } from "./gamification.service.js";
 
 const findCompetitionById = async (eventId) => {
     if (!mongoose.isValidObjectId(eventId)) throw new ApiError(400, "Invalid event ID");
@@ -96,6 +97,14 @@ export const scoreSubmission = async (eventId, subId, data, requestUser) => {
     if (submission.status === "submitted") {
         await EventSubmission.findByIdAndUpdate(submission._id, { $set: { status: "reviewed" } });
     }
+
+    await safeAwardForAction({
+        actionKey: "competition.judging_completed",
+        actorId: requestUser._id,
+        refModel: "EventSubmission",
+        refId: submission._id,
+        context: { reason: `Completed judging for "${submission.title}"` },
+    });
 
     return scoreDoc;
 };

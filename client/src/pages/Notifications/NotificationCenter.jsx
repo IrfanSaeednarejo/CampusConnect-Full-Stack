@@ -1,200 +1,247 @@
-import React, { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { 
-  selectNotifications, 
-  selectUnreadCount, 
-  fetchNotifications, 
-  markReadThunk, 
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import {
+  selectNotifications,
+  fetchNotifications,
+  markReadThunk,
   markAllReadThunk,
-  selectNotificationLoading
-} from '../../redux/slices/notificationSlice';
-import PageHeader from '../../components/common/PageHeader';
-import Tabs from '../../components/common/Tabs';
-import { formatDistanceToNow } from 'date-fns';
+  selectNotificationLoading,
+} from "../../redux/slices/notificationSlice";
+import PageHeader from "../../components/common/PageHeader";
+import Tabs from "../../components/common/Tabs";
+import { getButtonClassName } from "../../components/common/Button";
+import useHomeTheme from "../../hooks/useHomeTheme";
+import { selectUser } from "../../redux/slices/authSlice";
+import { getNotificationTarget } from "../../utils/notificationTargets";
+import { formatDistanceToNow } from "date-fns";
+import { useLanguage } from "../../hooks/useLanguage";
 
-/**
- * Global Notification Center.
- * Aggregates alerts, chat mentions, and system activities.
- */
 export default function NotificationCenter() {
+  const isDark = useHomeTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const notifications = useSelector(selectNotifications) || [];
   const loading = useSelector(selectNotificationLoading);
-  const [activeTab, setActiveTab] = useState('all');
+  const user = useSelector(selectUser);
+  const { t } = useLanguage();
+  const [activeTab, setActiveTab] = useState("all");
+  const isAdmin = Array.isArray(user?.roles)
+    ? user.roles.some((role) => ["admin", "super_admin", "campus_admin"].includes(role))
+    : false;
 
   useEffect(() => {
     dispatch(fetchNotifications({ limit: 50 }));
   }, [dispatch]);
 
   const tabs = [
-    { id: 'all', label: 'All Alerts', icon: 'notifications' },
-    { id: 'activity', label: 'User Activity', icon: 'interests' },
-    { id: 'mentions', label: 'Messages', icon: 'chat' },
-    { id: 'system', label: 'System', icon: 'developer_board' }
+    { id: "all", label: t("notifications.tab.all"), icon: "notifications" },
+    { id: "activity", label: t("notifications.tab.activity"), icon: "interests" },
+    { id: "mentions", label: t("notifications.tab.messages"), icon: "chat" },
+    { id: "system", label: t("notifications.tab.system"), icon: "developer_board" },
   ];
 
   const filteredNotifications = notifications.filter((notif) => {
-    if (activeTab === 'all') return true;
-    
-    if (activeTab === 'mentions') {
-      return ['chat_message'].includes(notif.type);
+    if (activeTab === "all") return true;
+
+    if (activeTab === "mentions") {
+      return ["chat_message", "message"].includes(notif.type);
     }
-    
-    if (activeTab === 'system') {
-      return ['system', 'admin', 'nexus_action'].includes(notif.type);
+
+    if (activeTab === "system") {
+      return ["system", "admin", "nexus_action"].includes(notif.type);
     }
-    
-    if (activeTab === 'activity') {
+
+    if (activeTab === "activity") {
       return [
-        'event_reminder', 'event_update', 'event_registration',
-        'society_invite', 'society_update',
-        'mentor_booking', 'mentor_reminder', 'mentor_review',
-        'studygroup_invite', 'studygroup_update',
-        'task_reminder', 'task_created',
-        'connection_request', 'connection_accepted',
-        'profile_view'
+        "event_reminder",
+        "event_update",
+        "event_registration",
+        "society_invite",
+        "society_update",
+        "mentor_booking",
+        "mentor_reminder",
+        "mentor_review",
+        "studygroup_invite",
+        "studygroup_update",
+        "task_reminder",
+        "task_created",
+        "task_completed",
+        "connection_request",
+        "connection_accepted",
+        "profile_view",
       ].includes(notif.type);
     }
-    
+
     return true;
   });
 
   const getIconForType = (type) => {
-    if (type?.includes('event')) return 'event';
-    if (type?.includes('society')) return 'groups';
-    if (type?.includes('mentor')) return 'school';
-    if (type?.includes('chat')) return 'chat_bubble';
-    if (type?.includes('studygroup')) return 'local_library';
-    if (type?.includes('task')) return 'task_alt';
-    if (type?.includes('connection')) return 'person_add';
-    if (type === 'nexus_action') return 'psychology';
-    if (type === 'admin') return 'shield';
-    return 'notifications';
+    if (type?.includes("event")) return "event";
+    if (type?.includes("society")) return "groups";
+    if (type?.includes("mentor")) return "school";
+    if (type?.includes("chat")) return "chat_bubble";
+    if (type?.includes("studygroup")) return "local_library";
+    if (type?.includes("task")) return "task_alt";
+    if (type?.includes("connection")) return "person_add";
+    if (type === "nexus_action") return "psychology";
+    if (type === "admin") return "shield";
+    return "notifications";
   };
 
   const getIconColorForType = (type) => {
-    if (type?.includes('event')) return 'bg-indigo-900/40 text-indigo-400';
-    if (type?.includes('society')) return 'bg-emerald-900/40 text-emerald-400';
-    if (type?.includes('mentor')) return 'bg-orange-900/40 text-orange-400';
-    if (type?.includes('chat')) return 'bg-blue-900/40 text-blue-400';
-    if (type?.includes('connection')) return 'bg-cyan-900/40 text-cyan-400';
-    if (type?.includes('system') || type?.includes('admin')) return 'bg-red-900/40 text-red-400';
-    if (type === 'nexus_action') return 'bg-purple-900/40 text-purple-400';
-    return 'bg-[#0d1117] text-gray-500 border border-[#30363d]';
+    if (type?.includes("event")) return "bg-info/10 text-info";
+    if (type?.includes("society")) return "bg-success/10 text-success";
+    if (type?.includes("mentor")) return "bg-warning/10 text-warning";
+    if (type?.includes("chat")) return "bg-primary/10 text-primary";
+    if (type?.includes("connection")) return "bg-cyan-500/10 text-cyan-500";
+    if (type?.includes("system") || type?.includes("admin")) {
+      return isDark ? "bg-danger/10 text-danger" : "bg-danger/10 text-danger";
+    }
+    if (type === "nexus_action") return "bg-info/10 text-info";
+    return isDark
+      ? "border border-border-dark bg-background-dark text-text-secondary-dark"
+      : "border border-border-light bg-surface-light text-text-secondary-light";
   };
 
   const handleNotificationClick = (notif) => {
     if (!notif.read) {
       dispatch(markReadThunk(notif._id));
     }
-
-    if (notif.refModel && notif.ref) {
-      switch (notif.refModel) {
-        case 'Event':
-          navigate(`/events/${notif.ref}`);
-          break;
-        case 'Society':
-          navigate(`/societies/${notif.ref}`);
-          break;
-        case 'StudyGroup':
-          navigate(`/study-groups/${notif.ref}`);
-          break;
-        case 'Chat':
-          navigate(`/messages/${notif.ref}`);
-          break;
-        case 'MentorBooking':
-          navigate(`/my-sessions`);
-          break;
-        case 'Task':
-          navigate(`/dashboard?tab=tasks`);
-          break;
-        case 'NexusConversation':
-          navigate(`/nexus`);
-          break;
-        case 'User':
-          navigate(`/users/${notif.ref}`);
-          break;
-        case 'ProfileView':
-          const targetId = notif.actorId?._id || notif.actorId;
-          navigate(`/users/${targetId}`); // Go to the visitor's profile
-          break;
-        default:
-          break;
-      }
-    }
+    navigate(getNotificationTarget(notif, { isAdmin }));
   };
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#e6edf3] p-6 lg:p-10">
-      <div className="max-w-4xl mx-auto space-y-8">
-        <PageHeader 
-          title="Notification Center" 
-          subtitle="Real-time aggregation of your institutional telemetry and social engagement."
+    <div
+      className={`min-h-full p-6 lg:p-10 ${
+        isDark
+          ? "bg-background-dark text-text-primary-dark"
+          : "bg-background-light text-text-primary-light"
+      }`}
+    >
+      <div className="mx-auto max-w-4xl space-y-8">
+        <PageHeader
+          title={t("notifications.title")}
+          subtitle={t("notifications.subtitle")}
           icon="notifications_active"
+          isDark={isDark}
         />
 
-        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl overflow-hidden shadow-xl min-h-[500px]">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between px-6 bg-[#0d1117] border-b border-[#30363d] gap-4">
-             <div className="flex-1 overflow-x-auto hide-scrollbar">
-               <Tabs 
-                 activeTab={activeTab} 
-                 onChange={setActiveTab} 
-                 tabs={tabs} 
-               />
-             </div>
-             <button 
-               onClick={() => dispatch(markAllReadThunk())}
-               className="text-[10px] font-black uppercase text-[#58a6ff] hover:text-white transition-colors shrink-0 py-4"
-             >
-                Archive All Unread
-             </button>
+        <div
+          className={`min-h-[500px] overflow-hidden rounded-2xl border ${
+            isDark
+              ? "border-border-dark bg-surface-dark shadow-xl"
+              : "border-border-light bg-surface-light shadow-[0_18px_42px_rgba(15,23,42,0.08)]"
+          }`}
+        >
+          <div
+            className={`flex flex-col items-start justify-between gap-4 border-b px-6 sm:flex-row sm:items-center ${
+              isDark
+                ? "border-border-dark bg-background-dark"
+                : "border-border-light bg-surface-light"
+            }`}
+          >
+            <div className="hide-scrollbar flex-1 overflow-x-auto">
+              <Tabs activeTab={activeTab} onChange={setActiveTab} tabs={tabs} />
+            </div>
+            <button
+              onClick={() => dispatch(markAllReadThunk())}
+              className={getButtonClassName({
+                variant: "ghost",
+                size: "sm",
+                className:
+                  "min-w-0 shrink-0 rounded-lg px-3 py-4 text-[10px] font-semibold uppercase tracking-[0.08em]",
+              })}
+            >
+              {t("notifications.archiveAll")}
+            </button>
           </div>
 
           <div className="p-0">
-             {loading && notifications.length === 0 ? (
-                <div className="p-10 text-center text-gray-500">
-                   <div className="w-8 h-8 border-2 border-[#58a6ff]/30 border-t-[#58a6ff] rounded-full animate-spin mx-auto mb-4" />
-                   <p className="text-sm">Loading telemetry...</p>
-                </div>
-             ) : filteredNotifications.length > 0 ? (
-                filteredNotifications.map((notif) => (
-                   <div 
-                     key={notif._id} 
-                     onClick={() => handleNotificationClick(notif)}
-                     className={`p-6 flex items-start gap-4 hover:bg-[#1f242c] transition-all cursor-pointer border-b border-[#30363d]/50 group relative ${!notif.read ? 'bg-[#1f6feb08]' : ''}`}
-                   >
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${getIconColorForType(notif.type)}`}>
-                         <span className="material-symbols-outlined text-xl">
-                            {getIconForType(notif.type)}
-                         </span>
-                      </div>
+            {loading && notifications.length === 0 ? (
+              <div
+                className={`p-10 text-center ${
+                  isDark ? "text-text-secondary-dark" : "text-text-secondary-light"
+                }`}
+              >
+                <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+                <p className="text-sm">{t("notifications.loading")}</p>
+              </div>
+            ) : filteredNotifications.length > 0 ? (
+              filteredNotifications.map((notif) => (
+                <div
+                  key={notif._id}
+                  onClick={() => handleNotificationClick(notif)}
+                  className={`group relative flex cursor-pointer items-start gap-4 border-b p-6 transition-all ${
+                    isDark
+                      ? `border-border-dark/50 hover:bg-[rgb(var(--color-surface-muted-dark)/1)] ${!notif.read ? "bg-primary/5" : ""}`
+                      : `border-border-light hover:bg-[rgb(var(--color-surface-muted-light)/1)] ${!notif.read ? "bg-primary/5" : ""}`
+                  }`}
+                >
+                  <div
+                    className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${getIconColorForType(
+                      notif.type
+                    )}`}
+                  >
+                    <span className="material-symbols-outlined text-xl">
+                      {getIconForType(notif.type)}
+                    </span>
+                  </div>
 
-                      <div className="flex-1 space-y-1">
-                         <div className="flex justify-between items-start gap-4">
-                            <h4 className={`text-sm font-bold transition-colors ${!notif.read ? 'text-white group-hover:text-[#58a6ff]' : 'text-gray-300 group-hover:text-white'}`}>
-                               {notif.title}
-                            </h4>
-                            <span className="text-[10px] text-gray-500 font-mono shrink-0 whitespace-nowrap mt-1">
-                               {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true })}
-                            </span>
-                         </div>
-                         <p className={`text-xs leading-relaxed max-w-xl ${!notif.read ? 'text-gray-300' : 'text-gray-500'}`}>
-                            {notif.body}
-                         </p>
-                      </div>
+                  <div className="flex-1 space-y-1">
+                    <div className="flex items-start justify-between gap-4">
+                      <h4
+                        className={`text-sm font-bold transition-colors ${
+                          !notif.read
+                            ? isDark
+                              ? "text-text-primary-dark group-hover:text-primary"
+                              : "text-text-primary-light group-hover:text-primary"
+                            : isDark
+                              ? "text-text-secondary-dark group-hover:text-text-primary-dark"
+                              : "text-text-secondary-light group-hover:text-text-primary-light"
+                        }`}
+                      >
+                        {notif.title}
+                      </h4>
+                      <span
+                        className={`mt-1 shrink-0 whitespace-nowrap font-mono text-[10px] ${
+                          isDark ? "text-text-secondary-dark" : "text-text-secondary-light"
+                        }`}
+                      >
+                        {formatDistanceToNow(new Date(notif.createdAt), {
+                          addSuffix: true,
+                        })}
+                      </span>
+                    </div>
+                    <p
+                      className={`max-w-xl text-xs leading-relaxed ${
+                        !notif.read
+                          ? isDark
+                            ? "text-text-primary-dark"
+                            : "text-text-primary-light"
+                          : isDark
+                            ? "text-text-secondary-dark"
+                            : "text-text-secondary-light"
+                      }`}
+                    >
+                      {notif.body}
+                    </p>
+                  </div>
 
-                      {!notif.read && (
-                         <div className="absolute top-6 right-6 w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                      )}
-                   </div>
-                ))
-             ) : (
-                <div className="p-10 text-center opacity-30 italic text-sm">
-                   No alerts available in this category.
+                  {!notif.read && (
+                    <div className="absolute right-6 top-6 h-2 w-2 animate-pulse rounded-full bg-primary" />
+                  )}
                 </div>
-             )}
+              ))
+            ) : (
+              <div
+                className={`p-10 text-center text-sm italic ${
+                  isDark ? "text-text-secondary-dark/60" : "text-text-secondary-light/70"
+                }`}
+              >
+                {t("notifications.emptyCategory")}
+              </div>
+            )}
           </div>
         </div>
       </div>

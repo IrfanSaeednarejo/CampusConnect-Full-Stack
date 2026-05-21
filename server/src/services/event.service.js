@@ -15,6 +15,8 @@ import {
     emitAnnouncement,
     emitLeaderboardUpdate,
 } from "../sockets/event.socket.js";
+import { safeAwardForAction } from "./gamification.service.js";
+import { issueCertificate } from "./certificate.service.js";
 
 const uploadFile = async (localPath) => {
     if (!localPath) return null;
@@ -127,7 +129,7 @@ export const createCompetition = async (data, file, requestUser) => {
     const coverLocalPath = file?.path;
     const cover = coverLocalPath ? await uploadFile(coverLocalPath) : null;
 
-    return await Event.create({
+    const event = await Event.create({
         title: title.trim(),
         description: description.trim(),
         societyId,
@@ -164,6 +166,33 @@ export const createCompetition = async (data, file, requestUser) => {
         status: "draft",
         approvalStatus: "pending_admin_review",
     });
+
+    const adminUsers = await User.find({
+        status: "active",
+        roles: { $in: ["admin", "super_admin", "campus_admin", "read_only_admin"] },
+    }).select("_id");
+
+    adminUsers.forEach((admin) => {
+        systemEvents.emit("notification:create", {
+            userId: admin._id,
+            type: "admin",
+            title: "New Event Approval Request",
+            body: `${requestUser.profile.displayName} submitted "${title.trim()}" for admin review.`,
+            ref: event._id,
+            refModel: "Event",
+            actorId: requestUser._id,
+            priority: "high",
+        });
+    });
+
+    systemEvents.emit("admin:event_created", {
+        eventId: event._id,
+        title: event.title,
+        campusId: event.campusId || resolvedCampusId || null,
+        createdAt: event.createdAt,
+    });
+
+    return event;
 };
 
 export const getCompetitions = async (queryParams, requestUser) => {
@@ -573,6 +602,13 @@ export const publishLeaderboard = async (eventId, io, requestUser) => {
 
     if (io) {
         emitLeaderboardUpdate(io, event._id.toString(), { leaderboard, publishedAt: new Date() });
+        io.emit("gamification:leaderboard-updated", {
+            scopeType: "module",
+            scopeId: "competition",
+            period: "all_time",
+            eventId: event._id.toString(),
+            generatedAt: new Date(),
+        });
     }
 
     systemEvents.emit("notification:create:bulk", {
@@ -583,6 +619,14 @@ export const publishLeaderboard = async (eventId, io, requestUser) => {
         ref: event._id,
         refModel: "Event",
         actorId: requestUser._id,
+    });
+
+    await safeAwardForAction({
+        actionKey: "competition.leaderboard_published",
+        actorId: requestUser._id,
+        refModel: "Event",
+        refId: event._id,
+        context: { reason: `Published leaderboard for ${event.title}` },
     });
 
     return { event: updated, leaderboard };
@@ -725,6 +769,15 @@ export const approveRegistration = async (eventId, userId, requestUser) => {
         { new: true }
     );
 
+    await safeAwardForAction({
+        actionKey: "event.registration_approved",
+        actorId: userId,
+        refModel: "Event",
+        refId: event._id,
+        context: { reason: `Registration approved for ${event.title}` },
+        awardedBy: requestUser._id,
+    });
+
     return updated.registrations[regIndex];
 };
 
@@ -752,4 +805,101 @@ export const rejectRegistration = async (eventId, userId, reason, requestUser) =
     );
 
     return updated.registrations[regIndex];
+};
+
+export const markAttendance = async (eventId, userId, requestUser) => {
+    const event = await findCompetitionById(eventId);
+    requireOrganizerOrAdmin(event, requestUser);
+
+    const regIndex = event.registrations.findIndex((r) => r.userId.toString() === userId.toString());
+    if (regIndex === -1) throw new ApiError(404, "Registration not found for this user");
+
+    const registration = event.registrations[regIndex];
+    if (!["approved", "registered", "attended"].includes(registration.status)) {
+        throw new ApiError(400, "Only approved or registered users can be marked as attended");
+    }
+    if (registration.status === "attended") {
+        throw new ApiError(400, "Attendance is already marked for this user");
+    }
+
+    const updateQuery = {};
+    updateQuery[`registrations.${regIndex}.status`] = "attended";
+    updateQuery[`registrations.${regIndex}.reviewedBy`] = requestUser._id;
+    updateQuery[`registrations.${regIndex}.reviewedAt`] = new Date();
+
+    const updated = await Event.findByIdAndUpdate(
+        event._id,
+        { $set: updateQuery },
+        { new: true, runValidators: true }
+    );
+
+    await safeAwardForAction({
+        actionKey: "event.attended",
+        actorId: userId,
+        refModel: "Event",
+        refId: event._id,
+        context: { reason: `Verified attendance for ${event.title}` },
+        awardedBy: requestUser._id,
+    });
+
+    try {
+        await issueCertificate({
+            userId,
+            sourceModel: "Event",
+            sourceId: event._id,
+            type: "event_attendance",
+            title: `${event.title} Attendance Certificate`,
+            issuedBy: requestUser._id,
+            meta: {
+                kind: "event_attendance",
+                eventTitle: event.title,
+                roleLabel: "Participant",
+            },
+        });
+    } catch (error) {
+        console.error("[Event] Attendance certificate issue failed:", error.message);
+    }
+
+    return updated.registrations[regIndex];
+};
+
+export const submitEventFeedback = async (eventId, data, requestUser) => {
+    const { rating, comment } = data;
+    const normalizedRating = Number(rating);
+    if (!normalizedRating || normalizedRating < 1 || normalizedRating > 5) {
+        throw new ApiError(400, "Rating must be a number between 1 and 5");
+    }
+
+    const event = await findCompetitionById(eventId);
+    const registration = event.registrations.find((r) => r.userId.toString() === requestUser._id.toString());
+    if (!registration) throw new ApiError(403, "Only registered participants can submit feedback");
+    if (registration.status !== "attended") {
+        throw new ApiError(403, "Only verified attendees can submit feedback");
+    }
+
+    const existingFeedback = event.feedback.find((entry) => entry.userId.toString() === requestUser._id.toString());
+    if (existingFeedback) throw new ApiError(409, "You have already submitted feedback for this event");
+
+    const feedbackEntry = {
+        userId: requestUser._id,
+        rating: normalizedRating,
+        comment: comment?.trim() || "",
+        createdAt: new Date(),
+    };
+
+    const updated = await Event.findByIdAndUpdate(
+        event._id,
+        { $push: { feedback: feedbackEntry } },
+        { new: true, runValidators: true }
+    );
+
+    await safeAwardForAction({
+        actionKey: "event.feedback_submitted",
+        actorId: requestUser._id,
+        refModel: "Event",
+        refId: event._id,
+        context: { reason: `Submitted feedback for ${event.title}` },
+    });
+
+    return updated.feedback[updated.feedback.length - 1];
 };

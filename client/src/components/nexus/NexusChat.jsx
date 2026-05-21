@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   sendMessageThunk,
   addOptimisticUserMessage,
@@ -8,32 +8,47 @@ import {
   selectActiveConversationId,
   selectNexusError,
   fetchConversationsThunk,
-} from '../../redux/slices/nexusSlice';
-import NexusSidebar from './NexusSidebar';
-import NexusMessageBubble from './NexusMessageBubble';
-import NexusTypingIndicator from './NexusTypingIndicator';
-import NexusInput from './NexusInput';
+} from "../../redux/slices/nexusSlice";
+import useHomeTheme from "../../hooks/useHomeTheme";
+import NexusSidebar from "./NexusSidebar";
+import NexusMessageBubble from "./NexusMessageBubble";
+import NexusTypingIndicator from "./NexusTypingIndicator";
+import NexusInput from "./NexusInput";
+import { useLanguage } from "../../hooks/useLanguage";
 
-function EmptyState() {
+function EmptyState({ isDark, t }) {
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
-      <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#3fb950] to-[#1a7f37] flex items-center justify-center text-3xl font-bold text-white shadow-xl shadow-green-500/20 mb-4">
+    <div className="flex flex-1 flex-col items-center justify-center p-8 text-center">
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary text-3xl font-bold text-white shadow-sm">
         N
       </div>
-      <h2 className="text-xl font-semibold text-[#e6edf3] mb-2">Hi, I'm Nexus</h2>
-      <p className="text-sm text-[#8b949e] max-w-xs leading-relaxed mb-6">
-        Your AI campus assistant. I can create notes & tasks, suggest mentors, explain topics, and more.
+      <h2 className={`mb-2 text-xl font-semibold ${isDark ? "text-text-primary-dark" : "text-text-primary-light"}`}>
+        {t("nexus.greeting")}
+      </h2>
+      <p
+        className={`mb-6 max-w-xs text-sm leading-relaxed ${
+          isDark ? "text-text-secondary-dark" : "text-text-secondary-light"
+        }`}
+      >
+        {t("nexus.description")}
       </p>
-      <div className="grid grid-cols-2 gap-2 w-full max-w-sm text-left">
+      <div className="grid w-full max-w-sm grid-cols-2 gap-2 text-left">
         {[
-          { icon: '📝', text: 'Save a note for me' },
-          { icon: '✅', text: 'Create a study reminder' },
-          { icon: '🎓', text: 'Find a web dev mentor' },
-          { icon: '📖', text: 'Explain my OS notes' },
-        ].map((s) => (
-          <div key={s.text} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-[#161b22] border border-[#30363d] text-xs text-[#8b949e]">
-            <span>{s.icon}</span>
-            <span>"{s.text}"</span>
+          { icon: "📝", text: t("nexus.suggestion.note") },
+          { icon: "✅", text: t("nexus.suggestion.task") },
+          { icon: "🎓", text: t("nexus.suggestion.mentor") },
+          { icon: "📖", text: t("nexus.suggestion.explain") },
+        ].map((suggestion) => (
+          <div
+            key={suggestion.text}
+            className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-xs ${
+              isDark
+                ? "border-border-dark bg-surface-dark text-text-secondary-dark"
+                : "border-border-light bg-surface-light text-text-secondary-light shadow-sm"
+            }`}
+          >
+            <span>{suggestion.icon}</span>
+            <span>"{suggestion.text}"</span>
           </div>
         ))}
       </div>
@@ -43,20 +58,20 @@ function EmptyState() {
 
 export default function NexusChat() {
   const dispatch = useDispatch();
+  const isDark = useHomeTheme();
   const messages = useSelector(selectActiveMessages);
   const isStreaming = useSelector(selectNexusStreaming);
   const conversationId = useSelector(selectActiveConversationId);
   const error = useSelector(selectNexusError);
+  const { t } = useLanguage();
   const bottomRef = useRef(null);
 
-  // Load conversation list on mount
   useEffect(() => {
     dispatch(fetchConversationsThunk());
   }, [dispatch]);
 
-  // Auto-scroll on new messages
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isStreaming]);
 
   const handleSend = (text) => {
@@ -65,50 +80,53 @@ export default function NexusChat() {
   };
 
   return (
-    <div className="flex h-full bg-[#0d1117]">
-      {/* Left: Conversation list */}
+    <div className={`flex h-full ${isDark ? "bg-background-dark" : "bg-background-light"}`}>
       <NexusSidebar />
 
-      {/* Right: Chat area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Top bar */}
-        <div className="px-4 py-3 border-b border-[#21262d] flex items-center gap-3 bg-[#0d1117]">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#3fb950] to-[#238636] flex items-center justify-center text-sm font-bold text-white shadow-md shadow-green-500/20">
+      <div className="flex min-w-0 flex-1 flex-col">
+        <div
+          className={`flex items-center gap-3 border-b px-4 py-3 ${
+            isDark ? "border-border-dark bg-background-dark" : "border-border-light bg-surface-light"
+          }`}
+        >
+          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-bold text-white shadow-sm">
             N
           </div>
           <div>
-            <p className="text-sm font-semibold text-[#e6edf3]">Nexus Assistant</p>
-            <p className="text-[10px] text-[#8b949e]">Powered by Gemini 2.5 Flash</p>
+            <p className={`text-sm font-semibold ${isDark ? "text-text-primary-dark" : "text-text-primary-light"}`}>
+              {t("nexus.title")}
+            </p>
+            <p className={`text-[10px] ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>
+              Powered by Gemini 2.5 Flash
+            </p>
           </div>
           <div className="ml-auto flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#3fb950] animate-pulse" />
-            <span className="text-xs text-[#8b949e]">Online</span>
+            <span className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+            <span className={`text-xs ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>{t("nexus.online")}</span>
           </div>
         </div>
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        <div className="scrollbar-thin flex-1 space-y-4 overflow-y-auto px-4 py-4">
           {messages.length === 0 && !isStreaming ? (
-            <EmptyState />
+            <EmptyState isDark={isDark} t={t} />
           ) : (
-            messages.map((msg, i) => (
-              <NexusMessageBubble key={msg._id || i} message={msg} />
+            messages.map((message, index) => (
+              <NexusMessageBubble key={message._id || index} message={message} />
             ))
           )}
           {isStreaming && <NexusTypingIndicator />}
 
-          {/* Error toast */}
           {error && (
             <div className="flex justify-center">
-              <div className="px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs">
-                ⚠️ {error}
+              <div className="theme-error-surface max-w-2xl rounded-2xl border px-4 py-3 text-xs leading-relaxed shadow-sm">
+                <div className="mb-1 font-semibold">{t("nexus.errorTitle")}</div>
+                <div>{error}</div>
               </div>
             </div>
           )}
           <div ref={bottomRef} />
         </div>
 
-        {/* Input */}
         <NexusInput onSend={handleSend} disabled={isStreaming} />
       </div>
     </div>

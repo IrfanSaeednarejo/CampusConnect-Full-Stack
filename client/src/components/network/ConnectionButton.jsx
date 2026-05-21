@@ -93,7 +93,7 @@ export default function ConnectionButton({ targetUserId, fullWidth = false }) {
   if (isConnected) {
     return (
       <Button variant="secondary" onClick={handleMessage} disabled={loading} className={btnClass}>
-        {loading ? 'Opening...' : '💬 Message'}
+        {loading ? 'Opening...' : 'Message'}
       </Button>
     );
   }
@@ -125,3 +125,4 @@ export default function ConnectionButton({ targetUserId, fullWidth = false }) {
     </Button>
   );
 }
+

@@ -1,30 +1,29 @@
 import { useEffect, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import useHomeTheme from "@/hooks/useHomeTheme";
 import {
   selectStudyGroupById,
   selectGroupResources,
   setGroupResources,
 } from "../../redux/slices/studyGroupSlice";
 import { useFilterSort, useNavigation } from "../../hooks";
-import PageHeader from "../../components/common/PageHeader";
 import FilterBar from "../../components/studyGroups/FilterBar";
 import ResourceCard from "../../components/studyGroups/ResourceCard";
 import EmptyState from "../../components/common/EmptyState";
+import {
+  getStudyGroupTheme,
+  studyGroupPageTitle,
+} from "../../components/studyGroups/studyGroupTheme";
 
-const CATEGORIES = [
-  "all",
-  "Lectures",
-  "Practice",
-  "Study Guides",
-  "Tutorials",
-  "Exams",
-];
+const CATEGORIES = ["all", "Lectures", "Practice", "Study Guides", "Tutorials", "Exams"];
 
 export default function StudyGroupResources() {
   const { goTo } = useNavigation();
   const dispatch = useDispatch();
   const { id } = useParams();
+  const isDark = useHomeTheme();
+  const theme = getStudyGroupTheme(isDark);
 
   const group = useSelector(selectStudyGroupById(id));
   const resources = useSelector(selectGroupResources(id));
@@ -87,7 +86,6 @@ export default function StudyGroupResources() {
     }
   }, [dispatch, id, resources.length]);
 
-  // Use filter hook
   const {
     data: filteredResources,
     filter: activeCategory,
@@ -98,61 +96,73 @@ export default function StudyGroupResources() {
   });
 
   const totalDownloads = useMemo(
-    () => resources.reduce((sum, r) => sum + r.downloads, 0),
+    () => resources.reduce((sum, resource) => sum + resource.downloads, 0),
     [resources]
   );
 
   const totalSize = useMemo(
-    () =>
-      (resources.reduce((sum, r) => sum + parseFloat(r.size), 0) / 1000).toFixed(
-        1
-      ),
+    () => (resources.reduce((sum, resource) => sum + parseFloat(resource.size), 0) / 1000).toFixed(1),
     [resources]
   );
 
   const handleDownload = (resource) => {
     alert(`Downloading: ${resource.name}`);
-    // Download logic here
   };
 
   if (!group) {
     return (
-      <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9] flex items-center justify-center">
-        <p className="text-[#8b949e]">Study group not found.</p>
+      <div className={`flex min-h-screen items-center justify-center ${theme.page}`}>
+        <p className={theme.muted}>Study group not found.</p>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9]">
-      {/* Header */}
-      <PageHeader
-        title="Study Resources"
-        subtitle={group.name}
-        icon="folder_open"
-        backPath={`/study-groups/${id}`}
-        action={
-          <button className="px-4 py-2 rounded-lg bg-[#238636] text-white font-bold hover:bg-[#2ea043] transition-colors flex items-center gap-2">
-            <span className="material-symbols-outlined text-lg">upload</span>
-            Upload Resource
+    <div className={`min-h-screen ${theme.page}`}>
+      <div className={`border-b ${theme.hero}`}>
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <button
+            onClick={() => goTo(`/study-groups/${id}`)}
+            className={`mb-5 flex items-center gap-2 text-sm font-medium transition-colors ${theme.muted} ${isDark ? "hover:text-white" : "hover:text-slate-900"}`}
+          >
+            <span className="material-symbols-outlined text-base">arrow_back</span>
+            Back to group
           </button>
-        }
-      />
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Category Filters */}
+          <div className={`rounded-[32px] border p-6 sm:p-8 ${theme.surface}`}>
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="flex items-start gap-4">
+                <div className={`flex h-14 w-14 items-center justify-center rounded-3xl border ${theme.accentSurface}`}>
+                  <span className={`material-symbols-outlined text-[26px] ${theme.iconAccent}`}>folder_open</span>
+                </div>
+                <div>
+                  <h1 className={`${studyGroupPageTitle} ${theme.title}`}>Study Resources</h1>
+                  <p className={`mt-2 text-sm sm:text-base ${theme.muted}`}>{group.name}</p>
+                </div>
+              </div>
+
+              <button
+                className={`inline-flex items-center gap-2 rounded-2xl px-4 py-3 text-sm font-medium transition ${theme.buttonPrimary}`}
+              >
+                <span className="material-symbols-outlined text-lg">upload</span>
+                Upload Resource
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <FilterBar
-          filters={CATEGORIES.map((cat) => ({
-            value: cat,
-            label: cat === "all" ? "All Resources" : cat,
+          filters={CATEGORIES.map((category) => ({
+            value: category,
+            label: category === "all" ? "All Resources" : category,
           }))}
           activeFilter={activeCategory}
           onFilterChange={setActiveCategory}
         />
 
-        {/* Resources List */}
-        <div className="bg-[#161b22] border border-[#30363d] rounded-lg overflow-hidden">
+        <div className={`rounded-[28px] border overflow-hidden ${theme.surface}`}>
           {filteredResources.length === 0 ? (
             <EmptyState
               icon="folder_open"
@@ -160,7 +170,7 @@ export default function StudyGroupResources() {
               description="Try changing your filter or upload a new resource."
             />
           ) : (
-            <div className="divide-y divide-[#30363d]">
+            <div className={`divide-y ${theme.divider}`}>
               {filteredResources.map((resource) => (
                 <ResourceCard
                   key={resource.id}
@@ -172,26 +182,17 @@ export default function StudyGroupResources() {
           )}
         </div>
 
-        {/* Stats */}
-        <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-[#238636]">
-              {resources.length}
+        <div className="mt-6 grid gap-4 sm:grid-cols-3">
+          {[
+            { label: "Total Resources", value: resources.length },
+            { label: "Total Downloads", value: totalDownloads },
+            { label: "Total Size", value: `${totalSize} MB` },
+          ].map((stat) => (
+            <div key={stat.label} className={`rounded-[24px] border p-5 text-center ${theme.surface}`}>
+              <div className={`text-3xl font-semibold ${theme.title}`}>{stat.value}</div>
+              <div className={`mt-2 text-sm ${theme.muted}`}>{stat.label}</div>
             </div>
-            <div className="text-sm text-[#8b949e] mt-1">Total Resources</div>
-          </div>
-          <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-[#238636]">
-              {totalDownloads}
-            </div>
-            <div className="text-sm text-[#8b949e] mt-1">Total Downloads</div>
-          </div>
-          <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 text-center">
-            <div className="text-3xl font-bold text-[#238636]">
-              {totalSize} MB
-            </div>
-            <div className="text-sm text-[#8b949e] mt-1">Total Size</div>
-          </div>
+          ))}
         </div>
       </main>
     </div>

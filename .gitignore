@@ -138,3 +138,7 @@ dist/
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+.env
+server/.env
+client/.env

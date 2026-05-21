@@ -18,11 +18,14 @@ import FileDropzone from "../../../components/events/Submissions/FileDropzone";
 import PageHeader from "../../../components/common/PageHeader";
 import PageContent from "../../../components/common/PageContent";
 import ConfirmModal from "../../../components/common/ConfirmModal";
+import { getButtonClassName } from "../../../components/common/Button";
+import useHomeTheme from "../../../hooks/useHomeTheme";
 
 export default function SubmissionPanel() {
   const { id: eventId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isDark = useHomeTheme();
 
   const event = useSelector(selectSelectedEvent);
   const submission = useSelector(selectMySubmission);
@@ -234,7 +237,17 @@ export default function SubmissionPanel() {
                       <a href={file.url} target="_blank" rel="noreferrer" className="text-white hover:underline text-sm">{file.originalName || 'Download File'}</a>
                     </div>
                     {submissionsOpen && submission?.status !== 'submitted' && (
-                      <button onClick={() => handleDeleteFile(file._id)} className="text-[#8b949e] hover:text-[#f85149] transition-colors">
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteFile(file._id)}
+                        className={getButtonClassName({
+                          variant: "ghost",
+                          size: "icon-sm",
+                          isDark,
+                          className: "rounded-lg text-[#8b949e] hover:text-[#f85149]",
+                          iconOnly: true,
+                        })}
+                      >
                         <span className="material-symbols-outlined">delete</span>
                       </button>
                     )}
@@ -268,7 +281,7 @@ export default function SubmissionPanel() {
             <p className="text-sm text-[#8b949e] mt-2 mb-6">Once finalized, judges will be able to review your work. You cannot make edits after this step.</p>
             <Button 
                variant="primary" 
-               className="w-full justify-center py-3 bg-[#238636] hover:bg-[#2ea043] border-none"
+               className="w-full justify-center py-3"
                disabled={!submissionsOpen || submission?.status === 'submitted' || (!submission?.title && !formData.title)}
                onClick={handleFinalSubmit}
             >

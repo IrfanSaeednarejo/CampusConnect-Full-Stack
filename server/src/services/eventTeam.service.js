@@ -6,6 +6,7 @@ import { Chat } from "../models/chat.model.js";
 import { paginate } from "../utils/paginate.js";
 import { emitTeamUpdate } from "../sockets/event.socket.js";
 import { systemEvents } from "../utils/events.js";
+import { safeAwardForAction } from "./gamification.service.js";
 
 const findCompetitionById = async (eventId) => {
     if (!mongoose.isValidObjectId(eventId)) throw new ApiError(400, "Invalid event ID");
@@ -133,6 +134,14 @@ export const createTeam = async (eventId, data, io, requestUser) => {
 
     if (io) emitTeamUpdate(io, eventId.toString(), { action: "created", team: populated });
 
+    await safeAwardForAction({
+        actionKey: "competition.team_created",
+        actorId: requestUser._id,
+        refModel: "EventTeam",
+        refId: team._id,
+        context: { reason: `Created team "${team.teamName}" for ${event.title}` },
+    });
+
     return populated;
 };
 
@@ -223,6 +232,14 @@ export const joinTeam = async (eventId, teamId, data, io, requestUser) => {
         ref: event._id,
         refModel: "Event",
         actorId: requestUser._id
+    });
+
+    await safeAwardForAction({
+        actionKey: "competition.team_joined",
+        actorId: requestUser._id,
+        refModel: "EventTeam",
+        refId: team._id,
+        context: { reason: `Joined team "${team.teamName}" for ${event.title}` },
     });
 
     return updated;

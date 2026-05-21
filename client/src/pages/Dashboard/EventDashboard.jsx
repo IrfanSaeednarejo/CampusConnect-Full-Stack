@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import EventCard from "@/components/dashboard/EventCard";
+import useHomeTheme from "@/hooks/useHomeTheme";
 import { selectAllEvents, setEvents } from "@/redux/slices/eventSlice";
 
 const FILTER_CATEGORIES = [
@@ -23,6 +24,7 @@ export default function EventDashboard() {
   const events = useSelector(selectAllEvents);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("upcoming");
+  const isDark = useHomeTheme();
 
   useEffect(() => {
     if (events.length === 0) {
@@ -128,109 +130,166 @@ export default function EventDashboard() {
     return grouped;
   }, [events]);
 
+  const pageClassName = isDark
+    ? "bg-[#0d1117] text-[#e6edf3]"
+    : "bg-[#f8fafc] text-[#0f172a]";
+  const surfaceClassName = isDark
+    ? "border-[#30363d] bg-[#161b22]"
+    : "border-[#dbe4ee] bg-white";
+  const subtleSurfaceClassName = isDark
+    ? "border-[#30363d] bg-[#0d1117]"
+    : "border-[#e2e8f0] bg-[#f8fafc]";
+  const mutedTextClassName = isDark ? "text-[#8b949e]" : "text-[#64748b]";
+  const titleClassName = isDark ? "text-[#e6edf3]" : "text-[#0f172a]";
+
   return (
-    <div className="relative flex min-h-screen bg-[#0D1117]">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-full w-64 bg-[#0D1117] border-r border-[#30363D] p-4 flex flex-col hidden lg:flex">
-        <h2 className="text-xl font-bold text-[#E6EDF3] mb-6 mt-4">
-          CampusNexus
-        </h2>
-        <div className="flex flex-col gap-4">
-          {/* Search */}
-          <div className="relative mb-4">
-            <input
-              className="w-full rounded-md border border-[#30363D] bg-[#161B22] py-2 pl-9 pr-3 text-sm text-[#E6EDF3] placeholder-[#8B949E] focus:border-[#238636] focus:outline-none focus:ring-0 transition"
-              placeholder="Search events..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <span className="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[#8B949E] text-base">
-              search
-            </span>
-          </div>
+    <div className={`min-h-screen transition-colors duration-300 ${pageClassName}`}>
+      <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6 lg:flex-row lg:items-start lg:px-8 lg:py-8">
+        <aside className="w-full lg:sticky lg:top-8 lg:w-[280px] lg:shrink-0">
+          <div
+            className={`rounded-[28px] border p-5 sm:p-6 ${surfaceClassName}`}
+            style={{
+              boxShadow: isDark
+                ? "0 24px 60px rgba(0,0,0,0.22)"
+                : "0 24px 60px rgba(15,23,42,0.08)",
+            }}
+          >
+            <div className="mb-5">
+              <h2 className={`text-xl font-semibold ${titleClassName}`}>Event Navigator</h2>
+              <p className={`mt-1 text-sm ${mutedTextClassName}`}>
+                Browse upcoming and past events from one organized panel.
+              </p>
+            </div>
 
-          {/* Filters Section */}
-          <h3 className="text-xs font-semibold uppercase text-[#8B949E] mb-2">
-            Filters
-          </h3>
-          <nav className="flex flex-col gap-1">
-            {["Upcoming Events", "Past Events"].map((filter, idx) => (
-              <div
-                key={idx}
-                className={`flex items-center gap-x-2 py-2 px-3 rounded-md text-sm cursor-pointer transition-colors duration-200 ${
-                  (idx === 0 && activeFilter === "upcoming") ||
-                  (idx === 1 && activeFilter === "past")
-                    ? "bg-[#2E7C3E] text-white font-semibold"
-                    : "text-[#8B949E] hover:text-[#E6EDF3] hover:bg-[#161B22]"
+            <div className={`relative mb-5 rounded-2xl border px-3 ${subtleSurfaceClassName}`}>
+              <span className={`material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-base ${mutedTextClassName}`}>
+                search
+              </span>
+              <input
+                className={`h-11 w-full bg-transparent pl-7 pr-2 text-sm outline-none ${
+                  isDark
+                    ? "text-[#e6edf3] placeholder:text-[#8b949e]"
+                    : "text-[#0f172a] placeholder:text-[#64748b]"
                 }`}
-                onClick={() => setActiveFilter(idx === 0 ? "upcoming" : "past")}
-              >
-                <span className="material-symbols-outlined text-base">
-                  {idx === 0 ? "event_upcoming" : "history"}
+                placeholder="Search events..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+
+            <FilterSection title="Status" isDark={isDark}>
+              {["Upcoming Events", "Past Events"].map((filter, idx) => {
+                const isActive =
+                  (idx === 0 && activeFilter === "upcoming") || (idx === 1 && activeFilter === "past");
+
+                return (
+                  <div
+                    key={filter}
+                    className={`flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
+                      isActive
+                        ? isDark
+                          ? "bg-[#21262d] text-[#e6edf3]"
+                          : "bg-[#eff6ff] text-[#1d4ed8]"
+                        : isDark
+                          ? "text-[#8b949e] hover:bg-[#0d1117] hover:text-[#e6edf3]"
+                          : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                    }`}
+                    onClick={() => setActiveFilter(idx === 0 ? "upcoming" : "past")}
+                  >
+                    <span className="material-symbols-outlined text-base">
+                      {idx === 0 ? "event_upcoming" : "history"}
+                    </span>
+                    <span>{filter}</span>
+                  </div>
+                );
+              })}
+            </FilterSection>
+
+            <FilterSection title="Categories" isDark={isDark}>
+              {FILTER_CATEGORIES.map((cat) => (
+                <div
+                  key={cat.id}
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
+                    isDark
+                      ? "text-[#8b949e] hover:bg-[#0d1117] hover:text-[#e6edf3]"
+                      : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-base">{cat.icon}</span>
+                  <span>{cat.label}</span>
+                </div>
+              ))}
+            </FilterSection>
+
+            <FilterSection title="Date" isDark={isDark}>
+              {DATE_FILTERS.map((date) => (
+                <div
+                  key={date.id}
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition-colors ${
+                    isDark
+                      ? "text-[#8b949e] hover:bg-[#0d1117] hover:text-[#e6edf3]"
+                      : "text-[#64748b] hover:bg-[#f8fafc] hover:text-[#0f172a]"
+                  }`}
+                >
+                  <span className="material-symbols-outlined text-base">{date.icon}</span>
+                  <span>{date.label}</span>
+                </div>
+              ))}
+            </FilterSection>
+          </div>
+        </aside>
+
+        <main className="min-w-0 flex-1">
+          <section
+            className={`rounded-[28px] border p-6 sm:p-8 ${surfaceClassName}`}
+            style={{
+              boxShadow: isDark
+                ? "0 24px 60px rgba(0,0,0,0.22)"
+                : "0 24px 60px rgba(15,23,42,0.08)",
+            }}
+          >
+            <div className="flex flex-col gap-5">
+              <div className="flex flex-wrap items-center gap-3">
+                <span
+                  className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold tracking-[0.12em] ${
+                    isDark
+                      ? "border-[#30363d] bg-[#0d1117] text-[#58a6ff]"
+                      : "border-[#bfdbfe] bg-[#eff6ff] text-[#1d4ed8]"
+                  }`}
+                >
+                  EVENT DISCOVERY
                 </span>
-                <span>{filter}</span>
-              </div>
-            ))}
-          </nav>
-
-          <div className="border-t border-[#30363D] my-2"></div>
-
-          {/* Categories */}
-          <h3 className="text-xs font-semibold uppercase text-[#8B949E] mb-2">
-            Categories
-          </h3>
-          <nav className="flex flex-col gap-1">
-            {FILTER_CATEGORIES.map((cat) => (
-              <div
-                key={cat.id}
-                className="flex items-center gap-x-2 py-2 px-3 rounded-md text-sm cursor-pointer text-[#8B949E] hover:text-[#E6EDF3] hover:bg-[#161B22] transition-colors duration-200"
-              >
-                <span className="material-symbols-outlined text-base">
-                  {cat.icon}
+                <span
+                  className={`inline-flex rounded-full border px-3 py-1 text-xs font-medium ${subtleSurfaceClassName} ${mutedTextClassName}`}
+                >
+                  Campus-wide activity
                 </span>
-                <span>{cat.label}</span>
               </div>
-            ))}
-          </nav>
 
-          <div className="border-t border-[#30363D] my-2"></div>
-
-          {/* Date Filters */}
-          <h3 className="text-xs font-semibold uppercase text-[#8B949E] mb-2">
-            Date
-          </h3>
-          <nav className="flex flex-col gap-1">
-            {DATE_FILTERS.map((date) => (
-              <div
-                key={date.id}
-                className="flex items-center gap-x-2 py-2 px-3 rounded-md text-sm cursor-pointer text-[#8B949E] hover:text-[#E6EDF3] hover:bg-[#161B22] transition-colors duration-200"
-              >
-                <span className="material-symbols-outlined text-base">
-                  {date.icon}
-                </span>
-                <span>{date.label}</span>
+              <div className="space-y-2">
+                <h1 className={`text-3xl font-bold tracking-tight ${titleClassName}`}>Explore Campus Events</h1>
+                <p className={`max-w-3xl text-sm leading-6 sm:text-base ${mutedTextClassName}`}>
+                  Discover workshops, career fairs, and social gatherings happening across campus with a cleaner,
+                  easier-to-scan event layout.
+                </p>
               </div>
-            ))}
-          </nav>
-        </div>
-      </aside>
+            </div>
+          </section>
 
-      {/* Main Content */}
-      <main className="flex-1 ml-0 lg:ml-64 p-8">
-        <div className="max-w-4xl mx-auto">
-          <h1 className="text-3xl font-bold text-[#E6EDF3] mb-2">
-            Explore Campus Events
-          </h1>
-          <p className="text-[#8B949E] mb-8">
-            Discover and manage events happening on campus.
-          </p>
-
-          <div className="flex flex-col gap-6">
+          <div className="mt-6 flex flex-col gap-6">
             {Object.entries(groupedEvents).map(([section, sectionEvents]) => (
-              <section key={section}>
-                <h2 className="text-2xl font-bold text-[#E6EDF3] mb-4 pb-2 border-b border-[#30363D]">
-                  {section}
-                </h2>
+              <section
+                key={section}
+                className={`rounded-[28px] border p-5 sm:p-6 ${surfaceClassName}`}
+                style={{
+                  boxShadow: isDark
+                    ? "0 20px 50px rgba(0,0,0,0.2)"
+                    : "0 20px 50px rgba(15,23,42,0.06)",
+                }}
+              >
+                <div className={`mb-5 border-b pb-4 ${isDark ? "border-[#30363d]" : "border-[#e2e8f0]"}`}>
+                  <h2 className={`text-2xl font-semibold ${titleClassName}`}>{section}</h2>
+                </div>
                 <div className="flex flex-col gap-4">
                   {sectionEvents.map((event) => (
                     <EventCard key={event.id} event={event} />
@@ -239,18 +298,31 @@ export default function EventDashboard() {
               </section>
             ))}
 
-            {/* Empty State */}
-            <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-[#30363D] bg-[#161B22] py-16 text-center mt-8">
-              <span className="material-symbols-outlined text-5xl text-[#8B949E]">
-                event_busy
-              </span>
-              <p className="text-base font-medium text-[#8B949E]">
-                No more events to display.
-              </p>
+            <div
+              className={`flex flex-col items-center justify-center gap-3 rounded-[28px] border py-14 text-center ${surfaceClassName}`}
+              style={{
+                boxShadow: isDark
+                  ? "0 20px 50px rgba(0,0,0,0.2)"
+                  : "0 20px 50px rgba(15,23,42,0.06)",
+              }}
+            >
+              <span className={`material-symbols-outlined text-5xl ${mutedTextClassName}`}>event_busy</span>
+              <p className={`text-base font-medium ${titleClassName}`}>No more events to display.</p>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+function FilterSection({ title, children, isDark }) {
+  return (
+    <div className={`mt-5 border-t pt-5 ${isDark ? "border-[#30363d]" : "border-[#e2e8f0]"}`}>
+      <h3 className={isDark ? "mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#8b949e]" : "mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#64748b]"}>
+        {title}
+      </h3>
+      <nav className="flex flex-col gap-1">{children}</nav>
     </div>
   );
 }

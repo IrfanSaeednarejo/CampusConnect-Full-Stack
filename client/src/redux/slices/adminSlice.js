@@ -104,6 +104,7 @@ const initialState = {
 
     // New Integrated State
     liveEvents: [],          // [{ _id, type, title, campusId, timestamp }]
+    dashboardStats: null,
     pendingCounts: {
         mentors: 0,
         societies: 0,
@@ -129,6 +130,16 @@ const adminSlice = createSlice({
         pushLiveEvent(state, action) {
             const event = { ...action.payload, _id: action.payload._id || Date.now() };
             state.liveEvents = [event, ...state.liveEvents].slice(0, MAX_LIVE_EVENTS);
+        },
+
+        setLiveEvents(state, action) {
+            state.liveEvents = Array.isArray(action.payload)
+                ? action.payload.slice(0, MAX_LIVE_EVENTS)
+                : [];
+        },
+
+        setDashboardStats(state, action) {
+            state.dashboardStats = action.payload || null;
         },
 
         /**
@@ -194,6 +205,8 @@ const adminSlice = createSlice({
 export const {
     clearAdminError,
     pushLiveEvent,
+    setLiveEvents,
+    setDashboardStats,
     setPendingCounts,
     decrementPending,
     setSystemStatus,
@@ -211,6 +224,7 @@ export const selectAdminLoading     = (state) => state.admin.loading;
 export const selectAdminError       = (state) => state.admin.error;
 
 export const selectLiveEvents      = (state) => state.admin.liveEvents;
+export const selectDashboardStats  = (state) => state.admin.dashboardStats;
 export const selectPendingCounts   = (state) => state.admin.pendingCounts;
 export const selectSystemStatus    = (state) => state.admin.systemStatus;
 export const selectSelectedCampus  = (state) => state.admin.selectedCampusId;

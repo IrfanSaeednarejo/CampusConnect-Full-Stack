@@ -15,6 +15,7 @@ export const NOTIFICATION_TYPES = [
     "admin",
     "task_reminder",
     "task_created",
+    "task_completed",
     "nexus_action",
     "connection_request",
     "connection_accepted",
@@ -23,6 +24,12 @@ export const NOTIFICATION_TYPES = [
     "post_mention",
     "post_repost",
     "profile_view",
+    "GAMIFICATION_POINTS",
+    "GAMIFICATION_BADGE",
+    "GAMIFICATION_LEVEL",
+    "GAMIFICATION_STREAK",
+    "GAMIFICATION_CERTIFICATE",
+    "GAMIFICATION_LEADERBOARD",
 ];
 
 export const NOTIFICATION_REF_MODELS = [
@@ -37,6 +44,9 @@ export const NOTIFICATION_REF_MODELS = [
     "Post",
     "PostComment",
     "ProfileView",
+    "Badge",
+    "Certificate",
+    "PointsTransaction",
 ];
 
 const notificationSchema = new Schema(

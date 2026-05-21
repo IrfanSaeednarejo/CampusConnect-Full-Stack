@@ -1,35 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useTheme } from "../../hooks/useTheme";
 
 const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isDark, setIsDark] = useState(() => {
-    if (typeof window === "undefined") return true;
-    const savedTheme = window.localStorage.getItem("homeTheme");
-    return savedTheme ? savedTheme === "dark" : true;
-  });
+  const { effectiveTheme, toggleTheme } = useTheme();
+  const isDark = effectiveTheme === "dark";
   const location = useLocation();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const syncTheme = (event) => {
-      if (event?.detail && typeof event.detail.isDark === "boolean") {
-        setIsDark(event.detail.isDark);
-        return;
-      }
-
-      const savedTheme = window.localStorage.getItem("homeTheme");
-      setIsDark(savedTheme ? savedTheme === "dark" : true);
-    };
-
-    window.addEventListener("home-theme-change", syncTheme);
-    window.addEventListener("storage", syncTheme);
-
-    return () => {
-      window.removeEventListener("home-theme-change", syncTheme);
-      window.removeEventListener("storage", syncTheme);
-    };
-  }, []);
 
   const navLinks = [
     { label: "Home", path: "/" },
@@ -118,7 +96,8 @@ const Header = () => {
                 ))}
               </nav>
 
-              <div className="flex gap-2">
+              <div className="flex items-center gap-2">
+                <ThemeToggleButton isDark={isDark} onClick={toggleTheme} />
                 {authButtons.map((btn) => (
                   <button
                     key={btn.label}
@@ -131,19 +110,22 @@ const Header = () => {
               </div>
             </div>
 
-            <button
-              className={`inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors lg:hidden ${
-                isDark
-                  ? "border-[#30363d] bg-[#161b22] text-white hover:bg-[#21262d]"
-                  : "border-[#E2E8F0] bg-white text-[#1A202C] hover:bg-[#EDF2F7]"
-              }`}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle navigation menu"
-            >
-              <span className="material-symbols-outlined text-2xl">
-                {mobileMenuOpen ? "close" : "menu"}
-              </span>
-            </button>
+            <div className="flex items-center gap-2 lg:hidden">
+              <ThemeToggleButton isDark={isDark} onClick={toggleTheme} mobile />
+              <button
+                className={`inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors ${
+                  isDark
+                    ? "border-[#30363d] bg-[#161b22] text-white hover:bg-[#21262d]"
+                    : "border-[#E2E8F0] bg-white text-[#1A202C] hover:bg-[#EDF2F7]"
+                }`}
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle navigation menu"
+              >
+                <span className="material-symbols-outlined text-2xl">
+                  {mobileMenuOpen ? "close" : "menu"}
+                </span>
+              </button>
+            </div>
           </>
         )}
       </div>
@@ -171,6 +153,22 @@ const Header = () => {
               ))}
             </div>
             <div className="mt-4 flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  toggleTheme();
+                  setMobileMenuOpen(false);
+                }}
+                className={`flex h-10 w-full items-center justify-center gap-2 rounded-xl border px-4 text-xs font-bold transition-colors ${
+                  isDark
+                    ? "border-[#30363d] bg-[#0d1117] text-[#e6edf3] hover:bg-[#21262d]"
+                    : "border-[#D6DEE8] bg-white text-[#0F172A] hover:bg-[#F8FAFC]"
+                }`}
+              >
+                <span className="material-symbols-outlined text-base">
+                  {isDark ? "light_mode" : "dark_mode"}
+                </span>
+                {isDark ? "Light Mode" : "Dark Mode"}
+              </button>
               {authButtons.map((btn) => (
                 <button
                   key={btn.label}
@@ -220,6 +218,25 @@ const NavLinkItem = ({ link, isActive, mobile, onClick, isDark }) => (
   >
     {link.label}
   </Link>
+);
+
+const ThemeToggleButton = ({ isDark, onClick, mobile = false }) => (
+  <button
+    onClick={onClick}
+    aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+    title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+    className={`inline-flex items-center justify-center rounded-full border transition-all duration-300 ${
+      mobile ? "h-10 w-10" : "h-9 w-9"
+    } ${
+      isDark
+        ? "border-[#30363d] bg-[#161b22] text-[#facc15] hover:border-[#58a6ff] hover:bg-[#21262d]"
+        : "border-[#D6DEE8] bg-white text-[#1D4ED8] shadow-sm hover:border-[#93C5FD] hover:bg-[#F8FAFC]"
+    }`}
+  >
+    <span className="material-symbols-outlined text-[18px]">
+      {isDark ? "light_mode" : "dark_mode"}
+    </span>
+  </button>
 );
 
 export default Header;

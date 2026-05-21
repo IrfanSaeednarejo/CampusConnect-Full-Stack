@@ -111,6 +111,24 @@ export const rejectRegistrationThunk = createAsyncThunk('events/rejectRegistrati
   }
 );
 
+export const markAttendanceThunk = createAsyncThunk('events/markAttendance',
+  async ({ eventId, userId }, { rejectWithValue }) => {
+    try {
+      const { data } = await eventApi.markEventAttendance(eventId, userId);
+      return { eventId, userId, registration: data.data };
+    } catch (err) { return rejectWithValue(errMsg(err)); }
+  }
+);
+
+export const submitEventFeedbackThunk = createAsyncThunk('events/submitFeedback',
+  async ({ eventId, payload }, { rejectWithValue }) => {
+    try {
+      const { data } = await eventApi.submitEventFeedback(eventId, payload);
+      return { eventId, feedback: data.data };
+    } catch (err) { return rejectWithValue(errMsg(err)); }
+  }
+);
+
 export const fetchAnnouncementsThunk = createAsyncThunk('events/fetchAnnouncements',
   async (id, { rejectWithValue }) => {
     try {
@@ -139,9 +157,9 @@ export const fetchLeaderboardThunk = createAsyncThunk('events/fetchLeaderboard',
 );
 
 export const updateJudgesThunk = createAsyncThunk('events/updateJudges',
-  async ({ id, judgeIds }, { rejectWithValue }) => {
+  async ({ id, payload }, { rejectWithValue }) => {
     try {
-      const { data } = await eventApi.updateJudges(id, { judgeIds });
+      const { data } = await eventApi.updateJudges(id, payload);
       return data.data;
     } catch (err) { return rejectWithValue(errMsg(err)); }
   }
@@ -270,7 +288,12 @@ const eventSlice = createSlice({
       .addCase(publishLeaderboardThunk.pending, (state) => { state.actionLoading = true; })
       .addCase(publishLeaderboardThunk.fulfilled, (state, action) => {
         state.actionLoading = false;
-        if (state.currentEvent?._id === action.payload._id) state.currentEvent = action.payload;
+        if (action.payload?.event && state.currentEvent?._id === action.payload.event._id) {
+          state.currentEvent = { ...state.currentEvent, ...action.payload.event };
+        }
+        if (Array.isArray(action.payload?.leaderboard)) {
+          state.leaderboard = action.payload.leaderboard;
+        }
       })
       .addCase(publishLeaderboardThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
 
@@ -307,6 +330,10 @@ const eventSlice = createSlice({
         const updated = action.payload.registration;
         const idx = state.registrations.findIndex(r => r.userId?._id === updated.userId?._id || r.userId === updated.userId);
         if (idx !== -1) state.registrations[idx] = updated;
+        if (state.currentEvent?.registrations) {
+          const eventIdx = state.currentEvent.registrations.findIndex(r => r.userId?._id === updated.userId?._id || r.userId === updated.userId);
+          if (eventIdx !== -1) state.currentEvent.registrations[eventIdx] = updated;
+        }
       })
       .addCase(approveRegistrationThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
 
@@ -318,8 +345,39 @@ const eventSlice = createSlice({
         const updated = action.payload.registration;
         const idx = state.registrations.findIndex(r => r.userId?._id === updated.userId?._id || r.userId === updated.userId);
         if (idx !== -1) state.registrations[idx] = updated;
+        if (state.currentEvent?.registrations) {
+          const eventIdx = state.currentEvent.registrations.findIndex(r => r.userId?._id === updated.userId?._id || r.userId === updated.userId);
+          if (eventIdx !== -1) state.currentEvent.registrations[eventIdx] = updated;
+        }
       })
       .addCase(rejectRegistrationThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
+
+    builder
+      .addCase(markAttendanceThunk.pending, (state) => { state.actionLoading = true; })
+      .addCase(markAttendanceThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        const updated = action.payload.registration;
+        const idx = state.registrations.findIndex(r => r.userId?._id === updated.userId?._id || r.userId === updated.userId);
+        if (idx !== -1) state.registrations[idx] = updated;
+        if (state.currentEvent?.registrations) {
+          const eventIdx = state.currentEvent.registrations.findIndex(r => r.userId?._id === updated.userId?._id || r.userId === updated.userId);
+          if (eventIdx !== -1) state.currentEvent.registrations[eventIdx] = updated;
+        }
+      })
+      .addCase(markAttendanceThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
+
+    builder
+      .addCase(submitEventFeedbackThunk.pending, (state) => { state.actionLoading = true; state.error = null; })
+      .addCase(submitEventFeedbackThunk.fulfilled, (state, action) => {
+        state.actionLoading = false;
+        if (!Array.isArray(state.currentEvent?.feedback)) {
+          if (state.currentEvent) state.currentEvent.feedback = [];
+        }
+        if (state.currentEvent) {
+          state.currentEvent.feedback.push(action.payload.feedback);
+        }
+      })
+      .addCase(submitEventFeedbackThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
 
     // fetchAnnouncementsThunk
     builder
@@ -338,7 +396,7 @@ const eventSlice = createSlice({
     // fetchLeaderboardThunk
     builder
       .addCase(fetchLeaderboardThunk.fulfilled, (state, action) => {
-        state.leaderboard = Array.isArray(action.payload) ? action.payload : [];
+        state.leaderboard = Array.isArray(action.payload) ? action.payload : (action.payload?.leaderboard || []);
       });
 
     // updateJudgesThunk
@@ -346,7 +404,11 @@ const eventSlice = createSlice({
       .addCase(updateJudgesThunk.pending, (state) => { state.actionLoading = true; })
       .addCase(updateJudgesThunk.fulfilled, (state, action) => {
         state.actionLoading = false;
-        if (state.currentEvent?._id === action.payload._id) state.currentEvent = action.payload;
+        if (Array.isArray(action.payload) && state.currentEvent?.judgingConfig) {
+          state.currentEvent.judgingConfig.judges = action.payload;
+        } else if (state.currentEvent?._id === action.payload._id) {
+          state.currentEvent = action.payload;
+        }
       })
       .addCase(updateJudgesThunk.rejected, (state, action) => { state.actionLoading = false; state.error = action.payload; });
   },

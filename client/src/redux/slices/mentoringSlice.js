@@ -46,7 +46,11 @@ export const registerAsMentorThunk = createAsyncThunk(
       const { data } = await mentoringApi.registerAsMentor(formData);
       return data.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || err.message || 'Failed to submit mentor application');
+      const backendErrors = err.response?.data?.errors;
+      const detailedMessage = Array.isArray(backendErrors) && backendErrors.length > 0
+        ? backendErrors.join(" ")
+        : err.response?.data?.message;
+      return rejectWithValue(detailedMessage || err.message || 'Failed to submit mentor application');
     }
   }
 );

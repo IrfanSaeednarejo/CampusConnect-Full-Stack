@@ -1,10 +1,6 @@
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import useHomeTheme from "../../hooks/useHomeTheme";
 
-/**
- * PageHeader Component
- * Reusable header for pages with title, subtitle, back navigation, and optional action buttons
- * Consolidates repeated header patterns across 40+ pages
- */
 export default function PageHeader({
   title,
   subtitle,
@@ -15,8 +11,11 @@ export default function PageHeader({
   className = "",
   sticky = false,
   showBack = true,
+  isDark,
 }) {
   const navigate = useNavigate();
+  const themeIsDark = useHomeTheme();
+  const resolvedIsDark = typeof isDark === "boolean" ? isDark : themeIsDark;
 
   const handleBack = () => {
     if (onBack) {
@@ -30,17 +29,23 @@ export default function PageHeader({
 
   return (
     <header
-      className={`border-b border-[#30363d] bg-[#0d1117] py-6 ${
-        sticky ? "sticky top-0 z-10" : ""
-      } ${className}`}
+      className={`border-b py-6 ${
+        resolvedIsDark
+          ? "border-[#30363d] bg-[#0d1117]"
+          : "border-[#DCE4EE] bg-white/90 backdrop-blur-xl"
+      } ${sticky ? "sticky top-0 z-10" : ""} ${className}`}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             {showBack && (
               <button
                 onClick={handleBack}
-                className="text-[#8b949e] hover:text-[#c9d1d9] transition-colors"
+                className={`transition-colors ${
+                  resolvedIsDark
+                    ? "text-[#8b949e] hover:text-[#c9d1d9]"
+                    : "text-[#64748B] hover:text-[#0F172A]"
+                }`}
                 aria-label="Go back"
               >
                 <span className="material-symbols-outlined text-2xl">
@@ -49,14 +54,30 @@ export default function PageHeader({
               </button>
             )}
             {icon && (
-              <span className="material-symbols-outlined text-3xl text-[#238636]">
+              <span
+                className={`material-symbols-outlined text-3xl ${
+                  resolvedIsDark ? "text-[#238636]" : "text-[#1D4ED8]"
+                }`}
+              >
                 {icon}
               </span>
             )}
             <div>
-              <h1 className="text-2xl font-bold text-[#c9d1d9]">{title}</h1>
+              <h1
+                className={`text-2xl font-bold ${
+                  resolvedIsDark ? "text-[#c9d1d9]" : "text-[#0F172A]"
+                }`}
+              >
+                {title}
+              </h1>
               {subtitle && (
-                <p className="text-sm text-[#8b949e] mt-1">{subtitle}</p>
+                <p
+                  className={`mt-1 text-sm ${
+                    resolvedIsDark ? "text-[#8b949e]" : "text-[#64748B]"
+                  }`}
+                >
+                  {subtitle}
+                </p>
               )}
             </div>
           </div>

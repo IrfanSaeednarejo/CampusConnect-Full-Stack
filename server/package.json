@@ -13,6 +13,8 @@
     "mongoose": "^8.19.3",
     "multer": "^2.0.2",
     "node-cron": "^4.2.1",
+    "pdfkit": "^0.17.2",
+    "qrcode": "^1.5.4",
     "resend": "^6.12.2",
     "socket.io": "^4.8.1"
   },
@@ -25,6 +27,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "test:gamification:smoke": "node ./tests/gamification.smoke.js",
     "start": "node server.js",
     "server": "nodemon server.js"
   },

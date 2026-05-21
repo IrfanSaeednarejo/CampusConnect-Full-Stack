@@ -8,12 +8,14 @@ import PageHeader from "../../components/common/PageHeader";
 import FormActions from "../../components/common/FormActions";
 import Card from "../../components/common/Card";
 import ToggleRow from "../../components/common/ToggleRow";
+import useHomeTheme from "../../hooks/useHomeTheme";
 
 export default function NotificationPreferences() {
   const { user } = useAuth();
   const { showSuccess, showError } = useNotification();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const isDark = useHomeTheme();
 
   const [notifications, setNotifications] = useState({
     email: user?.preferences?.notifications?.email ?? true,
@@ -43,7 +45,7 @@ export default function NotificationPreferences() {
   };
 
   return (
-    <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen">
+    <div className={`w-full min-h-screen transition-colors duration-300 ${isDark ? "bg-[#0d1117] text-[#c9d1d9]" : "bg-slate-50 text-slate-900"}`}>
       <PageHeader
         title="Notification Preferences"
         onBack={() => navigate("/profile/view")}
@@ -51,34 +53,38 @@ export default function NotificationPreferences() {
 
       <div className="max-w-2xl mx-auto p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <Card padding="p-6">
-            <h2 className="text-lg font-semibold text-white mb-4">
+          <Card padding="p-6" isDark={isDark}>
+            <h2 className={`text-lg font-semibold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
               Notification Channels
             </h2>
-            <div className="divide-y divide-[#30363d]">
+            <div className={`divide-y ${isDark ? "divide-[#30363d]" : "divide-slate-200"}`}>
               <ToggleRow
                 label="Email Notifications"
                 description="Receive notifications via email"
                 checked={notifications.email}
                 onChange={() => handleToggle("email")}
+                isDark={isDark}
               />
               <ToggleRow
                 label="Push Notifications"
                 description="Receive browser push notifications"
                 checked={notifications.push}
                 onChange={() => handleToggle("push")}
+                isDark={isDark}
               />
               <ToggleRow
                 label="In-App Notifications"
                 description="Receive alerts inside the CampusNexus app"
                 checked={notifications.inApp}
                 onChange={() => handleToggle("inApp")}
+                isDark={isDark}
               />
               <ToggleRow
                 label="Daily Digest"
                 description="Receive a daily summary of missed notifications"
                 checked={notifications.digest}
                 onChange={() => handleToggle("digest")}
+                isDark={isDark}
               />
             </div>
           </Card>
@@ -90,6 +96,7 @@ export default function NotificationPreferences() {
             submitText={loading ? "Saving..." : "Save Changes"}
             loading={loading}
             className="justify-end"
+            isDark={isDark}
           />
         </form>
       </div>

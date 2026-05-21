@@ -5,10 +5,12 @@ import AuthCard from "../../components/auth/AuthCard";
 import AuthShell from "../../components/auth/AuthShell";
 import FormField from "../../components/common/FormField";
 import FormActions from "../../components/common/FormActions";
+import useHomeTheme from "../../hooks/useHomeTheme";
 
 export default function ResetPassword() {
   const navigate = useNavigate();
   const { showSuccess, showError } = useNotification();
+  const isDark = useHomeTheme();
 
   const [form, setForm] = useState({
     password: "",
@@ -28,12 +30,9 @@ export default function ResetPassword() {
     if (/\d/.test(password)) strength++;
     if (/[^a-zA-Z\d]/.test(password)) strength++;
 
-    if (strength <= 1)
-      return { strength: 1, label: "Weak", color: "bg-red-500" };
-    if (strength === 2)
-      return { strength: 2, label: "Medium", color: "bg-yellow-500" };
-    if (strength === 3)
-      return { strength: 3, label: "Good", color: "bg-blue-500" };
+    if (strength <= 1) return { strength: 1, label: "Weak", color: "bg-red-500" };
+    if (strength === 2) return { strength: 2, label: "Medium", color: "bg-yellow-500" };
+    if (strength === 3) return { strength: 3, label: "Good", color: "bg-blue-500" };
     return { strength: 4, label: "Strong", color: "bg-green-500" };
   }, [form.password]);
 
@@ -66,7 +65,6 @@ export default function ResetPassword() {
       return;
     }
 
-    // Password reset logic here
     showSuccess("Password reset successfully! Redirecting to login...");
     setTimeout(() => {
       navigate("/login");
@@ -74,13 +72,12 @@ export default function ResetPassword() {
   };
 
   return (
-    <AuthShell className="bg-[#0d1117] text-[#e6edf3] group/design-root">
-      <div className="flex flex-1 items-center justify-center py-5 px-4 sm:px-6 lg:px-8">
+    <AuthShell className="group/design-root">
+      <div className="flex flex-1 items-center justify-center px-4 py-5 sm:px-6 lg:px-8">
         <div className="flex w-full max-w-md flex-col items-center space-y-8">
-          {/* Header */}
           <div className="text-center">
             <svg
-              className="mx-auto h-12 w-auto text-[#1dc964]"
+              className={`mx-auto h-12 w-auto ${isDark ? "text-primary-dark" : "text-primary-light"}`}
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"
@@ -93,28 +90,24 @@ export default function ResetPassword() {
                 strokeLinejoin="round"
               ></path>
             </svg>
-            <h1 className="mt-6 text-3xl font-black tracking-tighter text-[#e6edf3]">
+            <h1 className={`mt-6 text-3xl font-bold tracking-tight ${isDark ? "text-text-primary-dark" : "text-text-primary-light"}`}>
               CampusNexus
             </h1>
           </div>
 
-          {/* Form Card */}
           <AuthCard className="p-8">
-            {/* Headings */}
-            <div className="flex flex-col gap-2 mb-6">
-              <p className="text-[#e6edf3] text-2xl font-bold leading-tight">
+            <div className="mb-6 flex flex-col gap-2">
+              <p className={`text-2xl font-semibold leading-tight ${isDark ? "text-text-primary-dark" : "text-text-primary-light"}`}>
                 Reset Your Password
               </p>
-              <p className="text-[#8b949e] text-sm font-normal leading-normal">
+              <p className={`text-sm font-normal leading-normal ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>
                 Create a new, strong password for your account.
               </p>
             </div>
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
               <div className="flex flex-col gap-4">
-                {/* New Password */}
-                <div className="flex flex-col">
+                <div className="relative flex flex-col">
                   <FormField
                     label="New Password"
                     name="password"
@@ -123,40 +116,35 @@ export default function ResetPassword() {
                     onChange={handleChange}
                     placeholder="Enter your new password"
                     error={errors.password}
+                    isDark={isDark}
                   />
-                  {/* Toggle password visibility */}
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-9 text-[#8b949e] hover:text-[#e6edf3]"
+                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    className={`absolute right-3 top-9 ${isDark ? "text-text-secondary-dark hover:text-text-primary-dark" : "text-text-secondary-light hover:text-text-primary-light"}`}
                     style={{ marginTop: "2.5rem" }}
                   >
                     <span className="material-symbols-outlined text-lg">
                       {showPassword ? "visibility" : "visibility_off"}
                     </span>
                   </button>
-                  {/* Password Strength Indicator */}
                   {form.password && (
                     <div className="mt-2 flex items-center space-x-2">
-                      <div className="h-1 flex-1 rounded-full bg-[#30363d] overflow-hidden">
+                      <div className={`h-1 flex-1 overflow-hidden rounded-full ${isDark ? "bg-border-dark" : "bg-border-light"}`}>
                         <div
                           className={`h-1 ${passwordStrength.color} transition-all`}
-                          style={{
-                            width: `${(passwordStrength.strength / 4) * 100}%`,
-                          }}
+                          style={{ width: `${(passwordStrength.strength / 4) * 100}%` }}
                         ></div>
                       </div>
-                      <p
-                        className={`text-xs ${passwordStrength.color.replace("bg-", "text-")}`}
-                      >
+                      <p className={`text-xs ${passwordStrength.color.replace("bg-", "text-")}`}>
                         {passwordStrength.label}
                       </p>
                     </div>
                   )}
                 </div>
 
-                {/* Confirm Password */}
-                <div className="flex flex-col relative">
+                <div className="relative flex flex-col">
                   <FormField
                     label="Confirm New Password"
                     name="confirmPassword"
@@ -165,11 +153,13 @@ export default function ResetPassword() {
                     onChange={handleChange}
                     placeholder="Confirm your new password"
                     error={errors.confirmPassword}
+                    isDark={isDark}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-9 text-[#8b949e] hover:text-[#e6edf3]"
+                    aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
+                    className={`absolute right-3 top-9 ${isDark ? "text-text-secondary-dark hover:text-text-primary-dark" : "text-text-secondary-light hover:text-text-primary-light"}`}
                     style={{ marginTop: "2.5rem" }}
                   >
                     <span className="material-symbols-outlined text-lg">
@@ -179,24 +169,23 @@ export default function ResetPassword() {
                 </div>
               </div>
 
-              {/* Reset Button */}
               <FormActions
                 onSubmit={handleSubmit}
                 submitText="Reset Password"
                 submitVariant="primary"
                 className="flex-col-reverse"
                 onCancel={null}
+                isDark={isDark}
               />
             </form>
           </AuthCard>
 
-          {/* Sign In Link */}
-          <p className="text-center text-sm text-[#8b949e]">
+          <p className={`text-center text-sm ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>
             Remember your password?{" "}
             <button
               type="button"
               onClick={() => navigate("/login")}
-              className="font-medium text-[#1dc964] hover:underline cursor-pointer"
+              className={`cursor-pointer font-medium hover:underline ${isDark ? "text-primary-dark" : "text-primary-light"}`}
             >
               Sign in
             </button>

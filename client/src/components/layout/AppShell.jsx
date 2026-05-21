@@ -7,12 +7,14 @@ import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useAuth } from '../../hooks/useAuth';
 import { fetchCampusById, selectActiveCampus } from '../../redux/slices/campusSlice';
+import useHomeTheme from '../../hooks/useHomeTheme';
 
 export default function AppShell() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const dispatch = useDispatch();
   const { user } = useAuth();
   const activeCampus = useSelector(selectActiveCampus);
+  const isDark = useHomeTheme();
 
   useEffect(() => {
     if (user?.campusId && activeCampus?._id !== user.campusId) {
@@ -21,7 +23,11 @@ export default function AppShell() {
   }, [user?.campusId, activeCampus?._id, dispatch]);
 
   return (
-    <div className="flex flex-col h-screen bg-[#0d1117] overflow-hidden">
+    <div
+      className={`flex h-screen flex-col overflow-hidden ${
+        isDark ? "bg-background-dark" : "bg-background-light"
+      }`}
+    >
       <GlobalNavbar onMenuToggle={() => setSidebarOpen((o) => !o)} />
       <div className="flex flex-1 overflow-hidden">
         <AppSidebar
@@ -30,7 +36,9 @@ export default function AppShell() {
         />
         <main
           id="main-content"
-          className="flex-1 flex flex-col overflow-y-auto bg-[#0d1117]"
+          className={`flex flex-1 flex-col overflow-y-auto ${
+            isDark ? "bg-background-dark" : "bg-background-light"
+          }`}
         >
           <EmailVerificationBanner />
           <div className="h-full">

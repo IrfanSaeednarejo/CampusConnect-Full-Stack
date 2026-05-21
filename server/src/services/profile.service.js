@@ -3,6 +3,7 @@ import { ProfileView } from "../models/profileView.model.js";
 import { Notification } from "../models/notification.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { v2 as cloudinary } from "cloudinary";
+import { safeAwardProfileCompletionIfEligible } from "./gamification.service.js";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -111,8 +112,14 @@ export const getProfileVisitors = async (profileOwnerId, { page = 1, limit = 20 
 export const addExperience = async (userId, data) => {
     const user = await User.findById(userId);
     if (!user) throw new ApiError(404, "User not found");
+    const beforeUser = user.toObject ? user.toObject({ virtuals: true }) : user;
     user.experience.push(data);
     await user.save();
+    await safeAwardProfileCompletionIfEligible({
+        beforeUser,
+        afterUser: user,
+        actorId: userId,
+    });
     return user.experience[user.experience.length - 1];
 };
 
@@ -139,6 +146,7 @@ export const addProject = async (userId, data, files = []) => {
     const user = await User.findById(userId);
     if (!user) throw new ApiError(404, "User not found");
     if (user.projects.length >= 20) throw new ApiError(400, "Maximum 20 projects allowed");
+    const beforeUser = user.toObject ? user.toObject({ virtuals: true }) : user;
 
     let imageData = { urls: [], publicIds: [] };
     if (files.length > 0) {
@@ -151,6 +159,11 @@ export const addProject = async (userId, data, files = []) => {
         imagePublicIds: imageData.publicIds,
     });
     await user.save();
+    await safeAwardProfileCompletionIfEligible({
+        beforeUser,
+        afterUser: user,
+        actorId: userId,
+    });
     return user.projects[user.projects.length - 1];
 };
 

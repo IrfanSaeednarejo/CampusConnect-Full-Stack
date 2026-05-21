@@ -1,23 +1,23 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
-import { 
-  selectAllMentors, 
-  fetchMentors, 
+import {
+  selectAllMentors,
+  fetchMentors,
   fetchMentorById,
   selectCurrentMentor,
   bookSessionThunk,
   selectMentoringActionLoading,
   fetchMentorAvailability,
-  selectMentorAvailability
+  selectMentorAvailability,
 } from "../../redux/slices/mentoringSlice";
 import { toast } from "react-hot-toast";
+import useHomeTheme from "@/hooks/useHomeTheme";
 
-// Helper to generate the next 7 days starting from a given anchor date
 const generateWeekDays = (anchorDate) => {
   const days = [];
   const start = new Date(anchorDate);
-  start.setHours(0,0,0,0);
+  start.setHours(0, 0, 0, 0);
   for (let i = 0; i < 7; i++) {
     const d = new Date(start);
     d.setDate(d.getDate() + i);
@@ -26,113 +26,103 @@ const generateWeekDays = (anchorDate) => {
   return days;
 };
 
-// Helper: Calculate conflict-free slots
 const generateTimeSlots = (dateObj, dailyRules, bookedSlots, durationMinutes = 60) => {
   const slots = [];
   const now = new Date();
-  
+
   if (!dailyRules || dailyRules.length === 0) return slots;
-  
-  dailyRules.forEach(rule => {
-      const [startH, startM] = rule.startTime.split(':').map(Number);
-      const [endH, endM] = rule.endTime.split(':').map(Number);
-      
-      let currentMinutes = startH * 60 + startM;
-      const endMinutes = endH * 60 + endM;
-      
-      while (currentMinutes + durationMinutes <= endMinutes) {
-          const slotStart = new Date(dateObj);
-          slotStart.setHours(Math.floor(currentMinutes / 60), currentMinutes % 60, 0, 0);
-          
-          const slotEnd = new Date(slotStart.getTime() + durationMinutes * 60000);
-          
-          // Check if slot is in the past
-          const isPast = slotStart < now;
-          
-          // Check for overlap against booked slots
-          const isBooked = bookedSlots?.some(b => {
-             const bStart = new Date(b.startAt).getTime();
-             const bEnd = new Date(b.endAt).getTime();
-             // Overlap occurs if one starts before the other ends, and ends after the other starts
-             return (slotStart.getTime() < bEnd && slotEnd.getTime() > bStart);
-          });
-          
-          slots.push({
-             start: slotStart,
-             end: slotEnd,
-             label: slotStart.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-             disabled: isPast || isBooked
-          });
-          
-          // advance by 30 mins to allow staggered intervals
-          currentMinutes += 30; 
-      }
+
+  dailyRules.forEach((rule) => {
+    const [startH, startM] = rule.startTime.split(":").map(Number);
+    const [endH, endM] = rule.endTime.split(":").map(Number);
+
+    let currentMinutes = startH * 60 + startM;
+    const endMinutes = endH * 60 + endM;
+
+    while (currentMinutes + durationMinutes <= endMinutes) {
+      const slotStart = new Date(dateObj);
+      slotStart.setHours(Math.floor(currentMinutes / 60), currentMinutes % 60, 0, 0);
+
+      const slotEnd = new Date(slotStart.getTime() + durationMinutes * 60000);
+      const isPast = slotStart < now;
+
+      const isBooked = bookedSlots?.some((b) => {
+        const bStart = new Date(b.startAt).getTime();
+        const bEnd = new Date(b.endAt).getTime();
+        return slotStart.getTime() < bEnd && slotEnd.getTime() > bStart;
+      });
+
+      slots.push({
+        start: slotStart,
+        end: slotEnd,
+        label: slotStart.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        disabled: isPast || isBooked,
+      });
+
+      currentMinutes += 30;
+    }
   });
-  
-  return slots.sort((a,b) => a.start - b.start);
+
+  return slots.sort((a, b) => a.start - b.start);
 };
 
 export default function BookSession() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const isDark = useHomeTheme();
   const [searchParams] = useSearchParams();
   const params = useParams();
   const urlMentorId = searchParams.get("mentorId") || params.mentorId;
-  
+
   const allMentors = useSelector(selectAllMentors) || [];
   const currentMentor = useSelector(selectCurrentMentor);
   const isSubmitting = useSelector(selectMentoringActionLoading);
   const availabilityData = useSelector(selectMentorAvailability);
 
   const [selectedMentorId, setSelectedMentorId] = useState(urlMentorId || null);
-  
-  // Slot Picker State
   const [anchorDate, setAnchorDate] = useState(() => new Date());
   const [selectedDayObj, setSelectedDayObj] = useState(() => new Date());
   const [selectedSlot, setSelectedSlot] = useState(null);
-  
-  // Form State
   const [topic, setTopic] = useState("");
   const [notes, setNotes] = useState("");
 
-  const activeMentor = currentMentor?._id === selectedMentorId 
-    ? currentMentor 
-    : allMentors.find(m => m._id === selectedMentorId);
+  const activeMentor =
+    currentMentor?._id === selectedMentorId
+      ? currentMentor
+      : allMentors.find((m) => m._id === selectedMentorId);
 
   useEffect(() => {
-    // If no specific mentor is selected, fetch the list so user can choose
     if (!selectedMentorId && allMentors.length === 0) {
       dispatch(fetchMentors({ limit: 50 }));
     }
   }, [dispatch, selectedMentorId, allMentors.length]);
 
   useEffect(() => {
-    // If a specific mentor is selected, fetch their details AND their runtime availability (for bookedSlots)
     if (selectedMentorId) {
       dispatch(fetchMentorById(selectedMentorId));
-      dispatch(fetchMentorAvailability({ 
-        id: selectedMentorId, 
-        params: { date: anchorDate.toISOString().split('T')[0] } 
-      }));
+      dispatch(
+        fetchMentorAvailability({
+          id: selectedMentorId,
+          params: { date: anchorDate.toISOString().split("T")[0] },
+        })
+      );
     }
   }, [dispatch, selectedMentorId, anchorDate]);
 
-  // Generate 7 day tabs based on anchor string
   const currentWeekDays = useMemo(() => generateWeekDays(anchorDate), [anchorDate]);
+  const mentorHasAvailability = useMemo(
+    () => (availabilityData?.availability || []).length > 0,
+    [availabilityData]
+  );
 
-  // Compute calculated slots for the currently selected Day Tab
   const activeDaySlots = useMemo(() => {
     if (!activeMentor || !availabilityData) return [];
-    
-    // DB saves days 0 (Sun) to 6 (Sat)
-    const dayOfWeek = selectedDayObj.getDay(); 
-    const rulesForDay = (availabilityData.availability || []).filter(r => r.day === dayOfWeek);
+    const dayOfWeek = selectedDayObj.getDay();
+    const rulesForDay = (availabilityData.availability || []).filter((r) => r.day === dayOfWeek);
     const booked = availabilityData.bookedSlots || [];
-    
-    return generateTimeSlots(selectedDayObj, rulesForDay, booked, 60); // Hardcode 1hr logic per MVP UI
+    return generateTimeSlots(selectedDayObj, rulesForDay, booked, 60);
   }, [selectedDayObj, activeMentor, availabilityData]);
 
-  // Reset slot when day changes
   useEffect(() => {
     setSelectedSlot(null);
   }, [selectedDayObj, activeMentor?._id]);
@@ -142,13 +132,13 @@ export default function BookSession() {
       toast.error("Please select a time slot and provide a topic!");
       return;
     }
-    
+
     if (!activeMentor.verified || !activeMentor.isActive) {
       toast.error("This mentor is currently unavailable for bookings.");
       return;
     }
 
-    const duration = 60; // 1 hour session
+    const duration = 60;
     const start = selectedSlot.start;
     const end = new Date(start.getTime() + duration * 60000);
 
@@ -157,7 +147,7 @@ export default function BookSession() {
       endAt: end.toISOString(),
       topic,
       notes,
-      duration
+      duration,
     };
 
     try {
@@ -175,77 +165,105 @@ export default function BookSession() {
     setAnchorDate(next);
     setSelectedDayObj(next);
   };
-  
+
   const handlePrevWeek = () => {
     const prev = new Date(anchorDate);
     prev.setDate(prev.getDate() - 7);
-    if (prev < new Date(new Date().setHours(0,0,0,0))) {
-        setAnchorDate(new Date());
-        setSelectedDayObj(new Date());
+    if (prev < new Date(new Date().setHours(0, 0, 0, 0))) {
+      setAnchorDate(new Date());
+      setSelectedDayObj(new Date());
     } else {
-        setAnchorDate(prev);
-        setSelectedDayObj(prev);
+      setAnchorDate(prev);
+      setSelectedDayObj(prev);
     }
   };
 
+  const pageClass = isDark ? "bg-background-dark text-text-primary-dark" : "bg-background-light text-text-primary-light";
+  const panelClass = isDark
+    ? "border-border-dark bg-surface-dark"
+    : "bg-white border-slate-200 shadow-[0_18px_40px_rgba(15,23,42,0.08)]";
+  const nestedPanelClass = isDark ? "border-border-dark bg-background-dark" : "bg-slate-50 border-slate-200";
+  const mutedText = isDark ? "text-text-secondary-dark" : "text-slate-500";
+  const headingText = isDark ? "text-text-primary-dark" : "text-slate-900";
+  const inputClass = isDark
+    ? "border-border-dark bg-background-dark text-text-primary-dark placeholder:text-text-secondary-dark"
+    : "bg-white text-slate-900 border-slate-300 placeholder:text-slate-400";
+  const bookingDisabledReason = !activeMentor
+    ? "Select a mentor to continue."
+    : !activeMentor.verified || !activeMentor.isActive
+      ? "This mentor is not currently accepting bookings."
+      : !mentorHasAvailability
+        ? "This mentor has not added any availability yet."
+        : !selectedSlot
+          ? "Select an available 1-hour slot to enable booking."
+          : !topic.trim()
+            ? "Enter a topic or focus area to continue."
+            : null;
+
   return (
-    <div className="flex flex-col h-full overflow-y-auto px-4 lg:px-10 py-10">
+    <div className={`flex flex-col px-4 lg:px-10 py-10 ${pageClass}`}>
       <div className="flex flex-col w-full max-w-6xl mx-auto gap-8">
-        
-        {/* Navigation Action */}
         <div>
-          <button 
+          <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-[#8b949e] hover:text-white transition-colors"
+            className={`flex items-center gap-2 transition-colors ${isDark ? "text-text-secondary-dark hover:text-text-primary-dark" : "text-slate-500 hover:text-slate-900"}`}
           >
             <span className="material-symbols-outlined text-[18px]">arrow_back</span>
             Back
           </button>
         </div>
 
-        {/* Page Heading */}
         <div className="flex flex-col gap-2">
-          <p className="text-[#e6edf3] text-3xl font-bold tracking-tight">Book a Mentoring Session</p>
-          <p className="text-[#8b949e] text-base">Select a mentor and schedule your next session dynamically against their availability.</p>
+          <p className={`text-3xl font-bold tracking-tight ${headingText}`}>Book a Mentoring Session</p>
+          <p className={`text-base ${mutedText}`}>
+            Select a mentor and schedule your next session dynamically against their availability.
+          </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
-          
-          {/* Mentor Selection Column */}
           <div className="lg:col-span-1 flex flex-col gap-4">
-            <h2 className="text-white font-semibold text-lg border-b border-[#30363d] pb-2">
+            <h2 className={`border-b pb-2 text-lg font-semibold ${isDark ? "border-border-dark text-text-primary-dark" : "border-slate-200 text-slate-900"}`}>
               {urlMentorId ? "Selected Mentor" : "Select Mentor"}
             </h2>
-            
+
             {urlMentorId && activeMentor ? (
-              <div className="p-4 rounded-xl border-2 border-[#3fb950] bg-[#3fb950]/5 relative overflow-hidden transition-all">
-                <div className="absolute top-0 right-0 p-2 bg-[#3fb950] rounded-bl-lg">
+              <div className={`relative overflow-hidden rounded-xl border-2 border-primary/30 p-4 transition-all ${isDark ? "bg-primary/10" : "bg-primary/5"}`}>
+                <div className="absolute top-0 right-0 rounded-bl-lg bg-primary p-2">
                   <span className="material-symbols-outlined text-white text-sm">check</span>
                 </div>
                 <div className="flex flex-col gap-3">
                   <div className="flex gap-3 items-center">
                     {activeMentor.userId?.profile?.avatar ? (
-                      <img src={activeMentor.userId.profile.avatar} alt="Mentor" className="w-12 h-12 rounded-full object-cover border border-[#30363d]" />
+                      <img
+                        src={activeMentor.userId.profile.avatar}
+                        alt="Mentor"
+                        className={`h-12 w-12 rounded-full border object-cover ${isDark ? "border-border-dark" : "border-slate-200"}`}
+                      />
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-[#3fb950] flex items-center justify-center text-xl font-bold text-white shrink-0">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary text-xl font-bold text-white">
                         {activeMentor.userId?.profile?.firstName?.[0] || "?"}
                       </div>
                     )}
                     <div>
-                      <h3 className="text-white font-bold">{activeMentor.userId?.profile?.displayName || `${activeMentor.userId?.profile?.firstName} ${activeMentor.userId?.profile?.lastName}`}</h3>
-                      <p className="text-[#8b949e] text-xs">{(activeMentor.categories && activeMentor.categories[0]) || "Mentor"}</p>
+                      <h3 className={`font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+                        {activeMentor.userId?.profile?.displayName ||
+                          `${activeMentor.userId?.profile?.firstName} ${activeMentor.userId?.profile?.lastName}`}
+                      </h3>
+                      <p className={`text-xs ${mutedText}`}>
+                        {(activeMentor.categories && activeMentor.categories[0]) || "Mentor"}
+                      </p>
                     </div>
                   </div>
                   <div>
-                     <p className="text-[#3fb950] font-bold mt-2">
-                        {activeMentor.hourlyRate > 0 ? `${activeMentor.currency || 'PKR'} ${activeMentor.hourlyRate}/Hr` : 'Free'}
-                     </p>
-                     {!activeMentor.verified && (
-                        <p className="text-red-400 text-xs mt-1 font-bold">⚠️ Mentor is unverified</p>
-                     )}
-                     {!activeMentor.isActive && activeMentor.verified && (
-                        <p className="text-yellow-400 text-xs mt-1 font-bold">⚠️ Mentor is inactive</p>
-                     )}
+                    <p className="mt-2 font-bold text-primary">
+                      {activeMentor.hourlyRate > 0
+                        ? `${activeMentor.currency || "PKR"} ${activeMentor.hourlyRate}/Hr`
+                        : "Free"}
+                    </p>
+                    {!activeMentor.verified && <p className="mt-1 text-xs font-bold text-danger">Mentor is unverified</p>}
+                    {!activeMentor.isActive && activeMentor.verified && (
+                      <p className="mt-1 text-xs font-bold text-warning">Mentor is inactive</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -257,21 +275,32 @@ export default function BookSession() {
                     onClick={() => setSelectedMentorId(mentor._id)}
                     className={`p-4 rounded-xl cursor-pointer transition-all border ${
                       selectedMentorId === mentor._id
-                        ? "bg-[#3fb950]/5 border-[#3fb950]"
-                        : "bg-[#161b22] border-[#30363d] hover:border-[#8b949e]"
+                        ? isDark
+                          ? "bg-primary/5 border-primary"
+                          : "border-primary/30 bg-primary/5"
+                        : `${panelClass} ${isDark ? "hover:border-slate-500" : "hover:border-slate-300"}`
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       {mentor.userId?.profile?.avatar ? (
-                        <img src={mentor.userId.profile.avatar} alt="Mentor" className="w-10 h-10 rounded-full object-cover border border-[#30363d]" />
+                        <img
+                          src={mentor.userId.profile.avatar}
+                          alt="Mentor"
+                          className={`h-10 w-10 rounded-full border object-cover ${isDark ? "border-border-dark" : "border-slate-200"}`}
+                        />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-[#2ea043] flex items-center justify-center text-lg font-bold text-white shrink-0">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary text-lg font-bold text-white">
                           {mentor.userId?.profile?.firstName?.[0] || "?"}
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-white font-medium truncate">{mentor.userId?.profile?.displayName || `${mentor.userId?.profile?.firstName} ${mentor.userId?.profile?.lastName}`}</h3>
-                        <p className="text-[#8b949e] text-xs">{mentor.hourlyRate > 0 ? `${mentor.currency || 'PKR'} ${mentor.hourlyRate}/Hr` : 'Free'}</p>
+                        <h3 className={`font-medium truncate ${isDark ? "text-white" : "text-slate-900"}`}>
+                          {mentor.userId?.profile?.displayName ||
+                            `${mentor.userId?.profile?.firstName} ${mentor.userId?.profile?.lastName}`}
+                        </h3>
+                        <p className={`text-xs ${mutedText}`}>
+                          {mentor.hourlyRate > 0 ? `${mentor.currency || "PKR"} ${mentor.hourlyRate}/Hr` : "Free"}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -280,157 +309,182 @@ export default function BookSession() {
             )}
           </div>
 
-          {/* Booking Form + Slot Engine Column */}
           <div className="lg:col-span-2">
             {activeMentor ? (
-              <div className={`p-6 md:p-8 bg-[#161b22] border border-[#30363d] rounded-2xl flex flex-col gap-6 animate-fadeIn transition-all ${(!activeMentor.verified || !activeMentor.isActive) && 'opacity-70 pointer-events-none'}`}>
-                
-                <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-[#30363d] pb-4 mb-2 gap-4">
-                  <h3 className="text-xl font-bold text-white">
+              <div className={`p-6 md:p-8 border rounded-2xl flex flex-col gap-6 animate-fadeIn transition-all ${panelClass} ${(!activeMentor.verified || !activeMentor.isActive) && "opacity-70 pointer-events-none"}`}>
+                <div className={`mb-2 flex flex-col justify-between gap-4 border-b pb-4 md:flex-row md:items-center ${isDark ? "border-border-dark" : "border-slate-200"}`}>
+                  <h3 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
                     Schedule with {activeMentor.userId?.profile?.firstName}
                   </h3>
-                  
-                  {/* Week Navigation */}
-                  <div className="flex items-center gap-3 bg-[#0d1117] rounded-lg p-1 border border-[#30363d]">
-                     <button onClick={handlePrevWeek} className="p-1 rounded hover:bg-[#30363d] text-[#8b949e] hover:text-white transition-colors" title="Previous Week">
-                         <span className="material-symbols-outlined text-sm">chevron_left</span>
-                     </button>
-                     <span className="text-xs font-semibold text-[#8b949e] uppercase w-24 text-center">
-                        {anchorDate.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                     </span>
-                     <button onClick={handleNextWeek} className="p-1 rounded hover:bg-[#30363d] text-[#8b949e] hover:text-white transition-colors" title="Next Week">
-                         <span className="material-symbols-outlined text-sm">chevron_right</span>
-                     </button>
+
+                  <div className={`flex items-center gap-3 rounded-lg p-1 border ${nestedPanelClass}`}>
+                    <button
+                      onClick={handlePrevWeek}
+                      className={`rounded p-1 transition-colors ${isDark ? "text-text-secondary-dark hover:bg-container-dark hover:text-text-primary-dark" : "text-slate-500 hover:bg-slate-200 hover:text-slate-900"}`}
+                      title="Previous Week"
+                    >
+                      <span className="material-symbols-outlined text-sm">chevron_left</span>
+                    </button>
+                    <span className={`text-xs font-semibold uppercase w-24 text-center ${mutedText}`}>
+                      {anchorDate.toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                    </span>
+                    <button
+                      onClick={handleNextWeek}
+                      className={`rounded p-1 transition-colors ${isDark ? "text-text-secondary-dark hover:bg-container-dark hover:text-text-primary-dark" : "text-slate-500 hover:bg-slate-200 hover:text-slate-900"}`}
+                      title="Next Week"
+                    >
+                      <span className="material-symbols-outlined text-sm">chevron_right</span>
+                    </button>
                   </div>
                 </div>
 
-                {/* --- THE SLOT ENGINE UI (OPTION A) --- */}
-                <div className="flex flex-col gap-4 bg-[#0d1117] p-5 rounded-xl border border-[#30363d]">
-                  
-                  {/* Day Tabs */}
+                <div className={`flex flex-col gap-4 p-5 rounded-xl border ${nestedPanelClass}`}>
                   <div className="flex gap-2 pb-2 overflow-x-auto custom-scrollbar">
-                     {currentWeekDays.map((dateObj, idx) => {
-                       const isSelected = selectedDayObj.getDate() === dateObj.getDate() && selectedDayObj.getMonth() === dateObj.getMonth();
-                       const dayName = dateObj.toLocaleDateString(undefined, { weekday: 'short' });
-                       const dayNum = dateObj.getDate();
-                       
-                       return (
-                         <button 
-                           key={idx}
-                           onClick={() => setSelectedDayObj(dateObj)}
-                           className={`flex flex-col items-center justify-center min-w-[64px] py-3 rounded-xl border transition-all ${
-                             isSelected 
-                               ? 'bg-[#3fb950] border-[#3fb950] text-[#0d1117]' 
-                               : 'bg-[#161b22] border-[#30363d] text-[#8b949e] hover:border-[#8b949e] hover:text-white'
-                           }`}
-                         >
-                           <span className={`text-[10px] font-bold uppercase ${isSelected ? 'text-[#0d1117]/80' : ''}`}>{dayName}</span>
-                           <span className="text-lg font-bold">{dayNum}</span>
-                         </button>
-                       )
-                     })}
-                  </div>
-                  
-                  {/* Slots Grid */}
-                  <div className="mt-4">
-                     <p className="text-[#8b949e] text-xs font-bold uppercase mb-3 px-1">Available 1-Hr Slots</p>
-                     
-                     {activeDaySlots.length > 0 ? (
-                       <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
-                         {activeDaySlots.map((slot, idx) => (
-                           <button
-                             key={idx}
-                             disabled={slot.disabled}
-                             onClick={() => setSelectedSlot(slot)}
-                             className={`py-2 px-1 rounded-lg text-sm font-semibold border transition-all text-center ${
-                               slot.disabled
-                                 ? 'bg-[#0d1117] border-[#30363d]/50 text-[#8b949e]/30 cursor-not-allowed line-through'
-                                 : selectedSlot === slot
-                                   ? 'bg-[#3fb950] border-[#3fb950] text-[#0d1117] shadow-lg shadow-[#3fb950]/20'
-                                   : 'bg-[#161b22] border-[#30363d] text-white hover:border-[#3fb950] hover:text-[#3fb950]'
-                             }`}
-                           >
-                             {slot.label}
-                           </button>
-                         ))}
-                       </div>
-                     ) : (
-                       <div className="py-8 bg-[#161b22] border border-dashed border-[#30363d] rounded-xl flex flex-col items-center justify-center text-center">
-                          <span className="material-symbols-outlined text-[#8b949e] mb-2 text-3xl">event_busy</span>
-                          <p className="text-[#8b949e] font-medium">No availability scheduled for this day.</p>
-                       </div>
-                     )}
+                    {currentWeekDays.map((dateObj, idx) => {
+                      const isSelected =
+                        selectedDayObj.getDate() === dateObj.getDate() &&
+                        selectedDayObj.getMonth() === dateObj.getMonth();
+                      const dayName = dateObj.toLocaleDateString(undefined, { weekday: "short" });
+                      const dayNum = dateObj.getDate();
+
+                      return (
+                        <button
+                          key={idx}
+                          onClick={() => setSelectedDayObj(dateObj)}
+                          className={`flex flex-col items-center justify-center min-w-[64px] py-3 rounded-xl border transition-all ${
+                            isSelected
+                              ? "border-primary bg-primary text-white"
+                              : isDark
+                                ? "border-border-dark bg-surface-dark text-text-secondary-dark hover:border-slate-500 hover:text-text-primary-dark"
+                                : "bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-900"
+                          }`}
+                        >
+                          <span className={`text-[10px] font-bold uppercase ${isSelected ? "text-white/80" : ""}`}>{dayName}</span>
+                          <span className="text-lg font-bold">{dayNum}</span>
+                        </button>
+                      );
+                    })}
                   </div>
 
+                  <div className="mt-4">
+                    <p className={`text-xs font-bold uppercase mb-3 px-1 ${mutedText}`}>Available 1-Hr Slots</p>
+
+                    {activeDaySlots.length > 0 ? (
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-3">
+                        {activeDaySlots.map((slot, idx) => (
+                          <button
+                            key={idx}
+                            disabled={slot.disabled}
+                            onClick={() => setSelectedSlot(slot)}
+                            className={`py-2 px-1 rounded-lg text-sm font-semibold border transition-all text-center ${
+                              slot.disabled
+                                ? isDark
+                                  ? "cursor-not-allowed border-border-dark/50 bg-background-dark text-text-secondary-dark/40 line-through"
+                                  : "bg-slate-100 border-slate-200 text-slate-300 cursor-not-allowed line-through"
+                                : selectedSlot === slot
+                                  ? "border-primary bg-primary text-white shadow-lg shadow-primary/20"
+                                  : isDark
+                                    ? "border-border-dark bg-surface-dark text-text-primary-dark hover:border-primary/60 hover:text-primary"
+                                    : "bg-white border-slate-200 text-slate-900 hover:border-primary/40 hover:text-primary"
+                            }`}
+                          >
+                            {slot.label}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className={`py-8 border border-dashed rounded-xl flex flex-col items-center justify-center text-center ${panelClass}`}>
+                        <span className={`material-symbols-outlined mb-2 text-3xl ${mutedText}`}>event_busy</span>
+                        <p className={`font-medium ${mutedText}`}>
+                          {mentorHasAvailability
+                            ? "No availability scheduled for this day."
+                            : "This mentor has not added any availability yet."}
+                        </p>
+                        {!mentorHasAvailability && (
+                          <p className={`mt-2 max-w-md text-sm ${mutedText}`}>
+                            Booking will open here as soon as the mentor publishes available time slots.
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-[#e6edf3] text-sm font-medium">Topic or Focus Area *</label>
+                  <label className={`text-sm font-medium ${headingText}`}>Topic or Focus Area *</label>
                   <input
                     type="text"
                     value={topic}
                     onChange={(e) => setTopic(e.target.value)}
                     placeholder="e.g., Code Review, Resume Prep, Career Advice..."
-                    className="form-input w-full p-2.5 bg-[#0d1117] text-white rounded-lg border border-[#30363d] focus:border-[#3fb950] focus:ring-1 focus:ring-[#3fb950] outline-none placeholder:text-[#8b949e] transition-colors"
+                    className={`form-input w-full rounded-lg border p-2.5 transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 ${inputClass}`}
                   />
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <label className="text-[#e6edf3] text-sm font-medium">Message for the Mentor (Optional)</label>
+                  <label className={`text-sm font-medium ${headingText}`}>Message for the Mentor (Optional)</label>
                   <textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Any specific questions or context you want to provide beforehand?"
-                    className="form-input w-full p-3 bg-[#0d1117] text-white rounded-lg border border-[#30363d] focus:border-[#3fb950] focus:ring-1 focus:ring-[#3fb950] outline-none placeholder:text-[#8b949e] resize-y min-h-[100px] transition-colors"
+                    className={`form-input min-h-[100px] w-full resize-y rounded-lg border p-3 transition-colors focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 ${inputClass}`}
                   />
                 </div>
 
-                {/* Session Cost View */}
-                <div className="p-4 bg-[#0d1117] rounded-xl border border-[#30363d] mt-2 flex justify-between items-center">
-                   <div className="flex flex-col">
-                      <span className="text-[#8b949e] text-sm font-medium">Session Cost</span>
-                      <span className="text-white text-lg font-bold">
-                         {activeMentor.hourlyRate > 0 ? `${activeMentor.currency || 'PKR'} ${activeMentor.hourlyRate}` : 'Free'}
-                      </span>
-                   </div>
-                   <div className="flex items-center gap-3">
-                      {selectedSlot && (
-                         <div className="hidden sm:flex items-center gap-2 text-xs font-bold bg-[#161b22] px-3 py-1.5 rounded-lg border border-[#30363d] text-[#8b949e]">
-                           <span className="material-symbols-outlined text-sm">schedule</span>
-                           {selectedDayObj.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} at {selectedSlot.label}
-                         </div>
-                      )}
-                      <div className="bg-[#3fb950]/10 px-3 py-1.5 rounded-lg border border-[#3fb950]/30">
-                         <span className="text-[#3fb950] text-sm font-bold block">1 Hour Duration</span>
+                <div className={`p-4 rounded-xl border mt-2 flex justify-between items-center ${nestedPanelClass}`}>
+                  <div className="flex flex-col">
+                    <span className={`text-sm font-medium ${mutedText}`}>Session Cost</span>
+                    <span className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>
+                      {activeMentor.hourlyRate > 0 ? `${activeMentor.currency || "PKR"} ${activeMentor.hourlyRate}` : "Free"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    {selectedSlot && (
+                      <div className={`hidden items-center gap-2 rounded-lg border px-3 py-1.5 text-xs font-bold sm:flex ${isDark ? "border-border-dark bg-surface-dark text-text-secondary-dark" : "border-slate-200 bg-white text-slate-500"}`}>
+                        <span className="material-symbols-outlined text-sm">schedule</span>
+                        {selectedDayObj.toLocaleDateString(undefined, { month: "short", day: "numeric" })} at{" "}
+                        {selectedSlot.label}
                       </div>
-                   </div>
+                    )}
+                    <div className="rounded-lg border border-info/20 bg-info/5 px-3 py-1.5 dark:border-info/25 dark:bg-info/10">
+                      <span className="block text-sm font-bold text-info">1 Hour Duration</span>
+                    </div>
+                  </div>
                 </div>
 
-                {/* Submit */}
                 <div className="flex gap-4 mt-2">
-                   <button
+                  <button
                     onClick={handleBookSession}
-                    disabled={isSubmitting || !selectedSlot || !topic || !activeMentor.verified || !activeMentor.isActive}
-                    className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-[#238636] text-white font-semibold rounded-xl hover:bg-[#2ea043] transition-colors disabled:opacity-50 disabled:cursor-not-allowed group relative"
-                   >
+                    disabled={
+                      isSubmitting ||
+                      !selectedSlot ||
+                      !topic ||
+                      !activeMentor.verified ||
+                      !activeMentor.isActive
+                    }
+                    className="group relative flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+                  >
                     {isSubmitting ? (
-                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                     ) : (
-                        <>
-                           <span className="material-symbols-outlined font-normal">calendar_add_on</span>
-                           Confirm Booking
-                        </>
+                      <>
+                        <span className="material-symbols-outlined font-normal">calendar_add_on</span>
+                        Confirm Booking
+                      </>
                     )}
-                   </button>
+                  </button>
                 </div>
+                {bookingDisabledReason && (
+                  <p className={`text-sm ${mutedText}`}>{bookingDisabledReason}</p>
+                )}
               </div>
             ) : (
-              <div className="h-full min-h-[300px] flex flex-col items-center justify-center p-8 bg-[#161b22] border border-[#30363d] rounded-2xl text-center">
-                <div className="w-16 h-16 rounded-full bg-[#0d1117] flex items-center justify-center mb-4 border border-[#30363d]">
-                   <span className="material-symbols-outlined text-[32px] text-[#8b949e]">person_add</span>
+              <div className={`h-full min-h-[300px] flex flex-col items-center justify-center p-8 border rounded-2xl text-center ${panelClass}`}>
+                <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-4 border ${nestedPanelClass}`}>
+                  <span className={`material-symbols-outlined text-[32px] ${mutedText}`}>person_add</span>
                 </div>
-                <h3 className="text-white font-bold text-lg mb-1">Select a Mentor</h3>
-                <p className="text-[#8b949e]">Choose a mentor from the list to view their availability and book a session.</p>
+                <h3 className={`font-bold text-lg mb-1 ${isDark ? "text-white" : "text-slate-900"}`}>Select a Mentor</h3>
+                <p className={mutedText}>Choose a mentor from the list to view their availability and book a session.</p>
               </div>
             )}
           </div>

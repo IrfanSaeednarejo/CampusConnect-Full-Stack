@@ -1,6 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { setActiveTab } from "../../redux/slices/profileSlice";
 import { User, Briefcase, FolderOpen, Trophy, Activity } from "lucide-react";
+import useHomeTheme from "../../hooks/useHomeTheme";
 
 const TABS = [
     { id: "about",      label: "About",       icon: User       },
@@ -17,6 +18,7 @@ const TABS = [
 export default function ProfileTabNav({ profile }) {
     const dispatch  = useDispatch();
     const activeTab = useSelector((s) => s.profile.activeTab);
+    const isDark = useHomeTheme();
 
     const counts = {
         experience: profile?.experience?.length || 0,
@@ -25,7 +27,7 @@ export default function ProfileTabNav({ profile }) {
     };
 
     return (
-        <div className="sticky top-0 z-20 bg-[#0d1117]/95 backdrop-blur-md border-b border-[#21262d]">
+        <div className={`sticky top-0 z-20 border-b backdrop-blur-md ${isDark ? "bg-[#0d1117]/95 border-[#21262d]" : "bg-white/95 border-slate-200 shadow-sm"}`}>
             <div className="max-w-4xl mx-auto px-4">
                 <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
                     {TABS.map(({ id, label, icon: Icon }) => (
@@ -34,8 +36,8 @@ export default function ProfileTabNav({ profile }) {
                             onClick={() => dispatch(setActiveTab(id))}
                             className={`relative flex items-center gap-2 px-4 py-3.5 text-sm font-semibold whitespace-nowrap transition-colors flex-shrink-0 ${
                                 activeTab === id
-                                    ? "text-white"
-                                    : "text-[#8b949e] hover:text-[#c9d1d9]"
+                                    ? isDark ? "text-white" : "text-slate-900"
+                                    : isDark ? "text-[#8b949e] hover:text-[#c9d1d9]" : "text-slate-500 hover:text-slate-900"
                             }`}
                         >
                             <Icon className="w-4 h-4" />
@@ -43,8 +45,8 @@ export default function ProfileTabNav({ profile }) {
                             {counts[id] > 0 && (
                                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
                                     activeTab === id
-                                        ? "bg-green-600 text-white"
-                                        : "bg-[#21262d] text-[#8b949e]"
+                                        ? isDark ? "bg-green-600 text-white" : "bg-slate-900 text-white"
+                                        : isDark ? "bg-[#21262d] text-[#8b949e]" : "bg-slate-100 text-slate-500"
                                 }`}>
                                     {counts[id]}
                                 </span>

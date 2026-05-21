@@ -24,7 +24,7 @@ export default function Conversation() {
 	}, [conversationId, dispatch]);
 
 	if (!conversation) {
-		return <Navigate to="/student/messages" replace />;
+		return <Navigate to="/messages" replace />;
 	}
 
 	const handleClose = () => {

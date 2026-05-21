@@ -6,13 +6,30 @@ import { systemEvents } from "../utils/events.js";
 import { EventTeam } from "../models/eventTeam.model.js";
 import { emitNotification } from "../sockets/notification.socket.js";
 
-export const getMyNotifications = async (queryParams, requestUser) => {
-    const { page = 1, limit = 20, unreadOnly } = queryParams;
+const ADMIN_NOTIFICATION_TYPES = ["admin", "system"];
+
+const isAdminUser = (user) =>
+    Array.isArray(user?.roles) &&
+    user.roles.some((role) => ["admin", "super_admin", "campus_admin", "read_only_admin"].includes(role));
+
+const buildNotificationFilter = (queryParams, requestUser) => {
+    const { unreadOnly, scope } = queryParams;
 
     const filter = { userId: requestUser._id };
     if (unreadOnly === "true") {
         filter.read = false;
     }
+
+    if (scope === "admin" && isAdminUser(requestUser)) {
+        filter.type = { $in: ADMIN_NOTIFICATION_TYPES };
+    }
+
+    return filter;
+};
+
+export const getMyNotifications = async (queryParams, requestUser) => {
+    const { page = 1, limit = 20 } = queryParams;
+    const filter = buildNotificationFilter(queryParams, requestUser);
 
     return await paginate(Notification, filter, {
         page,
@@ -27,8 +44,9 @@ export const getMyNotifications = async (queryParams, requestUser) => {
     });
 };
 
-export const getUnreadCount = async (userId) => {
-    return await Notification.getUnreadCount(userId);
+export const getUnreadCount = async (requestUser, queryParams = {}) => {
+    const filter = buildNotificationFilter(queryParams, requestUser);
+    return await Notification.countDocuments({ ...filter, read: false });
 };
 
 export const markAsRead = async (notificationId, userId) => {
@@ -49,8 +67,12 @@ export const markAsRead = async (notificationId, userId) => {
     return notification;
 };
 
-export const markAllAsRead = async (userId) => {
-    const result = await Notification.markAllRead(userId);
+export const markAllAsRead = async (requestUser, queryParams = {}) => {
+    const filter = buildNotificationFilter(queryParams, requestUser);
+    const result = await Notification.updateMany(
+        { ...filter, read: false },
+        { $set: { read: true, readAt: new Date() } }
+    );
     return { modifiedCount: result.modifiedCount };
 };
 

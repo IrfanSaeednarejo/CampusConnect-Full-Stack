@@ -79,15 +79,31 @@ const notificationSlice = createSlice({
   },
   reducers: {
     addNotification: (state, action) => {
-      // Prevent duplicates
-      const exists = state.items.some(n => n._id === action.payload._id);
-      if (!exists) {
-        state.items.unshift(action.payload);
-        if (!action.payload.read) {
+      const incoming = action.payload;
+      const index = state.items.findIndex((notification) => notification._id === incoming._id);
+
+      if (index !== -1) {
+        const previous = state.items[index];
+        const wasUnread = !previous.read;
+        const isUnread = !incoming.read;
+
+        state.items.splice(index, 1);
+        state.items.unshift({ ...previous, ...incoming });
+
+        if (!wasUnread && isUnread) {
+          state.unreadCount += 1;
+        } else if (wasUnread && !isUnread) {
+          state.unreadCount = Math.max(0, state.unreadCount - 1);
+        }
+      } else {
+        state.items.unshift(incoming);
+        if (!incoming.read) {
           state.unreadCount += 1;
         }
-        // Keep list reasonable sized in memory
-        if (state.items.length > 50) state.items.pop();
+      }
+
+      if (state.items.length > 50) {
+        state.items = state.items.slice(0, 50);
       }
     },
     acknowledgeNotification: (state, action) => {
@@ -122,9 +138,8 @@ const notificationSlice = createSlice({
           page: action.payload.page,
           pages: action.payload.totalPages,
         };
-        // Also update unread count based on current list if possible, 
-        // or just rely on a separate count fetch if needed.
-        // For now, assume backend provides a summary or we count locally
+        const unreadFromPage = action.payload.docs.filter((notification) => !notification.read).length;
+        state.unreadCount = Math.max(state.unreadCount, unreadFromPage);
       })
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.loading = false;

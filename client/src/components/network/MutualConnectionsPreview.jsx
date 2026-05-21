@@ -1,43 +1,54 @@
-import React, { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchMutualConnections } from '../../redux/slices/networkSlice';
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchMutualConnections } from "../../redux/slices/networkSlice";
+import useHomeTheme from "../../hooks/useHomeTheme";
 
-export default function MutualConnectionsPreview({ targetUserId, initialMutualCount = 0 }) {
+export default function MutualConnectionsPreview({
+  targetUserId,
+  initialMutualCount = 0,
+}) {
   const dispatch = useDispatch();
-  const mutualData = useSelector(state => state.network.mutualMap[targetUserId]);
+  const isDark = useHomeTheme();
+  const mutualData = useSelector((state) => state.network.mutualMap[targetUserId]);
 
   useEffect(() => {
-    if (targetUserId && !mutualData && initialMutualCount > 0) {
-      dispatch(fetchMutualConnections(targetUserId));
-    }
-  }, [dispatch, targetUserId, mutualData, initialMutualCount]);
+    if (!targetUserId || mutualData) return;
+    dispatch(fetchMutualConnections(targetUserId));
+  }, [dispatch, mutualData, targetUserId]);
 
   const count = mutualData?.mutualCount ?? initialMutualCount;
   const users = mutualData?.mutualUsers || [];
 
   if (!count) return null;
 
-  const avatarUrl = (u) =>
-    u.profile?.avatar ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(u.profile?.displayName || 'User')}&size=32&background=0d1117&color=58a6ff&bold=true`;
+  const avatarUrl = (user) =>
+    user?.profile?.avatar ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(
+      user?.profile?.displayName || user?.username || "User"
+    )}&background=0f172a&color=2563eb&size=64`;
 
   return (
-    <div className="flex items-center gap-2 text-xs text-[#8b949e]">
+    <div
+      className={`flex items-center gap-2 text-xs ${
+        isDark ? "text-text-secondary-dark" : "text-slate-500"
+      }`}
+    >
       {users.length > 0 && (
         <div className="flex -space-x-2">
-          {users.slice(0, 3).map(u => (
+          {users.slice(0, 3).map((user) => (
             <img
-              key={u._id}
-              src={avatarUrl(u)}
-              alt={u.profile?.displayName || 'User'}
-              className="w-5 h-5 rounded-full border-2 border-[#161b22] object-cover"
-              title={u.profile?.displayName}
+              key={user._id}
+              src={avatarUrl(user)}
+              alt={user?.profile?.displayName || user?.username || "User"}
+              className={`h-5 w-5 rounded-full object-cover ring-1 ${
+                isDark ? "ring-surface-dark" : "ring-white"
+              }`}
             />
           ))}
         </div>
       )}
       <span>
-        {count} mutual connection{count !== 1 ? 's' : ''}
+        {count} mutual connection{count > 1 ? "s" : ""}
       </span>
     </div>
   );

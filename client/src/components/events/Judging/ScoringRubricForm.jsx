@@ -29,29 +29,29 @@ export default function ScoringRubricForm({ criteria, onSubmitScore, disabled, l
 
   if (criteria.length === 0) {
     return (
-      <div className="bg-[#161b22] border border-[#30363d] p-6 rounded-xl text-center">
-         <p className="text-[#8b949e]">The organizer hasn't provided a grading rubric.</p>
+      <div className="bg-surface-dark border border-border-dark p-6 rounded-xl text-center">
+        <p className="text-text-secondary-dark">The organizer hasn't provided a grading rubric.</p>
       </div>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-[#161b22] border border-[#30363d] p-6 rounded-xl space-y-6 shadow-xl text-left">
-      <div className="border-b border-[#30363d] pb-4 flex justify-between items-end">
-        <h3 className="text-xl font-bold text-white flex items-center gap-2">
-          <span className="material-symbols-outlined text-[#8957e5]">fact_check</span> Rubric
+    <form onSubmit={handleSubmit} className="bg-surface-dark border border-border-dark p-6 rounded-xl space-y-6 shadow-xl text-left">
+      <div className="border-b border-border-dark pb-4 flex justify-between items-end">
+        <h3 className="text-xl font-bold text-text-primary-dark flex items-center gap-2">
+          <span className="material-symbols-outlined text-info">fact_check</span> Rubric
         </h3>
-        <span className="text-2xl font-black text-[#1dc964]">{calculateTotal()} <span className="text-sm text-[#8b949e] font-normal">/ {maxPossible}</span></span>
+        <span className="text-2xl font-black text-primary">{calculateTotal()} <span className="text-sm text-text-secondary-dark font-normal">/ {maxPossible}</span></span>
       </div>
 
       <div className="space-y-5">
         {criteria.map((c, idx) => (
-           <div key={idx} className="bg-[#0d1117] border border-[#30363d] p-4 rounded-lg">
+            <div key={idx} className="bg-background-dark border border-border-dark p-4 rounded-lg">
              <div className="flex justify-between items-center mb-2">
-                <label className="font-bold text-white block">{c.name}</label>
-                <span className="text-[#8957e5] font-bold">{scores[c.name] || 0} <span className="text-xs text-[#8b949e] font-normal">/ {c.maxScore}</span></span>
+               <label className="font-bold text-text-primary-dark block">{c.name}</label>
+               <span className="text-info font-bold">{scores[c.name] || 0} <span className="text-xs text-text-secondary-dark font-normal">/ {c.maxScore}</span></span>
              </div>
-             {c.description && <p className="text-xs text-[#8b949e] mb-4">{c.description}</p>}
+             {c.description && <p className="text-xs text-text-secondary-dark mb-4">{c.description}</p>}
              
              <input 
                type="range" 
@@ -60,25 +60,25 @@ export default function ScoringRubricForm({ criteria, onSubmitScore, disabled, l
                value={scores[c.name]}
                onChange={e => handleScoreChange(c.name, e.target.value)}
                disabled={disabled || loading}
-               className="w-full accent-[#8957e5]"
+               className="w-full accent-info"
              />
            </div>
         ))}
       </div>
 
       <div>
-        <label className="text-sm font-semibold text-white block mb-2">Qualitative Feedback (Optional)</label>
+        <label className="text-sm font-semibold text-text-primary-dark block mb-2">Qualitative Feedback (Optional)</label>
         <textarea 
           rows="3" 
           value={feedback}
           onChange={e => setFeedback(e.target.value)}
           disabled={disabled || loading}
           placeholder="Leave constructive feedback for the team..."
-          className="w-full bg-[#0d1117] text-white p-3 rounded-lg border border-[#30363d] focus:border-[#8957e5] outline-none resize-none"
+          className="w-full bg-background-dark text-text-primary-dark p-3 rounded-lg border border-border-dark focus:border-info outline-none resize-none"
         ></textarea>
       </div>
 
-      <Button variant="primary" type="submit" disabled={disabled || loading} className="w-full justify-center py-3 bg-[#8957e5] hover:bg-[#a371f7] border-none">
+      <Button variant="primary" type="submit" disabled={disabled || loading} className="w-full justify-center py-3">
         {loading ? "Submitting..." : "Finalize Score"}
       </Button>
     </form>

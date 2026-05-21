@@ -16,6 +16,7 @@ export const ADMIN_ACTIONS = {
     MENTOR_APPROVED:         "MENTOR_APPROVED",
     MENTOR_REJECTED:         "MENTOR_REJECTED",
     MENTOR_SUSPENDED:        "MENTOR_SUSPENDED",
+    MENTOR_REACTIVATED:      "MENTOR_REACTIVATED",
     MENTOR_TIER_OVERRIDDEN:  "MENTOR_TIER_OVERRIDDEN",
 
     // Societies
@@ -53,6 +54,14 @@ export const ADMIN_ACTIONS = {
     FEATURE_FLAG_CHANGED:    "FEATURE_FLAG_CHANGED",
     ADMIN_LOGIN:             "ADMIN_LOGIN",
     ADMIN_ELEVATED:          "ADMIN_ELEVATED",
+
+    // Gamification
+    GAMIFICATION_RULE_CREATED: "GAMIFICATION_RULE_CREATED",
+    GAMIFICATION_RULE_UPDATED: "GAMIFICATION_RULE_UPDATED",
+    GAMIFICATION_POINTS_ADJUSTED: "GAMIFICATION_POINTS_ADJUSTED",
+    GAMIFICATION_BADGE_AWARDED: "GAMIFICATION_BADGE_AWARDED",
+    GAMIFICATION_CERTIFICATE_ISSUED: "GAMIFICATION_CERTIFICATE_ISSUED",
+    GAMIFICATION_LEADERBOARD_REBUILT: "GAMIFICATION_LEADERBOARD_REBUILT",
 };
 
 const ALL_ACTIONS = Object.values(ADMIN_ACTIONS);
@@ -82,7 +91,7 @@ const adminAuditLogSchema = new Schema(
 
         targetModel: {
             type: String,
-            enum: ["User", "Campus", "Society", "Event", "Mentor", "Chat", "StudyGroup", "MentorBooking", "Notification"],
+            enum: ["User", "Campus", "Society", "Event", "Mentor", "Chat", "StudyGroup", "MentorBooking", "Notification", "GamificationRule", "Badge", "Certificate", "LeaderboardSnapshot", "PointsTransaction"],
         },
 
         targetId: {

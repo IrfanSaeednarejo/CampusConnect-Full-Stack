@@ -3,9 +3,11 @@ import Card from '../common/Card';
 import Avatar from '../common/Avatar';
 import { useNavigate } from 'react-router-dom';
 import axios from '../../api/axios';
+import useHomeTheme from '../../hooks/useHomeTheme';
 
 export default function NetworkInsightsPanel() {
   const navigate = useNavigate();
+  const isDark = useHomeTheme();
   const [stats, setStats] = useState({
     newMembers: [],
     activeMentors: [],
@@ -34,19 +36,19 @@ export default function NetworkInsightsPanel() {
     fetchInsights();
   }, []);
 
-  if (loading) return <div className="animate-pulse h-64 bg-[#161b22] rounded-lg"></div>;
+  if (loading) return <div className={`h-64 animate-pulse rounded-lg ${isDark ? 'bg-surface-dark' : 'bg-slate-100'}`}></div>;
 
   return (
     <div className="flex flex-col gap-6">
       <Card title="New Members" className="p-0 overflow-hidden">
-        <div className="flex flex-col divide-y divide-[#30363d]">
+        <div className={`flex flex-col ${isDark ? 'divide-y divide-border-dark' : 'divide-y divide-border-light'}`}>
           {stats.newMembers.map(user => (
-            <div key={user._id} className="p-3 flex items-center gap-3 hover:bg-[#21262d] transition-colors cursor-pointer"
+            <div key={user._id} className={`flex cursor-pointer items-center gap-3 p-3 transition-colors ${isDark ? 'hover:bg-surface-muted-dark' : 'hover:bg-slate-50'}`}
                  onClick={() => navigate(`/profile/${user._id}`)}>
               <Avatar src={user.profile?.avatar} size="8" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate text-[#e6edf3]">{user.profile?.displayName}</p>
-                <p className="text-xs text-[#8b949e]">Joined recently</p>
+                <p className={`truncate text-sm font-semibold ${isDark ? 'text-text-primary-dark' : 'text-slate-900'}`}>{user.profile?.displayName}</p>
+                <p className={`text-xs ${isDark ? 'text-text-secondary-dark' : 'text-slate-500'}`}>Joined recently</p>
               </div>
             </div>
           ))}
@@ -54,14 +56,14 @@ export default function NetworkInsightsPanel() {
       </Card>
 
       <Card title="Active Mentors" className="p-0 overflow-hidden">
-        <div className="flex flex-col divide-y divide-[#30363d]">
+        <div className={`flex flex-col ${isDark ? 'divide-y divide-border-dark' : 'divide-y divide-border-light'}`}>
           {stats.activeMentors.map(user => (
-            <div key={user._id} className="p-3 flex items-center gap-3 hover:bg-[#21262d] transition-colors cursor-pointer"
+            <div key={user._id} className={`flex cursor-pointer items-center gap-3 p-3 transition-colors ${isDark ? 'hover:bg-surface-muted-dark' : 'hover:bg-slate-50'}`}
                  onClick={() => navigate(`/profile/${user._id}`)}>
               <Avatar src={user.profile?.avatar} size="8" />
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold truncate text-[#e6edf3]">{user.profile?.displayName}</p>
-                <p className="text-xs text-[#3fb950] font-medium">Available for sessions</p>
+                <p className={`truncate text-sm font-semibold ${isDark ? 'text-text-primary-dark' : 'text-slate-900'}`}>{user.profile?.displayName}</p>
+                <p className="text-xs font-medium text-primary">Available for sessions</p>
               </div>
             </div>
           ))}

@@ -1,17 +1,21 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
+import useHomeTheme from "@/hooks/useHomeTheme";
 import { fetchStudyGroupById, selectSelectedStudyGroup } from "../../redux/slices/studyGroupSlice";
-import { 
-  fetchMessages, 
-  sendMessageThunk, 
+import {
+  fetchMessages,
+  sendMessageThunk,
   selectMessagesByConversation,
-  selectChatLoading
+  selectChatLoading,
 } from "../../redux/slices/chatSlice";
 import { useAuth } from "../../hooks/useAuth";
-import PageHeader from "../../components/common/PageHeader";
 import ChatMessage from "../../components/studyGroups/ChatMessage";
 import GroupChatInput from "../../components/studyGroups/GroupChatInput";
+import {
+  getStudyGroupTheme,
+  studyGroupPageTitle,
+} from "../../components/studyGroups/studyGroupTheme";
 
 export default function StudyGroupChat() {
   const navigate = useNavigate();
@@ -20,6 +24,8 @@ export default function StudyGroupChat() {
   const [text, setText] = useState("");
   const messagesEndRef = useRef(null);
   const { user } = useAuth();
+  const isDark = useHomeTheme();
+  const theme = getStudyGroupTheme(isDark);
 
   const group = useSelector(selectSelectedStudyGroup);
   const chatId = group?.chatId;
@@ -46,10 +52,12 @@ export default function StudyGroupChat() {
   const handleSend = async () => {
     if (text.trim() && chatId) {
       try {
-        await dispatch(sendMessageThunk({ 
-          chatId, 
-          messageData: { content: text.trim() } 
-        })).unwrap();
+        await dispatch(
+          sendMessageThunk({
+            chatId,
+            messageData: { content: text.trim() },
+          })
+        ).unwrap();
         setText("");
       } catch (err) {
         console.error("Failed to send message:", err);
@@ -59,64 +67,83 @@ export default function StudyGroupChat() {
 
   if (!group && !loading) {
     return (
-      <div className="h-screen bg-[#0d1117] text-[#c9d1d9] flex items-center justify-center">
-        <p className="text-[#8b949e]">Study group not found.</p>
+      <div className={`flex h-screen items-center justify-center ${theme.page}`}>
+        <p className={theme.muted}>Study group not found.</p>
       </div>
     );
   }
 
   return (
-    <div className="h-screen bg-[#0d1117] text-[#c9d1d9] flex flex-col">
-      {/* Header */}
-      <PageHeader
-        title={group?.name || "Chat"}
-        subtitle={`${group?.memberCount || 0} members`}
-        icon="chat"
-        backPath={`/study-groups/${id}`}
-      />
+    <div className={`flex h-screen flex-col ${theme.page}`}>
+      <div className={`border-b ${theme.hero}`}>
+        <div className="mx-auto flex max-w-5xl flex-col gap-5 px-4 py-6 sm:px-6 lg:px-8">
+          <button
+            onClick={() => navigate(`/study-groups/${id}`)}
+            className={`flex items-center gap-2 text-sm font-medium transition-colors ${theme.muted} ${isDark ? "hover:text-white" : "hover:text-slate-900"}`}
+          >
+            <span className="material-symbols-outlined text-base">arrow_back</span>
+            Back to group
+          </button>
 
-      {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-4">
-          {loading && messages.length === 0 ? (
-            <div className="flex justify-center py-10">
-              <span className="material-symbols-outlined animate-spin text-3xl text-[#238636]">sync</span>
+          <div className={`rounded-[28px] border p-5 sm:p-6 ${theme.surface}`}>
+            <div className="flex items-center gap-4">
+              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${theme.accentSurface}`}>
+                <span className={`material-symbols-outlined text-[22px] ${theme.iconAccent}`}>chat</span>
+              </div>
+              <div>
+                <h1 className={`${studyGroupPageTitle} ${theme.title}`}>{group?.name || "Chat"}</h1>
+                <p className={`mt-1 text-sm ${theme.muted}`}>
+                  {group?.memberCount || 0} members in discussion
+                </p>
+              </div>
             </div>
-          ) : messages.length === 0 ? (
-            <div className="text-center py-20">
-              <span className="material-symbols-outlined text-6xl text-[#30363d] mb-4">forum</span>
-              <p className="text-[#8b949e]">No messages yet. Start the conversation!</p>
-            </div>
-          ) : (
-            messages.map((msg) => {
-              const senderId = msg.sender?._id || msg.sender;
-              const isOwn = senderId === user?._id;
-              
-              return (
-                <ChatMessage 
-                  key={msg._id || msg.id} 
-                  message={{
-                    ...msg,
-                    author: msg.sender?.profile?.displayName || "Member",
-                    avatar: msg.sender?.profile?.avatar,
-                    message: msg.content,
-                    timestamp: new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                  }} 
-                  isOwn={isOwn} 
-                />
-              );
-            })
-          )}
-          <div ref={messagesEndRef} />
+          </div>
         </div>
       </div>
 
-      {/* Message Input */}
-      <GroupChatInput
-        message={text}
-        setMessage={setText}
-        onSend={handleSend}
-      />
+      <div className="flex-1 overflow-y-auto">
+        <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
+          <div className={`rounded-[28px] border p-4 sm:p-6 ${theme.surface}`}>
+            {loading && messages.length === 0 ? (
+              <div className="flex justify-center py-12">
+                <span className={`material-symbols-outlined animate-spin text-3xl ${theme.iconAccent}`}>sync</span>
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="py-20 text-center">
+                <span className={`material-symbols-outlined mb-4 text-6xl ${theme.subtle}`}>forum</span>
+                <p className={theme.muted}>No messages yet. Start the conversation!</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {messages.map((msg) => {
+                  const senderId = msg.sender?._id || msg.sender;
+                  const isOwn = senderId === user?._id;
+
+                  return (
+                    <ChatMessage
+                      key={msg._id || msg.id}
+                      message={{
+                        ...msg,
+                        author: msg.sender?.profile?.displayName || "Member",
+                        avatar: msg.sender?.profile?.avatar,
+                        message: msg.content,
+                        timestamp: new Date(msg.createdAt).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }),
+                      }}
+                      isOwn={isOwn}
+                    />
+                  );
+                })}
+                <div ref={messagesEndRef} />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <GroupChatInput message={text} setMessage={setText} onSend={handleSend} />
     </div>
   );
 }

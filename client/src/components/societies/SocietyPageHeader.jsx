@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import useHomeTheme from "../../hooks/useHomeTheme";
+import { cn, getSocietyTheme } from "../../pages/Societies/societyTheme";
 
 export default function SocietyPageHeader({
   title,
@@ -13,6 +15,8 @@ export default function SocietyPageHeader({
   showBack = true,
 }) {
   const navigate = useNavigate();
+  const isDark = useHomeTheme();
+  const theme = getSocietyTheme(isDark);
 
   const handleBack = () => {
     if (onBack) {
@@ -27,12 +31,10 @@ export default function SocietyPageHeader({
   };
 
   const renderIcon = () => {
-    if (!icon) {
-      return null;
-    }
+    if (!icon) return null;
     if (typeof icon === "string") {
       return (
-        <span className="material-symbols-outlined text-4xl text-[#1dc964]">
+        <span className={cn("material-symbols-outlined text-3xl", isDark ? "text-emerald-400" : "text-emerald-600")}>
           {icon}
         </span>
       );
@@ -42,44 +44,42 @@ export default function SocietyPageHeader({
 
   return (
     <header
-      className={`bg-[#1a241e] border-b border-[#29382f] ${
-        sticky ? "sticky top-0 z-10" : ""
-      } ${className}`}
+      className={cn(
+        "border-b backdrop-blur-sm",
+        theme.header,
+        sticky && "sticky top-0 z-10",
+        className
+      )}
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
             {showBack && (
               <button
                 onClick={handleBack}
-                className="flex items-center gap-2 text-[#9eb7a9] hover:text-white transition-colors"
+                className={cn(
+                  "inline-flex w-fit items-center gap-2 rounded-2xl border px-3.5 py-2 text-sm font-medium transition-colors",
+                  theme.secondaryButton
+                )}
               >
-                <span className="material-symbols-outlined text-xl">
-                  arrow_back
-                </span>
-                <span className="text-sm font-medium">{backLabel}</span>
+                <span className="material-symbols-outlined text-lg">arrow_back</span>
+                <span>{backLabel}</span>
               </button>
             )}
-            {icon && (
-              <div className="flex items-center gap-3">
-                {renderIcon()}
-                <div>
-                  <h1 className="text-2xl font-bold text-white">{title}</h1>
-                  {subtitle && (
-                    <p className="text-sm text-[#9eb7a9]">{subtitle}</p>
-                  )}
+
+            <div className="flex items-start gap-4">
+              {icon && (
+                <div className={cn("flex h-12 w-12 items-center justify-center rounded-2xl border", theme.badge)}>
+                  {renderIcon()}
                 </div>
+              )}
+              <div className="space-y-1">
+                {title && <h1 className={cn("text-3xl font-bold tracking-tight", theme.text)}>{title}</h1>}
+                {subtitle && <p className={cn("text-sm sm:text-base", theme.muted)}>{subtitle}</p>}
               </div>
-            )}
-            {!icon && title && (
-              <div>
-                <h1 className="text-2xl font-bold text-white">{title}</h1>
-                {subtitle && (
-                  <p className="text-sm text-[#9eb7a9]">{subtitle}</p>
-                )}
-              </div>
-            )}
+            </div>
           </div>
+
           {action && <div className="flex items-center gap-3">{action}</div>}
         </div>
       </div>

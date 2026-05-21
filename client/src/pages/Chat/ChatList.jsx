@@ -57,19 +57,19 @@ import { selectAllEvents, selectRegisteredEvents } from "../../redux/slices/even
 const colorMap = {
 	"user-1": "blue",
 	"user-2": "teal",
-	"user-3": "pink",
-	"user-4": "indigo",
+	"user-3": "slate",
+	"user-4": "sky",
 	"user-5": "cyan",
 	"user-6": "emerald",
-	"user-7": "rose",
-	"user-8": "violet",
+	"user-7": "green",
+	"user-8": "orange",
 	"user-9": "amber",
-	"user-10": "lime",
-	"user-11": "fuchsia",
+	"user-10": "yellow",
+	"user-11": "stone",
 	"user-12": "sky",
 	"user-13": "red",
 	"user-14": "green",
-	"user-15": "purple",
+	"user-15": "blue",
 };
 
 const getAvatarColor = (id, type) => {

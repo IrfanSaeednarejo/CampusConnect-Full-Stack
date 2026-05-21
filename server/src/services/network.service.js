@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { emitToUser } from "../sockets/index.js";
 import { systemEvents } from "../utils/events.js";
 import { sendEmail } from "./email.service.js";
+import { safeAwardForAction } from "./gamification.service.js";
 
 const SAFE_SELECT = "profile.displayName profile.avatar profile.firstName profile.lastName profile.bio roles campusId interests";
 
@@ -145,6 +146,14 @@ export const respondToRequest = async (userId, connectionId, action) => {
             ref: populated.recipient._id,
             refModel: "User",
             actorId: userId
+        });
+
+        await safeAwardForAction({
+            actionKey: "network.connection_accepted",
+            actorId: userId,
+            refModel: "Connection",
+            refId: connection._id,
+            context: { reason: "Accepted a new campus connection" },
         });
 
         return populated;

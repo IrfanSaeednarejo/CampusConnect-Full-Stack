@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useSelector, useDispatch } from "react-redux";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 import { selectUserProfile } from "@/redux/slices/userSlice";
 import { selectUpcomingEvents } from "@/redux/slices/eventSlice";
 import { selectRegisteredSocieties } from "@/redux/slices/societySlice";
@@ -10,25 +10,51 @@ import EventCard from "@/components/dashboard/EventCard";
 import NotificationWidget from "@/components/dashboard/NotificationWidget";
 import SocietySummary from "@/components/dashboard/SocietySummary";
 import TaskWidget from "@/components/dashboard/TaskWidget";
+import useHomeTheme from "@/hooks/useHomeTheme";
+
+const sidebarLinks = [
+  { icon: "📊", label: "Dashboard", href: "/student/dashboard", active: true },
+  { icon: "✅", label: "Tasks", href: "/student/tasks" },
+  { icon: "📅", label: "Events", href: "/student/events" },
+  { icon: "👥", label: "Societies", href: "/student/societies" },
+  { icon: "🔗", label: "Network", href: "/student/academic-network" },
+  { icon: "💬", label: "Messages", href: "/student/messages" },
+  { icon: "🎓", label: "Mentoring", href: "/mentors" },
+  { icon: "📝", label: "Notes", href: "/academics/notes" },
+];
+
+const aiAssistants = [
+  {
+    title: "📚 Study Assistant",
+    description: "Learn and get study tips",
+    path: "/student/agents/study",
+  },
+  {
+    title: "👥 Find Mentor",
+    description: "Match with mentors",
+    path: "/student/agents/mentor",
+  },
+  {
+    title: "💚 Wellbeing Support",
+    description: "Mental health check-in",
+    path: "/student/agents/wellbeing",
+  },
+  {
+    title: "📝 Send Feedback",
+    description: "Help us improve",
+    path: "/student/agents/feedback",
+  },
+];
 
 export default function StudentDashboard() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  
-  // Redux selectors
+  const isDark = useHomeTheme();
   const userProfile = useSelector(selectUserProfile);
   const upcomingEvents = useSelector(selectUpcomingEvents);
   const registeredSocieties = useSelector(selectRegisteredSocieties);
   const notifications = useSelector(selectNotifications);
-  
-  // Local state for tasks
   const [tasks, setTasks] = useState([]);
   const [newTask, setNewTask] = useState("");
-
-  // Data fetched from API via thunks inside respective pages/components
-  useEffect(() => {
-    // Empty for now: global fetches happen in Root/Layout or specifically in Dashboard component if needed
-  }, [dispatch]);
 
   const handleAddTask = () => {
     if (newTask.trim()) {
@@ -37,152 +63,165 @@ export default function StudentDashboard() {
     }
   };
 
+  const pageClassName = isDark
+    ? "bg-[#0d1117] text-[#c9d1d9]"
+    : "bg-[#f8fafc] text-[#0F172A]";
+  const surfaceClassName = isDark
+    ? "border-[#30363d] bg-[#161b22]"
+    : "border-[#DCE4EE] bg-white";
+  const mutedTextClassName = isDark ? "text-[#8b949e]" : "text-[#526277]";
+  const titleClassName = isDark ? "text-[#e6edf3]" : "text-[#162033]";
+
   return (
-    <div className="w-full bg-[#0d1117] text-[#c9d1d9] min-h-screen">
+    <div className={`w-full min-h-screen transition-colors duration-300 ${pageClassName}`}>
       <div className="flex h-full">
-        {/* Sidebar - Hidden on mobile, visible on lg */}
-        <aside className="hidden lg:flex w-64 bg-[#0d1117] border-r border-[#30363d] flex-col justify-between p-4 fixed h-screen overflow-y-auto">
-          <div className="flex flex-col gap-4">
+        <aside
+          className={`fixed hidden h-screen w-72 flex-col justify-between overflow-y-auto border-r p-5 lg:flex ${
+            isDark ? "border-[#30363d] bg-[#0d1117]" : "border-[#DCE4EE] bg-[#f8fafc]"
+          }`}
+        >
+          <div className="flex flex-col gap-5">
             <button
               onClick={() => navigate("/student/profile")}
-              className="flex gap-3 items-center hover:opacity-80 transition-opacity"
+              className={`flex items-center gap-3 rounded-[24px] border p-4 text-left transition-all duration-300 ${surfaceClassName}`}
             >
               <div
-                className="w-10 h-10 rounded-full bg-cover bg-center"
+                className="h-10 w-10 rounded-full bg-cover bg-center"
                 style={{
-                  backgroundImage: userProfile.avatar
+                  backgroundImage: userProfile?.avatar
                     ? `url("${userProfile.avatar}")`
                     : 'url("https://lh3.googleusercontent.com/aida-public/AB6AXuArj_dwVEXu6vzmlT6afGmhH-P_vfNeMG0QArGPe7pCuhjPDjoqtXQWJ-6iHMe84K0ML3iDOk8vH8EEWMQSw1f-Gf0vMJ2yPXE8AQIoO29dA_ixx6rBuKafMgf7gnj2yYJgMhcG1XLWX-7NWRMmhz87akFE_mQreb0Td1-xI25paXpdQS9LWhUAqaxNzU_M6plyRH_sCbSsKApcdFa1_VeSSglcaAs_t7DDGJN3ryveQN_LqpmzIDRJ0S6HDo6kNwysBVwRtLqlQrw")',
                 }}
               />
               <div className="flex flex-col">
-                <h1 className="text-[#c9d1d9] text-base font-medium leading-normal">
-                  {userProfile.name || "Alex Johnson"}
+                <h1 className={`text-base font-medium ${titleClassName}`}>
+                  {userProfile?.name || "Alex Johnson"}
                 </h1>
-                <p className="text-[#8b949e] text-sm font-normal leading-normal">
-                  {userProfile.department || "Computer Science"}
+                <p className={`text-sm ${mutedTextClassName}`}>
+                  {userProfile?.department || "Computer Science"}
                 </p>
               </div>
             </button>
-            <nav className="flex flex-col gap-2 mt-4">
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-lg bg-[#238636]/20 text-[#238636]"
-                href="/student/dashboard"
-              >
-                <span className="text-[#238636] text-lg">📊</span>
-                <p className="text-[#238636] text-sm font-medium leading-normal">
-                  Dashboard
-                </p>
-              </a>
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#161b22] text-[#c9d1d9]"
-                href="/student/tasks"
-              >
-                <span className="text-lg">✅</span>
-                <p className="text-sm font-medium leading-normal">Tasks</p>
-              </a>
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#161b22] text-[#c9d1d9]"
-                href="/student/events"
-              >
-                <span className="text-lg">📅</span>
-                <p className="text-sm font-medium leading-normal">Events</p>
-              </a>
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#161b22] text-[#c9d1d9]"
-                href="/student/societies"
-              >
-                <span className="text-lg">👥</span>
-                <p className="text-sm font-medium leading-normal">Societies</p>
-              </a>
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#161b22] text-[#c9d1d9]"
-                href="/student/academic-network"
-              >
-                <span className="text-lg">🔗</span>
-                <p className="text-sm font-medium leading-normal">Network</p>
-              </a>
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#161b22] text-[#c9d1d9]"
-                href="/student/messages"
-              >
-                <span className="text-lg">💬</span>
-                <p className="text-sm font-medium leading-normal">Messages</p>
-              </a>
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#161b22] text-[#c9d1d9]"
-                href="/mentors"
-              >
-                <span className="text-lg">🎓</span>
-                <p className="text-sm font-medium leading-normal">Mentoring</p>
-              </a>
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#161b22] text-[#c9d1d9]"
-                href="/academics/notes"
-              >
-                <span className="text-lg">📝</span>
-                <p className="text-sm font-medium leading-normal">Notes</p>
-              </a>
+
+            <nav className={`rounded-[24px] border p-3 ${surfaceClassName}`}>
+              <div className="space-y-1">
+                {sidebarLinks.map((link) => (
+                  <a
+                    key={link.href}
+                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                      link.active
+                        ? isDark
+                          ? "border border-[#2f5e3a] bg-[#238636]/20 text-[#3fb950]"
+                          : "border border-[#BFDBFE] bg-[#EFF6FF] text-[#1D4ED8]"
+                        : isDark
+                          ? "text-[#c9d1d9] hover:bg-[#161b22]"
+                          : "text-[#334155] hover:bg-[#F8FAFC]"
+                    }`}
+                    href={link.href}
+                  >
+                    <span className="text-lg">{link.icon}</span>
+                    <span>{link.label}</span>
+                  </a>
+                ))}
+              </div>
             </nav>
           </div>
-          <div className="flex flex-col gap-1">
+
+          <div className={`rounded-[24px] border p-3 ${surfaceClassName}`}>
             <a
-              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#161b22] text-[#c9d1d9]"
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                isDark ? "text-[#c9d1d9] hover:bg-[#161b22]" : "text-[#334155] hover:bg-[#F8FAFC]"
+              }`}
               href="#"
             >
               <span className="text-lg">⚙️</span>
-              <p className="text-sm font-medium leading-normal">Settings</p>
+              <span>Settings</span>
             </a>
             <a
-              className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#161b22] text-[#c9d1d9]"
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                isDark ? "text-[#c9d1d9] hover:bg-[#161b22]" : "text-[#334155] hover:bg-[#F8FAFC]"
+              }`}
               href="#"
             >
               <span className="text-lg">🚪</span>
-              <p className="text-sm font-medium leading-normal">Log out</p>
+              <span>Log out</span>
             </a>
           </div>
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 lg:ml-64 p-4 sm:p-6 lg:p-8 overflow-y-auto">
-          <div className="max-w-7xl mx-auto">
-            {/* Page Header */}
-            <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
-              <div className="flex flex-col gap-1">
-                <h1 className="text-[#c9d1d9] text-4xl font-bold leading-tight tracking-tight">
-                  Welcome, Alex!
-                </h1>
-                <p className="text-[#8b949e] text-base font-normal leading-normal">
-                  Your campus at a glance.
-                </p>
+        <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:ml-72 lg:p-8">
+          <div className="mx-auto max-w-7xl">
+            <section
+              className={`mb-8 overflow-hidden rounded-[2rem] border px-6 py-7 transition-all duration-300 md:px-8 ${surfaceClassName}`}
+              style={{
+                boxShadow: isDark
+                  ? "0 24px 70px rgba(0,0,0,0.24)"
+                  : "0 24px 70px rgba(15,23,42,0.08)",
+              }}
+            >
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex flex-col gap-1">
+                  <span
+                    className={`mb-2 inline-flex w-fit rounded-full border px-3 py-1 text-xs font-semibold tracking-[0.12em] ${
+                      isDark
+                        ? "border-[#30363d] bg-[#0d1117] text-[#58a6ff]"
+                        : "border-[#C7D2FE] bg-white text-[#1D4ED8]"
+                    }`}
+                  >
+                    STUDENT HUB
+                  </span>
+                  <h1 className={`text-3xl font-bold tracking-tight ${titleClassName}`}>Welcome, Alex!</h1>
+                  <p className={`text-sm sm:text-base ${mutedTextClassName}`}>Your campus at a glance.</p>
+                </div>
+                <Button
+                  onClick={() => navigate("/study-groups")}
+                  variant="primary"
+                  className={
+                    !isDark
+                      ? "bg-[#1D4ED8] text-white hover:bg-[#1E40AF] shadow-[0_10px_24px_rgba(29,78,216,0.18)]"
+                      : ""
+                  }
+                >
+                  <span className="text-lg">👥</span>
+                  <span className="truncate">Find Study Group</span>
+                </Button>
               </div>
-              <Button
-                onClick={() => navigate("/study-groups")}
-                variant="primary"
-              >
-                <span className="text-lg">👥</span>
-                <span className="truncate">Find Study Group</span>
-              </Button>
-            </div>
+              <div className="mt-5 flex flex-wrap gap-3">
+                {["Smart task tracking", "Events and societies", "Mentor and AI support"].map((item) => (
+                  <span
+                    key={item}
+                    className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors duration-300 ${
+                      isDark
+                        ? "border-[#30363d] bg-[#0d1117] text-[#8b949e]"
+                        : "border-[#D6DEE8] bg-white text-[#526277]"
+                    }`}
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </section>
 
-            {/* Dashboard Grid */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Left Column - 2/3 width */}
-              <div className="lg:col-span-2 flex flex-col gap-6">
-                {/* Upcoming Events */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <div className="flex flex-col gap-6 lg:col-span-2">
                 <section>
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-[#c9d1d9] text-xl font-bold leading-tight tracking-tight">
-                      Upcoming Events
-                    </h2>
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <h2 className={`text-xl font-semibold ${titleClassName}`}>Upcoming Events</h2>
                     <a
                       href="/student/events"
-                      className="text-[#238636] text-sm font-medium hover:underline"
+                      className={isDark ? "text-sm font-medium text-[#3fb950] hover:underline" : "text-sm font-medium text-[#1D4ED8] hover:underline"}
                     >
                       View All Events
                     </a>
                   </div>
-                  <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 flex flex-col gap-4">
+                  <div
+                    className={`flex flex-col gap-4 rounded-[28px] border p-4 transition-all duration-300 ${surfaceClassName}`}
+                    style={{
+                      boxShadow: isDark
+                        ? "0 20px 50px rgba(0,0,0,0.2)"
+                        : "0 20px 50px rgba(15,23,42,0.06)",
+                    }}
+                  >
                     {upcomingEvents.map((event) => (
                       <EventCard
                         key={event.id}
@@ -194,7 +233,6 @@ export default function StudentDashboard() {
                   </div>
                 </section>
 
-                {/* My Tasks */}
                 <TaskWidget
                   tasks={tasks}
                   newTask={newTask}
@@ -203,7 +241,6 @@ export default function StudentDashboard() {
                   actionHref="/student/tasks"
                 />
 
-                {/* Registered Societies */}
                 <SocietySummary
                   title="Registered Societies"
                   societies={registeredSocieties}
@@ -213,80 +250,64 @@ export default function StudentDashboard() {
                 />
               </div>
 
-              {/* Right Column - 1/3 width */}
-              <div className="lg:col-span-1 flex flex-col gap-6">
-                {/* Mentoring Sessions */}
-                <section>
-                  <h2 className="text-[#c9d1d9] text-xl font-bold leading-tight tracking-tight mb-4">
-                    Mentoring Sessions
-                  </h2>
-                  <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 flex flex-col items-center text-center gap-4">
-                    <span className="text-5xl text-[#3d444d]">👨‍💼</span>
-                    <p className="text-[#c9d1d9]">No upcoming sessions.</p>
-                    <p className="text-[#8b949e] text-sm">
-                      Connect with experienced peers and alumni to guide your
-                      academic journey.
+              <div className="flex flex-col gap-6 lg:col-span-1">
+                <section
+                  className={`rounded-[28px] border p-5 text-center transition-all duration-300 sm:p-6 ${surfaceClassName}`}
+                  style={{
+                    boxShadow: isDark
+                      ? "0 20px 50px rgba(0,0,0,0.2)"
+                      : "0 20px 50px rgba(15,23,42,0.06)",
+                  }}
+                >
+                  <h2 className={`mb-4 text-xl font-semibold ${titleClassName}`}>Mentoring Sessions</h2>
+                  <div className="flex flex-col items-center gap-4">
+                    <span className={isDark ? "text-5xl text-[#3d444d]" : "text-5xl text-[#94A3B8]"}>👨‍💼</span>
+                    <p className={titleClassName}>No upcoming sessions.</p>
+                    <p className={`text-sm ${mutedTextClassName}`}>
+                      Connect with experienced peers and alumni to guide your academic journey.
                     </p>
                     <Button
                       onClick={() => navigate("/student/sessions")}
                       variant="primary"
-                      className="w-full"
+                      className={`w-full ${
+                        !isDark
+                          ? "bg-[#1D4ED8] text-white hover:bg-[#1E40AF] shadow-[0_10px_24px_rgba(29,78,216,0.18)]"
+                          : ""
+                      }`}
                     >
                       <span>View My Sessions</span>
                     </Button>
                   </div>
                 </section>
 
-                {/* AI Agents */}
-                <section>
-                  <h2 className="text-[#c9d1d9] text-xl font-bold leading-tight tracking-tight mb-4">
-                    AI Assistants
-                  </h2>
-                  <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-4 space-y-2">
-                    <button
-                      onClick={() => navigate("/student/agents/study")}
-                      className="w-full p-3 rounded-lg bg-[#1f2937] hover:bg-[#238636]/10 border border-[#30363d] hover:border-[#238636] transition-all text-left"
-                    >
-                      <p className="text-[#c9d1d9] font-medium text-sm">
-                        📚 Study Assistant
-                      </p>
-                      <p className="text-[#8b949e] text-xs mt-1">Learn & get study tips</p>
-                    </button>
-                    <button
-                      onClick={() => navigate("/student/agents/mentor")}
-                      className="w-full p-3 rounded-lg bg-[#1f2937] hover:bg-[#238636]/10 border border-[#30363d] hover:border-[#238636] transition-all text-left"
-                    >
-                      <p className="text-[#c9d1d9] font-medium text-sm">
-                        👥 Find Mentor
-                      </p>
-                      <p className="text-[#8b949e] text-xs mt-1">Match with mentors</p>
-                    </button>
-                    <button
-                      onClick={() => navigate("/student/agents/wellbeing")}
-                      className="w-full p-3 rounded-lg bg-[#1f2937] hover:bg-[#238636]/10 border border-[#30363d] hover:border-[#238636] transition-all text-left"
-                    >
-                      <p className="text-[#c9d1d9] font-medium text-sm">
-                        💚 Wellbeing Support
-                      </p>
-                      <p className="text-[#8b949e] text-xs mt-1">Mental health check-in</p>
-                    </button>
-                    <button
-                      onClick={() => navigate("/student/agents/feedback")}
-                      className="w-full p-3 rounded-lg bg-[#1f2937] hover:bg-[#238636]/10 border border-[#30363d] hover:border-[#238636] transition-all text-left"
-                    >
-                      <p className="text-[#c9d1d9] font-medium text-sm">
-                        📝 Send Feedback
-                      </p>
-                      <p className="text-[#8b949e] text-xs mt-1">Help us improve</p>
-                    </button>
+                <section
+                  className={`rounded-[28px] border p-5 transition-all duration-300 sm:p-6 ${surfaceClassName}`}
+                  style={{
+                    boxShadow: isDark
+                      ? "0 20px 50px rgba(0,0,0,0.2)"
+                      : "0 20px 50px rgba(15,23,42,0.06)",
+                  }}
+                >
+                  <h2 className={`mb-4 text-xl font-semibold ${titleClassName}`}>AI Assistants</h2>
+                  <div className="space-y-2">
+                    {aiAssistants.map((assistant) => (
+                      <button
+                        key={assistant.path}
+                        onClick={() => navigate(assistant.path)}
+                        className={`w-full rounded-2xl border p-4 text-left transition-all duration-300 ${
+                          isDark
+                            ? "border-[#30363d] bg-[#0d1117] hover:border-[#238636] hover:bg-[#238636]/10"
+                            : "border-[#DCE4EE] bg-[#F8FAFC] hover:border-[#93C5FD] hover:bg-white"
+                        }`}
+                      >
+                        <p className={`text-sm font-medium ${titleClassName}`}>{assistant.title}</p>
+                        <p className={`mt-1 text-xs ${mutedTextClassName}`}>{assistant.description}</p>
+                      </button>
+                    ))}
                   </div>
                 </section>
 
-                {/* Notifications */}
-                <NotificationWidget
-                  notifications={notifications}
-                  linkHref="/student/notifications"
-                />
+                <NotificationWidget notifications={notifications} linkHref="/student/notifications" />
               </div>
             </div>
           </div>

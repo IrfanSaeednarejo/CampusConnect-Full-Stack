@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import useHomeTheme from "../../hooks/useHomeTheme";
 
 export default function CreateTask() {
+  const isDark = useHomeTheme();
   const documents = [
     {
       title: "Introduction to Neural Networks",
@@ -99,11 +101,11 @@ export default function CreateTask() {
   ];
 
   return (
-    <div className="relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden bg-[#112117] text-white font-['Lexend']">
-      <header className="flex items-center justify-between whitespace-nowrap border-b border-solid border-white/10 px-4 sm:px-6 lg:px-10 py-3">
+    <div className={`relative flex h-auto min-h-screen w-full flex-col overflow-x-hidden font-['Lexend'] ${isDark ? "bg-background-dark text-text-primary-dark" : "bg-slate-50 text-slate-900"}`}>
+      <header className={`flex items-center justify-between whitespace-nowrap border-b border-solid px-4 sm:px-6 lg:px-10 py-3 ${isDark ? "border-border-dark" : "border-slate-200 bg-white"}`}>
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-4 text-white">
-            <div className="size-4 text-[#17cf60]">
+            <div className="size-4 text-primary">
               <svg
                 fill="none"
                 viewBox="0 0 48 48"
@@ -188,17 +190,17 @@ export default function CreateTask() {
         <section className="md:col-span-2 xl:col-span-3 flex flex-col gap-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex flex-col">
-              <p className="text-white text-3xl font-black leading-tight tracking-[-0.033em]">
+              <p className={`text-3xl font-black leading-tight tracking-[-0.033em] ${isDark ? "text-white" : "text-slate-900"}`}>
                 Research Hub Dashboard
               </p>
-              <p className="text-white/60 text-base font-normal leading-normal">
+              <p className={`text-base font-normal leading-normal ${isDark ? "text-white/60" : "text-slate-500"}`}>
                 Organize, discover, and collaborate on your academic resources.
               </p>
             </div>
             <div className="flex gap-3 flex-wrap">
               <Link
                 to="/academics/notes/create"
-                className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#17cf60] text-[#112117] text-sm font-bold leading-normal tracking-[0.015em] gap-2"
+                className="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-primary text-white text-sm font-bold leading-normal tracking-[0.015em] gap-2 hover:bg-primary-hover"
               >
                 <span className="material-symbols-outlined">add</span>
                 <span className="truncate">New Document</span>

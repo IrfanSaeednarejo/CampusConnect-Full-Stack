@@ -2,17 +2,42 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchNetworkState, fetchSuggestedMembers } from '../../redux/slices/networkSlice';
 import MemberCard from '../common/MemberCard';
-import SectionHeader from '../common/SectionHeader';
 import MemberDiscovery from './MemberDiscovery';
 import ConnectionButton from './ConnectionButton';
 import { useNavigate } from 'react-router-dom';
 import { createOrGetDMThunk } from '../../redux/slices/chatSlice';
+import useHomeTheme from '../../hooks/useHomeTheme';
 
 /* ─── Inline styles injected once ─────────────────────────────────────────── */
 const STYLES = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&display=swap');
-
-  .nt-root { font-family: 'DM Sans', sans-serif; }
+  .nt-root {
+    --nt-bg: rgb(var(--color-surface-dark));
+    --nt-bg-muted: rgb(var(--color-background-dark));
+    --nt-bg-soft: rgb(var(--color-surface-muted-dark));
+    --nt-border: rgb(var(--color-border-dark));
+    --nt-border-strong: rgba(148, 163, 184, 0.2);
+    --nt-text: rgb(var(--color-text-primary-dark));
+    --nt-text-muted: rgb(var(--color-text-secondary-dark));
+    --nt-text-subtle: rgba(148, 163, 184, 0.72);
+    --nt-accent: rgb(var(--color-primary));
+    --nt-accent-soft: rgba(37, 99, 235, 0.1);
+    --nt-accent-border: rgba(37, 99, 235, 0.2);
+    --nt-shadow: none;
+  }
+  .nt-root.nt-light {
+    --nt-bg: rgb(var(--color-surface-light));
+    --nt-bg-muted: rgb(var(--color-background-light));
+    --nt-bg-soft: rgb(var(--color-surface-muted-light));
+    --nt-border: rgb(var(--color-border-light));
+    --nt-border-strong: rgba(148, 163, 184, 0.28);
+    --nt-text: rgb(var(--color-text-primary-light));
+    --nt-text-muted: rgb(var(--color-text-secondary-light));
+    --nt-text-subtle: rgba(100, 116, 139, 0.9);
+    --nt-accent: rgb(var(--color-primary));
+    --nt-accent-soft: rgba(37, 99, 235, 0.08);
+    --nt-accent-border: rgba(37, 99, 235, 0.18);
+    --nt-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+  }
 
   /* Fade + slide-up entrance */
   @keyframes nt-fadeUp {
@@ -39,7 +64,7 @@ const STYLES = `
   /* Tab underline slide */
   .nt-tab-line {
     position: absolute; bottom: -1px; left: 0; right: 0;
-    height: 2px; background: #f78166; border-radius: 999px;
+    height: 2px; background: rgb(var(--color-info)); border-radius: 999px;
     transform-origin: left;
     animation: nt-fadeIn 0.18s ease both;
   }
@@ -48,16 +73,16 @@ const STYLES = `
   .nt-view-btn {
     display:flex; align-items:center; justify-content:center;
     width: 32px; height: 32px; border-radius: 8px;
-    border: 1px solid #30363d;
+    border: 1px solid var(--nt-border);
     background: transparent;
-    color: #8b949e;
+    color: var(--nt-text-muted);
     cursor: pointer;
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
-  .nt-view-btn:hover { background: #21262d; color: #e6edf3; }
+  .nt-view-btn:hover { background: var(--nt-bg-soft); color: var(--nt-text); }
   .nt-view-btn.active {
-    background: #21262d; color: #e6edf3;
-    border-color: #484f58;
+    background: var(--nt-bg-soft); color: var(--nt-text);
+    border-color: var(--nt-border-strong);
   }
 
   /* List row */
@@ -65,27 +90,28 @@ const STYLES = `
     display: flex; align-items: center; gap: 14px;
     padding: 14px 16px;
     border-radius: 10px;
-    border: 1px solid #21262d;
-    background: #161b22;
+    border: 1px solid var(--nt-border);
+    background: var(--nt-bg);
     transition: border-color 0.18s, background 0.18s;
     cursor: pointer;
+    box-shadow: var(--nt-shadow);
   }
-  .nt-list-row:hover { border-color: #30363d; background: #1c2128; }
+  .nt-list-row:hover { border-color: var(--nt-border-strong); background: var(--nt-bg-soft); }
 
   .nt-list-avatar {
     width: 42px; height: 42px; border-radius: 50%;
-    background: #21262d;
+    background: var(--nt-bg-soft);
     flex-shrink: 0;
     object-fit: cover;
-    border: 1px solid #30363d;
+    border: 1px solid var(--nt-border);
   }
   .nt-list-avatar-placeholder {
     width: 42px; height: 42px; border-radius: 50%;
-    background: #21262d;
+    background: var(--nt-bg-soft);
     flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 16px; font-weight: 600; color: #8b949e;
-    border: 1px solid #30363d;
+    font-size: 16px; font-weight: 600; color: var(--nt-text-muted);
+    border: 1px solid var(--nt-border);
     text-transform: uppercase;
   }
 
@@ -94,61 +120,61 @@ const STYLES = `
     display: inline-flex; align-items: center;
     padding: 2px 8px; border-radius: 999px;
     font-size: 11px; font-weight: 500;
-    background: #21262d; color: #8b949e;
-    border: 1px solid #30363d;
+    background: var(--nt-bg-soft); color: var(--nt-text-muted);
+    border: 1px solid var(--nt-border);
   }
-  .nt-badge-accent { background: rgba(247,129,102,0.1); color: #f78166; border-color: rgba(247,129,102,0.25); }
-  .nt-badge-blue   { background: rgba(88,166,255,0.1);  color: #58a6ff; border-color: rgba(88,166,255,0.25); }
+  .nt-badge-accent { background: var(--nt-accent-soft); color: var(--nt-accent); border-color: var(--nt-accent-border); }
+  .nt-badge-blue   { background: var(--nt-accent-soft); color: var(--nt-accent); border-color: var(--nt-accent-border); }
 
   /* Count chip on tabs */
   .nt-tab-count {
     display:inline-flex; align-items:center; justify-content:center;
     min-width: 20px; height: 18px; padding: 0 5px;
     border-radius: 999px; font-size: 11px; font-weight: 600;
-    background: #21262d; color: #8b949e;
+    background: var(--nt-bg-soft); color: var(--nt-text-muted);
     margin-left: 6px;
     transition: background 0.15s, color 0.15s;
   }
   .nt-tab-active .nt-tab-count {
-    background: rgba(247,129,102,0.12); color: #f78166;
+    background: var(--nt-accent-soft); color: var(--nt-accent);
   }
 
   /* Search bar */
   .nt-search-wrap { position: relative; }
   .nt-search-icon {
     position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
-    color: #484f58; font-size: 18px;
+    color: var(--nt-text-subtle); font-size: 18px;
     transition: color 0.15s;
     pointer-events: none;
   }
-  .nt-search-wrap:focus-within .nt-search-icon { color: #58a6ff; }
+  .nt-search-wrap:focus-within .nt-search-icon { color: var(--nt-accent); }
   .nt-search-input {
-    width: 100%; background: #0d1117; color: #e6edf3;
-    border: 1px solid #30363d; border-radius: 10px;
+    width: 100%; background: var(--nt-bg-muted); color: var(--nt-text);
+    border: 1px solid var(--nt-border); border-radius: 10px;
     padding: 8px 12px 8px 36px;
     font-size: 13px; font-family: inherit;
     outline: none; transition: border-color 0.15s, box-shadow 0.15s;
   }
-  .nt-search-input::placeholder { color: #484f58; }
+  .nt-search-input::placeholder { color: var(--nt-text-subtle); }
   .nt-search-input:focus {
-    border-color: rgba(88,166,255,0.4);
-    box-shadow: 0 0 0 3px rgba(88,166,255,0.06);
+    border-color: var(--nt-accent-border);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
   }
 
   /* Section label */
   .nt-section-label {
     font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
-    color: #484f58; text-transform: uppercase;
+    color: var(--nt-text-subtle); text-transform: uppercase;
     margin-bottom: 12px;
   }
 
   /* Divider */
-  .nt-divider { border: none; border-top: 1px solid #21262d; margin: 28px 0; }
+  .nt-divider { border: none; border-top: 1px solid var(--nt-border); margin: 28px 0; }
 
   /* Role tag */
   .nt-role-tag {
     font-size: 11px; padding: 2px 7px; border-radius: 6px;
-    background: #161b22; color: #8b949e; border: 1px solid #21262d;
+    background: var(--nt-bg-soft); color: var(--nt-text-muted); border: 1px solid var(--nt-border);
     white-space: nowrap;
   }
 
@@ -157,13 +183,13 @@ const STYLES = `
     flex-shrink: 0; margin-left: auto;
     padding: 5px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
     font-family: inherit; cursor: pointer; transition: background 0.15s, color 0.15s;
-    border: 1px solid #30363d; background: transparent; color: #8b949e;
+    border: 1px solid var(--nt-border); background: transparent; color: var(--nt-text-muted);
   }
-  .nt-list-action:hover { background: #21262d; color: #e6edf3; }
+  .nt-list-action:hover { background: var(--nt-bg-soft); color: var(--nt-text); }
   .nt-list-action-connected {
-    border-color: rgba(88,166,255,0.25); color: #58a6ff; background: rgba(88,166,255,0.06);
+    border-color: var(--nt-accent-border); color: var(--nt-accent); background: var(--nt-accent-soft);
   }
-  .nt-list-action-connected:hover { background: rgba(88,166,255,0.12); }
+  .nt-list-action-connected:hover { background: rgba(37, 99, 235, 0.14); }
 
   /* Message CTA button — replaces "Connected" in list rows */
   .nt-list-action-message {
@@ -171,12 +197,12 @@ const STYLES = `
     flex-shrink: 0; margin-left: auto;
     padding: 5px 13px; border-radius: 8px; font-size: 12px; font-weight: 500;
     font-family: inherit; cursor: pointer;
-    border: 1px solid #30363d;
-    background: transparent; color: #8b949e;
+    border: 1px solid var(--nt-border);
+    background: transparent; color: var(--nt-text-muted);
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
   .nt-list-action-message:hover {
-    background: #21262d; color: #e6edf3; border-color: #484f58;
+    background: var(--nt-bg-soft); color: var(--nt-text); border-color: var(--nt-border-strong);
   }
   .nt-list-action-message .nt-msg-icon { font-size: 14px; }
 
@@ -184,15 +210,15 @@ const STYLES = `
   .nt-empty {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 56px 24px; border-radius: 12px;
-    border: 1px dashed #21262d; background: #0d1117;
-    color: #484f58; text-align: center; gap: 10px;
+    border: 1px dashed var(--nt-border); background: var(--nt-bg-muted);
+    color: var(--nt-text-subtle); text-align: center; gap: 10px;
   }
-  .nt-empty-icon { font-size: 32px; color: #30363d; }
+  .nt-empty-icon { font-size: 32px; color: var(--nt-text-muted); }
 
   /* Loading skeleton pulse */
   @keyframes nt-pulse { 0%,100%{opacity:.4} 50%{opacity:.8} }
   .nt-skeleton {
-    background: #161b22; border-radius: 10px; border: 1px solid #21262d;
+    background: var(--nt-bg); border-radius: 10px; border: 1px solid var(--nt-border);
     animation: nt-pulse 1.4s ease-in-out infinite;
   }
 `;
@@ -234,7 +260,7 @@ export function Avatar({ url, name, size = 42 }) {
 }
 
 /* ─── List row for a single member ────────────────────────────────────────── */
-export function MemberListRow({ item, isConnected, isSuggested, onMessage, actionSlot }) {
+export function MemberListRow({ item, isConnected, isSuggested, onMessage, actionSlot, isDark = true }) {
   const navigate = useNavigate();
   const user = item.user || item;
   const name = user.profile?.displayName || 'Unknown';
@@ -257,7 +283,7 @@ export function MemberListRow({ item, isConnected, isSuggested, onMessage, actio
 
       <div style={{ minWidth: 0, flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: '#e6edf3', whiteSpace: 'nowrap' }}>{name}</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--nt-text)', whiteSpace: 'nowrap' }}>{name}</span>
           {role && <span className="nt-role-tag">{role}</span>}
           {mutualCount > 0 && (
             <span className="nt-badge nt-badge-blue">
@@ -273,7 +299,7 @@ export function MemberListRow({ item, isConnected, isSuggested, onMessage, actio
           )}
         </div>
         {bio && (
-          <p style={{ fontSize: 12, color: '#8b949e', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <p style={{ fontSize: 12, color: 'var(--nt-text-muted)', marginTop: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {bio}
           </p>
         )}
@@ -310,7 +336,7 @@ function ViewToggle({ view, onChange }) {
 }
 
 /* ─── Section wrapper ──────────────────────────────────────────────────────── */
-function Section({ title, subtitle, items, view, isConnected, isSuggested, searchQuery, onSearchChange, showSearch, onMessage }) {
+function Section({ title, subtitle, items, view, isConnected, isSuggested, searchQuery, onSearchChange, showSearch, onMessage, isDark = true }) {
   const isEmpty = items.length === 0;
   const isFiltered = searchQuery && isEmpty;
 
@@ -320,10 +346,10 @@ function Section({ title, subtitle, items, view, isConnected, isSuggested, searc
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14, flexWrap: 'wrap' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <h3 style={{ fontSize: 14, fontWeight: 600, color: '#e6edf3', margin: 0 }}>{title}</h3>
+            <h3 style={{ fontSize: 14, fontWeight: 600, color: 'var(--nt-text)', margin: 0 }}>{title}</h3>
             <span className="nt-badge">{items.length}</span>
           </div>
-          {subtitle && <p style={{ fontSize: 12, color: '#484f58', marginTop: 2, marginBottom: 0 }}>{subtitle}</p>}
+          {subtitle && <p style={{ fontSize: 12, color: 'var(--nt-text-muted)', marginTop: 2, marginBottom: 0 }}>{subtitle}</p>}
         </div>
 
         {showSearch && (
@@ -332,7 +358,7 @@ function Section({ title, subtitle, items, view, isConnected, isSuggested, searc
             <input
               className="nt-search-input"
               type="text"
-              placeholder="Filter connections…"
+              placeholder="Filter connections..."
               value={searchQuery}
               onChange={e => onSearchChange(e.target.value)}
             />
@@ -384,6 +410,7 @@ function Section({ title, subtitle, items, view, isConnected, isSuggested, searc
                 isConnected={isConnected}
                 isSuggested={isSuggested}
                 onMessage={onMessage}
+                isDark={isDark}
               />
             );
           })}
@@ -407,6 +434,7 @@ function SkeletonGrid() {
 /* ─── Main component ───────────────────────────────────────────────────────── */
 export default function NetworkTabs() {
   useStyles();
+  const isDark = useHomeTheme();
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -435,26 +463,26 @@ export default function NetworkTabs() {
     return (
       <button
         onClick={() => setActiveTab(id)}
-        className={`nt-tab-active`}
+        className={isActive ? 'nt-tab-active' : ''}
         style={{
           position: 'relative', paddingBottom: 14, paddingTop: 4,
           paddingLeft: 4, paddingRight: 4,
           fontSize: 13, fontWeight: isActive ? 600 : 400,
-          color: isActive ? '#e6edf3' : '#8b949e',
+          color: isActive ? 'var(--nt-text)' : 'var(--nt-text-muted)',
           background: 'none', border: 'none', cursor: 'pointer',
           display: 'flex', alignItems: 'center',
           transition: 'color 0.15s', fontFamily: 'inherit',
         }}
-        onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = '#c9d1d9'; }}
-        onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = '#8b949e'; }}
+        onMouseEnter={e => { if (!isActive) e.currentTarget.style.color = 'var(--nt-text)'; }}
+        onMouseLeave={e => { if (!isActive) e.currentTarget.style.color = 'var(--nt-text-muted)'; }}
       >
         {label}
         {count > 0 && (
           <span
             className="nt-tab-count"
             style={{
-              background: isActive ? 'rgba(247,129,102,0.12)' : '#21262d',
-              color: isActive ? '#f78166' : '#8b949e',
+              background: isActive ? 'var(--nt-accent-soft)' : 'var(--nt-bg-soft)',
+              color: isActive ? 'var(--nt-accent)' : 'var(--nt-text-muted)',
             }}
           >
             {count}
@@ -468,9 +496,9 @@ export default function NetworkTabs() {
   /* ── Loading state ───────────────────────────────────────────── */
   if (loading && !connected.length && !suggested.length) {
     return (
-      <div className="nt-root" style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
+      <div className={`nt-root ${isDark ? '' : 'nt-light'}`} style={{ display: 'flex', flexDirection: 'column', gap: 32 }}>
         {/* Tab skeleton */}
-        <div style={{ display: 'flex', borderBottom: '1px solid #21262d', gap: 24, paddingBottom: 0 }}>
+        <div style={{ display: 'flex', borderBottom: '1px solid var(--nt-border)', gap: 24, paddingBottom: 0 }}>
           {['My Network', 'Discover Members'].map(t => (
             <div key={t} className="nt-skeleton" style={{ width: 100, height: 14, marginBottom: 16, borderRadius: 6 }} />
           ))}
@@ -482,12 +510,12 @@ export default function NetworkTabs() {
 
   /* ── Render ──────────────────────────────────────────────────── */
   return (
-    <div className="nt-root" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+    <div className={`nt-root ${isDark ? '' : 'nt-light'}`} style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
 
       {/* ── Top bar: tabs + view toggle ── */}
       <div style={{
         display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between',
-        borderBottom: '1px solid #21262d',
+        borderBottom: '1px solid var(--nt-border)',
         marginBottom: 28,
         gap: 16,
       }}>
@@ -510,12 +538,13 @@ export default function NetworkTabs() {
           {pendingReceived.length > 0 && (
             <>
               <div className="nt-section-label">
-                <span style={{ color: '#f78166' }}>●</span>&ensp;Incoming Requests
+                <span style={{ color: 'var(--nt-accent)' }}>●</span>&ensp;Incoming Requests
               </div>
               <Section
                 title="Incoming Requests"
                 items={pendingReceived}
                 view={view}
+                isDark={isDark}
               />
               <hr className="nt-divider" />
             </>
@@ -525,13 +554,14 @@ export default function NetworkTabs() {
           {pendingSent.length > 0 && (
             <>
               <div className="nt-section-label">
-                <span style={{ color: '#58a6ff' }}>●</span>&ensp;Pending
+                <span style={{ color: 'var(--nt-accent)' }}>●</span>&ensp;Pending
               </div>
               <Section
                 title="Sent Requests"
                 subtitle="Waiting for a response"
                 items={pendingSent}
                 view={view}
+                isDark={isDark}
               />
               <hr className="nt-divider" />
             </>
@@ -541,7 +571,7 @@ export default function NetworkTabs() {
           {connected.length > 0 && (
             <>
               <div className="nt-section-label">
-                <span style={{ color: '#3fb950' }}>●</span>&ensp;Connections
+                <span style={{ color: 'var(--nt-accent)' }}>●</span>&ensp;Connections
               </div>
               <Section
                 title="My Connections"
@@ -551,6 +581,7 @@ export default function NetworkTabs() {
                 showSearch
                 searchQuery={searchQuery}
                 onSearchChange={setSearchQuery}
+                isDark={isDark}
                 onMessage={async (userId, name) => {
                   try {
                     const result = await dispatch(createOrGetDMThunk(userId)).unwrap();
@@ -568,13 +599,14 @@ export default function NetworkTabs() {
             <>
               <hr className="nt-divider" />
               <div className="nt-section-label">
-                <span style={{ color: '#8b949e' }}>●</span>&ensp;Recommended
+                <span style={{ color: 'var(--nt-text-muted)' }}>●</span>&ensp;Recommended
               </div>
               <Section
                 title="People You May Know"
                 subtitle="Based on your interests and network"
                 items={suggested}
                 view={view}
+                isDark={isDark}
                 isSuggested
               />
             </>
@@ -584,21 +616,21 @@ export default function NetworkTabs() {
           {totalNetwork === 0 && !suggested.length && (
             <div className="nt-empty nt-fadeUp" style={{ marginTop: 8 }}>
               <span className="material-symbols-outlined nt-empty-icon">hub</span>
-              <p style={{ fontSize: 14, fontWeight: 500, color: '#8b949e', margin: 0 }}>Your network is empty</p>
-              <p style={{ fontSize: 13, color: '#484f58', margin: 0 }}>Connect with people to grow your professional network.</p>
+              <p style={{ fontSize: 14, fontWeight: 500, color: 'var(--nt-text)', margin: 0 }}>Your network is empty</p>
+              <p style={{ fontSize: 13, color: 'var(--nt-text-muted)', margin: 0 }}>Connect with people to grow your professional network.</p>
               <button
                 onClick={() => setActiveTab('discover')}
                 style={{
                   marginTop: 8, padding: '7px 18px', borderRadius: 8,
-                  border: '1px solid #30363d', background: 'transparent',
-                  color: '#58a6ff', fontSize: 13, fontWeight: 500,
+                  border: '1px solid var(--nt-border)', background: 'transparent',
+                  color: 'var(--nt-accent)', fontSize: 13, fontWeight: 500,
                   fontFamily: 'inherit', cursor: 'pointer',
                   transition: 'background 0.15s',
                 }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(88,166,255,0.06)'}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--nt-accent-soft)'}
                 onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
               >
-                Discover Members →
+                Discover Members {"->"}
               </button>
             </div>
           )}

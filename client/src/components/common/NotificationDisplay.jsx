@@ -1,8 +1,10 @@
 import React, { useEffect } from "react";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
+import useHomeTheme from "../../hooks/useHomeTheme";
 
 export default function NotificationDisplay() {
   const { notifications, removeNotification } = useNotification();
+  const isDark = useHomeTheme();
 
   // Auto-dismissal is handled in context, but we can add additional logic here if needed
   useEffect(() => {
@@ -19,9 +21,9 @@ export default function NotificationDisplay() {
         <div
           key={notification.id}
           className={`
-            flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg
+            flex items-center gap-3 rounded-2xl px-4 py-3 shadow-lg
             border border-solid animate-in fade-in slide-in-from-top-2
-            ${getNotificationStyles(notification.type)}
+            ${getNotificationStyles(notification.type, isDark)}
           `}
           role="alert"
           aria-live="polite"
@@ -104,19 +106,21 @@ export default function NotificationDisplay() {
 /**
  * Get Tailwind classes for notification type
  */
-function getNotificationStyles(type) {
-  const baseStyles = "text-white";
+function getNotificationStyles(type, isDark) {
+  const neutral = isDark
+    ? "border-border-dark bg-surface-dark text-text-primary-dark"
+    : "border-border-light bg-surface-light text-text-primary-light";
 
   switch (type) {
     case "success":
-      return `${baseStyles} bg-green-600 border-green-700`;
+      return "border-success/25 bg-success/10 text-success";
     case "error":
-      return `${baseStyles} bg-red-600 border-red-700`;
+      return "border-danger/25 bg-danger/10 text-danger";
     case "warning":
-      return `${baseStyles} bg-yellow-600 border-yellow-700`;
+      return "border-warning/25 bg-warning/10 text-warning";
     case "info":
-      return `${baseStyles} bg-blue-600 border-blue-700`;
+      return "border-info/25 bg-info/10 text-info";
     default:
-      return `${baseStyles} bg-gray-600 border-gray-700`;
+      return neutral;
   }
 }

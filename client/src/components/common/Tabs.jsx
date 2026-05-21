@@ -1,35 +1,39 @@
-import React from 'react';
+import React from "react";
+import useHomeTheme from "../../hooks/useHomeTheme";
 
-/**
- * Common Tabs component for administrative and dashboard views.
- * 
- * @param {string} activeTab - The ID of the currently active tab.
- * @param {function} onChange - Callback function triggered when a tab is clicked.
- * @param {Array} tabs - Array of tab objects { id, label, icon }.
- */
 const Tabs = ({ activeTab, onChange, tabs }) => {
+  const isDark = useHomeTheme();
+
   return (
-    <div className="flex border-b border-[#30363d] bg-[#161b22]">
+    <div
+      className={`flex border-b ${
+        isDark
+          ? "border-border-dark bg-transparent"
+          : "border-border-light bg-transparent"
+      }`}
+    >
       {tabs.map((tab) => (
         <button
           key={tab.id}
           onClick={() => onChange(tab.id)}
-          className={`flex items-center gap-2 px-6 py-4 text-sm font-medium transition-all relative ${
+          type="button"
+          className={`relative flex items-center gap-2 px-6 py-4 text-sm font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset ${
             activeTab === tab.id
-              ? 'text-[#58a6ff]'
-              : 'text-gray-400 hover:text-gray-200 hover:bg-[#1f242c]'
+              ? isDark
+                ? "text-info focus-visible:ring-info"
+                : "text-info focus-visible:ring-info"
+              : isDark
+                ? "text-text-secondary-dark hover:bg-surface-dark hover:text-text-primary-dark focus-visible:ring-info"
+                : "text-text-secondary-light hover:bg-surface-muted hover:text-text-primary-light focus-visible:ring-info"
           }`}
         >
           {tab.icon && (
-            <span className="material-symbols-outlined text-lg">
-              {tab.icon}
-            </span>
+            <span className="material-symbols-outlined text-lg">{tab.icon}</span>
           )}
           {tab.label}
-          
-          {/* Active Indicator Bar */}
+
           {activeTab === tab.id && (
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-[#58a6ff]" />
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-info" />
           )}
         </button>
       ))}

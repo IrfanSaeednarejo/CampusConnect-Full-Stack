@@ -1,14 +1,15 @@
 import React from 'react';
+import useHomeTheme from '../../hooks/useHomeTheme';
+import { getButtonClassName } from './Button';
 
-/**
- * Reusable Pagination component for navigating structured lists.
- */
 const Pagination = ({ 
   currentPage, 
   totalPages, 
   onPageChange,
   className = "" 
 }) => {
+  const isDark = useHomeTheme();
+
   if (totalPages <= 1) return null;
 
   const pages = [];
@@ -30,32 +31,35 @@ const Pagination = ({
   }
 
   const uniquePages = pages.filter((item, index) => pages.indexOf(item) === index);
+  const ellipsisClass = isDark ? 'text-text-secondary-dark' : 'text-slate-400';
 
   return (
     <nav className={`flex items-center justify-center gap-2 ${className}`}>
-      {/* Previous Button */}
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="w-10 h-10 flex items-center justify-center rounded-lg border border-[#30363d] text-gray-400 hover:text-white hover:bg-[#1f242c] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        className={getButtonClassName({
+          variant: 'secondary',
+          size: 'icon-md',
+          isDark,
+        })}
       >
         <span className="material-symbols-outlined text-xl">chevron_left</span>
       </button>
 
-      {/* Page Numbers */}
       <div className="flex items-center gap-1">
         {uniquePages.map((page, index) => (
           <React.Fragment key={index}>
             {page === '...' ? (
-              <span className="w-8 text-center text-gray-500 font-bold">...</span>
+              <span className={`w-8 text-center font-bold ${ellipsisClass}`}>...</span>
             ) : (
               <button
                 onClick={() => onPageChange(page)}
-                className={`w-10 h-10 rounded-lg text-sm font-bold transition-all ${
-                  currentPage === page
-                    ? 'bg-[#1f6feb] text-white shadow-lg shadow-[#1f6feb]/20'
-                    : 'text-gray-400 hover:text-white hover:bg-[#1f242c]'
-                }`}
+                className={getButtonClassName({
+                  variant: currentPage === page ? 'primary' : 'secondary',
+                  size: 'icon-md',
+                  isDark,
+                })}
               >
                 {page}
               </button>
@@ -64,11 +68,14 @@ const Pagination = ({
         ))}
       </div>
 
-      {/* Next Button */}
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="w-10 h-10 flex items-center justify-center rounded-lg border border-[#30363d] text-gray-400 hover:text-white hover:bg-[#1f242c] disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        className={getButtonClassName({
+          variant: 'secondary',
+          size: 'icon-md',
+          isDark,
+        })}
       >
         <span className="material-symbols-outlined text-xl">chevron_right</span>
       </button>

@@ -1,140 +1,173 @@
-import { useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Camera, MapPin, Edit2, Sparkles, BadgeCheck, Star, MessageCircle, Users } from "lucide-react";
+import { Camera, MapPin, Edit2, Sparkles, BadgeCheck, Star } from "lucide-react";
 import ConnectionButton from "../network/ConnectionButton";
 import ConnectionsModal from "../network/ConnectionsModal";
-import { useState } from "react";
+import { getButtonClassName } from "../common/Button";
+import useHomeTheme from "../../hooks/useHomeTheme";
 
 const ROLE_CONFIG = {
-    student:       { label: "Student",        color: "bg-blue-500/15 text-blue-400 border-blue-500/25" },
-    mentor:        { label: "Mentor",         color: "bg-amber-500/15 text-amber-400 border-amber-500/25" },
-    society_head:  { label: "Society Head",   color: "bg-violet-500/15 text-violet-400 border-violet-500/25" },
-    campus_admin:  { label: "Campus Admin",   color: "bg-green-500/15 text-green-400 border-green-500/25" },
+    student: { label: "Student", color: "bg-info/10 text-info border-info/25" },
+    mentor: { label: "Mentor", color: "bg-warning/10 text-warning border-warning/25" },
+    society_head: { label: "Society Head", color: "bg-info/10 text-info border-info/25" },
+    campus_admin: { label: "Campus Admin", color: "bg-primary/10 text-primary border-primary/25" },
 };
 
-/** Animated donut ring for completeness percentage */
 function CompletenessRing({ score = 0 }) {
+    const isDark = useHomeTheme();
     const radius = 22;
     const circumference = 2 * Math.PI * radius;
     const progress = circumference - (score / 100) * circumference;
-    const color = score >= 80 ? "#22c55e" : score >= 50 ? "#f59e0b" : "#ef4444";
+    const color = score >= 80 ? "rgb(var(--color-success))" : score >= 50 ? "rgb(var(--color-warning))" : "rgb(var(--color-danger))";
 
     return (
-        <div className="relative w-14 h-14 group cursor-pointer" title={`Profile ${score}% complete`}>
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 56 56">
-                <circle cx="28" cy="28" r={radius} fill="none" stroke="#1e293b" strokeWidth="4" />
-                <circle cx="28" cy="28" r={radius} fill="none" stroke={color} strokeWidth="4"
-                    strokeDasharray={circumference} strokeDashoffset={progress}
+        <div className="relative h-14 w-14 cursor-pointer" title={`Profile ${score}% complete`}>
+            <svg className="h-full w-full -rotate-90" viewBox="0 0 56 56">
+                <circle cx="28" cy="28" r={radius} fill="none" stroke={isDark ? "rgb(var(--color-border-dark))" : "rgb(var(--color-border-light))"} strokeWidth="4" />
+                <circle
+                    cx="28"
+                    cy="28"
+                    r={radius}
+                    fill="none"
+                    stroke={color}
+                    strokeWidth="4"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={progress}
                     strokeLinecap="round"
                     className="transition-all duration-700"
                 />
             </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs font-bold text-white leading-none">{score}%</span>
+            <div className="absolute inset-0 flex items-center justify-center">
+                <span className={`text-xs font-bold leading-none ${isDark ? "text-white" : "text-slate-900"}`}>{score}%</span>
             </div>
         </div>
     );
 }
 
-/**
- * ProfileHero — top-of-page identity block.
- * Props:
- *   profile     {object}  — full user profile object
- *   isOwner     {boolean} — show edit controls
- *   onEditCover {fn}      — called when cover image change is triggered
- *   onEditAvatar{fn}      — called when avatar change is triggered
- */
 export default function ProfileHero({ profile, isOwner = false, onEditCover, onEditAvatar }) {
-    const navigate  = useNavigate();
-    const coverRef  = useRef(null);
+    const navigate = useNavigate();
+    const isDark = useHomeTheme();
+    const coverRef = useRef(null);
     const avatarRef = useRef(null);
     const [isConnectionsModalOpen, setIsConnectionsModalOpen] = useState(false);
 
-    const fullName  = profile?.profile?.displayName
-        || `${profile?.profile?.firstName || ""} ${profile?.profile?.lastName || ""}`.trim()
-        || "Unknown User";
-    const initials  = fullName.charAt(0).toUpperCase();
-    const avatar    = profile?.profile?.avatar;
-    const cover     = profile?.profile?.coverImage;
-    const headline  = profile?.profile?.headline;
-    const location  = profile?.profile?.location;
-    const bio       = profile?.profile?.bio;
-    const roles     = profile?.roles || [];
-    const isVerified= profile?.emailVerified;
+    const fullName =
+        profile?.profile?.displayName ||
+        `${profile?.profile?.firstName || ""} ${profile?.profile?.lastName || ""}`.trim() ||
+        "Unknown User";
+    const initials = fullName.charAt(0).toUpperCase();
+    const avatar = profile?.profile?.avatar;
+    const cover = profile?.profile?.coverImage;
+    const headline = profile?.profile?.headline;
+    const location = profile?.profile?.location;
+    const bio = profile?.profile?.bio;
+    const roles = profile?.roles || [];
+    const isVerified = profile?.emailVerified;
     const completeness = profile?.profileCompleteness ?? 0;
-    const isMentor  = profile?.mentorVerification?.isVerified && profile?.roles?.includes("mentor");
+    const isMentor = profile?.mentorVerification?.isVerified && profile?.roles?.includes("mentor");
 
     return (
-        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl overflow-hidden shadow-xl">
-            {/* ── Cover Image ──────────────────────────────────────────────── */}
-            <div className="relative h-44 md:h-56 overflow-hidden group">
+        <div
+            className={`overflow-hidden rounded-2xl transition-colors ${
+                isDark
+                    ? "border border-border-dark bg-surface-dark shadow-lg"
+                    : "border border-border-light bg-surface-light shadow-md"
+            }`}
+        >
+            <div className="group relative h-44 overflow-hidden md:h-56">
                 {cover ? (
-                    <img src={cover} alt="Cover" className="w-full h-full object-cover" />
+                    <img src={cover} alt="Cover" className="h-full w-full object-cover" />
                 ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-[#0d2449] via-[#1a3a6e] to-[#0f172a]" />
+                    <div className={`h-full w-full ${isDark ? "bg-container-dark" : "bg-slate-100"}`} />
                 )}
-                {/* Subtle overlay gradient for avatar readability */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#161b22]/80 via-transparent to-transparent" />
+                <div className={`absolute inset-0 ${isDark ? "bg-black/25" : "bg-white/10"}`} />
 
                 {isOwner && (
                     <>
-                        <input ref={coverRef} type="file" accept="image/*" className="hidden"
-                            onChange={(e) => onEditCover?.(e.target.files?.[0])} />
+                        <input
+                            ref={coverRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => onEditCover?.(e.target.files?.[0])}
+                        />
                         <button
                             onClick={() => coverRef.current?.click()}
-                            className="absolute top-3 right-3 flex items-center gap-1.5 px-3 py-1.5 bg-black/50 hover:bg-black/70 text-white text-xs font-semibold rounded-lg backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-all"
+                            className={getButtonClassName({
+                                variant: "ghost",
+                                size: "sm",
+                                isDark,
+                                className: "absolute right-3 top-3 border-white/20 bg-black/55 px-3 text-white opacity-0 backdrop-blur-sm group-hover:opacity-100 hover:border-white/30 hover:bg-black/70 hover:text-white",
+                            })}
                         >
-                            <Camera className="w-3.5 h-3.5" /> Change Cover
+                            <Camera className="h-3.5 w-3.5" />
+                            Change Cover
                         </button>
                     </>
                 )}
             </div>
 
-            <div className="px-5 md:px-8 pb-6">
-                {/* ── Avatar row ──────────────────────────────────────────── */}
-                <div className="flex items-end justify-between -mt-12 mb-4">
-                    {/* Avatar */}
-                    <div className="relative group/av">
+            <div className="px-5 pb-6 md:px-8">
+                <div className="-mt-12 mb-4 flex items-end justify-between">
+                    <div className="group/av relative">
                         {avatar ? (
-                            <img src={avatar} alt={fullName}
-                                className="w-24 h-24 md:w-28 md:h-28 rounded-2xl object-cover border-4 border-[#161b22] shadow-2xl"
+                            <img
+                                src={avatar}
+                                alt={fullName}
+                                className={`h-24 w-24 rounded-2xl border-4 object-cover shadow-lg md:h-28 md:w-28 ${isDark ? "border-surface-dark" : "border-white"}`}
                             />
                         ) : (
-                            <div className="w-24 h-24 md:w-28 md:h-28 rounded-2xl bg-gradient-to-br from-green-600 to-blue-700 flex items-center justify-center text-white text-4xl font-bold border-4 border-[#161b22] shadow-2xl">
+                            <div
+                                className={`flex h-24 w-24 items-center justify-center rounded-2xl border-4 text-4xl font-bold text-white shadow-lg md:h-28 md:w-28 ${
+                                    isDark ? "border-surface-dark bg-primary" : "border-white bg-primary"
+                                }`}
+                            >
                                 {initials}
                             </div>
                         )}
+
                         {isOwner && (
                             <>
-                                <input ref={avatarRef} type="file" accept="image/*" className="hidden"
-                                    onChange={(e) => onEditAvatar?.(e.target.files?.[0])} />
+                                <input
+                                    ref={avatarRef}
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={(e) => onEditAvatar?.(e.target.files?.[0])}
+                                />
                                 <button
                                     onClick={() => avatarRef.current?.click()}
-                                    className="absolute inset-0 rounded-2xl bg-black/50 flex items-center justify-center opacity-0 group-hover/av:opacity-100 transition-opacity"
+                                    className={getButtonClassName({
+                                        variant: "ghost",
+                                        size: "icon-lg",
+                                        isDark,
+                                        className: "absolute inset-0 h-full w-full rounded-2xl border-transparent bg-black/50 text-white opacity-0 group-hover/av:opacity-100 hover:bg-black/60 hover:text-white",
+                                    })}
                                 >
-                                    <Camera className="w-6 h-6 text-white" />
+                                    <Camera className="h-6 w-6 text-white" />
                                 </button>
                             </>
                         )}
-                        {/* Online / verified dot */}
+
                         {isVerified && (
-                            <span className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full border-2 border-[#161b22] flex items-center justify-center">
-                                <BadgeCheck className="w-3.5 h-3.5 text-white" />
+                            <span
+                                className={`absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full border-2 bg-success ${isDark ? "border-surface-dark" : "border-white"}`}
+                            >
+                                <BadgeCheck className="h-3.5 w-3.5 text-white" />
                             </span>
                         )}
                     </div>
 
-                    {/* Action buttons */}
-                    <div className="flex items-center gap-2 mt-14">
+                    <div className="mt-14 flex items-center gap-2">
                         {isOwner ? (
                             <>
                                 {completeness < 100 && <CompletenessRing score={completeness} />}
                                 <button
                                     onClick={() => navigate("/profile/manage")}
-                                    className="flex items-center gap-1.5 px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-green-500/20"
+                                    className={getButtonClassName({ variant: "primary", size: "md", isDark })}
                                 >
-                                    <Edit2 className="w-4 h-4" /> Edit Profile
+                                    <Edit2 className="h-4 w-4" />
+                                    Edit Profile
                                 </button>
                             </>
                         ) : (
@@ -143,95 +176,93 @@ export default function ProfileHero({ profile, isOwner = false, onEditCover, onE
                     </div>
                 </div>
 
-                {/* ── Identity ─────────────────────────────────────────────── */}
                 <div className="space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                        <h1 className="text-2xl md:text-3xl font-bold text-white">{fullName}</h1>
-                        {isVerified && (
-                            <BadgeCheck className="w-5 h-5 text-blue-400 flex-shrink-0" title="Verified email" />
-                        )}
+                        <h1 className={`text-2xl font-bold md:text-3xl ${isDark ? "text-white" : "text-slate-900"}`}>{fullName}</h1>
+                        {isVerified && <BadgeCheck className="h-5 w-5 flex-shrink-0 text-info" title="Verified email" />}
                         {isMentor && (
-                            <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-500/15 text-amber-400 border border-amber-500/25 rounded-full text-xs font-bold">
-                                <Star className="w-3 h-3" /> Mentor
+                            <span className="flex items-center gap-1 rounded-full border border-warning/25 bg-warning/10 px-2 py-0.5 text-xs font-semibold text-warning">
+                                <Star className="h-3 w-3" />
+                                Mentor
                             </span>
                         )}
                     </div>
 
-                    {/* Headline */}
                     {headline ? (
-                        <p className="text-[#8b949e] text-sm md:text-base">{headline}</p>
+                        <p className={`text-sm md:text-base ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>{headline}</p>
                     ) : isOwner ? (
-                        <button onClick={() => navigate("/profile/manage")}
-                            className="flex items-center gap-1 text-[#8b949e] text-sm hover:text-[#58a6ff] transition-colors">
-                            <Sparkles className="w-3.5 h-3.5 text-violet-400" />
-                            Add a headline — who are you?
+                        <button
+                            onClick={() => navigate("/profile/manage")}
+                            className={getButtonClassName({ variant: "ghost", size: "sm", isDark, className: "min-w-0 px-2 text-primary hover:text-primary" })}
+                        >
+                            <Sparkles className="h-3.5 w-3.5 text-primary" />
+                            Add a headline - who are you?
                         </button>
                     ) : null}
 
-                    {/* Role badges */}
                     <div className="flex flex-wrap items-center gap-2 pt-1">
-                        {roles.map((r) => (
-                            <span key={r}
-                                className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border capitalize ${ROLE_CONFIG[r]?.color || "bg-slate-700 text-slate-300 border-slate-600"}`}>
-                                {ROLE_CONFIG[r]?.label || r.replace(/_/g, " ")}
+                        {roles.map((role) => (
+                            <span
+                                key={role}
+                                className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold capitalize ${
+                                    ROLE_CONFIG[role]?.color || "border-slate-600 bg-slate-700 text-slate-300"
+                                }`}
+                            >
+                                {ROLE_CONFIG[role]?.label || role.replace(/_/g, " ")}
                             </span>
                         ))}
                         {profile?.academic?.department && (
-                            <span className="text-[#8b949e] text-xs">· {profile.academic.department}</span>
+                            <span className={`text-xs ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>· {profile.academic.department}</span>
                         )}
                         {profile?.campusId?.name && (
-                            <span className="text-[#8b949e] text-xs">· {profile.campusId.name}</span>
+                            <span className={`text-xs ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>· {profile.campusId.name}</span>
                         )}
                     </div>
 
-                    {/* Location */}
                     {location && (
-                        <div className="flex items-center gap-1 text-[#8b949e] text-xs">
-                            <MapPin className="w-3 h-3" /> {location}
+                        <div className={`flex items-center gap-1 text-xs ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>
+                            <MapPin className="h-3 w-3" />
+                            {location}
                         </div>
                     )}
 
-                    {/* Bio */}
-                    {bio && (
-                        <p className="text-[#c9d1d9] text-sm leading-relaxed max-w-2xl pt-1">{bio}</p>
-                    )}
+                    {bio && <p className={`max-w-2xl pt-1 text-sm leading-relaxed ${isDark ? "text-text-primary-dark" : "text-slate-700"}`}>{bio}</p>}
                 </div>
 
-                {/* ── Stats row ────────────────────────────────────────────── */}
-                <div className="flex flex-wrap gap-4 mt-4 pt-4 border-t border-[#30363d]">
+                <div className={`mt-4 flex flex-wrap gap-4 border-t pt-4 ${isDark ? "border-border-dark" : "border-border-light"}`}>
                     {[
                         { label: "Connections", value: profile?.connectionCount || 0, clickable: true },
                         { label: "Profile Views", value: profile?.profileViews },
-                        { label: "Projects",     value: profile?.projects?.length },
-                        { label: "Experience",   value: profile?.experience?.length },
-                    ].filter((s) => s.value > 0 || s.label === "Connections" || s.label === "Profile Views").map((s) => (
-                        <div 
-                            key={s.label} 
-                            className={`text-center ${s.clickable ? 'cursor-pointer hover:bg-[#30363d]/50 px-3 py-1 rounded-xl transition-all' : ''}`}
-                            onClick={s.clickable ? () => setIsConnectionsModalOpen(true) : undefined}
-                        >
-                            <p className="text-white font-bold text-lg leading-none">{s.value}</p>
-                            <p className="text-[#8b949e] text-[10px] uppercase tracking-wider mt-0.5">{s.label}</p>
-                        </div>
-                    ))}
+                        { label: "Projects", value: profile?.projects?.length },
+                        { label: "Experience", value: profile?.experience?.length },
+                    ]
+                        .filter((item) => item.value > 0 || item.label === "Connections" || item.label === "Profile Views")
+                        .map((item) => (
+                            <div
+                                key={item.label}
+                                className={`text-center ${item.clickable ? `${isDark ? "hover:bg-container-dark" : "hover:bg-slate-100"} cursor-pointer rounded-xl px-3 py-1 transition-all` : ""}`}
+                                onClick={item.clickable ? () => setIsConnectionsModalOpen(true) : undefined}
+                            >
+                                <p className={`text-lg font-bold leading-none ${isDark ? "text-white" : "text-slate-900"}`}>{item.value}</p>
+                                <p className={`mt-0.5 text-[10px] uppercase tracking-wider ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>{item.label}</p>
+                            </div>
+                        ))}
                 </div>
 
-                {/* Connections Modal */}
-                <ConnectionsModal 
-                    isOpen={isConnectionsModalOpen} 
-                    onClose={() => setIsConnectionsModalOpen(false)} 
+                <ConnectionsModal
+                    isOpen={isConnectionsModalOpen}
+                    onClose={() => setIsConnectionsModalOpen(false)}
                     userId={profile?._id}
                     userName={fullName}
                 />
 
-                {/* ── Become a Mentor CTA (own profile, not yet mentor) ─────── */}
                 {isOwner && !isMentor && (
                     <button
                         onClick={() => navigate("/mentors/become")}
-                        className="mt-4 w-full flex items-center justify-center gap-2 py-2.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 hover:border-amber-500/50 text-amber-400 text-sm font-semibold rounded-xl transition-all"
+                        className={getButtonClassName({ variant: "warning", size: "md", isDark, className: "mt-4 w-full" })}
                     >
-                        <Star className="w-4 h-4" />
-                        Become a Mentor — share your knowledge with campus
+                        <Star className="h-4 w-4" />
+                        Become a Mentor - share your knowledge with campus
                     </button>
                 )}
             </div>

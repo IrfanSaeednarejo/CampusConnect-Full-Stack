@@ -1,17 +1,28 @@
 import { useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  selectStudyGroupById,
-  joinGroup,
-} from "../../redux/slices/studyGroupSlice";
+import useHomeTheme from "@/hooks/useHomeTheme";
+import { selectStudyGroupById, joinGroup } from "../../redux/slices/studyGroupSlice";
 import { useNavigation } from "../../hooks";
 import { useNotification } from "../../contexts/NotificationContext.jsx";
+import {
+  getStudyGroupTheme,
+  studyGroupPageTitle,
+} from "../../components/studyGroups/studyGroupTheme";
+
+const commitments = [
+  "Participate actively in group discussions",
+  "Respect all group members",
+  "Maintain academic integrity",
+  "Follow the meeting schedule",
+];
 
 export default function JoinStudyGroup() {
   const { goTo } = useNavigation();
   const dispatch = useDispatch();
   const { id } = useParams();
   const { showSuccess, showError } = useNotification();
+  const isDark = useHomeTheme();
+  const theme = getStudyGroupTheme(isDark);
 
   const group = useSelector(selectStudyGroupById(id));
 
@@ -28,74 +39,75 @@ export default function JoinStudyGroup() {
 
   if (!group) {
     return (
-      <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9] flex items-center justify-center p-4">
-        <div className="text-center">
-          <p className="text-[#8b949e]">Study group not found.</p>
+      <div className={`flex min-h-screen items-center justify-center p-4 ${theme.page}`}>
+        <div className={`rounded-[28px] border px-8 py-10 text-center ${theme.surface}`}>
+          <p className={theme.muted}>Study group not found.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-[#c9d1d9] flex items-center justify-center p-4">
-      <div className="max-w-md w-full bg-[#161b22] border border-[#30363d] rounded-lg p-8">
-        <div className="text-center mb-6">
-          <span className="material-symbols-outlined text-6xl text-[#238636] block mb-4">
-            groups
-          </span>
-          <h1 className="text-2xl font-bold text-[#c9d1d9] mb-2">
-            Join Study Group
-          </h1>
-          <p className="text-[#8b949e]">You're about to join:</p>
+    <div className={`flex min-h-screen items-center justify-center px-4 py-8 ${theme.page}`}>
+      <div className={`w-full max-w-xl rounded-[32px] border p-6 sm:p-8 ${theme.surface}`}>
+        <div className="mb-8 text-center">
+          <div className={`mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-3xl border ${theme.accentSurface}`}>
+            <span className={`material-symbols-outlined text-3xl ${theme.iconAccent}`}>groups</span>
+          </div>
+          <h1 className={`${studyGroupPageTitle} ${theme.title}`}>Join Study Group</h1>
+          <p className={`mt-2 text-sm ${theme.muted}`}>You&apos;re about to join the following study circle.</p>
         </div>
 
-        <div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-4 mb-6">
-          <h2 className="text-xl font-bold text-[#c9d1d9] mb-2">
-            {group.name}
-          </h2>
-          <div className="flex items-center gap-4 text-sm text-[#8b949e]">
-            <span className="px-3 py-1 rounded-full bg-[#238636]/20 text-[#238636] border border-[#238636]/30 font-semibold">
-              {group.course}
-            </span>
+        <div className={`mb-6 rounded-[28px] border p-5 ${theme.surfaceMuted}`}>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className={`text-xl font-semibold ${theme.title}`}>{group.name}</h2>
+              <p className={`mt-1 text-sm ${theme.muted}`}>{group.subject || "General study"}</p>
+            </div>
+            {group.course && (
+              <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${theme.accentSurface} ${theme.iconAccent}`}>
+                {group.course}
+              </span>
+            )}
+          </div>
+
+          <div className={`mt-4 flex items-center gap-2 text-sm ${theme.muted}`}>
+            <span className="material-symbols-outlined text-base">group</span>
             <span>
-              {group.members} / {group.maxMembers || "Unlimited"} Members
+              {group.members} / {group.maxMembers || "Unlimited"} members
             </span>
           </div>
         </div>
 
-        <div className="bg-[#238636]/10 border border-[#238636]/30 rounded-lg p-4 mb-6">
+        <div className={`mb-8 rounded-[28px] border p-5 ${theme.infoSurface}`}>
           <div className="flex gap-3">
-            <span className="material-symbols-outlined text-[#238636] text-xl">
-              info
-            </span>
-            <div className="text-sm text-[#8b949e]">
-              <p className="font-medium text-[#c9d1d9] mb-2">
-                By joining this group, you agree to:
-              </p>
-              <ul className="list-disc list-inside space-y-1">
-                <li>Participate actively in group discussions</li>
-                <li>Respect all group members</li>
-                <li>Maintain academic integrity</li>
-                <li>Follow the meeting schedule</li>
+            <span className={`material-symbols-outlined mt-0.5 text-lg ${theme.infoText}`}>info</span>
+            <div>
+              <p className={`text-sm font-medium ${theme.title}`}>By joining this group, you agree to:</p>
+              <ul className={`mt-3 space-y-2 text-sm ${theme.infoText}`}>
+                {commitments.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <span className="mt-1 h-1.5 w-1.5 rounded-full bg-current" />
+                    <span>{item}</span>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <button
             onClick={() => goTo(`/study-groups/${id}`)}
-            className="flex-1 px-6 py-3 rounded-lg bg-[#21262d] text-[#c9d1d9] font-semibold border border-[#30363d] hover:bg-[#30363d] transition-colors"
+            className={`flex-1 rounded-2xl border px-6 py-3 text-sm font-medium transition ${theme.buttonSecondary}`}
           >
             Cancel
           </button>
           <button
             onClick={handleJoin}
-            className="flex-1 px-6 py-3 rounded-lg bg-[#238636] text-white font-semibold hover:bg-[#2ea043] transition-colors flex items-center justify-center gap-2"
+            className={`flex flex-1 items-center justify-center gap-2 rounded-2xl px-6 py-3 text-sm font-medium transition ${theme.buttonPrimary}`}
           >
-            <span className="material-symbols-outlined text-xl">
-              check_circle
-            </span>
+            <span className="material-symbols-outlined text-lg">check_circle</span>
             Confirm Join
           </button>
         </div>

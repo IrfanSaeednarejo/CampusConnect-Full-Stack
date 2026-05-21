@@ -1,3 +1,5 @@
+import { getButtonClassName } from "../common/Button";
+
 export default function CategoryFilter({
   categories,
   activeFilter,
@@ -9,11 +11,10 @@ export default function CategoryFilter({
         <button
           key={cat}
           onClick={() => onFilterChange(cat)}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            activeFilter === cat
-              ? "bg-[#238636] text-white"
-              : "bg-[#161b22] text-[#8b949e] border border-[#30363d] hover:text-[#c9d1d9]"
-          }`}
+          className={getButtonClassName({
+            variant: activeFilter === cat ? "primary" : "secondary",
+            size: "sm",
+          })}
         >
           {cat === "all" ? "All Groups" : cat}
         </button>

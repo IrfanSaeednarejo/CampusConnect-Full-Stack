@@ -113,3 +113,9 @@ export const approveRegistration = (eventId, userId) =>
 
 export const rejectRegistration = (eventId, userId, reason) =>
   api.patch(`${BASE}/${eventId}/registrations/${userId}/reject`, { reason });
+
+export const markEventAttendance = (eventId, userId) =>
+  api.patch(`${BASE}/${eventId}/registrations/${userId}/attendance`);
+
+export const submitEventFeedback = (eventId, payload) =>
+  api.post(`${BASE}/${eventId}/feedback`, payload);

@@ -207,6 +207,52 @@ export const suspendMentor = async (mentorId, reason, adminUser, req) => {
     return updated;
 };
 
+export const reactivateMentor = async (mentorId, adminUser, req) => {
+    const mentor = await findMentorById(mentorId);
+
+    if (mentor.isActive) {
+        throw new ApiError(400, "Mentor is already active");
+    }
+
+    const updated = await Mentor.findByIdAndUpdate(
+        mentor._id,
+        {
+            $set: {
+                isActive: true,
+            },
+            $unset: {
+                suspendedAt: 1,
+                suspendReason: 1,
+            },
+        },
+        { new: true }
+    ).select(MENTOR_SELECT);
+
+    systemEvents.emit("notification:create", {
+        userId: mentor.userId,
+        type: "admin",
+        title: "Mentor Profile Reactivated",
+        body: "Your mentor profile has been reactivated. You can access mentor features again.",
+        actorId: adminUser._id,
+    });
+
+    await writeAuditLog({
+        req,
+        action: ADMIN_ACTIONS.MENTOR_REACTIVATED,
+        targetModel: "Mentor",
+        targetId: mentor._id,
+        payload: { userId: mentor.userId },
+    });
+
+    await emitEvent(ADMIN_ACTIONS.MENTOR_REACTIVATED + "@v1", {
+        actorId: adminUser._id,
+        targetId: mentor._id,
+        payload: { userId: mentor.userId }
+    });
+
+    return updated;
+};
+
 export const overrideMentorTier = async (mentorId, tier, adminUser, req) => {
     if (!tier || !["bronze", "silver", "gold"].includes(tier)) {
         throw new ApiError(400, 'tier must be "bronze", "silver", or "gold"');

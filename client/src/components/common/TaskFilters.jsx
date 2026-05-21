@@ -4,19 +4,28 @@ export default function TaskFilters({
   onCategoryChange,
   onPriorityChange,
   className = "",
+  isDark = true,
 }) {
   return (
     <div
-      className={`bg-[#161b22] border border-[#30363d] rounded-lg p-6 ${className}`}
+      className={`rounded-3xl border p-6 ${
+        isDark
+          ? "border-[#30363d] bg-[#161b22]"
+          : "border-slate-200 bg-white shadow-[0_16px_40px_rgba(15,23,42,0.08)]"
+      } ${className}`}
     >
-      <h3 className="text-white font-bold mb-4">Filters</h3>
+      <h3 className={`mb-4 text-lg font-medium ${isDark ? "text-white" : "text-slate-900"}`}>Filters</h3>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-[#8b949e] text-sm mb-2">Category</label>
+          <label className={`mb-2 block text-sm ${isDark ? "text-[#8b949e]" : "text-slate-500"}`}>Category</label>
           <select
             value={filterCategory}
             onChange={(e) => onCategoryChange(e.target.value)}
-            className="w-full px-3 py-2 rounded bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] focus:outline-none focus:border-[#238636]"
+            className={`w-full rounded-2xl border px-3 py-2 focus:outline-none ${
+              isDark
+                ? "border-[#30363d] bg-[#0d1117] text-[#c9d1d9] focus:border-[#238636]"
+                : "border-slate-200 bg-slate-50 text-slate-900 focus:border-slate-400"
+            }`}
           >
             <option value="all">All Categories</option>
             <option value="Academic">Academic</option>
@@ -26,11 +35,15 @@ export default function TaskFilters({
           </select>
         </div>
         <div>
-          <label className="block text-[#8b949e] text-sm mb-2">Priority</label>
+          <label className={`mb-2 block text-sm ${isDark ? "text-[#8b949e]" : "text-slate-500"}`}>Priority</label>
           <select
             value={filterPriority}
             onChange={(e) => onPriorityChange(e.target.value)}
-            className="w-full px-3 py-2 rounded bg-[#0d1117] border border-[#30363d] text-[#c9d1d9] focus:outline-none focus:border-[#238636]"
+            className={`w-full rounded-2xl border px-3 py-2 focus:outline-none ${
+              isDark
+                ? "border-[#30363d] bg-[#0d1117] text-[#c9d1d9] focus:border-[#238636]"
+                : "border-slate-200 bg-slate-50 text-slate-900 focus:border-slate-400"
+            }`}
           >
             <option value="all">All Priorities</option>
             <option value="high">High</option>

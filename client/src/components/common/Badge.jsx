@@ -1,13 +1,13 @@
 export default function Badge({ children, variant = "primary", className = "" }) {
   const variants = {
-    primary: "bg-[#238636] text-white",
-    secondary: "bg-[#161b22] text-[#8b949e] border border-[#30363d]",
-    info: "bg-[#1f6feb] text-white",
+    primary: "border border-primary bg-primary text-white",
+    secondary: "border border-border bg-[rgb(var(--color-surface-muted)/1)] text-text-secondary",
+    info: "border border-info bg-info text-white",
   };
 
   return (
     <span
-      className={`inline-block px-2 py-1 rounded text-xs ${variants[variant]} ${className}`}
+      className={`inline-block rounded-md px-2 py-1 text-xs font-semibold ${variants[variant]} ${className}`}
     >
       {children}
     </span>

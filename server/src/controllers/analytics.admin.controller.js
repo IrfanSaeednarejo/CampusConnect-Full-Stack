@@ -65,3 +65,9 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
     const data = await analyticsService.getDashboardStats(campusId);
     return res.status(200).json(new ApiResponse(200, data, "Dashboard stats fetched"));
 });
+
+export const getDashboardFeed = asyncHandler(async (req, res) => {
+    const campusId = getEffectiveCampusId(req);
+    const data = await analyticsService.getDashboardFeed(campusId);
+    return res.status(200).json(new ApiResponse(200, data, "Dashboard feed fetched"));
+});

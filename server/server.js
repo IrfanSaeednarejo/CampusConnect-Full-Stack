@@ -11,6 +11,7 @@ import { initChatHandlers } from "./src/eventHandlers/chat.handler.js";
 import { initNexusHandlers } from "./src/eventHandlers/nexus.handler.js";
 import { initAdminSocket, wireAdminFeedHooks } from "./src/sockets/admin.socket.js";
 import { systemEvents } from "./src/utils/events.js";
+import { seedDefaultGamificationConfig } from "./src/services/gamification.seed.service.js";
 
 dotenv.config({
     path: ".env",
@@ -36,6 +37,7 @@ connectDB()
         initMentoringHandlers(app);
         initChatHandlers(app);
         initNexusHandlers(app);
+        await seedDefaultGamificationConfig();
         startEventTransitionJob(app);
         startTaskReminderJob();
 

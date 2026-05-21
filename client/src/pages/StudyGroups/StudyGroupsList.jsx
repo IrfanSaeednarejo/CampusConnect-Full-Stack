@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import useHomeTheme from "@/hooks/useHomeTheme";
 import {
   selectAllStudyGroups,
   fetchStudyGroups,
@@ -11,89 +12,104 @@ import {
   selectStudyGroupPagination,
 } from "../../redux/slices/studyGroupSlice";
 import { useAuth } from "../../hooks/useAuth";
+import {
+  getStudyGroupTheme,
+  studyGroupCardTitle,
+  studyGroupPageTitle,
+  studyGroupSectionEyebrow,
+} from "../../components/studyGroups/studyGroupTheme";
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-function GroupCard({ group, onNavigate }) {
-  const memberPct = Math.round((group.memberCount / group.maxMembers) * 100);
-  const isFull = group.memberCount >= group.maxMembers;
+function GroupCard({ group, onNavigate, theme, isDark }) {
+  const memberPct = group.maxMembers
+    ? Math.round((group.memberCount / group.maxMembers) * 100)
+    : 0;
+  const isFull = group.maxMembers ? group.memberCount >= group.maxMembers : false;
 
   return (
     <div
       onClick={() => onNavigate(`/study-groups/${group._id}`)}
-      className="group relative bg-[#161b22] border border-[#30363d] rounded-2xl p-5 cursor-pointer 
-                 hover:border-[#238636]/60 hover:shadow-lg hover:shadow-[#238636]/5 
-                 transition-all duration-300 hover:-translate-y-0.5 flex flex-col gap-4"
+      className={`group flex cursor-pointer flex-col gap-4 rounded-[28px] border p-5 transition duration-200 hover:-translate-y-0.5 ${theme.surface} ${
+        isDark ? "hover:border-primary/35 hover:bg-surface-muted-dark" : "hover:border-slate-300 hover:bg-surface-muted-light"
+      }`}
     >
-      {/* Header */}
-      <div className="flex items-start gap-3">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#238636]/20 to-[#1a7f37]/10 
-                        border border-[#238636]/20 flex items-center justify-center shrink-0">
-          <span className="text-xl font-black text-[#238636] uppercase">
+      <div className="flex items-start gap-4">
+        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border ${theme.accentSurface}`}>
+          <span className={`text-sm font-semibold uppercase ${theme.iconAccent}`}>
             {group.name?.substring(0, 2) || "??"}
           </span>
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-white font-bold text-sm leading-tight truncate max-w-[160px] group-hover:text-[#58a6ff] transition-colors">
-              {group.name}
-            </h3>
+
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className={`${studyGroupCardTitle} truncate ${theme.title}`}>{group.name}</h3>
             {group.isPrivate && (
-              <span className="flex items-center gap-0.5 bg-[#f85149]/10 text-[#f85149] text-[9px] font-bold px-1.5 py-0.5 rounded-full border border-[#f85149]/20 uppercase">
-                <span className="material-symbols-outlined text-[10px]">lock</span> Private
+              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase ${theme.dangerSurface} ${theme.dangerText}`}>
+                <span className="material-symbols-outlined text-[11px]">lock</span>
+                Private
               </span>
             )}
           </div>
-          <p className="text-[#8b949e] text-xs mt-0.5">{group.subject || "General Study"}</p>
+          <p className={`mt-1 text-sm ${theme.muted}`}>{group.subject || "General Study"}</p>
         </div>
-        <span className={`text-[10px] font-bold px-2 py-1 rounded-full border shrink-0 ${
-          isFull
-            ? "bg-[#f85149]/10 text-[#f85149] border-[#f85149]/20"
-            : "bg-[#238636]/10 text-[#238636] border-[#238636]/20"
-        }`}>
+
+        <span
+          className={`rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase ${
+            isFull
+              ? `${theme.dangerSurface} ${theme.dangerText}`
+              : `${theme.accentSurface} ${theme.iconAccent}`
+          }`}
+        >
           {isFull ? "Full" : "Open"}
         </span>
       </div>
 
-      {/* Description */}
       {group.description && (
-        <p className="text-[#8b949e] text-xs leading-relaxed line-clamp-2">{group.description}</p>
+        <p className={`line-clamp-2 text-sm leading-6 ${theme.muted}`}>{group.description}</p>
       )}
 
-      {/* Tags */}
       {group.tags?.length > 0 && (
-        <div className="flex gap-1.5 flex-wrap">
-          {group.tags.slice(0, 3).map(tag => (
-            <span key={tag} className="text-[10px] text-[#58a6ff] bg-[#58a6ff]/10 px-2 py-0.5 rounded-full border border-[#58a6ff]/15">
+        <div className="flex flex-wrap gap-2">
+          {group.tags.slice(0, 3).map((tag) => (
+            <span
+              key={tag}
+              className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${
+                isDark
+                  ? "border-info/25 bg-info/10 text-info"
+                  : "border-sky-200 bg-sky-50 text-sky-700"
+              }`}
+            >
               #{tag}
             </span>
           ))}
         </div>
       )}
 
-      {/* Schedule */}
       {group.schedule?.length > 0 && (
-        <div className="flex items-center gap-1.5 text-[#8b949e] text-xs">
-          <span className="material-symbols-outlined text-sm">schedule</span>
-          <span>{group.schedule.map(s => DAYS[s.day]).join(", ")} · {group.schedule[0]?.startTime}</span>
+        <div className={`flex items-center gap-2 text-sm ${theme.muted}`}>
+          <span className="material-symbols-outlined text-base">schedule</span>
+          <span>
+            {group.schedule.map((slot) => DAYS[slot.day]).join(", ")} - {group.schedule[0]?.startTime}
+          </span>
         </div>
       )}
 
-      {/* Footer */}
-      <div className="mt-auto pt-3 border-t border-[#30363d]/60 flex items-center justify-between">
-        <div className="flex items-center gap-1 text-[#8b949e] text-xs">
-          <span className="material-symbols-outlined text-sm">group</span>
-          <span>{group.memberCount}/{group.maxMembers} members</span>
+      <div className={`mt-auto flex items-center justify-between border-t pt-4 ${theme.border}`}>
+        <div className={`flex items-center gap-2 text-sm ${theme.muted}`}>
+          <span className="material-symbols-outlined text-base">group</span>
+          <span>
+            {group.memberCount}/{group.maxMembers} members
+          </span>
         </div>
-        {/* Capacity bar */}
         <div className="flex items-center gap-2">
-          <div className="w-16 h-1 bg-[#30363d] rounded-full overflow-hidden">
+          <div className={`h-1.5 w-16 overflow-hidden rounded-full ${isDark ? "bg-border-dark" : "bg-slate-200"}`}>
             <div
-              className={`h-full rounded-full transition-all ${isFull ? "bg-[#f85149]" : "bg-[#238636]"}`}
+              className={`h-full rounded-full ${isFull ? "bg-danger" : isDark ? "bg-primary" : "bg-slate-900"}`}
               style={{ width: `${Math.min(memberPct, 100)}%` }}
             />
           </div>
-          <span className="text-[10px] text-[#8b949e]">{memberPct}%</span>
+          <span className={`text-xs ${theme.muted}`}>{memberPct}%</span>
         </div>
       </div>
     </div>
@@ -104,6 +120,8 @@ export default function StudyGroupsList() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuth();
+  const isDark = useHomeTheme();
+  const theme = getStudyGroupTheme(isDark);
 
   const allGroups = useSelector(selectAllStudyGroups);
   const myGroups = useSelector(selectMyStudyGroups);
@@ -113,178 +131,200 @@ export default function StudyGroupsList() {
 
   const isAdmin = user?.roles?.includes("admin");
 
-  const [tab, setTab] = useState("all"); // "all" | "mine"
+  const [tab, setTab] = useState("all");
   const [search, setSearch] = useState("");
   const [subjectFilter, setSubjectFilter] = useState("all");
 
   useEffect(() => {
     dispatch(fetchStudyGroups());
-    if (isAuthenticated) dispatch(fetchMyStudyGroups());
+    if (isAuthenticated) {
+      dispatch(fetchMyStudyGroups());
+    }
   }, [dispatch, isAuthenticated]);
 
   const subjects = useMemo(() => {
-    const all = allGroups.map(g => g.subject).filter(Boolean);
+    const all = allGroups.map((group) => group.subject).filter(Boolean);
     return ["all", ...new Set(all)];
   }, [allGroups]);
 
   const displayGroups = useMemo(() => {
     let base = tab === "mine" ? myGroups : allGroups;
+
     if (search.trim()) {
-      const q = search.toLowerCase();
-      base = base.filter(g =>
-        g.name?.toLowerCase().includes(q) ||
-        g.subject?.toLowerCase().includes(q) ||
-        g.description?.toLowerCase().includes(q) ||
-        g.tags?.some(t => t.includes(q))
+      const query = search.toLowerCase();
+      base = base.filter(
+        (group) =>
+          group.name?.toLowerCase().includes(query) ||
+          group.subject?.toLowerCase().includes(query) ||
+          group.description?.toLowerCase().includes(query) ||
+          group.tags?.some((tag) => tag.includes(query))
       );
     }
+
     if (subjectFilter !== "all") {
-      base = base.filter(g => g.subject === subjectFilter);
+      base = base.filter((group) => group.subject === subjectFilter);
     }
+
     return base;
   }, [tab, allGroups, myGroups, search, subjectFilter]);
 
-  const stats = useMemo(() => ({
-    total: allGroups.length,
-    totalMembers: allGroups.reduce((s, g) => s + (g.memberCount || 0), 0),
-    open: allGroups.filter(g => !g.isFull && g.memberCount < g.maxMembers).length,
-  }), [allGroups]);
+  const stats = useMemo(
+    () => ({
+      total: allGroups.length,
+      totalMembers: allGroups.reduce((sum, group) => sum + (group.memberCount || 0), 0),
+      open: allGroups.filter((group) => !group.isFull && group.memberCount < group.maxMembers).length,
+    }),
+    [allGroups]
+  );
 
   return (
-    <div className="min-h-screen bg-[#0d1117]">
-      {/* Hero Banner */}
-      <div className="relative bg-[#0d1117] border-b border-[#30363d] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#238636]/8 via-transparent to-[#1f6feb]/5 pointer-events-none" />
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#238636]/8 rounded-full blur-3xl pointer-events-none" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 relative">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-            <div>
-              <div className="flex items-center gap-3 mb-2">
-                <div className="w-10 h-10 bg-[#238636]/15 rounded-xl flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[#238636] text-xl">groups</span>
+    <div className={`min-h-screen ${theme.page}`}>
+      <div className={`border-b ${theme.hero}`}>
+        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className={`rounded-[32px] border p-6 sm:p-8 ${theme.surface}`}>
+            <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+              <div className="space-y-3">
+                <div className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${theme.surfaceMuted} ${theme.muted}`}>
+                  Peer learning hub
                 </div>
-                <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight">Study Groups</h1>
+                <div className="flex items-center gap-4">
+                  <div className={`flex h-14 w-14 items-center justify-center rounded-3xl border ${theme.accentSurface}`}>
+                    <span className={`material-symbols-outlined text-[26px] ${theme.iconAccent}`}>groups</span>
+                  </div>
+                  <div>
+                    <h1 className={`${studyGroupPageTitle} ${theme.title}`}>Study Groups</h1>
+                    <p className={`mt-2 max-w-2xl text-sm sm:text-base ${theme.muted}`}>
+                      Explore collaborative circles, find members working on the same material, and stay on top of shared schedules and resources.
+                    </p>
+                  </div>
+                </div>
               </div>
-              <p className="text-[#8b949e] text-sm">Find your study squad. Collaborate, share resources, and ace your exams.</p>
-            </div>
-            {isAuthenticated && (
-              <button
-                onClick={() => navigate("/study-groups/create")}
-                className="flex items-center gap-2 px-5 py-2.5 bg-[#238636] text-white font-bold rounded-xl
-                           hover:bg-[#2ea043] transition-all shadow-lg shadow-[#238636]/20 shrink-0 text-sm"
-              >
-                <span className="material-symbols-outlined text-lg">add</span>
-                {isAdmin ? "Create Group" : "Request a Group"}
-              </button>
-            )}
-          </div>
 
-          {/* Stats Row */}
-          <div className="flex flex-wrap gap-4 mt-8">
-            {[
-              { label: "Active Groups", value: stats.total, icon: "groups" },
-              { label: "Total Members", value: stats.totalMembers, icon: "person" },
-              { label: "Open to Join", value: stats.open, icon: "door_open" },
-              { label: "My Groups", value: myGroups.length, icon: "bookmark" },
-            ].map(s => (
-              <div key={s.label} className="bg-[#161b22] border border-[#30363d] rounded-xl px-4 py-2.5 flex items-center gap-3">
-                <span className="material-symbols-outlined text-[#238636] text-lg">{s.icon}</span>
-                <div>
-                  <p className="text-white font-bold text-lg leading-tight">{s.value}</p>
-                  <p className="text-[#8b949e] text-[10px] font-medium uppercase">{s.label}</p>
+              {isAuthenticated && (
+                <button
+                  onClick={() => navigate("/study-groups/create")}
+                  className={`inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-sm font-medium transition ${theme.buttonPrimary}`}
+                >
+                  <span className="material-symbols-outlined text-lg">add</span>
+                  {isAdmin ? "Create Group" : "Request a Group"}
+                </button>
+              )}
+            </div>
+
+            <div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {[
+                { label: "Active Groups", value: stats.total, icon: "groups" },
+                { label: "Total Members", value: stats.totalMembers, icon: "person" },
+                { label: "Open to Join", value: stats.open, icon: "door_open" },
+                { label: "My Groups", value: myGroups.length, icon: "bookmark" },
+              ].map((stat) => (
+                <div key={stat.label} className={`rounded-[24px] border p-4 ${theme.surfaceMuted}`}>
+                  <div className="flex items-center justify-between">
+                    <span className={`material-symbols-outlined text-xl ${theme.iconAccent}`}>{stat.icon}</span>
+                    <p className={`${studyGroupSectionEyebrow} ${theme.muted}`}>{stat.label}</p>
+                  </div>
+                  <p className={`mt-4 text-2xl font-semibold ${theme.title}`}>{stat.value}</p>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Main content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Toolbar */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          {/* Tabs */}
-          <div className="flex gap-1 bg-[#161b22] border border-[#30363d] rounded-xl p-1">
-            {[["all", "All Groups"], ["mine", "My Groups"]].map(([key, label]) => (
-              <button
-                key={key}
-                onClick={() => setTab(key)}
-                className={`px-4 py-1.5 rounded-lg text-sm font-bold transition-all ${
-                  tab === key
-                    ? "bg-[#238636] text-white shadow-sm"
-                    : "text-[#8b949e] hover:text-[#c9d1d9]"
-                }`}
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className={`mb-6 rounded-[28px] border p-4 sm:p-5 ${theme.surface}`}>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className={`inline-flex w-fit rounded-2xl border p-1 ${theme.surfaceMuted}`}>
+              {[
+                ["all", "All Groups"],
+                ["mine", "My Groups"],
+              ].map(([key, label]) => (
+                <button
+                  key={key}
+                  onClick={() => setTab(key)}
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                    tab === key ? theme.tabActive : theme.tabIdle
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex flex-col gap-3 sm:flex-row lg:w-[520px]">
+              <div className="relative flex-1">
+                <span className={`material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-base ${theme.muted}`}>
+                  search
+                </span>
+                <input
+                  type="text"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search groups by name, topic, or tag"
+                  className={`w-full rounded-2xl border py-3 pl-10 pr-4 text-sm transition focus:outline-none ${theme.input}`}
+                />
+              </div>
+
+              <select
+                value={subjectFilter}
+                onChange={(e) => setSubjectFilter(e.target.value)}
+                className={`rounded-2xl border px-4 py-3 text-sm transition focus:outline-none ${theme.input} sm:w-48`}
               >
-                {label}
-              </button>
-            ))}
+                {subjects.map((subject) => (
+                  <option key={subject} value={subject}>
+                    {subject === "all" ? "All Subjects" : subject}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-
-          {/* Search */}
-          <div className="relative flex-1 max-w-sm">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#8b949e] text-sm">search</span>
-            <input
-              type="text"
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder="Search groups..."
-              className="w-full pl-9 pr-4 py-2 bg-[#161b22] border border-[#30363d] rounded-xl text-sm
-                         text-[#c9d1d9] placeholder-[#8b949e] focus:outline-none focus:border-[#238636]/60 transition-colors"
-            />
-          </div>
-
-          {/* Subject filter */}
-          <select
-            value={subjectFilter}
-            onChange={e => setSubjectFilter(e.target.value)}
-            className="bg-[#161b22] border border-[#30363d] rounded-xl text-sm text-[#c9d1d9] px-3 py-2
-                       focus:outline-none focus:border-[#238636]/60 transition-colors"
-          >
-            {subjects.map(s => (
-              <option key={s} value={s}>{s === "all" ? "All Subjects" : s}</option>
-            ))}
-          </select>
         </div>
 
-        {/* Grid */}
         {loading && displayGroups.length === 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-[#161b22] border border-[#30363d] rounded-2xl p-5 animate-pulse h-48" />
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {[...Array(6)].map((_, index) => (
+              <div key={index} className={`h-56 animate-pulse rounded-[28px] border ${theme.surface}`} />
             ))}
           </div>
         ) : error ? (
-          <div className="text-center py-20 text-[#f85149]">
-            <span className="material-symbols-outlined text-5xl block mb-3">error</span>
-            <p className="font-bold">{error}</p>
+          <div className={`rounded-[28px] border p-12 text-center ${theme.dangerSurface}`}>
+            <span className={`material-symbols-outlined mb-3 block text-5xl ${theme.dangerText}`}>error</span>
+            <p className={`text-sm font-medium ${theme.dangerText}`}>{error}</p>
           </div>
         ) : displayGroups.length === 0 ? (
-          <div className="text-center py-20 bg-[#161b22] border border-[#30363d] rounded-2xl">
-            <span className="material-symbols-outlined text-6xl text-[#30363d] block mb-4">groups</span>
-            <h3 className="text-white font-bold text-lg mb-2">No study groups found</h3>
-            <p className="text-[#8b949e] text-sm mb-6">
-              {tab === "mine" ? "You haven't joined any study groups yet." : "Try adjusting your search or create a new group."}
+          <div className={`rounded-[28px] border p-12 text-center ${theme.surface}`}>
+            <span className={`material-symbols-outlined mb-4 block text-6xl ${theme.subtle}`}>groups</span>
+            <h3 className={`text-xl font-semibold ${theme.title}`}>No study groups found</h3>
+            <p className={`mx-auto mt-2 max-w-md text-sm ${theme.muted}`}>
+              {tab === "mine"
+                ? "You have not joined any study groups yet."
+                : "Try adjusting your search or start a new group for your campus."}
             </p>
             {isAuthenticated && (
               <button
                 onClick={() => navigate("/study-groups/create")}
-                className="px-5 py-2.5 bg-[#238636] text-white font-bold rounded-xl hover:bg-[#2ea043] transition-all text-sm"
+                className={`mt-6 rounded-2xl px-5 py-3 text-sm font-medium transition ${theme.buttonPrimary}`}
               >
                 {isAdmin ? "Create Group" : "Request a Group"}
               </button>
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {displayGroups.map(group => (
-              <GroupCard key={group._id || group.id} group={group} onNavigate={navigate} />
+          <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+            {displayGroups.map((group) => (
+              <GroupCard
+                key={group._id || group.id}
+                group={group}
+                onNavigate={navigate}
+                theme={theme}
+                isDark={isDark}
+              />
             ))}
           </div>
         )}
 
-        {/* Pagination hint */}
         {pagination.pages > 1 && (
-          <p className="text-center text-[#8b949e] text-xs mt-8">
+          <p className={`mt-8 text-center text-sm ${theme.muted}`}>
             Showing {displayGroups.length} of {pagination.total} groups
           </p>
         )}

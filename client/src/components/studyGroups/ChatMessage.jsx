@@ -1,40 +1,45 @@
+import useHomeTheme from "@/hooks/useHomeTheme";
+import { getStudyGroupTheme } from "./studyGroupTheme";
+
 export default function ChatMessage({ message, isOwn }) {
+  const isDark = useHomeTheme();
+  const theme = getStudyGroupTheme(isDark);
   const initials = message.author ? message.author[0].toUpperCase() : "?";
 
   return (
     <div className={`flex gap-3 ${isOwn ? "flex-row-reverse" : "flex-row"}`}>
-      <div className="flex-shrink-0 mt-1">
+      <div className="mt-1 flex-shrink-0">
         {message.avatar ? (
-          <img 
-            src={message.avatar} 
-            alt={message.author} 
-            className="w-8 h-8 rounded-full object-cover border border-[#30363d]" 
+          <img
+            src={message.avatar}
+            alt={message.author}
+            className={`h-8 w-8 rounded-full border object-cover ${theme.border}`}
           />
         ) : (
-          <div className="w-8 h-8 rounded-full bg-[#238636] flex items-center justify-center text-[10px] font-bold text-white uppercase border border-[#238636]/50">
+          <div className={`flex h-8 w-8 items-center justify-center rounded-full border text-[10px] font-semibold uppercase ${theme.accentSurface} ${theme.iconAccent}`}>
             {initials}
           </div>
         )}
       </div>
 
-      <div className="flex flex-col max-w-[80%]">
+      <div className="flex max-w-[80%] flex-col">
         {!isOwn && (
-          <span className="text-[11px] font-bold text-[#8b949e] mb-1 ml-1 uppercase tracking-wider">
+          <span className={`mb-1 ml-1 text-[11px] font-semibold uppercase tracking-[0.16em] ${theme.muted}`}>
             {message.author}
           </span>
         )}
-        
+
         <div
-          className={`px-4 py-2.5 shadow-sm ${
+          className={`px-4 py-3 shadow-sm ${
             isOwn
-              ? "bg-[#238636] text-white rounded-2xl rounded-tr-none"
-              : "bg-[#1c2128] text-[#c9d1d9] border border-[#30363d] rounded-2xl rounded-tl-none"
+              ? `${isDark ? "bg-[#238636]" : "bg-slate-900"} rounded-2xl rounded-tr-none text-white`
+              : `${theme.surfaceMuted} rounded-2xl rounded-tl-none border text-sm ${theme.text}`
           }`}
         >
           <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.message}</p>
           <div
-            className={`text-[10px] mt-1.5 flex items-center gap-1 ${
-              isOwn ? "text-white/70 justify-end" : "text-[#8b949e] justify-start"
+            className={`mt-1.5 flex items-center gap-1 text-[10px] ${
+              isOwn ? "justify-end text-white/70" : theme.muted
             }`}
           >
             <span>{message.timestamp}</span>

@@ -16,6 +16,7 @@ import {
     requireAnyAdmin,
     requireSuperAdmin,
     requireCampusAdmin,
+    requireCampusAdminForMentor,
     requireWriteAdmin,
 } from "../middlewares/adminAuth.middleware.js";
 
@@ -40,6 +41,7 @@ import {
     verifyMentor,
     rejectMentor,
     suspendMentor as suspendMentorAdmin,
+    reactivateMentor as reactivateMentorAdmin,
     overrideMentorTier,
     getMentorSessions,
     getMentorOverview,
@@ -102,7 +104,23 @@ import {
     getSocietyActivity,
     getSessionsAnalytics,
     getDashboardStats,
+    getDashboardFeed,
 } from "../controllers/analytics.admin.controller.js";
+import {
+    adjustPoints,
+    awardBadge,
+    createRule,
+    getAnalyticsAnomalies,
+    getAnalyticsBadges,
+    getAnalyticsCertificates,
+    getAnalyticsLeaderboards,
+    getAnalyticsOverview,
+    getGamificationAudit,
+    issueCertificateController,
+    listRules,
+    rebuildLeaderboardController,
+    updateRule,
+} from "../controllers/gamification.controller.js";
 
 // ── System ────────────────────────────────────────────────────────────────────
 import {
@@ -125,6 +143,7 @@ router.use(verifyJWT, requireAnyAdmin);
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 router.get("/dashboard/stats", getDashboardStats);
+router.get("/dashboard/feed", getDashboardFeed);
 
 // ─── Requests ─────────────────────────────────────────────────────────────────
 router.get("/requests", getUnifiedRequests);
@@ -142,12 +161,13 @@ router.delete("/users/:userId/sessions", requireWriteAdmin, requireCampusAdmin()
 router.get("/mentors", listMentors);
 router.get("/mentors/pending", listPendingMentors);
 router.get("/mentors/:mentorId/sessions", getMentorSessions);
-router.patch("/mentors/:mentorId/verify", requireWriteAdmin, requireCampusAdmin("mentorId"), verifyMentor);
-router.patch("/mentors/:mentorId/reject", requireWriteAdmin, requireCampusAdmin("mentorId"), rejectMentor);
-router.patch("/mentors/:mentorId/suspend", requireWriteAdmin, requireCampusAdmin("mentorId"), suspendMentorAdmin);
+router.patch("/mentors/:mentorId/verify", requireWriteAdmin, requireCampusAdminForMentor, verifyMentor);
+router.patch("/mentors/:mentorId/reject", requireWriteAdmin, requireCampusAdminForMentor, rejectMentor);
+router.patch("/mentors/:mentorId/suspend", requireWriteAdmin, requireCampusAdminForMentor, suspendMentorAdmin);
+router.patch("/mentors/:mentorId/reactivate", requireWriteAdmin, requireCampusAdminForMentor, reactivateMentorAdmin);
 router.patch("/mentors/:mentorId/tier", requireSuperAdmin, overrideMentorTier);
 router.get("/mentors/:mentorId/overview", getMentorOverview);
-router.post("/mentors/:mentorId/action", requireWriteAdmin, requireCampusAdmin("mentorId"), mentorAdminAction);
+router.post("/mentors/:mentorId/action", requireWriteAdmin, requireCampusAdminForMentor, mentorAdminAction);
 
 // ─── Societies ────────────────────────────────────────────────────────────────
 router.get("/societies", listSocieties);
@@ -199,6 +219,20 @@ router.get("/analytics/mentors/engagement", getMentorEngagement);
 router.get("/analytics/events/participation", getEventParticipation);
 router.get("/analytics/societies/activity", getSocietyActivity);
 router.get("/analytics/sessions", getSessionsAnalytics);
+router.get("/gamification/analytics/overview", getAnalyticsOverview);
+router.get("/gamification/analytics/leaderboards", getAnalyticsLeaderboards);
+router.get("/gamification/analytics/badges", getAnalyticsBadges);
+router.get("/gamification/analytics/certificates", getAnalyticsCertificates);
+router.get("/gamification/analytics/anomalies", getAnalyticsAnomalies);
+
+router.get("/gamification/rules", listRules);
+router.post("/gamification/rules", requireWriteAdmin, createRule);
+router.patch("/gamification/rules/:ruleId", requireWriteAdmin, updateRule);
+router.post("/gamification/points/adjust", requireWriteAdmin, adjustPoints);
+router.post("/gamification/badges/award", requireWriteAdmin, awardBadge);
+router.post("/gamification/certificates/issue", requireWriteAdmin, issueCertificateController);
+router.post("/gamification/leaderboards/rebuild", requireWriteAdmin, rebuildLeaderboardController);
+router.get("/gamification/audit", getGamificationAudit);
 
 // ─── Audit Logs ───────────────────────────────────────────────────────────────
 router.get("/audit-logs", listAuditLogs);

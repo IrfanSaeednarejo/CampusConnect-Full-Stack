@@ -7,15 +7,17 @@ import PageHeader from '../../components/common/PageHeader';
 import Button from '../../components/common/Button';
 import Card from '../../components/common/Card';
 import EmptyState from '../../components/common/EmptyState';
+import useHomeTheme from '../../hooks/useHomeTheme';
 
 const STATE_COLORS = {
-  registration_open:   'bg-[#238636]/20 text-[#238636]',
-  ongoing:             'bg-[#1f6feb]/20 text-[#58a6ff]',
-  submission_open:     'bg-purple-500/20 text-purple-400',
-  results_published:   'bg-[#238636]/20 text-[#238636]',
+  registration_open:   'bg-primary/10 text-primary',
+  ongoing:             'bg-info/10 text-info',
+  submission_open:     'bg-info/10 text-info',
+  results_published:   'bg-success/10 text-success',
 };
 
 export default function MyEvents() {
+  const isDark = useHomeTheme();
   const dispatch  = useDispatch();
   const navigate  = useNavigate();
   const events    = useSelector(selectAllEvents);
@@ -35,7 +37,7 @@ export default function MyEvents() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0d1117]">
+    <div className={`flex min-h-screen flex-col ${isDark ? "bg-background-dark text-text-primary-dark" : "bg-background-light text-text-primary-light"}`}>
       <PageHeader
         title="My Events"
         subtitle="Hackathons, workshops, and competitions you've registered for"
@@ -54,7 +56,7 @@ export default function MyEvents() {
         {loading && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-56 bg-[#161b22] border border-[#30363d] rounded-2xl animate-pulse" />
+              <div key={i} className={`h-56 rounded-2xl border animate-pulse ${isDark ? "border-border-dark bg-surface-dark" : "border-border-light bg-surface-light"}`} />
             ))}
           </div>
         )}
@@ -80,18 +82,17 @@ export default function MyEvents() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {events.map((event) => {
               const cta        = getEventCTA(event);
-              const statusColor = STATE_COLORS[event.status] ?? 'bg-[#8b949e]/20 text-[#8b949e]';
+              const statusColor = STATE_COLORS[event.status] ?? 'bg-slate-500/10 text-slate-500';
               return (
                 <div
                   key={event._id}
-                  className="bg-[#161b22] border border-[#30363d] rounded-2xl overflow-hidden hover:border-[#238636]/60 transition-all group flex flex-col"
+                  className={`group flex flex-col overflow-hidden rounded-2xl border transition-all ${isDark ? "border-border-dark bg-surface-dark hover:border-primary/50" : "border-border-light bg-surface-light hover:border-info/40 shadow-[0_12px_30px_rgba(15,23,42,0.06)]"}`}
                 >
-                  {/* Gradient header */}
-                  <div className="h-28 bg-gradient-to-r from-[#1f6feb]/30 to-[#238636]/30 relative flex items-center justify-center">
+                  <div className={`relative flex h-28 items-center justify-center ${isDark ? "bg-container-dark" : "bg-slate-100"}`}>
                     {event.coverImage ? (
                       <img src={event.coverImage} alt={event.title} className="w-full h-full object-cover opacity-50" />
                     ) : (
-                      <span className="material-symbols-outlined text-5xl text-[#30363d]">event</span>
+                      <span className={`material-symbols-outlined text-5xl ${isDark ? "text-border-dark" : "text-slate-300"}`}>event</span>
                     )}
                     <span className={`absolute top-3 right-3 text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-full ${statusColor}`}>
                       {event.status?.replace(/_/g, ' ') ?? 'upcoming'}
@@ -99,10 +100,10 @@ export default function MyEvents() {
                   </div>
 
                   <div className="p-5 flex flex-col flex-1">
-                    <h3 className="text-base font-bold text-white mb-1 line-clamp-2 group-hover:text-[#58a6ff] transition-colors">
+                    <h3 className={`mb-1 line-clamp-2 text-base font-bold transition-colors ${isDark ? "text-text-primary-dark group-hover:text-info" : "text-text-primary-light group-hover:text-info"}`}>
                       {event.title}
                     </h3>
-                    <div className="flex items-center gap-2 text-xs text-[#8b949e] mb-3">
+                    <div className={`mb-3 flex items-center gap-2 text-xs ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>
                       <span className="material-symbols-outlined text-sm">calendar_today</span>
                       {event.startAt ? new Date(event.startAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
                     </div>

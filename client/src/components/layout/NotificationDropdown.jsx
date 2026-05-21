@@ -1,7 +1,9 @@
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, Link } from 'react-router-dom';
-import { 
+import useHomeTheme from '../../hooks/useHomeTheme';
+import { selectUser } from '../../redux/slices/authSlice';
+import {
   selectNotifications, 
   selectUnreadCount, 
   markReadThunk, 
@@ -9,13 +11,20 @@ import {
   fetchNotifications
 } from '../../redux/slices/notificationSlice';
 import { formatDistanceToNow } from 'date-fns';
+import { getButtonClassName } from '../common/Button';
+import { getNotificationTarget } from '../../utils/notificationTargets';
 
 export default function NotificationDropdown({ isOpen, onClose }) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isDark = useHomeTheme();
   const notifications = useSelector(selectNotifications);
   const unreadCount = useSelector(selectUnreadCount);
+  const user = useSelector(selectUser);
   const dropdownRef = useRef(null);
+  const isAdmin = Array.isArray(user?.roles)
+    ? user.roles.some((role) => ['admin', 'super_admin', 'campus_admin'].includes(role))
+    : false;
 
   useEffect(() => {
     if (isOpen) {
@@ -43,84 +52,112 @@ export default function NotificationDropdown({ isOpen, onClose }) {
     if (!notif.read) {
       dispatch(markReadThunk(notif._id));
     }
-    
-    // Resolve navigation path
-    let path = '/notifications';
-    switch (notif.refModel) {
-      case 'Chat': path = `/messages?chatId=${notif.ref}`; break;
-      case 'Event': path = `/events/${notif.ref}`; break;
-      case 'Society': path = `/societies/${notif.ref}`; break;
-      case 'StudyGroup': path = `/study-groups/${notif.ref}`; break;
-      case 'User': path = `/users/${notif.ref}`; break;
-    }
-    
-    navigate(path);
+
+    navigate(getNotificationTarget(notif, { isAdmin }));
     onClose();
   };
 
   if (!isOpen) return null;
 
+  const panelClass = isDark
+    ? 'bg-surface-dark border-border-dark shadow-2xl'
+    : 'bg-surface-light border-border-light shadow-[0_24px_60px_rgba(15,23,42,0.14)]';
+  const headerClass = isDark
+    ? 'border-border-dark bg-background-dark/50'
+    : 'border-border-light bg-background-light/90';
+  const headingClass = isDark ? 'text-text-primary-dark' : 'text-text-primary-light';
+  const actionClass = 'text-info hover:text-info';
+  const emptyIconClass = isDark ? 'text-border-dark' : 'text-border-light';
+  const emptyTextClass = isDark ? 'text-text-secondary-dark' : 'text-text-secondary-light';
+  const footerClass = isDark
+    ? 'border-border-dark text-text-secondary-dark hover:bg-surface-dark hover:text-text-primary-dark'
+    : 'border-border-light text-text-secondary-light hover:bg-background-light hover:text-text-primary-light';
+
   return (
     <div 
       ref={dropdownRef}
-      className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[500px]"
+      className={`absolute right-0 top-full z-50 mt-2 flex max-h-[500px] w-80 flex-col overflow-hidden rounded-xl border sm:w-96 ${panelClass}`}
     >
-      {/* Header */}
-      <div className="px-4 py-3 border-b border-[#30363d] flex justify-between items-center bg-[#0d1117]/50">
-        <h3 className="text-sm font-semibold text-[#e6edf3]">Notifications</h3>
+      <div className={`flex items-center justify-between border-b px-4 py-3 ${headerClass}`}>
+        <h3 className={`text-sm font-semibold ${headingClass}`}>Notifications</h3>
         <button 
           onClick={handleMarkAllRead}
-          className="text-xs text-[#58a6ff] hover:underline"
+          className={getButtonClassName({
+            variant: 'ghost',
+            size: 'sm',
+            isDark,
+            className: `h-auto min-w-0 px-1 text-xs ${actionClass}`,
+          })}
         >
           Mark all as read
         </button>
       </div>
 
-      {/* List */}
-      <div className="overflow-y-auto flex-1 custom-scrollbar">
+      <div className="scrollbar-thin flex-1 overflow-y-auto">
         {notifications.length === 0 ? (
           <div className="p-8 text-center">
-            <span className="material-symbols-outlined text-4xl text-[#30363d] mb-2">notifications_off</span>
-            <p className="text-[#8b949e] text-sm">No notifications yet</p>
+            <span className={`material-symbols-outlined mb-2 text-4xl ${emptyIconClass}`}>notifications_off</span>
+            <p className={`text-sm ${emptyTextClass}`}>No notifications yet</p>
           </div>
         ) : (
           notifications.map((notif) => (
-            <div 
+            <button
               key={notif._id}
+              type="button"
               onClick={() => handleNotificationClick(notif)}
-              className={`px-4 py-3 border-b border-[#21262d] last:border-0 cursor-pointer transition-colors hover:bg-[#1f242c] relative group ${!notif.read ? 'bg-[#1f6feb]/5' : ''}`}
+              className={`relative block w-full border-b px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset last:border-0 ${
+                isDark
+                  ? `border-border-dark hover:bg-surface-dark ${!notif.read ? 'bg-info/5' : ''}`
+                  : `border-border-light hover:bg-background-light ${!notif.read ? 'bg-info/5' : ''}`
+              }`}
             >
               {!notif.read && (
-                <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-[#1f6feb] rounded-full" />
+                <div className="absolute left-1 top-1/2 h-1.5 w-1.5 -translate-y-1/2 rounded-full bg-info" />
               )}
               
               <div className="flex gap-3">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${getTypeStyles(notif.type)}`}>
+                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${getTypeStyles(notif.type, isDark)}`}>
                   <span className="material-symbols-outlined text-lg">{getIcon(notif.type)}</span>
                 </div>
                 
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-[#e6edf3] leading-tight mb-1 truncate">
+                  <p
+                    className={`mb-1 truncate text-sm font-medium leading-tight ${
+                      isDark ? 'text-text-primary-dark' : 'text-text-primary-light'
+                    }`}
+                  >
                     {notif.title}
                   </p>
-                  <p className="text-xs text-[#8b949e] line-clamp-2 mb-1">
+                  <p
+                    className={`mb-1 line-clamp-2 text-xs ${
+                      isDark ? 'text-text-secondary-dark' : 'text-text-secondary-light'
+                    }`}
+                  >
                     {notif.body}
                   </p>
-                  <p className="text-[10px] text-[#484f58]">
+                  <p
+                    className={`text-[10px] ${
+                      isDark ? 'text-text-secondary-dark/80' : 'text-text-secondary-light/80'
+                    }`}
+                  >
                     {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true })}
                   </p>
                 </div>
               </div>
-            </div>
+            </button>
           ))
         )}
       </div>
 
-      {/* Footer */}
       <Link 
         to="/notifications" 
         onClick={onClose}
-        className="px-4 py-2 text-center text-xs font-semibold text-[#8b949e] border-t border-[#30363d] hover:bg-[#1f242c] transition-colors"
+        className={`${getButtonClassName({
+          variant: 'ghost',
+          size: 'sm',
+          isDark,
+          className: 'w-full rounded-none border-t px-4 text-center text-xs',
+        })} ${footerClass}`}
       >
         View all notifications
       </Link>
@@ -129,6 +166,7 @@ export default function NotificationDropdown({ isOpen, onClose }) {
 }
 
 function getIcon(type) {
+  if (type.startsWith('GAMIFICATION_')) return 'workspace_premium';
   if (type.startsWith('chat')) return 'chat_bubble';
   if (type.startsWith('event')) return 'calendar_today';
   if (type.startsWith('society')) return 'groups';
@@ -137,10 +175,13 @@ function getIcon(type) {
   return 'info';
 }
 
-function getTypeStyles(type) {
-  if (type.startsWith('chat')) return 'bg-blue-500/10 text-blue-500';
-  if (type.startsWith('event')) return 'bg-purple-500/10 text-purple-500';
-  if (type.startsWith('society')) return 'bg-green-500/10 text-green-500';
-  if (type.startsWith('mentor')) return 'bg-orange-500/10 text-orange-500';
-  return 'bg-gray-500/10 text-gray-400';
+function getTypeStyles(type, isDark) {
+  if (type.startsWith('GAMIFICATION_')) return 'bg-info/10 text-info';
+  if (type.startsWith('chat')) return 'bg-info/10 text-info';
+  if (type.startsWith('event')) return 'bg-info/10 text-info';
+  if (type.startsWith('society')) return 'bg-success/10 text-success';
+  if (type.startsWith('mentor')) return 'bg-warning/10 text-warning';
+  return isDark
+    ? 'border border-border-dark bg-background-dark text-text-secondary-dark'
+    : 'border border-border-light bg-background-light text-text-secondary-light';
 }

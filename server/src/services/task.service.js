@@ -3,6 +3,8 @@ import { ApiError } from "../utils/ApiError.js";
 import { Task } from "../models/task.model.js";
 import { paginate } from "../utils/paginate.js";
 import { emitEvent, EventTypes } from "../utils/eventBus.js";
+import { systemEvents } from "../utils/events.js";
+import { safeAwardForAction } from "./gamification.service.js";
 
 /**
  * Create a new task for the requesting user.
@@ -153,11 +155,32 @@ export const completeTask = async (taskId, requestUser) => {
         throw new ApiError(400, "Cannot complete a cancelled task");
     }
 
-    return await Task.findByIdAndUpdate(
+    const updated = await Task.findByIdAndUpdate(
         taskId,
         { $set: { status: "completed", completedAt: new Date() } },
         { new: true }
     );
+
+    await safeAwardForAction({
+        actionKey: "task.completed",
+        actorId: requestUser._id,
+        refModel: "Task",
+        refId: updated._id,
+        context: { reason: `Completed task "${updated.title}"` },
+    });
+
+    systemEvents.emit("notification:create", {
+        userId: requestUser._id,
+        actorId: requestUser._id,
+        type: "task_completed",
+        title: "Task Completed",
+        body: `Your task "${updated.title}" has been completed.`,
+        ref: updated._id,
+        refModel: "Task",
+        priority: "normal",
+    });
+
+    return updated;
 };
 
 /**

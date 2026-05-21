@@ -4,24 +4,27 @@ import { useDispatch, useSelector } from "react-redux";
 import { 
   fetchEventById, selectSelectedEvent, transitionStateThunk, postAnnouncementThunk, 
   publishLeaderboardThunk, updateJudgesThunk, fetchRegistrationsThunk, 
-  selectRegistrations, approveRegistrationThunk, rejectRegistrationThunk,
+  selectRegistrations, approveRegistrationThunk, rejectRegistrationThunk, markAttendanceThunk,
   deleteEventThunk
 } from "../../../redux/slices/eventSlice";
 import { fetchAllSubmissionsThunk, selectAllSubmissions } from "../../../redux/slices/submissionSlice";
 import { fetchTeams, selectTeams, disqualifyTeamThunk, kickMemberThunk } from "../../../redux/slices/teamSlice";
 import CircularProgress from "../../../components/common/CircularProgress";
-import Button from "../../../components/common/Button";
+import Button, { getButtonClassName } from "../../../components/common/Button";
 import { toast } from "react-hot-toast";
 import ConfirmModal from "../../../components/common/ConfirmModal";
+import useHomeTheme from "../../../hooks/useHomeTheme";
 
 export default function EventAdminDashboard() {
   const { id: eventId } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const isDark = useHomeTheme();
 
   const [announcementText, setAnnouncementText] = useState("");
   const [judgeIdInput, setJudgeIdInput] = useState("");
   const [activeTab, setActiveTab] = useState("registrations");
+  const [attendanceLoadingUserId, setAttendanceLoadingUserId] = useState(null);
   
   const event = useSelector(selectSelectedEvent);
   const allSubmissions = useSelector(selectAllSubmissions);
@@ -74,6 +77,18 @@ export default function EventAdminDashboard() {
     }
   };
 
+  const handleMarkAttendance = async (userId) => {
+    try {
+      setAttendanceLoadingUserId(userId);
+      await dispatch(markAttendanceThunk({ eventId, userId })).unwrap();
+      toast.success("Attendance verified");
+    } catch (err) {
+      toast.error(err || "Failed to mark attendance");
+    } finally {
+      setAttendanceLoadingUserId(null);
+    }
+  };
+
   const handleBroadcast = async (e) => {
     e.preventDefault();
     if (!announcementText.trim()) return;
@@ -98,9 +113,13 @@ export default function EventAdminDashboard() {
   const handleAssignJudge = async (e) => {
     e.preventDefault();
     if (!judgeIdInput.trim()) return;
-    const currentJudges = event.judgingConfig?.judges?.map(j => j._id) || [];
-    await dispatch(updateJudgesThunk({ id: eventId, judgeIds: [...currentJudges, judgeIdInput.trim()] }));
-    setJudgeIdInput("");
+    try {
+      await dispatch(updateJudgesThunk({ id: eventId, payload: { judges: [judgeIdInput.trim()], action: "add" } })).unwrap();
+      toast.success("Judge assigned");
+      setJudgeIdInput("");
+    } catch (err) {
+      toast.error(err || "Failed to assign judge");
+    }
   };
 
   const handleDisqualify = (teamId) => {
@@ -177,6 +196,7 @@ export default function EventAdminDashboard() {
   const safeTeams = Array.isArray(teams) ? teams : [];
   
   const pendingCount = safeRegistrations.filter(r => r.status === 'pending').length;
+  const attendedCount = safeRegistrations.filter(r => r.status === 'attended').length;
 
   return (
     <div className="text-[#e6edf3] min-h-screen animate-in fade-in duration-500">
@@ -200,7 +220,7 @@ export default function EventAdminDashboard() {
           <div className="flex flex-wrap gap-3">
              <Button 
               variant="secondary" 
-              className="bg-[#161b22] border-[#30363d] text-xs h-10 px-4 group"
+              className="group h-10 px-4 text-xs"
               onClick={() => navigate(`/events/${eventId}/check-in`)}
             >
               <span className="material-symbols-outlined text-lg mr-2 group-hover:rotate-12 transition-transform">qr_code_scanner</span> 
@@ -208,14 +228,15 @@ export default function EventAdminDashboard() {
             </Button>
             <Button 
               variant="secondary" 
-              className="bg-[#161b22] border-[#30363d] text-xs h-10 px-4 group"
+              className="group h-10 px-4 text-xs"
               onClick={() => navigate(`/events/${eventId}/edit`)}
             >
               <span className="material-symbols-outlined text-lg mr-2 group-hover:scale-110 transition-transform">edit_square</span> 
               Edit Details
             </Button>
             <Button 
-              className="bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white border border-red-500/20 text-xs h-10 px-4" 
+              variant="danger"
+              className="h-10 px-4 text-xs" 
               onClick={handleDeleteEvent}
             >
               <span className="material-symbols-outlined text-lg mr-2">delete_forever</span> 
@@ -235,17 +256,29 @@ export default function EventAdminDashboard() {
               <span className="w-2 h-2 rounded-full bg-[#1f6feb] shadow-[0_0_10px_#1f6feb]"></span>
             </div>
             <div className="flex gap-2">
-              <button 
+              <button
+                type="button"
                 onClick={() => handleTransition("ongoing")}
                 disabled={event.status === 'ongoing'}
-                className="flex-1 bg-[#1f6feb] text-white text-[10px] font-black uppercase py-2.5 rounded-lg disabled:opacity-20 hover:brightness-110 transition-all"
+                className={getButtonClassName({
+                  variant: "primary",
+                  size: "sm",
+                  isDark,
+                  className: "flex-1 py-2.5 text-[10px] font-black uppercase",
+                })}
               >
                 Start
               </button>
-              <button 
+              <button
+                type="button"
                 onClick={() => handleTransition("judging")}
                 disabled={event.status === 'judging' || event.status === 'completed'}
-                className="flex-1 border border-[#30363d] text-[#8b949e] text-[10px] font-black uppercase py-2.5 rounded-lg hover:border-red-500 hover:text-red-500 transition-all"
+                className={getButtonClassName({
+                  variant: "warning",
+                  size: "sm",
+                  isDark,
+                  className: "flex-1 py-2.5 text-[10px] font-black uppercase",
+                })}
               >
                 Lock
               </button>
@@ -264,6 +297,9 @@ export default function EventAdminDashboard() {
                 <span className="material-symbols-outlined text-amber-500">pending_actions</span>
               </div>
             </div>
+            <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.18em] text-[#1dc964]">
+              {attendedCount} attendance(s) verified
+            </p>
           </div>
 
           {/* Node 3: Teams */}
@@ -292,7 +328,16 @@ export default function EventAdminDashboard() {
                 placeholder="User ID..." 
                 className="flex-1 bg-[#0d1117] text-white px-3 py-1.5 text-xs rounded-lg border border-[#30363d] focus:border-[#1f6feb] outline-none" 
               />
-              <button type="submit" className="bg-[#161b22] border border-[#30363d] text-white p-1.5 rounded-lg hover:border-[#1f6feb] transition-all">
+              <button
+                type="submit"
+                className={getButtonClassName({
+                  variant: "secondary",
+                  size: "icon-sm",
+                  isDark,
+                  className: "p-1.5",
+                  iconOnly: true,
+                })}
+              >
                 <span className="material-symbols-outlined text-sm">add</span>
               </button>
             </form>
@@ -308,16 +353,28 @@ export default function EventAdminDashboard() {
           <div className="xl:col-span-8">
             <div className="bg-[#161b22]/30 border border-[#30363d] rounded-3xl overflow-hidden">
               <div className="flex p-2 bg-[#0d1117]/50">
-                <button 
+                <button
+                  type="button"
                   onClick={() => setActiveTab("registrations")}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'registrations' ? 'bg-[#1f6feb] text-white' : 'text-[#8b949e] hover:text-white'}`}
+                  className={getButtonClassName({
+                    variant: activeTab === "registrations" ? "primary" : "ghost",
+                    size: "sm",
+                    isDark,
+                    className: "flex-1 justify-center gap-2 rounded-2xl py-3 text-xs font-black uppercase tracking-widest",
+                  })}
                 >
                   Registrations
                   {pendingCount > 0 && <span className="bg-white text-[#1f6feb] px-1.5 py-0.5 rounded-md text-[9px]">{pendingCount}</span>}
                 </button>
-                <button 
+                <button
+                  type="button"
                   onClick={() => setActiveTab("teams")}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-xs font-black uppercase tracking-widest transition-all ${activeTab === 'teams' ? 'bg-[#1f6feb] text-white' : 'text-[#8b949e] hover:text-white'}`}
+                  className={getButtonClassName({
+                    variant: activeTab === "teams" ? "primary" : "ghost",
+                    size: "sm",
+                    isDark,
+                    className: "flex-1 justify-center gap-2 rounded-2xl py-3 text-xs font-black uppercase tracking-widest",
+                  })}
                 >
                   Teams Roster
                 </button>
@@ -331,12 +388,13 @@ export default function EventAdminDashboard() {
                         <th className="px-8 py-5">Entity</th>
                         <th className="px-8 py-5">Proof of Intake</th>
                         <th className="px-8 py-5">Status</th>
+                        <th className="px-8 py-5">Attendance</th>
                         <th className="px-8 py-5 text-right">Operations</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#30363d]/50">
                       {safeRegistrations.length === 0 ? (
-                        <tr><td colSpan="4" className="py-32 text-center text-[#8b949e] text-sm italic">No data records found</td></tr>
+                        <tr><td colSpan="5" className="py-32 text-center text-[#8b949e] text-sm italic">No data records found</td></tr>
                       ) : (
                         safeRegistrations.map(reg => (
                           <tr key={reg._id} className="hover:bg-[#1f6feb]/5 transition-colors group">
@@ -362,6 +420,7 @@ export default function EventAdminDashboard() {
                             <td className="px-8 py-4">
                               <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded border ${
                                 reg.status === 'pending' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                                reg.status === 'attended' ? 'bg-[#1dc964]/10 text-[#1dc964] border-[#1dc964]/20' :
                                 reg.status === 'approved' ? 'bg-green-500/10 text-green-500 border-green-500/20' :
                                 'bg-red-500/10 text-red-500 border-red-500/20'
                               }`}>
@@ -369,13 +428,60 @@ export default function EventAdminDashboard() {
                               </span>
                             </td>
                             <td className="px-8 py-4">
+                              {reg.status === "attended" ? (
+                                <span className="inline-flex items-center gap-2 rounded border border-[#1dc964]/20 bg-[#1dc964]/10 px-2 py-1 text-[10px] font-black uppercase tracking-widest text-[#1dc964]">
+                                  <span className="material-symbols-outlined text-sm">verified</span>
+                                  Verified
+                                </span>
+                              ) : ["approved", "registered"].includes(reg.status) ? (
+                                <button
+                                  type="button"
+                                  onClick={() => handleMarkAttendance(reg.userId?._id)}
+                                  disabled={attendanceLoadingUserId === reg.userId?._id}
+                                  className={getButtonClassName({
+                                    variant: "secondary",
+                                    size: "sm",
+                                    isDark,
+                                    className: "gap-2 rounded-xl px-3 text-[10px] font-black uppercase tracking-widest",
+                                  })}
+                                >
+                                  <span className="material-symbols-outlined text-sm">fact_check</span>
+                                  {attendanceLoadingUserId === reg.userId?._id ? "Verifying..." : "Mark Attended"}
+                                </button>
+                              ) : (
+                                <span className="text-[10px] font-bold uppercase tracking-widest text-[#484f58]">
+                                  Await approval
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-8 py-4">
                               <div className="flex justify-end gap-2">
                                 {reg.status === 'pending' && (
                                   <>
-                                    <button onClick={() => handleApproveRegistration(reg.userId?._id)} className="w-8 h-8 rounded-lg bg-[#1f6feb]/10 text-[#1f6feb] hover:bg-[#1f6feb] hover:text-white transition-all flex items-center justify-center border border-[#1f6feb]/20">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleApproveRegistration(reg.userId?._id)}
+                                      className={getButtonClassName({
+                                        variant: "success",
+                                        size: "icon-sm",
+                                        isDark,
+                                        className: "h-8 w-8",
+                                        iconOnly: true,
+                                      })}
+                                    >
                                       <span className="material-symbols-outlined text-sm">check</span>
                                     </button>
-                                    <button onClick={() => handleRejectRegistration(reg.userId?._id)} className="w-8 h-8 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center border border-red-500/20">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRejectRegistration(reg.userId?._id)}
+                                      className={getButtonClassName({
+                                        variant: "danger",
+                                        size: "icon-sm",
+                                        isDark,
+                                        className: "h-8 w-8",
+                                        iconOnly: true,
+                                      })}
+                                    >
                                       <span className="material-symbols-outlined text-sm">close</span>
                                     </button>
                                   </>
@@ -429,7 +535,18 @@ export default function EventAdminDashboard() {
                             </td>
                             <td className="px-8 py-4 text-right">
                               {team.status !== 'disqualified' && (
-                                <button onClick={() => handleDisqualify(team._id)} className="text-[#8b949e] hover:text-red-500 transition-colors" title="Disqualify Team">
+                                <button
+                                  type="button"
+                                  onClick={() => handleDisqualify(team._id)}
+                                  className={getButtonClassName({
+                                    variant: "ghost",
+                                    size: "icon-sm",
+                                    isDark,
+                                    className: "rounded-lg text-[#8b949e] hover:text-red-500",
+                                    iconOnly: true,
+                                  })}
+                                  title="Disqualify Team"
+                                >
                                   <span className="material-symbols-outlined text-lg">person_remove</span>
                                 </button>
                               )}
@@ -464,7 +581,8 @@ export default function EventAdminDashboard() {
                 <Button 
                   type="submit" 
                   disabled={!announcementText.trim()}
-                  className="w-full bg-[#1f6feb] text-white text-[10px] font-black uppercase py-4 rounded-2xl shadow-lg shadow-blue-500/10 active:scale-95 transition-all"
+                  variant="primary"
+                  className="w-full py-4 text-[10px] font-black uppercase rounded-2xl"
                 >
                   Initialize Global Push
                 </Button>
@@ -502,7 +620,17 @@ export default function EventAdminDashboard() {
                    Operational Signature: {selectedTeam._id}
                  </p>
                </div>
-               <button onClick={() => setSelectedTeam(null)} className="text-[#8b949e] hover:text-white transition-colors">
+               <button
+                 type="button"
+                 onClick={() => setSelectedTeam(null)}
+                 className={getButtonClassName({
+                   variant: "ghost",
+                   size: "icon-sm",
+                   isDark,
+                   className: "rounded-lg shadow-none",
+                   iconOnly: true,
+                 })}
+               >
                  <span className="material-symbols-outlined">close</span>
                </button>
              </div>
@@ -538,9 +666,16 @@ export default function EventAdminDashboard() {
                          <p className="text-[10px] text-[#8b949e] font-medium tracking-wide">{member.role === 'leader' ? "🔥 Team Leader" : "Member"}</p>
                        </div>
                      </div>
-                     <button 
+                     <button
+                       type="button"
                        onClick={() => handleKickMember(selectedTeam._id, member.userId?._id || member.userId, member.userId?.profile?.displayName)}
-                       className="p-2 text-red-500/50 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-all opacity-0 group-hover/m:opacity-100"
+                       className={getButtonClassName({
+                         variant: "ghost",
+                         size: "icon-sm",
+                         isDark,
+                         className: "rounded-xl text-red-500/50 opacity-0 group-hover/m:opacity-100 hover:bg-red-500/10 hover:text-red-500",
+                         iconOnly: true,
+                       })}
                        title="Remove Member"
                      >
                        <span className="material-symbols-outlined text-lg">no_accounts</span>

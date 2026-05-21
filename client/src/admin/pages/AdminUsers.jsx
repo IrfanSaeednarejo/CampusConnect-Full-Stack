@@ -6,8 +6,11 @@ import AdminTable from "../components/AdminTable";
 import AdminBadge from "../components/AdminBadge";
 import ReasonModal from "../components/ReasonModal";
 import ConfirmModal from "../components/ConfirmModal";
+import useHomeTheme from "@/hooks/useHomeTheme";
+import { getButtonClassName } from "../../components/common/Button";
 
 export const AdminUsers = () => {
+    const isDark = useHomeTheme();
     const navigate = useNavigate();
     const [users, setUsers] = useState([]);
     const [pagination, setPagination] = useState({});
@@ -87,14 +90,14 @@ export const AdminUsers = () => {
             render: (u) => (
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                     <div style={{ 
-                        width: 32, height: 32, borderRadius: "50%", background: "#1e293b", 
-                        display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "#6366f1"
+                        width: 32, height: 32, borderRadius: "50%", background: isDark ? "rgb(var(--color-container-dark))" : "rgb(var(--color-background-light))", 
+                        display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: "rgb(var(--color-info))"
                     }}>
                         {u.profile?.displayName?.[0] || u.profile?.firstName?.[0] || "?"}
                     </div>
                     <div>
-                        <div style={{ fontWeight: 600, color: "#f1f5f9" }}>{u.profile?.displayName || `${u.profile?.firstName} ${u.profile?.lastName}`}</div>
-                        <div style={{ fontSize: 11, color: "#64748b" }}>ID: {u._id.slice(-8).toUpperCase()}</div>
+                        <div style={{ fontWeight: 600, color: isDark ? "rgb(var(--color-text-primary-dark))" : "rgb(var(--color-text-primary-light))" }}>{u.profile?.displayName || `${u.profile?.firstName} ${u.profile?.lastName}`}</div>
+                        <div style={{ fontSize: 11, color: isDark ? "rgb(var(--color-text-secondary-dark))" : "rgb(var(--color-text-secondary-light))" }}>ID: {u._id.slice(-8).toUpperCase()}</div>
                     </div>
                 </div>
             ) 
@@ -114,7 +117,7 @@ export const AdminUsers = () => {
             key: "lastLoginAt", 
             label: "Last Login", 
             render: (u) => (
-                <div style={{ fontSize: 13, color: "#94a3b8" }}>
+                <div style={{ fontSize: 13, color: isDark ? "rgb(var(--color-text-secondary-dark))" : "rgb(var(--color-text-secondary-light))" }}>
                     {u.lastLoginAt ? new Date(u.lastLoginAt).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "Never Recorded"}
                 </div>
             )
@@ -152,22 +155,13 @@ export const AdminUsers = () => {
 
     return (
         <div style={{ animation: "fadeIn 0.5s ease-out" }}>
-            <div style={{ marginBottom: 40 }}>
-                <h1 style={{ fontSize: 28, fontWeight: 900, color: "#f8fafc", margin: 0, letterSpacing: "-0.02em" }}>User Management</h1>
-                <p style={{ color: "#64748b", marginTop: 8, fontSize: 15 }}>Audit, moderate, and manage system access across all roles.</p>
+            <div className="mb-10">
+                <h1 className="m-0 text-3xl font-semibold tracking-tight text-text-primary">User Management</h1>
+                <p className="mt-2 text-sm text-text-secondary">Audit, moderate, and manage system access across all roles.</p>
             </div>
 
             {/* ── Control Bar ────────────────────────────── */}
-            <div style={{ 
-                background: "rgba(15, 23, 42, 0.4)", 
-                border: "1px solid #1e293b", 
-                borderRadius: 20, 
-                padding: "24px", 
-                marginBottom: 32, 
-                display: "flex", 
-                gap: 24, 
-                alignItems: "center" 
-            }}>
+            <div className="theme-surface mb-8 flex items-center gap-6 rounded-[20px] p-6">
                 <div style={{ position: "relative", flex: 1 }}>
                     <span style={{ position: "absolute", left: 16, top: "50%", transform: "translateY(-50%)", fontSize: 16, opacity: 0.5 }}>🔍</span>
                     <input
@@ -178,25 +172,16 @@ export const AdminUsers = () => {
                     />
                 </div>
                 
-                <div style={{ 
-                    display: "flex", 
-                    gap: 4, 
-                    background: "#0f172a", 
-                    padding: 4, 
-                    borderRadius: 12,
-                    border: "1px solid #1e293b"
-                }}>
+                <div className="theme-surface-muted flex gap-1 rounded-xl p-1">
                     {["all", "active", "suspended"].map((s) => (
                         <button
                             key={s}
                             onClick={() => setFilters(prev => ({ ...prev, status: s, page: 1 }))}
-                            style={{ 
-                                ...filterPill, 
-                                background: filters.status === s ? "#6366f1" : "transparent",
-                                color: filters.status === s ? "#fff" : "#64748b",
-                                fontWeight: filters.status === s ? 700 : 500,
-                                boxShadow: filters.status === s ? "0 4px 12px rgba(99, 102, 241, 0.25)" : "none"
-                            }}
+                            className={getButtonClassName({
+                                variant: filters.status === s ? "primary" : "ghost",
+                                size: "sm",
+                                isDark,
+                            })}
                         >
                             {s.charAt(0).toUpperCase() + s.slice(1)}
                         </button>
@@ -205,13 +190,7 @@ export const AdminUsers = () => {
             </div>
 
             {/* ── Database Table ─────────────────────────── */}
-            <div style={{ 
-                background: "#0f172a", 
-                border: "1px solid #1e293b", 
-                borderRadius: 20, 
-                padding: "8px", 
-                boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
-            }}>
+            <div className="theme-surface rounded-[20px] p-2">
                 <AdminTable
                     columns={columns}
                     data={users}
@@ -246,24 +225,14 @@ export const AdminUsers = () => {
 
 const inputStyle = {
     width: "100%", 
-    padding: "14px 16px 14px 48px", 
-    background: "#0f172a", 
-    border: "1px solid #1e293b",
+    padding: "14px 16px 14px 48px",
+    background: "rgb(var(--color-surface))",
+    border: "1px solid rgb(var(--color-border))",
     borderRadius: 14, 
-    color: "#f8fafc", 
+    color: "rgb(var(--color-text-primary))",
     fontSize: 14, 
     outline: "none", 
-    transition: "all 0.2s",
-    boxShadow: "inset 0 2px 4px rgba(0, 0, 0, 0.05)"
-};
-
-const filterPill = {
-    padding: "10px 24px", 
-    border: "none", 
-    borderRadius: 10,
-    cursor: "pointer", 
-    fontSize: 13, 
-    transition: "all 0.2s"
+    transition: "border-color 0.2s, color 0.2s, background-color 0.2s"
 };
 
 export default AdminUsers;

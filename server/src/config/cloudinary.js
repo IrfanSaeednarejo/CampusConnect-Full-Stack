@@ -13,26 +13,28 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const uploadOnCloudinary = async (localFilePath) => {
-    try {
-        if (!localFilePath) return null;
+const isLikelyDataUri = (value) => typeof value === "string" && value.startsWith("data:");
 
-        
-        const response = await cloudinary.uploader.upload(localFilePath, {
+const uploadOnCloudinary = async (source, options = {}) => {
+    try {
+        if (!source) return null;
+
+        const response = await cloudinary.uploader.upload(source, {
             resource_type: "auto",
+            ...options,
         });
 
-        
-        fs.unlinkSync(localFilePath);
+        if (!isLikelyDataUri(source) && fs.existsSync(source)) {
+            fs.unlinkSync(source);
+        }
         return response;
 
     } catch (error) {
        
         console.error("CLOUDINARY UPLOAD ERROR:", error); 
 
-        
-        if (fs.existsSync(localFilePath)) {
-            fs.unlinkSync(localFilePath);
+        if (!isLikelyDataUri(source) && fs.existsSync(source)) {
+            fs.unlinkSync(source);
         }
         
         return null;

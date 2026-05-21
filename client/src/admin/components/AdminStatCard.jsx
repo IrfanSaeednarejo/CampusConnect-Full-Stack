@@ -1,42 +1,73 @@
-export const AdminStatCard = ({ icon, label, value, color = "#818cf8", trend, sub, onClick }) => (
-  <div
-    onClick={onClick}
-    style={{
-      background: "linear-gradient(135deg, #0f172a, #1e293b)",
-      border: "1px solid #1e293b",
-      borderRadius: 18,
-      padding: "24px 28px",
-      display: "flex",
-      flexDirection: "column",
-      gap: 12,
-      cursor: onClick ? "pointer" : "default",
-      transition: "border-color 0.2s, box-shadow 0.2s, transform 0.15s",
-      position: "relative",
-      overflow: "hidden",
-    }}
-    onMouseEnter={e => { if (onClick) { e.currentTarget.style.borderColor = color + "60"; e.currentTarget.style.boxShadow = `0 8px 32px -8px ${color}30`; e.currentTarget.style.transform = "translateY(-1px)"; }}}
-    onMouseLeave={e => { e.currentTarget.style.borderColor = "#1e293b"; e.currentTarget.style.boxShadow = "none"; e.currentTarget.style.transform = "none"; }}
-  >
-    {/* Glow */}
-    <div style={{ position: "absolute", top: -20, right: -20, width: 80, height: 80, borderRadius: "50%", background: color + "15", filter: "blur(24px)", pointerEvents: "none" }} />
+import useHomeTheme from "@/hooks/useHomeTheme";
 
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-      <div style={{ width: 44, height: 44, borderRadius: 12, background: color + "18", border: `1px solid ${color}30`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22 }}>
-        {icon}
-      </div>
-      {trend !== undefined && (
-        <div style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", background: trend >= 0 ? "rgba(16,185,129,0.1)" : "rgba(239,68,68,0.1)", borderRadius: 20, color: trend >= 0 ? "#34d399" : "#f87171", fontSize: 12, fontWeight: 700 }}>
-          {trend >= 0 ? "▲" : "▼"} {Math.abs(trend)}%
+export const AdminStatCard = ({
+  icon,
+  label,
+  value,
+  color = "#818cf8",
+  trend,
+  sub,
+  onClick,
+}) => {
+  const isDark = useHomeTheme();
+
+  return (
+    <div
+      onClick={onClick}
+      className={[
+        "relative flex flex-col gap-4 overflow-hidden rounded-[24px] border p-6 transition-all duration-200",
+        onClick ? "cursor-pointer" : "cursor-default",
+        isDark
+          ? "border-[#30363d] bg-[#161b22] hover:border-[#475569]"
+          : "border-[#dbe4ee] bg-white hover:border-[#cbd5e1]",
+      ].join(" ")}
+      style={{
+        boxShadow: isDark
+          ? "0 20px 50px rgba(0,0,0,0.24)"
+          : "0 20px 50px rgba(15,23,42,0.08)",
+      }}
+    >
+      <div
+        className="pointer-events-none absolute right-6 top-6 h-16 w-16 rounded-full opacity-20 blur-2xl"
+        style={{ backgroundColor: color }}
+      />
+
+      <div className="flex items-center justify-between">
+        <div
+          className="flex h-12 w-12 items-center justify-center rounded-2xl border text-[22px]"
+          style={{
+            backgroundColor: `${color}18`,
+            borderColor: `${color}30`,
+            color,
+          }}
+        >
+          {icon}
         </div>
-      )}
-    </div>
 
-    <div>
-      <div style={{ color, fontSize: 32, fontWeight: 800, lineHeight: 1 }}>{value}</div>
-      <div style={{ color: "#64748b", fontSize: 13, fontWeight: 600, marginTop: 6 }}>{label}</div>
-      {sub && <div style={{ color: "#334155", fontSize: 11, marginTop: 4 }}>{sub}</div>}
+        {trend !== undefined && (
+          <div
+            className="rounded-full px-3 py-1 text-xs font-semibold"
+            style={{
+              backgroundColor: trend >= 0 ? "rgba(22,163,74,0.12)" : "rgba(220,38,38,0.12)",
+              color: trend >= 0 ? "#16a34a" : "#dc2626",
+            }}
+          >
+            {trend >= 0 ? "▲" : "▼"} {Math.abs(trend)}%
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-2">
+        <div className="text-3xl font-bold leading-none" style={{ color }}>
+          {value}
+        </div>
+        <div className={isDark ? "text-sm font-medium text-[#8b949e]" : "text-sm font-medium text-[#64748b]"}>
+          {label}
+        </div>
+        {sub && <div className={isDark ? "text-xs text-[#6e7681]" : "text-xs text-[#94a3b8]"}>{sub}</div>}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 export default AdminStatCard;

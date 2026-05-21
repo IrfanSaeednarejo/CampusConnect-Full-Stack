@@ -80,6 +80,16 @@ const rejectRegistration = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, result, "Registration rejected"));
 });
 
+const markAttendance = asyncHandler(async (req, res) => {
+    const result = await eventService.markAttendance(req.params.eventId, req.params.userId, req.user);
+    return res.status(200).json(new ApiResponse(200, result, "Attendance marked"));
+});
+
+const submitEventFeedback = asyncHandler(async (req, res) => {
+    const result = await eventService.submitEventFeedback(req.params.eventId, req.body, req.user);
+    return res.status(201).json(new ApiResponse(201, result, "Feedback submitted"));
+});
+
 export {
     createCompetition,
     getCompetitions,
@@ -95,5 +105,7 @@ export {
     registerForEvent,
     getRegistrations,
     approveRegistration,
-    rejectRegistration
+    rejectRegistration,
+    markAttendance,
+    submitEventFeedback
 };

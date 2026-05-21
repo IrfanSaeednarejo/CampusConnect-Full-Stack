@@ -1,4 +1,5 @@
 import { ApiError } from "../utils/ApiError.js";
+import { Mentor } from "../models/mentor.model.js";
 
 /**
  * Admin role tiers (highest to lowest):
@@ -71,6 +72,49 @@ export const requireCampusAdmin = (campusIdParam = "campusId") => {
 
         return next(new ApiError(403, "Campus admin access required"));
     };
+};
+
+/**
+ * Requires super_admin OR campus_admin scoped to the mentor's campus.
+ * Uses mentor.campusId first, then falls back to the linked user's campus.
+ */
+export const requireCampusAdminForMentor = async (req, _res, next) => {
+    if (!req.user) return next(new ApiError(401, "Authentication required"));
+
+    const roles = req.user.roles || [];
+    if (roles.includes(SUPER_ADMIN)) return next();
+
+    if (!hasRole(roles, CAMPUS_ADMIN, LEGACY_ADMIN)) {
+        return next(new ApiError(403, "Campus admin access required"));
+    }
+
+    const mentorId = req.params.mentorId;
+    if (!mentorId) return next(new ApiError(400, "mentorId param is required"));
+
+    try {
+        const mentor = await Mentor.findById(mentorId)
+            .select("campusId userId")
+            .populate({ path: "userId", select: "campusId" })
+            .lean();
+
+        if (!mentor) {
+            return next(new ApiError(404, "Mentor not found"));
+        }
+
+        const targetCampusId =
+            mentor.campusId?.toString() ||
+            mentor.userId?.campusId?.toString();
+
+        const userCampusId = req.user.campusId?.toString();
+
+        if (targetCampusId && userCampusId && targetCampusId !== userCampusId) {
+            return next(new ApiError(403, "You can only manage mentors from your own campus"));
+        }
+
+        return next();
+    } catch (error) {
+        return next(error);
+    }
 };
 
 // ─── requireAnyAdmin ─────────────────────────────────────────────────────────

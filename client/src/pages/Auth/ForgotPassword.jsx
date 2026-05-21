@@ -1,15 +1,18 @@
-// src/pages/Auth/ForgotPassword.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../../contexts/NotificationContext.jsx";
+import AuthBrand from "../../components/auth/AuthBrand";
 import AuthCard from "../../components/auth/AuthCard";
 import AuthShell from "../../components/auth/AuthShell";
 import FormField from "../../components/common/FormField";
 import FormActions from "../../components/common/FormActions";
+import useHomeTheme from "../../hooks/useHomeTheme";
+import { getButtonClassName } from "../../components/common/Button";
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const { showSuccess } = useNotification();
+  const isDark = useHomeTheme();
 
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -38,7 +41,6 @@ export default function ForgotPassword() {
       return;
     }
 
-    // Send password reset email logic here
     setSubmitted(true);
     showSuccess(`Password reset link sent to ${email}`);
     setTimeout(() => {
@@ -47,38 +49,23 @@ export default function ForgotPassword() {
   };
 
   return (
-    <AuthShell className="h-auto items-center justify-center overflow-x-hidden p-4 bg-[#0d1117] group/design-root">
-      <div className="flex flex-col items-center justify-center py-10">
-        {/* Header with Icon */}
-        <div className="flex flex-col items-center gap-4 text-center">
-          <svg
-            className="h-10 w-10 text-[#238636]"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2ZM8.41 17.41 12 13.83l3.59 3.58L17 16l-3.59-3.59L17 8.83 15.59 7.41 12 11.01 8.41 7.41 7 8.83l3.59 3.58L7 16l1.41 1.41Z"></path>
-          </svg>
-          <p className="font-bold text-[#c9d1d9] text-lg">CampusNexus</p>
-        </div>
+    <AuthShell className="h-auto items-center justify-center overflow-x-hidden p-4">
+      <div className="flex w-full max-w-[440px] flex-col items-center justify-center py-8 sm:py-12">
+        <AuthBrand
+          compact
+          title="Forgot your password?"
+          subtitle="Enter your registered email and we’ll send you instructions to reset your password."
+        />
 
-        {/* Form Container */}
-        <div className="layout-content-container mt-8 flex w-full max-w-sm flex-col">
+        <div className="layout-content-container mt-8 flex w-full flex-col">
           <AuthCard className="p-6 sm:p-8">
-            {/* Headings */}
             <div className="flex flex-col gap-3">
-              <p className="text-[#c9d1d9] text-2xl font-bold leading-tight">
-                Forgot Your Password?
-              </p>
-              <p className="text-[#8b949e] text-sm font-normal leading-normal">
-                Enter your registered email and we'll send you instructions to
-                reset your password.
+              <p className={`text-sm font-normal leading-relaxed ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>
+                We’ll send a secure reset link to the inbox connected to your account.
               </p>
             </div>
 
-            {/* FORM */}
             <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-6">
-              {/* Email Input */}
               <FormField
                 label="Email Address"
                 name="email"
@@ -87,25 +74,31 @@ export default function ForgotPassword() {
                 onChange={handleChange}
                 placeholder="e.g., yourname@university.edu"
                 error={error}
+                isDark={isDark}
               />
 
-              {/* Submit Button */}
               <FormActions
                 onSubmit={handleSubmit}
                 submitText={submitted ? "Link Sent!" : "Send Reset Link"}
                 submitVariant="primary"
                 disabled={submitted}
-                className="flex-col-reverse"
+                submitClassName="h-11 rounded-xl"
+                className="pt-1"
                 onCancel={null}
+                isDark={isDark}
               />
             </form>
 
-            {/* Back to Login */}
             <div className="mt-6 text-center">
               <button
                 type="button"
                 onClick={() => navigate("/login")}
-                className="text-[#238636] text-sm font-normal leading-normal hover:underline cursor-pointer"
+                className={getButtonClassName({
+                  variant: "ghost",
+                  size: "sm",
+                  isDark,
+                  className: "h-auto min-w-0 px-2 text-sm text-info hover:text-primary",
+                })}
               >
                 Back to login
               </button>

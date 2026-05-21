@@ -21,17 +21,34 @@ export default function CTACard({
   onButtonClick,
   buttonVariant = "primary",
   className = "",
+  isDark = true,
 }) {
   return (
-    <Card className={`mt-12 text-center ${className}`}>
-      <h2 className="text-[#e6edf3] text-2xl font-bold mb-3">
+    <Card isDark={isDark} className={`mt-12 text-center ${className}`}>
+      <h2
+        className={`mb-3 text-2xl font-bold transition-colors duration-300 ${
+          isDark ? "text-[#e6edf3]" : "text-[#162033]"
+        }`}
+      >
         {title}
       </h2>
-      <p className="text-[#8b949e] text-sm mb-6">
+      <p
+        className={`mb-6 text-sm transition-colors duration-300 ${
+          isDark ? "text-[#8b949e]" : "text-[#526277]"
+        }`}
+      >
         {description}
       </p>
       <div className="flex justify-center">
-        <Button variant={buttonVariant} onClick={onButtonClick}>
+        <Button
+          variant={buttonVariant}
+          onClick={onButtonClick}
+          className={
+            !isDark && buttonVariant === "primary"
+              ? "bg-[#1D4ED8] text-white hover:bg-[#1E40AF] shadow-[0_10px_24px_rgba(29,78,216,0.18)]"
+              : ""
+          }
+        >
           {buttonText}
         </Button>
       </div>

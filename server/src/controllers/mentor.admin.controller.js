@@ -58,6 +58,14 @@ export const suspendMentor = asyncHandler(async (req, res) => {
 });
 
 /**
+ * PATCH /admin/mentors/:mentorId/reactivate
+ */
+export const reactivateMentor = asyncHandler(async (req, res) => {
+    const updated = await mentorService.reactivateMentor(req.params.mentorId, req.user, req);
+    return res.status(200).json(new ApiResponse(200, updated, "Mentor reactivated successfully"));
+});
+
+/**
  * PATCH /admin/mentors/:mentorId/tier
  */
 export const overrideMentorTier = asyncHandler(async (req, res) => {

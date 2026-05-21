@@ -3,11 +3,16 @@ import { useDispatch } from "react-redux";
 import { useAuth } from "../../hooks/useAuth";
 import { useNotification } from "@/contexts/NotificationContext.jsx";
 import { sendVerificationEmailThunk } from "../../redux/slices/authSlice";
+import useHomeTheme from "../../hooks/useHomeTheme";
+import { getButtonClassName } from "../common/Button";
+import { useLanguage } from "../../hooks/useLanguage";
 
 export default function EmailVerificationBanner() {
   const { user } = useAuth();
   const dispatch = useDispatch();
   const { showSuccess, showError } = useNotification();
+  const isDark = useHomeTheme();
+  const { t } = useLanguage();
   
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
@@ -19,29 +24,37 @@ export default function EmailVerificationBanner() {
     setLoading(true);
     try {
       await dispatch(sendVerificationEmailThunk()).unwrap();
-      showSuccess("Verification email sent! Check your inbox.");
+      showSuccess(t("emailBanner.success"));
       setSent(true);
     } catch (error) {
-      showError(error || "Failed to send verification email. Try again later.");
+      showError(error || t("emailBanner.error"));
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="w-full bg-[#8a6a1c]/20 border-b border-[#d29922]/50 px-4 py-3 flex flex-col sm:flex-row items-center justify-center gap-3 md:gap-4 text-sm z-50">
-      <div className="flex items-center gap-2 text-[#d29922]">
+    <div
+      className={`z-50 flex w-full flex-col items-center justify-center gap-3 border-b px-4 py-3 text-sm sm:flex-row md:gap-4 ${
+        isDark ? "border-warning/25 bg-warning/10" : "border-warning/20 bg-warning/5"
+      }`}
+    >
+      <div className="flex items-center gap-2 text-warning">
         <span className="material-symbols-outlined text-lg">warning</span>
-        <p className="font-medium">
-          Please verify your email address to secure your account and unlock all features.
+        <p className="font-medium text-warning">
+          {t("emailBanner.message")}
         </p>
       </div>
       <button 
         onClick={handleResend}
         disabled={loading || sent}
-        className="px-3 py-1 bg-transparent border border-[#d29922] text-[#d29922] rounded hover:bg-[#d29922]/10 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+        className={getButtonClassName({
+          variant: "outline",
+          size: "sm",
+          className: "whitespace-nowrap border-warning/40 text-warning hover:bg-warning/10",
+        })}
       >
-        {loading ? "Sending..." : sent ? "Sent!" : "Resend Email"}
+        {loading ? t("emailBanner.sending") : sent ? t("emailBanner.sent") : t("emailBanner.resend")}
       </button>
     </div>
   );

@@ -2,8 +2,8 @@ import { useCallback, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   fetchNotifications,
-  fetchUnreadCount,
-  markAsReadThunk,
+  fetchUnreadCountThunk,
+  markReadThunk,
   markAllReadThunk,
   selectNotifications,
   selectUnreadCount,
@@ -22,7 +22,7 @@ export const useNotifications = () => {
   );
 
   const loadUnreadCount = useCallback(
-    () => dispatch(fetchUnreadCount()),
+    () => dispatch(fetchUnreadCountThunk()),
     [dispatch]
   );
 
@@ -32,7 +32,7 @@ export const useNotifications = () => {
       if (socket?.connected) {
         socket.emit('notification:ack', { notificationId: id });
       }
-      dispatch(markAsReadThunk(id));
+      dispatch(markReadThunk(id));
     },
     [dispatch]
   );
@@ -49,7 +49,7 @@ export const useNotifications = () => {
   );
 
   useEffect(() => {
-    dispatch(fetchUnreadCount());
+    dispatch(fetchUnreadCountThunk());
   }, [dispatch]);
 
   return {

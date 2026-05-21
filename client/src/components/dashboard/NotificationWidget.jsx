@@ -1,47 +1,61 @@
+import useHomeTheme from "@/hooks/useHomeTheme";
+import { getButtonClassName } from "../common/Button";
+
 const iconMap = {
-	campaign: "📢",
-	event_available: "📅",
-	chat: "💬",
+  campaign: "📢",
+  event_available: "📅",
+  chat: "💬",
 };
 
 export default function NotificationWidget({
-	title = "Notifications",
-	linkLabel = "See All",
-	linkHref,
-	notifications = [],
+  title = "Notifications",
+  linkLabel = "See All",
+  linkHref,
+  notifications = [],
 }) {
-	return (
-		<section>
-			<div className="flex justify-between items-center mb-4">
-				<h2 className="text-[#c9d1d9] text-xl font-bold leading-tight tracking-tight">
-					{title}
-				</h2>
-				{linkHref && (
-					<a
-						href={linkHref}
-						className="text-[#238636] text-sm font-medium hover:underline"
-					>
-						{linkLabel}
-					</a>
-				)}
-			</div>
-			<div className="bg-[#161b22] border border-[#30363d] rounded-lg p-2">
-				<ul className="divide-y divide-[#30363d]">
-					{notifications.map((notif) => (
-						<li key={notif.id} className="p-4 hover:bg-white/5 rounded-md">
-							<div className="flex items-start gap-3">
-								<div className="bg-[#238636]/20 rounded-full p-2 mt-1 text-[#238636] text-lg">
-									{iconMap[notif.icon] || "🔔"}
-								</div>
-								<div>
-									<p className="text-[#c9d1d9] text-sm">{notif.title}</p>
-									<p className="text-[#8b949e] text-xs mt-1">{notif.time}</p>
-								</div>
-							</div>
-						</li>
-					))}
-				</ul>
-			</div>
-		</section>
-	);
+  const isDark = useHomeTheme();
+
+  return (
+    <section
+      className={`rounded-[28px] border p-2 transition-all duration-300 sm:p-3 ${
+        isDark
+          ? "border-border-dark bg-surface-dark shadow-lg"
+          : "border-border-light bg-surface-light shadow-md"
+      }`}
+    >
+      <div className={`mb-2 flex items-center justify-between gap-3 px-3 py-2 sm:px-4 ${isDark ? "text-text-primary-dark" : "text-text-primary-light"}`}>
+        <h2 className="text-xl font-semibold">{title}</h2>
+        {linkHref && (
+          <a
+            href={linkHref}
+            className={getButtonClassName({ variant: "ghost", size: "sm", isDark, className: "min-w-0 px-2" })}
+          >
+            {linkLabel}
+          </a>
+        )}
+      </div>
+      <ul className={`divide-y rounded-2xl ${isDark ? "divide-border-dark" : "divide-border-light"}`}>
+        {notifications.map((notif) => (
+          <li
+            key={notif.id}
+            className={`rounded-2xl p-4 transition-colors ${isDark ? "hover:bg-background-dark" : "hover:bg-surface-muted"}`}
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className={`mt-1 rounded-full p-2 text-lg ${
+                  isDark ? "bg-success/15 text-success" : "bg-success/10 text-success"
+                }`}
+              >
+                {iconMap[notif.icon] || "🔔"}
+              </div>
+              <div>
+                <p className={isDark ? "text-sm text-text-primary-dark" : "text-sm text-text-primary-light"}>{notif.title}</p>
+                <p className={isDark ? "mt-1 text-xs text-text-secondary-dark" : "mt-1 text-xs text-text-secondary-light"}>{notif.time}</p>
+              </div>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
 }

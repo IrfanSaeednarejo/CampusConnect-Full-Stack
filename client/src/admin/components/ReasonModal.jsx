@@ -1,48 +1,122 @@
 import { useState } from "react";
+import useHomeTheme from "@/hooks/useHomeTheme";
+import { getButtonClassName } from "../../components/common/Button";
 
-export const ReasonModal = ({ title, prompt, onClose, confirmLabel = "Confirm", dangerous = true }) => {
+export const ReasonModal = ({
+  title,
+  prompt,
+  onClose,
+  confirmLabel = "Confirm",
+  dangerous = true,
+}) => {
   const [reason, setReason] = useState("");
   const canConfirm = reason.trim().length > 0;
+  const isDark = useHomeTheme();
 
   return (
-    <div style={{ position: "fixed", inset: 0, background: "rgba(5,8,20,0.85)", backdropFilter: "blur(12px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 400, padding: 24 }}>
-      <div style={{ background: "#0f172a", border: "1px solid #1e293b", borderRadius: 20, padding: 32, width: "100%", maxWidth: 440, boxShadow: "0 40px 80px -12px rgba(0,0,0,0.8)" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
-          <h3 style={{ fontWeight: 800, fontSize: 16, color: "#f8fafc", margin: 0, lineHeight: 1.4 }}>{title}</h3>
-          <button onClick={() => onClose({ confirmed: false, reason: "" })} style={{ width: 30, height: 30, background: "#1e293b", border: "1px solid #334155", borderRadius: 8, color: "#64748b", cursor: "pointer", fontSize: 16, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>✕</button>
+    <div className="fixed inset-0 z-[400] flex items-center justify-center bg-[rgba(15,23,42,0.65)] p-6 backdrop-blur-sm">
+      <div
+        className={`w-full max-w-[440px] rounded-[28px] border p-6 sm:p-8 ${
+          isDark ? "border-[#30363d] bg-[#161b22]" : "border-[#dbe4ee] bg-white"
+        }`}
+        style={{
+          boxShadow: isDark
+            ? "0 30px 80px rgba(0,0,0,0.4)"
+            : "0 30px 80px rgba(15,23,42,0.16)",
+        }}
+      >
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h3
+              className={
+                isDark
+                  ? "text-lg font-semibold text-[#e6edf3]"
+                  : "text-lg font-semibold text-[#0f172a]"
+              }
+            >
+              {title}
+            </h3>
+            {prompt && (
+              <p
+                className={`mt-2 rounded-2xl border px-4 py-3 text-sm leading-6 ${
+                  isDark
+                    ? "border-[#30363d] bg-[#0d1117] text-[#8b949e]"
+                    : "border-[#e2e8f0] bg-[#f8fafc] text-[#64748b]"
+                }`}
+              >
+                {prompt}
+              </p>
+            )}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => onClose({ confirmed: false, reason: "" })}
+            className={getButtonClassName({
+              variant: "ghost",
+              size: "icon-sm",
+              isDark,
+              className: "rounded-xl border shadow-none",
+              iconOnly: true,
+            })}
+          >
+            x
+          </button>
         </div>
 
-        {prompt && <p style={{ color: "#64748b", fontSize: 13, lineHeight: 1.6, marginBottom: 18, padding: "12px 14px", background: "#1e293b", borderRadius: 10 }}>{prompt}</p>}
-
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ display: "block", color: "#94a3b8", fontSize: 12, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Reason <span style={{ color: "#f87171" }}>*</span></label>
+        <div className="mb-5">
+          <label
+            className={`mb-2 block text-xs font-semibold uppercase tracking-[0.16em] ${
+              isDark ? "text-[#8b949e]" : "text-[#64748b]"
+            }`}
+          >
+            Reason <span className="text-red-500">*</span>
+          </label>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             rows={4}
-            placeholder="Be specific and constructive…"
-            style={{ width: "100%", padding: "12px 14px", background: "#1e293b", border: `1px solid ${canConfirm ? "#334155" : "#1e293b"}`, borderRadius: 12, color: "#f8fafc", resize: "none", outline: "none", fontSize: 13, lineHeight: 1.6, boxSizing: "border-box", transition: "border-color 0.2s" }}
-            onFocus={e => e.target.style.borderColor = dangerous ? "rgba(239,68,68,0.5)" : "rgba(99,102,241,0.5)"}
-            onBlur={e => e.target.style.borderColor = "#334155"}
+            placeholder="Be specific and constructive..."
+            className={`w-full resize-none rounded-2xl border px-4 py-3 text-sm leading-6 outline-none transition-colors ${
+              isDark
+                ? "border-[#30363d] bg-[#0d1117] text-[#e6edf3] placeholder:text-[#8b949e] focus:border-[#475569]"
+                : "border-[#dbe4ee] bg-[#f8fafc] text-[#0f172a] placeholder:text-[#94a3b8] focus:border-[#cbd5e1]"
+            }`}
           />
-          <div style={{ textAlign: "right", color: "#475569", fontSize: 11, marginTop: 4 }}>{reason.length} chars</div>
+          <div
+            className={
+              isDark
+                ? "mt-2 text-right text-xs text-[#6e7681]"
+                : "mt-2 text-right text-xs text-[#94a3b8]"
+            }
+          >
+            {reason.length} chars
+          </div>
         </div>
 
-        <div style={{ display: "flex", gap: 10 }}>
-          <button onClick={() => onClose({ confirmed: false, reason: "" })} style={{ flex: 1, padding: "12px", background: "transparent", border: "1px solid #334155", borderRadius: 12, color: "#64748b", cursor: "pointer", fontWeight: 600, fontSize: 14, transition: "all 0.2s" }}>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <button
+            type="button"
+            onClick={() => onClose({ confirmed: false, reason: "" })}
+            className={getButtonClassName({
+              variant: "secondary",
+              size: "md",
+              isDark,
+              className: "flex-1 rounded-2xl px-4 py-3 text-sm font-medium",
+            })}
+          >
             Cancel
           </button>
           <button
+            type="button"
             disabled={!canConfirm}
             onClick={() => onClose({ confirmed: true, reason: reason.trim() })}
-            style={{
-              flex: 1, padding: "12px",
-              background: canConfirm ? (dangerous ? "rgba(239,68,68,0.15)" : "linear-gradient(135deg,#6366f1,#8b5cf6)") : "transparent",
-              border: `1px solid ${canConfirm ? (dangerous ? "rgba(239,68,68,0.4)" : "transparent") : "#1e293b"}`,
-              borderRadius: 12, color: canConfirm ? (dangerous ? "#fca5a5" : "#fff") : "#334155",
-              cursor: canConfirm ? "pointer" : "not-allowed",
-              fontWeight: 700, fontSize: 14, transition: "all 0.2s"
-            }}
+            className={getButtonClassName({
+              variant: dangerous ? "danger" : "primary",
+              size: "md",
+              isDark,
+              className: "flex-1 rounded-2xl px-4 py-3 text-sm font-semibold",
+            })}
           >
             {confirmLabel}
           </button>

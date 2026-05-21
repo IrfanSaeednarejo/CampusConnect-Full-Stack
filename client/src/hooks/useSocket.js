@@ -3,6 +3,7 @@ import { useDispatch, useSelector, useStore } from 'react-redux';
 import { getSocket } from '../socket/socket';
 import { registerChatHandlers, unregisterChatHandlers, injectGetState } from '../socket/handlers/chat.handler';
 import { registerNotificationHandlers, unregisterNotificationHandlers } from '../socket/handlers/notification.handler';
+import { registerGamificationHandlers, unregisterGamificationHandlers } from '../socket/handlers/gamification.handler';
 import { selectIsAuthenticated, logout } from '../redux/slices/authSlice';
 
 export const useSocket = () => {
@@ -29,6 +30,7 @@ export const useSocket = () => {
       injectGetState(store.getState);
       registerChatHandlers(socket, dispatch);
       registerNotificationHandlers(socket, dispatch);
+      registerGamificationHandlers(socket, dispatch);
       socket._handlersRegistered = true;
     }
 

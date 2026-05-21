@@ -24,9 +24,15 @@ import {
   selectEventsLoading,
   clearCurrentSociety,
 } from "../../redux/slices/societySlice";
+import { fetchModuleLeaderboard, selectGamificationLeaderboards } from "../../redux/slices/gamificationSlice";
 import { selectUser } from "../../redux/slices/authSlice";
 import { useNotification } from "../../contexts/NotificationContext.jsx";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import IconButton from "../../components/common/IconButton";
+import { getButtonClassName } from "../../components/common/Button";
+import useHomeTheme from "../../hooks/useHomeTheme";
+import { getSocietyTheme, cn } from "./societyTheme";
+import LeaderboardTable from "../../components/gamification/LeaderboardTable";
 
 const TABS = [
   { id: "overview", label: "Overview", icon: "info" },
@@ -38,7 +44,7 @@ const TABS = [
 const ROLE_CONFIG = {
   "society_head": { label: "Society Head", class: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25" },
   "co-coordinator": { label: "Co-Coordinator", class: "bg-blue-500/15 text-blue-400 border border-blue-500/25" },
-  "active-member": { label: "Active Member", class: "bg-purple-500/15 text-purple-400 border border-purple-500/25" },
+  "active-member": { label: "Active Member", class: "bg-info/10 text-info border border-info/25" },
   "executive": { label: "Executive", class: "bg-amber-500/15 text-amber-400 border border-amber-500/25" },
   "student": { label: "Student", class: "bg-slate-500/15 text-slate-400 border border-slate-500/25" },
 };
@@ -76,25 +82,70 @@ function countWords(str) {
   return str.trim().split(/\s+/).filter(Boolean).length;
 }
 
+function getRoleBadgeClass(role, isDark) {
+  const cfg = ROLE_CONFIG[role] ?? ROLE_CONFIG.student;
+  if (isDark) return cfg.class;
+
+  const lightClasses = {
+    society_head: "border border-emerald-200 bg-emerald-50 text-emerald-700",
+    "co-coordinator": "border border-sky-200 bg-sky-50 text-sky-700",
+    "active-member": "border border-blue-200 bg-blue-50 text-blue-700",
+    executive: "border border-amber-200 bg-amber-50 text-amber-700",
+    student: "border border-slate-200 bg-slate-100 text-slate-600",
+  };
+
+  return lightClasses[role] ?? lightClasses.student;
+}
+
+function getEventStatusClass(status, isDark) {
+  if (isDark) return (EVENT_STATUS_CONFIG[status] ?? { class: "bg-slate-500/15 text-slate-400" }).class;
+
+  const lightClasses = {
+    published: "bg-sky-50 text-sky-700 border border-sky-200",
+    ongoing: "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    completed: "bg-slate-100 text-slate-600 border border-slate-200",
+    cancelled: "bg-danger/5 text-danger border border-danger/20",
+    draft: "bg-amber-50 text-amber-700 border border-amber-200",
+  };
+
+  return lightClasses[status] ?? "bg-slate-100 text-slate-600 border border-slate-200";
+}
+
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
-function MemberAvatar({ member, size = "md" }) {
+function MemberAvatar({ member, size = "md", isDark }) {
   const name = getMemberName(member);
   const avatar = getMemberAvatar(member);
   const sz = size === "lg" ? "w-14 h-14 text-base" : "w-9 h-9 text-xs";
   return avatar ? (
-    <img src={avatar} alt={name} className={`${sz} rounded-full object-cover border border-slate-700 flex-shrink-0`} />
+    <img
+      src={avatar}
+      alt={name}
+      className={cn(
+        sz,
+        "rounded-full object-cover flex-shrink-0 border",
+        isDark ? "border-slate-700" : "border-slate-200"
+      )}
+    />
   ) : (
-    <div className={`${sz} rounded-full bg-slate-700 flex items-center justify-center font-bold text-slate-300 border border-slate-600 flex-shrink-0`}>
+    <div
+      className={cn(
+        sz,
+        "rounded-full flex items-center justify-center font-bold border flex-shrink-0",
+        isDark
+          ? "bg-slate-700 text-slate-300 border-slate-600"
+          : "bg-slate-100 text-slate-600 border-slate-200"
+      )}
+    >
       {getInitials(name)}
     </div>
   );
 }
 
-function RoleBadge({ role }) {
+function RoleBadge({ role, isDark }) {
   const cfg = ROLE_CONFIG[role] ?? ROLE_CONFIG["student"];
   return (
-    <span className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full ${cfg.class}`}>
+    <span className={`text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full ${getRoleBadgeClass(role, isDark)}`}>
       {cfg.label}
     </span>
   );
@@ -102,7 +153,7 @@ function RoleBadge({ role }) {
 
 // ── Overview Tab ──────────────────────────────────────────────────────────────
 
-function OverviewTab({ society, members }) {
+function OverviewTab({ society, members, isDark, theme, leaderboardRows = [] }) {
   const head = members.find(m => m.role === "society_head" || m.role === "executive");
   const headName = head ? getMemberName(head) : society.createdBy?.profile?.displayName ?? "Unknown";
   const headAvatar = head ? getMemberAvatar(head) : society.createdBy?.profile?.avatar ?? null;
@@ -110,12 +161,12 @@ function OverviewTab({ society, members }) {
   return (
     <div className="space-y-6">
       {/* Description */}
-      <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
-        <h3 className="text-slate-200 font-semibold mb-3 flex items-center gap-2">
-          <span className="material-symbols-outlined text-slate-400 text-lg">description</span>
+      <div className={cn("rounded-xl border p-6", theme.card)}>
+        <h3 className={cn("mb-3 flex items-center gap-2 font-semibold", theme.text)}>
+          <span className={cn("material-symbols-outlined text-lg", theme.muted)}>description</span>
           About this Society
         </h3>
-        <p className="text-slate-400 leading-relaxed text-sm">
+        <p className={cn("text-sm leading-relaxed", theme.muted)}>
           {society.description || "No description provided for this society."}
         </p>
       </div>
@@ -130,43 +181,59 @@ function OverviewTab({ society, members }) {
           { icon: "verified", label: "Status", value: society.status ?? "active" },
           { icon: "admin_panel_settings", label: "Join Mode", value: society.requireApproval ? "Approval Required" : "Open" },
         ].map(({ icon, label, value }) => (
-          <div key={label} className="bg-slate-800/50 border border-slate-700 rounded-xl p-4">
+          <div key={label} className={cn("rounded-xl border p-4", theme.card)}>
             <div className="flex items-center gap-2 mb-1">
-              <span className="material-symbols-outlined text-slate-500 text-base">{icon}</span>
-              <span className="text-slate-500 text-xs uppercase tracking-wider font-medium">{label}</span>
+              <span className={cn("material-symbols-outlined text-base", theme.muted)}>{icon}</span>
+              <span className={cn("text-xs font-medium uppercase tracking-wider", theme.muted)}>{label}</span>
             </div>
-            <p className="text-slate-200 font-semibold text-sm capitalize">{value}</p>
+            <p className={cn("text-sm font-semibold capitalize", theme.text)}>{value}</p>
           </div>
         ))}
       </div>
 
       {/* Society Head */}
-      <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-6">
-        <h3 className="text-slate-200 font-semibold mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-slate-400 text-lg">manage_accounts</span>
+      <div className={cn("rounded-xl border p-6", theme.card)}>
+        <h3 className={cn("mb-4 flex items-center gap-2 font-semibold", theme.text)}>
+          <span className={cn("material-symbols-outlined text-lg", theme.muted)}>manage_accounts</span>
           Society Head
         </h3>
         <div className="flex items-center gap-3">
           {headAvatar ? (
-            <img src={headAvatar} alt={headName} className="w-12 h-12 rounded-full object-cover border border-slate-600" />
+            <img
+              src={headAvatar}
+              alt={headName}
+              className={cn(
+                "h-12 w-12 rounded-full object-cover border",
+                isDark ? "border-slate-600" : "border-slate-200"
+              )}
+            />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-emerald-600/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 font-bold">
+            <div
+              className={cn(
+                "flex h-12 w-12 items-center justify-center rounded-full border font-bold",
+                isDark
+                  ? "bg-emerald-600/20 border-emerald-500/30 text-emerald-400"
+                  : "bg-emerald-50 border-emerald-200 text-emerald-700"
+              )}
+            >
               {getInitials(headName)}
             </div>
           )}
           <div>
-            <p className="text-slate-200 font-semibold">{headName}</p>
-            <RoleBadge role="society_head" />
+            <p className={cn("font-semibold", theme.text)}>{headName}</p>
+            <RoleBadge role="society_head" isDark={isDark} />
           </div>
         </div>
       </div>
+
+      <LeaderboardTable rows={leaderboardRows} title="Society Contributors" dense />
     </div>
   );
 }
 
 // ── Members Tab ───────────────────────────────────────────────────────────────
 
-function MembersTab({ members, memberRequests, canManageMembers, loading, societyId, dispatch, showSuccess, showError }) {
+function MembersTab({ members, memberRequests, canManageMembers, loading, societyId, dispatch, showSuccess, showError, isDark, theme }) {
   const [busyId, setBusyId] = useState(null);
   const [showPendingModal, setShowPendingModal] = useState(false);
 
@@ -200,7 +267,7 @@ function MembersTab({ members, memberRequests, canManageMembers, loading, societ
     return (
       <div className="space-y-3">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-16 bg-slate-800/50 border border-slate-700 rounded-xl animate-pulse" />
+          <div key={i} className={cn("h-16 rounded-xl border animate-pulse", theme.card)} />
         ))}
       </div>
     );
@@ -211,39 +278,41 @@ function MembersTab({ members, memberRequests, canManageMembers, loading, societ
       {/* Pending Requests Popup Modal */}
       {showPendingModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col max-h-[85vh]">
-            <div className="flex items-center justify-between p-5 border-b border-slate-800">
-              <h3 className="text-slate-200 font-bold text-lg flex items-center gap-2">
+          <div className={cn("flex max-h-[85vh] w-full max-w-lg flex-col rounded-2xl border shadow-lg", theme.hero)}>
+            <div className={cn("flex items-center justify-between border-b p-5", theme.divider)}>
+              <h3 className={cn("flex items-center gap-2 text-lg font-bold", theme.text)}>
                 <span className="material-symbols-outlined text-amber-400">pending</span>
                 Pending Requests
-                <span className="bg-amber-500/15 text-amber-400 text-xs px-2 py-0.5 rounded-full">
+                <span className={cn("rounded-full px-2 py-0.5 text-xs", isDark ? "bg-amber-500/15 text-amber-400" : "bg-amber-50 text-amber-700")}>
                   {memberRequests.length}
                 </span>
               </h3>
-              <button 
+              <IconButton
                 onClick={() => setShowPendingModal(false)}
-                className="text-slate-500 hover:text-slate-300 transition-colors"
-              >
-                <span className="material-symbols-outlined">close</span>
-              </button>
+                title="Close"
+                variant="ghost"
+                size="icon-sm"
+                className={cn(isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-400 hover:text-slate-700")}
+                icon="close"
+              />
             </div>
             
             <div className="p-5 overflow-y-auto space-y-3">
               {memberRequests.length === 0 ? (
                 <div className="text-center py-10">
-                  <span className="material-symbols-outlined text-slate-600 text-5xl mb-3">check_circle</span>
-                  <p className="text-slate-400">No pending requests right now.</p>
+                  <span className={cn("material-symbols-outlined mb-3 text-5xl", theme.muted)}>check_circle</span>
+                  <p className={theme.muted}>No pending requests right now.</p>
                 </div>
               ) : (
                 memberRequests.map((m) => {
                   const memberId = m.memberId?._id ?? m.memberId;
                   const name = getMemberName(m);
                   return (
-                    <div key={memberId} className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 flex items-center gap-3">
-                      <MemberAvatar member={m} />
+                    <div key={memberId} className={cn("flex items-center gap-3 rounded-xl border p-4", theme.card)}>
+                      <MemberAvatar member={m} isDark={isDark} />
                       <div className="flex-1 min-w-0">
-                        <p className="text-slate-200 text-sm font-medium truncate">{name}</p>
-                        <p className="text-slate-500 text-xs">
+                        <p className={cn("truncate text-sm font-medium", theme.text)}>{name}</p>
+                        <p className={cn("text-xs", theme.muted)}>
                           Requested {formatDate(m.joinedAt)}
                         </p>
                       </div>
@@ -251,7 +320,12 @@ function MembersTab({ members, memberRequests, canManageMembers, loading, societ
                         <button
                           onClick={() => handleReject(memberId)}
                           disabled={busyId === memberId}
-                          className="w-8 h-8 rounded-full bg-slate-700/50 hover:bg-red-500/20 border border-transparent hover:border-red-500/30 text-slate-400 hover:text-red-400 flex items-center justify-center transition-all disabled:opacity-50"
+                          className={getButtonClassName({
+                            variant: "danger",
+                            size: "icon-sm",
+                            isDark,
+                            className: "min-w-0",
+                          })}
                           title="Reject"
                         >
                           <span className="material-symbols-outlined text-sm">close</span>
@@ -259,7 +333,12 @@ function MembersTab({ members, memberRequests, canManageMembers, loading, societ
                         <button
                           onClick={() => handleApprove(memberId)}
                           disabled={busyId === memberId}
-                          className="w-8 h-8 rounded-full bg-emerald-600/20 hover:bg-emerald-500/90 border border-emerald-500/30 hover:border-transparent text-emerald-400 hover:text-white flex items-center justify-center transition-all disabled:opacity-50"
+                          className={getButtonClassName({
+                            variant: "success",
+                            size: "icon-sm",
+                            isDark,
+                            className: "min-w-0",
+                          })}
                           title="Approve"
                         >
                           <span className="material-symbols-outlined text-sm font-bold">check</span>
@@ -277,10 +356,10 @@ function MembersTab({ members, memberRequests, canManageMembers, loading, societ
       {/* Active Members Area */}
       <div>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-slate-300 font-semibold text-sm flex items-center gap-2">
-            <span className="material-symbols-outlined text-slate-400 text-base">group</span>
+          <h3 className={cn("flex items-center gap-2 text-sm font-semibold", theme.text)}>
+            <span className={cn("material-symbols-outlined text-base", theme.muted)}>group</span>
             Active Members
-            <span className="bg-slate-700 text-slate-400 text-xs font-bold px-2 py-0.5 rounded-full">
+            <span className={cn("rounded-full px-2 py-0.5 text-xs font-bold", isDark ? "bg-slate-700 text-slate-400" : "bg-slate-100 text-slate-500")}>
               {members.length}
             </span>
           </h3>
@@ -288,7 +367,7 @@ function MembersTab({ members, memberRequests, canManageMembers, loading, societ
           {canManageMembers && memberRequests.length > 0 && (
             <button
               onClick={() => setShowPendingModal(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/25 text-amber-400 text-xs font-semibold rounded-lg transition-colors"
+              className={getButtonClassName({ variant: "warning", size: "sm", isDark })}
             >
               <span className="material-symbols-outlined text-[14px]">notifications_active</span>
               Pending Requests ({memberRequests.length})
@@ -296,9 +375,9 @@ function MembersTab({ members, memberRequests, canManageMembers, loading, societ
           )}
         </div>
         {members.length === 0 ? (
-          <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-10 text-center">
-            <span className="material-symbols-outlined text-slate-600 text-4xl mb-2 block">groups</span>
-            <p className="text-slate-500 text-sm">No approved members yet.</p>
+          <div className={cn("rounded-xl border p-10 text-center", theme.card)}>
+            <span className={cn("material-symbols-outlined mb-2 block text-4xl", theme.muted)}>groups</span>
+            <p className={cn("text-sm", theme.muted)}>No approved members yet.</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -307,15 +386,15 @@ function MembersTab({ members, memberRequests, canManageMembers, loading, societ
               const name = getMemberName(m);
               const dept = m.memberId?.academic?.department;
               return (
-                <div key={memberId} className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 flex items-center gap-3 hover:border-slate-600 transition-colors">
-                  <MemberAvatar member={m} />
+                <div key={memberId} className={cn("flex items-center gap-3 rounded-xl border p-4 transition-colors", theme.card, isDark ? "hover:border-slate-600" : "hover:border-slate-300 hover:bg-slate-50")}>
+                  <MemberAvatar member={m} isDark={isDark} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-slate-200 text-sm font-medium truncate">{name}</p>
-                    {dept && <p className="text-slate-500 text-xs truncate">{dept}</p>}
+                    <p className={cn("truncate text-sm font-medium", theme.text)}>{name}</p>
+                    {dept && <p className={cn("truncate text-xs", theme.muted)}>{dept}</p>}
                   </div>
                   <div className="flex items-center gap-3 flex-shrink-0">
-                    <RoleBadge role={m.role} />
-                    <span className="text-slate-600 text-xs hidden sm:block">{formatDate(m.joinedAt)}</span>
+                    <RoleBadge role={m.role} isDark={isDark} />
+                    <span className={cn("hidden text-xs sm:block", theme.muted)}>{formatDate(m.joinedAt)}</span>
                   </div>
                 </div>
               );
@@ -329,15 +408,19 @@ function MembersTab({ members, memberRequests, canManageMembers, loading, societ
 
 // ── Events Tab ────────────────────────────────────────────────────────────────
 
-function EventCard({ event, navigate }) {
+function EventCard({ event, navigate, isDark, theme }) {
   const statusCfg = EVENT_STATUS_CONFIG[event.status] ?? { label: event.status, class: "bg-slate-500/15 text-slate-400" };
   return (
     <div
       onClick={() => navigate(`/events/${event._id}`)}
-      className="bg-slate-800/50 border border-slate-700 rounded-xl overflow-hidden cursor-pointer hover:border-slate-500 transition-all group"
+      className={cn(
+        "group cursor-pointer overflow-hidden rounded-xl border transition-all",
+        theme.card,
+        isDark ? "hover:border-slate-500" : "hover:border-slate-300 hover:bg-slate-50"
+      )}
     >
       {/* Banner */}
-      <div className="h-36 bg-slate-700/50 relative overflow-hidden">
+      <div className={cn("relative h-36 overflow-hidden", isDark ? "bg-slate-700/50" : "bg-slate-100")}>
         {event.coverImage || event.banner ? (
           <img
             src={event.coverImage || event.banner}
@@ -346,24 +429,24 @@ function EventCard({ event, navigate }) {
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <span className="material-symbols-outlined text-slate-600 text-5xl">event</span>
+            <span className={cn("material-symbols-outlined text-5xl", theme.muted)}>event</span>
           </div>
         )}
         <div className="absolute top-2 right-2">
-          <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md ${statusCfg.class}`}>
+          <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-md ${getEventStatusClass(event.status, isDark)}`}>
             {statusCfg.label}
           </span>
         </div>
       </div>
       {/* Content */}
       <div className="p-4">
-        <h4 className="text-slate-200 font-semibold text-sm mb-1 line-clamp-1 group-hover:text-white transition-colors">
+        <h4 className={cn("mb-1 line-clamp-1 text-sm font-semibold transition-colors", theme.text, isDark ? "group-hover:text-white" : "group-hover:text-slate-950")}>
           {event.title}
         </h4>
         {event.description && (
-          <p className="text-slate-500 text-xs line-clamp-2 mb-3">{event.description}</p>
+          <p className={cn("mb-3 line-clamp-2 text-xs", theme.muted)}>{event.description}</p>
         )}
-        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+        <div className={cn("flex flex-wrap gap-x-4 gap-y-1 text-xs", theme.muted)}>
           <span className="flex items-center gap-1">
             <span className="material-symbols-outlined text-[13px]">calendar_today</span>
             {formatDate(event.startAt)}
@@ -392,12 +475,12 @@ function EventCard({ event, navigate }) {
   );
 }
 
-function EventsTab({ societyEvents, eventsLoading, navigate }) {
+function EventsTab({ societyEvents, eventsLoading, navigate, isDark, theme }) {
   if (eventsLoading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-52 bg-slate-800/50 border border-slate-700 rounded-xl animate-pulse" />
+          <div key={i} className={cn("h-52 rounded-xl border animate-pulse", theme.card)} />
         ))}
       </div>
     );
@@ -413,10 +496,10 @@ function EventsTab({ societyEvents, eventsLoading, navigate }) {
 
   if (!hasAny) {
     return (
-      <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-12 text-center">
-        <span className="material-symbols-outlined text-slate-600 text-5xl mb-3 block">event_busy</span>
-        <p className="text-slate-400 font-medium">No events yet</p>
-        <p className="text-slate-600 text-sm mt-1">This society hasn't organized any events.</p>
+      <div className={cn("rounded-xl border p-12 text-center", theme.card)}>
+        <span className={cn("material-symbols-outlined mb-3 block text-5xl", theme.muted)}>event_busy</span>
+        <p className={cn("font-medium", theme.text)}>No events yet</p>
+        <p className={cn("mt-1 text-sm", theme.muted)}>This society hasn't organized any events.</p>
       </div>
     );
   }
@@ -431,10 +514,10 @@ function EventsTab({ societyEvents, eventsLoading, navigate }) {
             <h3 className={`font-semibold text-sm mb-4 flex items-center gap-2 ${color}`}>
               <span className="material-symbols-outlined text-base">{icon}</span>
               {label}
-              <span className="ml-1 text-slate-500 font-normal">({evts.length})</span>
+              <span className={cn("ml-1 font-normal", theme.muted)}>({evts.length})</span>
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {evts.map(ev => <EventCard key={ev._id} event={ev} navigate={navigate} />)}
+              {evts.map(ev => <EventCard key={ev._id} event={ev} navigate={navigate} isDark={isDark} theme={theme} />)}
             </div>
           </div>
         );
@@ -445,7 +528,7 @@ function EventsTab({ societyEvents, eventsLoading, navigate }) {
 
 // ── Announcements Tab ─────────────────────────────────────────────────────────
 
-function PostCreator({ societyId, dispatch, showSuccess, showError }) {
+function PostCreator({ societyId, dispatch, showSuccess, showError, isDark, theme }) {
   const [content, setContent] = useState("");
   const [imageFiles, setImageFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
@@ -494,20 +577,23 @@ function PostCreator({ societyId, dispatch, showSuccess, showError }) {
   };
 
   return (
-    <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5 mb-6">
+    <div className={cn("mb-6 rounded-xl border p-5", theme.card)}>
       <div className="flex items-center gap-2 mb-3">
-        <span className="material-symbols-outlined text-slate-400 text-lg">campaign</span>
-        <span className="text-slate-300 font-semibold text-sm">New Announcement</span>
+        <span className={cn("material-symbols-outlined text-lg", theme.muted)}>campaign</span>
+        <span className={cn("text-sm font-semibold", theme.text)}>New Announcement</span>
       </div>
       <textarea
         value={content}
         onChange={e => setContent(e.target.value)}
         placeholder="Write an announcement for your society members..."
         rows={4}
-        className="w-full bg-slate-900/50 border border-slate-600 rounded-lg text-slate-200 placeholder-slate-600 text-sm p-3 resize-none focus:outline-none focus:border-slate-400 transition-colors"
+        className={cn(
+          "w-full resize-none rounded-lg border p-3 text-sm transition-colors focus:outline-none",
+          theme.field
+        )}
       />
       {/* Word count */}
-      <div className={`text-xs text-right mt-1 mb-3 ${wordCount > 140 ? wordCount > 150 ? "text-red-400" : "text-amber-400" : "text-slate-600"}`}>
+      <div className={`text-xs text-right mt-1 mb-3 ${wordCount > 140 ? wordCount > 150 ? "text-red-400" : "text-amber-400" : isDark ? "text-slate-600" : "text-slate-500"}`}>
         {wordCount}/150 words
       </div>
 
@@ -516,10 +602,15 @@ function PostCreator({ societyId, dispatch, showSuccess, showError }) {
         <div className="flex gap-2 mb-3">
           {previews.map((p, i) => (
             <div key={i} className="relative">
-              <img src={p} alt="" className="w-24 h-24 object-cover rounded-lg border border-slate-600" />
+              <img src={p} alt="" className={cn("h-24 w-24 rounded-lg border object-cover", isDark ? "border-slate-600" : "border-slate-200")} />
               <button
                 onClick={() => removeImage(i)}
-                className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-white"
+                className={getButtonClassName({
+                  variant: "danger",
+                  size: "icon-sm",
+                  isDark,
+                  className: "absolute -top-1.5 -right-1.5 min-w-0 rounded-full",
+                })}
               >
                 <span className="material-symbols-outlined text-[12px]">close</span>
               </button>
@@ -532,7 +623,7 @@ function PostCreator({ societyId, dispatch, showSuccess, showError }) {
         <button
           onClick={() => fileRef.current?.click()}
           disabled={imageFiles.length >= 2}
-          className="flex items-center gap-1.5 text-slate-500 hover:text-slate-300 text-xs disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className={getButtonClassName({ variant: "ghost", size: "sm", isDark, className: "min-w-0 px-2" })}
         >
           <span className="material-symbols-outlined text-sm">add_photo_alternate</span>
           Add Image {imageFiles.length > 0 && `(${imageFiles.length}/2)`}
@@ -541,7 +632,7 @@ function PostCreator({ societyId, dispatch, showSuccess, showError }) {
         <button
           onClick={handlePost}
           disabled={posting || !content.trim() || wordCount > 150}
-          className="px-4 py-2 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-semibold rounded-lg border border-slate-600 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className={getButtonClassName({ variant: "primary", size: "sm", isDark })}
         >
           {posting ? "Posting..." : "Post"}
         </button>
@@ -550,7 +641,7 @@ function PostCreator({ societyId, dispatch, showSuccess, showError }) {
   );
 }
 
-function PostCard({ post, canDelete, societyId, dispatch, userId, showSuccess, showError, onDelete }) {
+function PostCard({ post, canDelete, societyId, dispatch, userId, showSuccess, showError, onDelete, isDark, theme }) {
   const [deleting, setDeleting] = useState(false);
   const author = post.authorId ?? {};
   const p = author?.profile ?? {};
@@ -562,25 +653,25 @@ function PostCard({ post, canDelete, societyId, dispatch, userId, showSuccess, s
   };
 
   return (
-    <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-5">
+    <div className={cn("rounded-xl border p-5", theme.card)}>
       {/* Author row */}
       <div className="flex items-center gap-3 mb-3">
         {avatar ? (
-          <img src={avatar} alt={name} className="w-9 h-9 rounded-full object-cover border border-slate-700" />
+          <img src={avatar} alt={name} className={cn("h-9 w-9 rounded-full border object-cover", isDark ? "border-slate-700" : "border-slate-200")} />
         ) : (
-          <div className="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-slate-400 font-bold text-xs border border-slate-600">
+          <div className={cn("flex h-9 w-9 items-center justify-center rounded-full border text-xs font-bold", isDark ? "bg-slate-700 text-slate-400 border-slate-600" : "bg-slate-100 text-slate-600 border-slate-200")}>
             {getInitials(name)}
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <p className="text-slate-200 text-sm font-semibold">{name}</p>
-          <p className="text-slate-600 text-xs">{formatDate(post.createdAt)}</p>
+          <p className={cn("text-sm font-semibold", theme.text)}>{name}</p>
+          <p className={cn("text-xs", theme.muted)}>{formatDate(post.createdAt)}</p>
         </div>
         {canDelete && (
           <button
             onClick={handleDelete}
             disabled={deleting}
-            className="text-slate-600 hover:text-red-400 transition-colors disabled:opacity-40"
+            className={getButtonClassName({ variant: "danger", size: "icon-sm", isDark, className: "min-w-0" })}
             title="Delete post"
           >
             <span className="material-symbols-outlined text-[18px]">delete</span>
@@ -589,7 +680,7 @@ function PostCard({ post, canDelete, societyId, dispatch, userId, showSuccess, s
       </div>
 
       {/* Content */}
-      <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap mb-3">{post.content}</p>
+      <p className={cn("mb-3 whitespace-pre-wrap text-sm leading-relaxed", isDark ? "text-slate-300" : "text-slate-700")}>{post.content}</p>
 
       {/* Images */}
       {post.images?.length > 0 && (
@@ -599,7 +690,7 @@ function PostCard({ post, canDelete, societyId, dispatch, userId, showSuccess, s
               key={i}
               src={img}
               alt=""
-              className="w-full h-52 object-cover rounded-lg border border-slate-700"
+              className={cn("h-52 w-full rounded-lg border object-cover", isDark ? "border-slate-700" : "border-slate-200")}
               onDelete={onDeletePost}
             />
           ))}
@@ -609,21 +700,21 @@ function PostCard({ post, canDelete, societyId, dispatch, userId, showSuccess, s
   );
 }
 
-function AnnouncementsTab({ societyId, userRole, isHead, isMember, announcements, announcementsLoading, dispatch, user, showSuccess, showError, onDeletePost }) {
+function AnnouncementsTab({ societyId, userRole, isHead, isMember, announcements, announcementsLoading, dispatch, user, showSuccess, showError, onDeletePost, isDark, theme }) {
   const canPost = isHead || userRole === "co-coordinator";
 
   return (
     <div>
       {/* Post creator — gated by role */}
       {canPost && isMember && (
-        <PostCreator societyId={societyId} dispatch={dispatch} showSuccess={showSuccess} showError={showError} />
+        <PostCreator societyId={societyId} dispatch={dispatch} showSuccess={showSuccess} showError={showError} isDark={isDark} theme={theme} />
       )}
 
       {/* Non-member gate */}
       {!isMember && (
-        <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-8 text-center mb-6">
-          <span className="material-symbols-outlined text-slate-600 text-4xl block mb-3">lock</span>
-          <p className="text-slate-400 text-sm">Join this society to see announcements.</p>
+        <div className={cn("mb-6 rounded-xl border p-8 text-center", theme.card)}>
+          <span className={cn("material-symbols-outlined mb-3 block text-4xl", theme.muted)}>lock</span>
+          <p className={cn("text-sm", theme.muted)}>Join this society to see announcements.</p>
         </div>
       )}
 
@@ -632,12 +723,12 @@ function AnnouncementsTab({ societyId, userRole, isHead, isMember, announcements
         <div className="space-y-4">
           {announcementsLoading && announcements.length === 0 ? (
             Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-32 bg-slate-800/50 border border-slate-700 rounded-xl animate-pulse" />
+              <div key={i} className={cn("h-32 rounded-xl border animate-pulse", theme.card)} />
             ))
           ) : announcements.length === 0 ? (
-            <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-12 text-center">
-              <span className="material-symbols-outlined text-slate-600 text-4xl block mb-3">campaign</span>
-              <p className="text-slate-400 text-sm">No announcements yet.</p>
+            <div className={cn("rounded-xl border p-12 text-center", theme.card)}>
+              <span className={cn("material-symbols-outlined mb-3 block text-4xl", theme.muted)}>campaign</span>
+              <p className={cn("text-sm", theme.muted)}>No announcements yet.</p>
             </div>
           ) : (
             announcements.map(post => (
@@ -651,6 +742,8 @@ function AnnouncementsTab({ societyId, userRole, isHead, isMember, announcements
                 showSuccess={showSuccess}
                 showError={showError}
                 onDelete={onDeletePost}
+                isDark={isDark}
+                theme={theme}
               />
             ))
           )}
@@ -679,6 +772,9 @@ export default function SocietyDetail() {
   const societyEvents = useSelector(selectSocietyEvents);
   const eventsLoading = useSelector(selectEventsLoading);
   const user          = useSelector(selectUser);
+  const gamificationLeaderboards = useSelector(selectGamificationLeaderboards);
+  const isDark = useHomeTheme();
+  const theme = getSocietyTheme(isDark);
 
   const [activeTab, setActiveTab] = useState("overview");
   const [actionBusy, setActionBusy] = useState(false);
@@ -690,6 +786,7 @@ export default function SocietyDetail() {
     dispatch(fetchSocietyById(id));
     dispatch(fetchSocietyMembers({ id, params: { status: "all" } }));
     dispatch(fetchSocietyEvents(id));
+    dispatch(fetchModuleLeaderboard("society"));
     return () => { dispatch(clearCurrentSociety()); };
   }, [dispatch, id]);
 
@@ -790,12 +887,12 @@ export default function SocietyDetail() {
 
   if (loading && !society) {
     return (
-      <div className="min-h-screen bg-[#0d1117] flex items-start justify-center pt-20">
+      <div className={cn("min-h-screen flex items-start justify-center pt-20", theme.page)}>
         <div className="w-full max-w-6xl px-4 animate-pulse space-y-4">
-          <div className="h-8 bg-slate-800 rounded w-1/3" />
+          <div className={cn("h-8 w-1/3 rounded", isDark ? "bg-slate-800" : "bg-slate-200")} />
           <div className="grid grid-cols-3 gap-4 mt-8">
-            <div className="h-64 bg-slate-800 rounded-xl" />
-            <div className="col-span-2 h-64 bg-slate-800 rounded-xl" />
+            <div className={cn("h-64 rounded-xl", isDark ? "bg-slate-800" : "bg-slate-200")} />
+            <div className={cn("col-span-2 h-64 rounded-xl", isDark ? "bg-slate-800" : "bg-slate-200")} />
           </div>
         </div>
       </div>
@@ -804,11 +901,11 @@ export default function SocietyDetail() {
 
   if (error || (!loading && !society)) {
     return (
-      <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
+      <div className={cn("min-h-screen flex items-center justify-center", theme.page)}>
         <div className="text-center p-8">
-          <span className="material-symbols-outlined text-slate-600 text-6xl block mb-4">error</span>
-          <p className="text-slate-300 font-semibold text-lg mb-2">{error || "Society not found"}</p>
-          <button onClick={() => navigate("/societies")} className="text-slate-500 text-sm hover:text-slate-300 transition-colors mt-2">
+          <span className={cn("material-symbols-outlined mb-4 block text-6xl", theme.muted)}>error</span>
+          <p className={cn("mb-2 text-lg font-semibold", theme.text)}>{error || "Society not found"}</p>
+          <button onClick={() => navigate("/societies")} className={getButtonClassName({ variant: "ghost", size: "sm", isDark, className: "mt-2 min-w-0 px-2" })}>
             ← Back to Societies
           </button>
         </div>
@@ -817,27 +914,32 @@ export default function SocietyDetail() {
   }
 
   const statusClasses = {
-    approved: "bg-emerald-500/15 text-emerald-400",
-    pending:  "bg-amber-500/15 text-amber-400",
-    rejected: "bg-red-500/15 text-red-400",
-    archived: "bg-slate-500/15 text-slate-400",
+    approved: isDark ? "bg-emerald-500/15 text-emerald-400" : "bg-emerald-50 text-emerald-700 border border-emerald-200",
+    pending:  isDark ? "bg-amber-500/15 text-amber-400" : "bg-amber-50 text-amber-700 border border-amber-200",
+    rejected: isDark ? "bg-danger/15 text-danger" : "bg-danger/5 text-danger border border-danger/20",
+    archived: isDark ? "bg-slate-500/15 text-slate-400" : "bg-slate-100 text-slate-600 border border-slate-200",
   };
 
   return (
-    <div className="min-h-screen bg-[#0d1117]">
+    <div className={cn("min-h-screen", theme.page)}>
       {/* Top bar */}
-      <div className="border-b border-slate-800 bg-[#0d1117]/95 backdrop-blur sticky top-0 z-20">
+      <div className={cn("sticky top-0 z-20 border-b backdrop-blur", theme.header, theme.divider)}>
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center gap-3">
-          <button onClick={() => navigate("/societies")} className="text-slate-500 hover:text-slate-300 transition-colors">
-            <span className="material-symbols-outlined text-xl">arrow_back</span>
-          </button>
-          <span className="text-slate-400 text-sm">/</span>
-          <span className="text-slate-300 text-sm font-medium truncate">{society?.name}</span>
+          <IconButton
+            onClick={() => navigate("/societies")}
+            title="Back to societies"
+            variant="ghost"
+            size="icon-sm"
+            className={cn(isDark ? "text-slate-500 hover:text-slate-300" : "text-slate-500 hover:text-slate-800")}
+            icon="arrow_back"
+          />
+          <span className={cn("text-sm", theme.muted)}>/</span>
+          <span className={cn("truncate text-sm font-medium", theme.text)}>{society?.name}</span>
 
           {isHead && (
             <Link
               to={`/society/${id}/manage`}
-              className="ml-auto flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-300 border border-slate-700 rounded-lg px-3 py-1.5 transition-colors"
+              className={getButtonClassName({ variant: "secondary", size: "sm", isDark, className: "ml-auto" })}
             >
               <span className="material-symbols-outlined text-sm">settings</span>
               Manage
@@ -852,35 +954,35 @@ export default function SocietyDetail() {
           {/* ── LEFT PANEL ── */}
           <aside className="lg:sticky lg:top-20 space-y-4">
             {/* Identity Card */}
-            <div className="bg-slate-800/50 border border-slate-700 rounded-2xl overflow-hidden">
+            <div className={cn("overflow-hidden rounded-2xl border", theme.hero)}>
               {/* Cover / Logo */}
-              <div className="h-24 bg-slate-700/50 relative">
+              <div className={cn("relative h-24", isDark ? "bg-slate-700/50" : "bg-slate-100")}>
                 {society.media?.coverImage ? (
                   <img src={society.media.coverImage} alt="" className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full" style={{ background: "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)" }} />
+                  <div className={cn("h-full w-full", isDark ? "bg-surface-dark" : "bg-surface-muted")} />
                 )}
                 <div className="absolute -bottom-7 left-5">
                   {society.media?.logo ? (
-                    <img src={society.media.logo} alt={society.name} className="w-14 h-14 rounded-xl object-cover border-2 border-slate-800 shadow-lg" />
+                    <img src={society.media.logo} alt={society.name} className={cn("h-14 w-14 rounded-xl border-2 object-cover shadow-lg", isDark ? "border-slate-800" : "border-white")} />
                   ) : (
-                    <div className="w-14 h-14 rounded-xl bg-slate-700 border-2 border-slate-800 flex items-center justify-center">
-                      <span className="material-symbols-outlined text-slate-400 text-2xl">groups</span>
+                    <div className={cn("flex h-14 w-14 items-center justify-center rounded-xl border-2", isDark ? "bg-slate-700 border-slate-800" : "bg-slate-100 border-white")}>
+                      <span className={cn("material-symbols-outlined text-2xl", theme.muted)}>groups</span>
                     </div>
                   )}
                 </div>
               </div>
 
               <div className="pt-10 px-5 pb-5">
-                <h1 className="text-slate-100 font-bold text-lg leading-snug">{society.name}</h1>
+                <h1 className={cn("text-lg font-bold leading-snug", theme.text)}>{society.name}</h1>
                 <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-slug text-xs text-slate-500">#{society.tag}</span>
+                  <span className={cn("text-xs", theme.muted)}>#{society.tag}</span>
                   <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${statusClasses[society.status] ?? "bg-slate-500/15 text-slate-400"}`}>
                     {society.status}
                   </span>
                 </div>
 
-                <div className="mt-3 flex items-center gap-2 text-slate-500 text-xs">
+                <div className={cn("mt-3 flex items-center gap-2 text-xs", theme.muted)}>
                   <span className="material-symbols-outlined text-[13px]">people</span>
                   <span>{society.memberCount ?? members.length} members</span>
                   <span className="mx-1">·</span>
@@ -890,39 +992,39 @@ export default function SocietyDetail() {
                 {/* Join / Leave CTA */}
                 <div className="mt-5">
                   {isHead ? (
-                    <div className="text-xs text-slate-500 text-center py-2 border border-slate-700 rounded-lg">
+                    <div className={cn("rounded-lg border py-2 text-center text-xs", theme.subtle, theme.muted)}>
                       You are the Society Head
                     </div>
                   ) : isPending ? (
-                    <div className="text-xs text-amber-400 text-center py-2 bg-amber-500/10 border border-amber-500/20 rounded-lg">
+                    <div className={cn("rounded-lg border py-2 text-center text-xs", isDark ? "bg-amber-500/10 border-amber-500/20 text-amber-400" : "bg-amber-50 border-amber-200 text-amber-700")}>
                       <span className="material-symbols-outlined text-[14px] align-middle mr-1">hourglass_empty</span>
-                      Request Pending…
+                      Request Pending...
                     </div>
                   ) : isMember ? (
                     <button
                       onClick={handleJoinLeave}
                       disabled={actionBusy}
-                      className="w-full py-2 text-sm border border-slate-600 text-slate-400 rounded-lg hover:border-red-500/40 hover:text-red-400 transition-colors disabled:opacity-50"
+                      className={getButtonClassName({ variant: "danger", size: "md", isDark, className: "w-full" })}
                     >
-                      {actionBusy ? "Processing…" : "Leave Society"}
+                      {actionBusy ? "Processing..." : "Leave Society"}
                     </button>
                   ) : society.status === "approved" ? (
                     <button
                       onClick={handleJoinLeave}
                       disabled={actionBusy || !user}
-                      className="w-full py-2 text-sm bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg border border-slate-600 font-semibold transition-colors disabled:opacity-50"
+                      className={getButtonClassName({ variant: "primary", size: "md", isDark, className: "w-full" })}
                     >
-                      {actionBusy ? "Sending…" : user ? "Join Society" : "Sign in to Join"}
+                      {actionBusy ? "Sending..." : user ? "Join Society" : "Sign in to Join"}
                     </button>
                   ) : (
-                    <div className="text-xs text-slate-500 text-center py-2">Not accepting members</div>
+                    <div className={cn("py-2 text-center text-xs", theme.muted)}>Not accepting members</div>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Quick Stats */}
-            <div className="bg-slate-800/50 border border-slate-700 rounded-xl p-4 grid grid-cols-2 gap-3">
+            <div className={cn("grid grid-cols-2 gap-3 rounded-xl border p-4", theme.card)}>
               {[
                 { label: "Members", value: society.memberCount ?? members.length, icon: "group" },
                 { label: "Events", value: (societyEvents.upcoming?.length || 0) + (societyEvents.ongoing?.length || 0) + (societyEvents.past?.length || 0), icon: "event" },
@@ -930,9 +1032,9 @@ export default function SocietyDetail() {
                 { label: "Posts", value: announcements.length, icon: "campaign" },
               ].map(({ label, value, icon }) => (
                 <div key={label} className="text-center">
-                  <span className="material-symbols-outlined text-slate-600 text-base block">{icon}</span>
-                  <p className="text-slate-200 font-bold text-lg leading-none">{value}</p>
-                  <p className="text-slate-600 text-[10px] uppercase tracking-wider mt-0.5">{label}</p>
+                  <span className={cn("material-symbols-outlined block text-base", theme.muted)}>{icon}</span>
+                  <p className={cn("text-lg font-bold leading-none", theme.text)}>{value}</p>
+                  <p className={cn("mt-0.5 text-[10px] uppercase tracking-wider", theme.muted)}>{label}</p>
                 </div>
               ))}
             </div>
@@ -942,7 +1044,7 @@ export default function SocietyDetail() {
           <div className="min-w-0">
             {/* Status banner for non-active */}
             {society.status !== "approved" && (
-              <div className={`mb-5 p-4 rounded-xl border flex gap-3 items-center text-sm ${society.status === "pending" ? "bg-amber-500/10 border-amber-500/25 text-amber-400" : "bg-red-500/10 border-red-500/25 text-red-400"}`}>
+              <div className={`mb-5 flex items-center gap-3 rounded-xl border p-4 text-sm ${society.status === "pending" ? (isDark ? "bg-warning/10 border-warning/25 text-warning" : "bg-amber-50 border-amber-200 text-amber-700") : (isDark ? "bg-danger/10 border-danger/25 text-danger" : "bg-danger/5 border-danger/20 text-danger")}`}>
                 <span className="material-symbols-outlined">{society.status === "pending" ? "pending" : "block"}</span>
                 <div>
                   <p className="font-semibold capitalize">{society.status}</p>
@@ -952,16 +1054,17 @@ export default function SocietyDetail() {
             )}
 
             {/* Tab Bar */}
-            <div className="flex gap-1 border-b border-slate-800 mb-6 -mx-1 px-1 overflow-x-auto">
+            <div className={cn("mb-6 -mx-1 flex gap-1 overflow-x-auto border-b px-1", theme.divider)}>
               {TABS.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-colors ${
-                    activeTab === tab.id
-                      ? "text-slate-100 border-slate-300"
-                      : "text-slate-500 border-transparent hover:text-slate-300"
-                  }`}
+                  className={getButtonClassName({
+                    variant: activeTab === tab.id ? "primary" : "ghost",
+                    size: "sm",
+                    isDark,
+                    className: "min-w-0",
+                  })}
                 >
                   <span className="material-symbols-outlined text-base">{tab.icon}</span>
                   {tab.label}
@@ -971,7 +1074,7 @@ export default function SocietyDetail() {
 
             {/* Tab Content */}
             {activeTab === "overview" && (
-              <OverviewTab society={society} members={members} />
+              <OverviewTab society={society} members={members} isDark={isDark} theme={theme} leaderboardRows={gamificationLeaderboards.module?.society || []} />
             )}
 
             {activeTab === "members" && (
@@ -984,6 +1087,8 @@ export default function SocietyDetail() {
                 dispatch={dispatch}
                 showSuccess={showSuccess}
                 showError={showError}
+                isDark={isDark}
+                theme={theme}
               />
             )}
 
@@ -992,6 +1097,8 @@ export default function SocietyDetail() {
                 societyEvents={societyEvents}
                 eventsLoading={eventsLoading}
                 navigate={navigate}
+                isDark={isDark}
+                theme={theme}
               />
             )}
 
@@ -1008,6 +1115,8 @@ export default function SocietyDetail() {
                 showSuccess={showSuccess}
                 showError={showError}
                 onDeletePost={handleDeletePost}
+                isDark={isDark}
+                theme={theme}
               />
             )}
         </div>

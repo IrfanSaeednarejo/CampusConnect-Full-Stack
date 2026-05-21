@@ -17,13 +17,13 @@ export default function HashtagChips({ hashtags, onSelect }) {
     return (
         <div className="animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="flex items-center justify-between mb-1.5">
-                <span className="flex items-center gap-1 text-xs font-semibold text-slate-500">
-                    <Hash className="w-3 h-3 text-violet-400" />
+                <span className="flex items-center gap-1 text-xs font-semibold text-text-secondary-light dark:text-text-secondary-dark">
+                    <Hash className="w-3 h-3 text-info" />
                     AI Hashtag Suggestions
                 </span>
                 <button
                     onClick={() => dispatch(clearAiHashtags())}
-                    className="text-slate-600 hover:text-slate-400 transition-colors"
+                    className="text-text-secondary-light transition-colors hover:text-text-primary-light dark:text-text-secondary-dark dark:hover:text-text-primary-dark"
                 >
                     <X className="w-3 h-3" />
                 </button>
@@ -33,7 +33,7 @@ export default function HashtagChips({ hashtags, onSelect }) {
                     <button
                         key={tag}
                         onClick={() => onSelect(tag)}
-                        className="group px-2.5 py-1 bg-violet-600/15 hover:bg-violet-600/30 border border-violet-500/25 hover:border-violet-500/50 text-violet-300 hover:text-violet-200 text-xs font-semibold rounded-full transition-all duration-150"
+                        className="group rounded-full border border-info/20 bg-info/10 px-2.5 py-1 text-xs font-semibold text-info transition-all duration-150 hover:border-info/40 hover:bg-info/15 hover:text-info"
                     >
                         {tag}
                         <span className="ml-1 opacity-0 group-hover:opacity-60 text-[10px]">+</span>

@@ -1,68 +1,106 @@
-export default function SocietyCard({ society, className = "" }) {
+import useHomeTheme from "../../hooks/useHomeTheme";
+
+export default function SocietyCard({ society, className = "", isDark }) {
+  const themeIsDark = useHomeTheme();
+  const resolvedIsDark = typeof isDark === "boolean" ? isDark : themeIsDark;
+
   return (
     <div
-      className={`bg-[#161b22] border border-[#30363d] rounded-lg overflow-hidden hover:border-[#238636]/50 transition-colors group cursor-pointer ${className}`}
+      className={`group cursor-pointer overflow-hidden rounded-3xl border transition-colors ${
+        resolvedIsDark
+          ? "border-[#30363d] bg-[#161b22] hover:border-[#238636]/50"
+          : "border-slate-200 bg-white shadow-[0_16px_40px_rgba(15,23,42,0.08)] hover:border-slate-300"
+      } ${className}`}
     >
-      {/* Society Image */}
-      <div className="relative w-full h-40 overflow-hidden bg-[#0d1117]">
+      <div
+        className={`relative h-40 w-full overflow-hidden ${
+          resolvedIsDark ? "bg-[#0d1117]" : "bg-slate-100"
+        }`}
+      >
         <div
-          className="w-full h-full bg-cover bg-center group-hover:scale-105 transition-transform duration-300"
+          className="h-full w-full bg-cover bg-center transition-transform duration-300 group-hover:scale-105"
           style={{ backgroundImage: `url("${society.image}")` }}
         />
-        {/* Category Badge */}
-        <div className="absolute top-4 right-4">
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#161b22]/80 text-[#238636] border border-[#238636]">
+        <div className="absolute right-4 top-4">
+          <span
+            className={`rounded-full border px-3 py-1 text-xs font-bold ${
+              resolvedIsDark
+                ? "border-[#238636] bg-[#161b22]/80 text-[#238636]"
+                : "border-slate-200 bg-white/90 text-slate-700"
+            }`}
+          >
             {society.category}
           </span>
         </div>
       </div>
 
-      {/* Society Info */}
-      <div className="p-4 flex flex-col gap-3">
+      <div className="flex flex-col gap-3 p-4">
         <div>
-          <h3 className="text-white text-lg font-bold leading-tight">
+          <h3
+            className={`text-lg font-medium leading-tight ${
+              resolvedIsDark ? "text-white" : "text-slate-900"
+            }`}
+          >
             {society.name}
           </h3>
         </div>
 
-        <p className="text-[#8b949e] text-sm line-clamp-2">
+        <p
+          className={`line-clamp-2 text-sm ${
+            resolvedIsDark ? "text-[#8b949e]" : "text-slate-500"
+          }`}
+        >
           {society.description}
         </p>
 
-        {/* Society Stats */}
-        <div className="space-y-1 py-3 border-t border-b border-[#30363d]">
-          <div className="flex items-center gap-2 text-[#8b949e] text-sm">
+        <div
+          className={`space-y-1 border-y py-3 ${
+            resolvedIsDark ? "border-[#30363d]" : "border-slate-200"
+          }`}
+        >
+          <div
+            className={`flex items-center gap-2 text-sm ${
+              resolvedIsDark ? "text-[#8b949e]" : "text-slate-500"
+            }`}
+          >
             <span className="material-symbols-outlined text-base">group</span>
             <span>{society.members} members</span>
           </div>
-          <div className="flex items-center gap-2 text-[#8b949e] text-sm">
+          <div
+            className={`flex items-center gap-2 text-sm ${
+              resolvedIsDark ? "text-[#8b949e]" : "text-slate-500"
+            }`}
+          >
             <span className="material-symbols-outlined text-base">event</span>
             <span>{society.events} events this year</span>
           </div>
           {society.status === "registered" && (
-            <div className="flex items-center gap-2 text-[#238636] text-sm font-medium">
-              <span className="material-symbols-outlined text-base">
-                verified
-              </span>
+            <div
+              className={`flex items-center gap-2 text-sm font-medium ${
+                resolvedIsDark ? "text-[#238636]" : "text-slate-900"
+              }`}
+            >
+              <span className="material-symbols-outlined text-base">verified</span>
               <span>{society.role}</span>
             </div>
           )}
         </div>
 
-        {/* Action Button */}
         <button
-          className={`w-full flex items-center justify-center overflow-hidden rounded-lg h-9 px-4 gap-2 text-sm font-bold leading-normal tracking-[0.015em] transition-colors ${
+          className={`flex h-10 w-full items-center justify-center gap-2 overflow-hidden rounded-2xl px-4 text-sm font-semibold leading-normal tracking-[0.015em] transition-colors ${
             society.status === "registered"
-              ? "bg-[#30363d] text-[#c9d1d9] hover:bg-[#3d444d]"
-              : "bg-[#238636] text-[#0d1117] hover:bg-[#2ea043]"
+              ? resolvedIsDark
+                ? "bg-[#30363d] text-[#c9d1d9] hover:bg-[#3d444d]"
+                : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+              : resolvedIsDark
+                ? "bg-[#238636] text-[#0d1117] hover:bg-[#2ea043]"
+                : "bg-slate-900 text-white hover:bg-slate-800"
           }`}
         >
           <span className="material-symbols-outlined text-base">
             {society.status === "registered" ? "check_circle" : "add_circle"}
           </span>
-          <span>
-            {society.status === "registered" ? "Registered" : "Join Now"}
-          </span>
+          <span>{society.status === "registered" ? "Registered" : "Join Now"}</span>
         </button>
       </div>
     </div>

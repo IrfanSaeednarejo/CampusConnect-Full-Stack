@@ -5,6 +5,7 @@ import { Society } from "../models/society.model.js";
 import { SocietyPost } from "../models/societyPost.model.js";
 import { Event } from "../models/event.model.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
+import { safeAwardForAction } from "./gamification.service.js";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -122,6 +123,14 @@ export const createPost = async (societyId, data, files, requestUser) => {
         content: content.trim(),
         images: uploadedImages,
         imagePublicIds: uploadedPublicIds,
+    });
+
+    await safeAwardForAction({
+        actionKey: "society.announcement_created",
+        actorId: requestUser._id,
+        refModel: "SocietyPost",
+        refId: post._id,
+        context: { reason: `Created an announcement in ${society.name}` },
     });
 
     return await SocietyPost.findById(post._id).populate(

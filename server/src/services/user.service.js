@@ -7,6 +7,8 @@ import { Society } from "../models/society.model.js";
 import { Connection } from "../models/connection.model.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../config/cloudinary.js";
 import { sendEmail } from "./email.service.js";
+import { safeAwardProfileCompletionIfEligible } from "./gamification.service.js";
+import { systemEvents } from "../utils/events.js";
 
 export const SAFE_SELECT =
     "-password -refreshToken -tokenVersion " +
@@ -112,6 +114,13 @@ export const register = async (data, files) => {
 
     const created = await User.findById(user._id).select(SAFE_SELECT);
     const { accessToken, refreshToken } = await issueTokens(user);
+
+    systemEvents.emit("admin:user_registered", {
+        userId: user._id,
+        displayName: created?.profile?.displayName || user.profile.displayName,
+        campusId: user.campusId || null,
+        createdAt: user.createdAt,
+    });
 
     return { user: created, accessToken, refreshToken };
 };
@@ -375,10 +384,17 @@ export const updateAccount = async (userId, userObj, updatesData) => {
         { new: true, runValidators: true }
     ).select(SAFE_SELECT);
 
+    await safeAwardProfileCompletionIfEligible({
+        beforeUser: userObj,
+        afterUser: updated,
+        actorId: userId,
+    });
+
     return updated;
 };
 
 export const updateAcademic = async (userId, updatesData) => {
+    const beforeUser = await User.findById(userId).select(SAFE_SELECT);
     const {
         degree, department, semester,
         enrollmentYear, expectedGraduation,
@@ -404,6 +420,12 @@ export const updateAcademic = async (userId, updatesData) => {
         { $set: updates },
         { new: true, runValidators: true }
     ).select(SAFE_SELECT);
+
+    await safeAwardProfileCompletionIfEligible({
+        beforeUser,
+        afterUser: updated,
+        actorId: userId,
+    });
 
     return updated;
 };
@@ -446,6 +468,7 @@ export const updatePreferences = async (userId, preferencesData) => {
 };
 
 export const updateSocial = async (userId, socialLinks) => {
+    const beforeUser = await User.findById(userId).select(SAFE_SELECT);
     if (!Array.isArray(socialLinks)) {
         throw new ApiError(400, "socialLinks must be an array");
     }
@@ -469,10 +492,17 @@ export const updateSocial = async (userId, socialLinks) => {
         { new: true, runValidators: true }
     ).select(SAFE_SELECT);
 
+    await safeAwardProfileCompletionIfEligible({
+        beforeUser,
+        afterUser: updated,
+        actorId: userId,
+    });
+
     return updated;
 };
 
 export const updateInterests = async (userId, interests) => {
+    const beforeUser = await User.findById(userId).select(SAFE_SELECT);
     if (!Array.isArray(interests)) {
         throw new ApiError(400, "interests must be an array of strings");
     }
@@ -489,6 +519,12 @@ export const updateInterests = async (userId, interests) => {
         { $set: { interests: clean } },
         { new: true, runValidators: true }
     ).select(SAFE_SELECT);
+
+    await safeAwardProfileCompletionIfEligible({
+        beforeUser,
+        afterUser: updated,
+        actorId: userId,
+    });
 
     return updated;
 };
@@ -517,6 +553,12 @@ export const updateAvatar = async (userId, userObj, localPath) => {
         { new: true }
     ).select(SAFE_SELECT);
 
+    await safeAwardProfileCompletionIfEligible({
+        beforeUser: userObj,
+        afterUser: updated,
+        actorId: userId,
+    });
+
     return updated;
 };
 
@@ -543,6 +585,12 @@ export const updateCoverImage = async (userId, userObj, localPath) => {
         },
         { new: true }
     ).select(SAFE_SELECT);
+
+    await safeAwardProfileCompletionIfEligible({
+        beforeUser: userObj,
+        afterUser: updated,
+        actorId: userId,
+    });
 
     return updated;
 };
@@ -662,6 +710,7 @@ export const search = async (requestUser, queryParams) => {
 };
 
 export const updateOnboarding = async (userId, onboardingData) => {
+    const beforeUser = await User.findById(userId).select(SAFE_SELECT);
     const { isComplete, completedSteps, roleSelected, campusId } = onboardingData;
 
     const updates = {};
@@ -687,6 +736,12 @@ export const updateOnboarding = async (userId, onboardingData) => {
         { $set: updates },
         { new: true, runValidators: true }
     ).select(SAFE_SELECT);
+
+    await safeAwardProfileCompletionIfEligible({
+        beforeUser,
+        afterUser: updated,
+        actorId: userId,
+    });
 
     return updated;
 };

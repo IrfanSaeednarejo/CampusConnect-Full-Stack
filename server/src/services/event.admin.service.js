@@ -214,10 +214,16 @@ export const approveEvent = async (eventId, adminUser, req) => {
 
     await writeAuditLog({
         req,
-        action: "EVENT_APPROVED",
+        action: ADMIN_ACTIONS.EVENT_APPROVED,
         targetModel: "Event",
         targetId: event._id,
         payload: { title: event.title, societyId: event.societyId._id },
+    });
+
+    await emitEvent(ADMIN_ACTIONS.EVENT_APPROVED + "@v1", {
+        actorId: adminUser._id,
+        targetId: event._id,
+        payload: { title: event.title, societyId: event.societyId._id }
     });
 
     return event;
@@ -254,10 +260,16 @@ export const rejectEvent = async (eventId, reason, adminUser, req) => {
 
     await writeAuditLog({
         req,
-        action: "EVENT_REJECTED",
+        action: ADMIN_ACTIONS.EVENT_REJECTED,
         targetModel: "Event",
         targetId: event._id,
         payload: { title: event.title, reason: reason.trim() },
+    });
+
+    await emitEvent(ADMIN_ACTIONS.EVENT_REJECTED + "@v1", {
+        actorId: adminUser._id,
+        targetId: event._id,
+        payload: { title: event.title, reason: reason.trim() }
     });
 
     return event;

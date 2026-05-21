@@ -1,45 +1,63 @@
 import { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Plus, Pencil, Trash2, Loader2, ExternalLink, X, ChevronLeft, ChevronRight, GitBranch } from "lucide-react";
-import {
-    addProjectThunk, updateProjectThunk, deleteProjectThunk,
-} from "../../redux/slices/profileSlice";
+import { addProjectThunk, updateProjectThunk, deleteProjectThunk } from "../../redux/slices/profileSlice";
 import ConfirmModal from "../common/ConfirmModal";
+import IconButton from "../common/IconButton";
+import { getButtonClassName } from "../common/Button";
 import toast from "react-hot-toast";
+import useHomeTheme from "../../hooks/useHomeTheme";
 
 const STATUS_STYLES = {
-    ongoing:   "bg-green-500/15 text-green-400 border-green-500/25",
-    completed: "bg-blue-500/15 text-blue-400 border-blue-500/25",
-    paused:    "bg-amber-500/15 text-amber-400 border-amber-500/25",
+    ongoing: "bg-green-500/15 text-green-400 border-green-500/25",
+    completed: "bg-info/10 text-info border-info/25",
+    paused: "bg-amber-500/15 text-amber-400 border-amber-500/25",
 };
 
-// ── Project Detail Modal ───────────────────────────────────────────────────────
+function inputClass(isDark) {
+    return `w-full rounded-lg px-3 py-2 text-sm transition-colors focus:outline-none ${
+        isDark
+            ? "border border-border-dark bg-surface-dark text-text-primary-dark focus:border-primary"
+            : "border border-border-light bg-surface-light text-text-primary-light focus:border-primary"
+    }`;
+}
+
 function ProjectDetailModal({ project, onClose }) {
+    const isDark = useHomeTheme();
     const [imgIdx, setImgIdx] = useState(0);
     const images = project.images || [];
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-            <div className="bg-[#161b22] border border-[#30363d] rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
-                {/* Image carousel */}
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+            <div className={`max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border shadow-2xl ${isDark ? "border-border-dark bg-surface-dark" : "border-border-light bg-surface-light"}`}>
                 {images.length > 0 && (
-                    <div className="relative h-64 bg-[#0d1117] overflow-hidden rounded-t-2xl">
-                        <img src={images[imgIdx]} alt={`${project.title} ${imgIdx + 1}`}
-                            className="w-full h-full object-cover" />
+                    <div className={`relative h-64 overflow-hidden rounded-t-2xl ${isDark ? "bg-background-dark" : "bg-slate-100"}`}>
+                        <img src={images[imgIdx]} alt={`${project.title} ${imgIdx + 1}`} className="h-full w-full object-cover" />
                         {images.length > 1 && (
                             <>
-                                <button onClick={() => setImgIdx((i) => (i - 1 + images.length) % images.length)}
-                                    className="absolute left-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white transition-all">
-                                    <ChevronLeft className="w-4 h-4" />
-                                </button>
-                                <button onClick={() => setImgIdx((i) => (i + 1) % images.length)}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 w-8 h-8 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center text-white transition-all">
-                                    <ChevronRight className="w-4 h-4" />
-                                </button>
-                                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                                    {images.map((_, i) => (
-                                        <button key={i} onClick={() => setImgIdx(i)}
-                                            className={`w-2 h-2 rounded-full transition-all ${i === imgIdx ? "bg-white" : "bg-white/40"}`} />
+                                <IconButton
+                                    icon={<ChevronLeft className="h-4 w-4" />}
+                                    onClick={() => setImgIdx((idx) => (idx - 1 + images.length) % images.length)}
+                                    title="Previous image"
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    className="absolute left-3 top-1/2 -translate-y-1/2 border-white/20 bg-black/60 text-white hover:border-white/30 hover:bg-black/75 hover:text-white"
+                                />
+                                <IconButton
+                                    icon={<ChevronRight className="h-4 w-4" />}
+                                    onClick={() => setImgIdx((idx) => (idx + 1) % images.length)}
+                                    title="Next image"
+                                    variant="ghost"
+                                    size="icon-sm"
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 border-white/20 bg-black/60 text-white hover:border-white/30 hover:bg-black/75 hover:text-white"
+                                />
+                                <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
+                                    {images.map((_, idx) => (
+                                        <button
+                                            key={idx}
+                                            onClick={() => setImgIdx(idx)}
+                                            className={`h-2 w-2 rounded-full transition-all ${idx === imgIdx ? "bg-white" : "bg-white/40"}`}
+                                        />
                                     ))}
                                 </div>
                             </>
@@ -47,45 +65,47 @@ function ProjectDetailModal({ project, onClose }) {
                     </div>
                 )}
 
-                <div className="p-6 space-y-4">
+                <div className="space-y-4 p-6">
                     <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                                <h2 className="text-xl font-bold text-white">{project.title}</h2>
-                                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold border capitalize ${STATUS_STYLES[project.status] || ""}`}>
+                            <div className="flex flex-wrap items-center gap-2">
+                                <h2 className={`text-xl font-bold ${isDark ? "text-white" : "text-slate-900"}`}>{project.title}</h2>
+                                <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold capitalize ${STATUS_STYLES[project.status] || ""}`}>
                                     {project.status}
                                 </span>
                             </div>
-                            <p className="text-[#8b949e] text-sm mt-1">{project.description}</p>
+                            <p className={`mt-1 text-sm ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>{project.description}</p>
                         </div>
-                        <button onClick={onClose} className="text-[#8b949e] hover:text-white p-1 rounded-lg hover:bg-[#21262d] transition-all">
-                            <X className="w-5 h-5" />
-                        </button>
+                        <IconButton icon={<X className="h-5 w-5" />} onClick={onClose} title="Close" variant="ghost" size="icon-sm" />
                     </div>
 
-                    {project.details && (
-                        <div className="prose prose-invert prose-sm max-w-none">
-                            <p className="text-[#c9d1d9] text-sm leading-relaxed whitespace-pre-wrap">{project.details}</p>
-                        </div>
-                    )}
+                    {project.details && <p className={`whitespace-pre-wrap text-sm leading-relaxed ${isDark ? "text-text-primary-dark" : "text-slate-700"}`}>{project.details}</p>}
 
                     {project.techStack?.length > 0 && (
                         <div>
-                            <h3 className="text-xs font-bold text-[#8b949e] uppercase tracking-wider mb-2 flex items-center gap-1">
-                                <GitBranch className="w-3 h-3" /> Tech Stack
+                            <h3 className={`mb-2 flex items-center gap-1 text-xs font-bold uppercase tracking-wider ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>
+                                <GitBranch className="h-3 w-3" />
+                                Tech Stack
                             </h3>
                             <div className="flex flex-wrap gap-1.5">
-                                {project.techStack.map((t) => (
-                                    <span key={t} className="px-2.5 py-1 bg-[#21262d] text-[#c9d1d9] text-xs rounded-lg font-medium border border-[#30363d]">{t}</span>
+                                {project.techStack.map((tech) => (
+                                    <span key={tech} className={`rounded-lg border px-2.5 py-1 text-xs font-medium ${isDark ? "border-border-dark bg-container-dark text-text-primary-dark" : "border-slate-200 bg-slate-100 text-slate-700"}`}>
+                                        {tech}
+                                    </span>
                                 ))}
                             </div>
                         </div>
                     )}
 
                     {project.link && (
-                        <a href={project.link} target="_blank" rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-2.5 bg-[#238636] hover:bg-[#2ea043] text-white text-sm font-bold rounded-xl transition-all w-fit">
-                            <ExternalLink className="w-4 h-4" /> View Project
+                        <a
+                            href={project.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={getButtonClassName({ variant: "primary", size: "md", isDark, className: "w-fit no-underline" })}
+                        >
+                            <ExternalLink className="h-4 w-4" />
+                            View Project
                         </a>
                     )}
                 </div>
@@ -94,96 +114,107 @@ function ProjectDetailModal({ project, onClose }) {
     );
 }
 
-// ── Project Form ──────────────────────────────────────────────────────────────
 function ProjectForm({ initial = {}, onSave, onCancel, isSaving }) {
+    const isDark = useHomeTheme();
     const fileRef = useRef(null);
     const [form, setForm] = useState({
-        title: "", description: "", details: "", link: "",
-        status: "ongoing", featured: false,
+        title: "",
+        description: "",
+        details: "",
+        link: "",
+        status: "ongoing",
+        featured: false,
         ...initial,
         techStack: initial.techStack?.join(", ") || "",
     });
     const [previewFiles, setPreviewFiles] = useState([]);
-    const set = (k, v) => setForm((p) => ({ ...p, [k]: v }));
+    const set = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
     const handleFiles = (e) => {
         const files = Array.from(e.target.files || []).slice(0, 3);
-        setPreviewFiles(files.map((f) => ({ file: f, url: URL.createObjectURL(f) })));
+        setPreviewFiles(files.map((file) => ({ file, url: URL.createObjectURL(file) })));
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!form.title.trim() || !form.description.trim()) {
-            toast.error("Title and description are required"); return;
+            toast.error("Title and description are required");
+            return;
         }
-        const fd = new FormData();
-        Object.entries(form).forEach(([k, v]) => {
-            if (k === "techStack") {
-                fd.append(k, JSON.stringify(v.split(",").map((t) => t.trim()).filter(Boolean)));
+        const formData = new FormData();
+        Object.entries(form).forEach(([key, value]) => {
+            if (key === "techStack") {
+                formData.append(key, JSON.stringify(value.split(",").map((item) => item.trim()).filter(Boolean)));
             } else {
-                fd.append(k, v);
+                formData.append(key, value);
             }
         });
-        previewFiles.forEach(({ file }) => fd.append("images", file));
-        onSave(fd);
+        previewFiles.forEach(({ file }) => formData.append("images", file));
+        onSave(formData);
     };
 
     return (
-        <form onSubmit={handleSubmit} className="bg-[#0d1117] border border-[#30363d] rounded-xl p-5 space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className={`space-y-4 rounded-xl border p-5 ${isDark ? "border-border-dark bg-background-dark" : "border-border-light bg-slate-50"}`}>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                    <label className="block text-xs font-semibold text-[#8b949e] mb-1.5">Title *</label>
-                    <input value={form.title} onChange={(e) => set("title", e.target.value)} required
-                        className="w-full bg-[#161b22] border border-[#30363d] rounded-lg px-3 py-2 text-[#c9d1d9] text-sm focus:outline-none focus:border-green-500 transition-colors" />
+                    <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>Title *</label>
+                    <input value={form.title} onChange={(e) => set("title", e.target.value)} required className={inputClass(isDark)} />
                 </div>
                 <div>
-                    <label className="block text-xs font-semibold text-[#8b949e] mb-1.5">Status</label>
-                    <select value={form.status} onChange={(e) => set("status", e.target.value)}
-                        className="w-full bg-[#161b22] border border-[#30363d] rounded-lg px-3 py-2 text-[#c9d1d9] text-sm focus:outline-none focus:border-green-500 transition-colors">
-                        {["ongoing", "completed", "paused"].map((s) => <option key={s} value={s}>{s}</option>)}
+                    <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>Status</label>
+                    <select value={form.status} onChange={(e) => set("status", e.target.value)} className={inputClass(isDark)}>
+                        {["ongoing", "completed", "paused"].map((status) => (
+                            <option key={status} value={status}>
+                                {status}
+                            </option>
+                        ))}
                     </select>
                 </div>
             </div>
 
             <div>
-                <label className="block text-xs font-semibold text-[#8b949e] mb-1.5">Short Description *</label>
-                <textarea value={form.description} onChange={(e) => set("description", e.target.value)} rows={2} maxLength={400} required
-                    className="w-full bg-[#161b22] border border-[#30363d] rounded-lg px-3 py-2 text-[#c9d1d9] text-sm resize-none focus:outline-none focus:border-green-500 transition-colors" />
+                <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>Short Description *</label>
+                <textarea value={form.description} onChange={(e) => set("description", e.target.value)} rows={2} maxLength={400} required className={`${inputClass(isDark)} resize-none`} />
             </div>
 
             <div>
-                <label className="block text-xs font-semibold text-[#8b949e] mb-1.5">Detailed Description</label>
-                <textarea value={form.details} onChange={(e) => set("details", e.target.value)} rows={4} maxLength={3000}
-                    placeholder="Full project details, challenges, learnings…"
-                    className="w-full bg-[#161b22] border border-[#30363d] rounded-lg px-3 py-2 text-[#c9d1d9] placeholder-[#8b949e] text-sm resize-none focus:outline-none focus:border-green-500 transition-colors" />
+                <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>Detailed Description</label>
+                <textarea
+                    value={form.details}
+                    onChange={(e) => set("details", e.target.value)}
+                    rows={4}
+                    maxLength={3000}
+                    placeholder="Full project details, challenges, learnings..."
+                    className={`${inputClass(isDark)} resize-none ${isDark ? "placeholder:text-text-secondary-dark" : "placeholder-slate-400"}`}
+                />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <div>
-                    <label className="block text-xs font-semibold text-[#8b949e] mb-1.5">Tech Stack (comma-separated)</label>
-                    <input value={form.techStack} onChange={(e) => set("techStack", e.target.value)} placeholder="React, Node.js, MongoDB…"
-                        className="w-full bg-[#161b22] border border-[#30363d] rounded-lg px-3 py-2 text-[#c9d1d9] text-sm focus:outline-none focus:border-green-500 transition-colors" />
+                    <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>Tech Stack (comma-separated)</label>
+                    <input value={form.techStack} onChange={(e) => set("techStack", e.target.value)} placeholder="React, Node.js, MongoDB..." className={inputClass(isDark)} />
                 </div>
                 <div>
-                    <label className="block text-xs font-semibold text-[#8b949e] mb-1.5">Project Link</label>
-                    <input value={form.link} onChange={(e) => set("link", e.target.value)} placeholder="https://github.com/…"
-                        className="w-full bg-[#161b22] border border-[#30363d] rounded-lg px-3 py-2 text-[#c9d1d9] text-sm focus:outline-none focus:border-green-500 transition-colors" />
+                    <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>Project Link</label>
+                    <input value={form.link} onChange={(e) => set("link", e.target.value)} placeholder="https://github.com/..." className={inputClass(isDark)} />
                 </div>
             </div>
 
-            {/* Image upload */}
             <div>
-                <label className="block text-xs font-semibold text-[#8b949e] mb-1.5">Images (max 3)</label>
+                <label className={`mb-1.5 block text-xs font-semibold ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>Images (max 3)</label>
                 <input ref={fileRef} type="file" multiple accept="image/*" className="hidden" onChange={handleFiles} />
-                <button type="button" onClick={() => fileRef.current?.click()}
-                    className="flex items-center gap-2 px-3 py-2 bg-[#21262d] hover:bg-[#30363d] text-[#8b949e] hover:text-white text-xs font-semibold rounded-lg border border-[#30363d] transition-all">
+                <button
+                    type="button"
+                    onClick={() => fileRef.current?.click()}
+                    className={getButtonClassName({ variant: "secondary", size: "sm", isDark })}
+                >
                     Upload Images
                 </button>
                 {previewFiles.length > 0 && (
-                    <div className="flex gap-2 mt-2">
-                        {previewFiles.map((p, i) => (
-                            <div key={i} className="w-16 h-16 rounded-lg overflow-hidden border border-[#30363d]">
-                                <img src={p.url} alt="" className="w-full h-full object-cover" />
+                    <div className="mt-2 flex gap-2">
+                        {previewFiles.map((preview, idx) => (
+                            <div key={idx} className={`h-16 w-16 overflow-hidden rounded-lg border ${isDark ? "border-border-dark" : "border-border-light"}`}>
+                                <img src={preview.url} alt="" className="h-full w-full object-cover" />
                             </div>
                         ))}
                     </div>
@@ -191,38 +222,53 @@ function ProjectForm({ initial = {}, onSave, onCancel, isSaving }) {
             </div>
 
             <div className="flex justify-end gap-3 pt-2">
-                <button type="button" onClick={onCancel}
-                    className="px-4 py-2 text-[#8b949e] hover:text-white bg-[#21262d] hover:bg-[#30363d] rounded-xl text-sm font-semibold transition-all">Cancel</button>
-                <button type="submit" disabled={isSaving}
-                    className="flex items-center gap-2 px-5 py-2 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white text-sm font-bold rounded-xl transition-all">
-                    {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : null} Save
+                <button
+                    type="button"
+                    onClick={onCancel}
+                    className={getButtonClassName({ variant: "secondary", size: "md", isDark })}
+                >
+                    Cancel
+                </button>
+                <button type="submit" disabled={isSaving} className={getButtonClassName({ variant: "primary", size: "md", isDark })}>
+                    {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                    Save
                 </button>
             </div>
         </form>
     );
 }
 
-// ── Main Section ──────────────────────────────────────────────────────────────
 export default function ProjectsSection({ profile, isOwner }) {
+    const isDark = useHomeTheme();
     const dispatch = useDispatch();
-    const { sectionLoading } = useSelector((s) => s.profile);
-    const [adding,   setAdding]   = useState(false);
-    const [editing,  setEditing]  = useState(null);
+    const { sectionLoading } = useSelector((state) => state.profile);
+    const [adding, setAdding] = useState(false);
+    const [editing, setEditing] = useState(null);
     const [deleting, setDeleting] = useState(null);
-    const [viewing,  setViewing]  = useState(null);
+    const [viewing, setViewing] = useState(null);
 
     const projects = profile?.projects || [];
 
-    const handleAdd  = async (fd) => {
-        const r = await dispatch(addProjectThunk(fd));
-        if (r.meta.requestStatus === "fulfilled") { toast.success("Project added"); setAdding(false); }
-        else toast.error(r.payload || "Failed");
+    const handleAdd = async (formData) => {
+        const result = await dispatch(addProjectThunk(formData));
+        if (result.meta.requestStatus === "fulfilled") {
+            toast.success("Project added");
+            setAdding(false);
+        } else {
+            toast.error(result.payload || "Failed");
+        }
     };
-    const handleEdit = async (fd) => {
-        const r = await dispatch(updateProjectThunk({ id: editing._id, formData: fd }));
-        if (r.meta.requestStatus === "fulfilled") { toast.success("Project updated"); setEditing(null); }
-        else toast.error(r.payload || "Failed");
+
+    const handleEdit = async (formData) => {
+        const result = await dispatch(updateProjectThunk({ id: editing._id, formData }));
+        if (result.meta.requestStatus === "fulfilled") {
+            toast.success("Project updated");
+            setEditing(null);
+        } else {
+            toast.error(result.payload || "Failed");
+        }
     };
+
     const handleDelete = async () => {
         await dispatch(deleteProjectThunk(deleting));
         toast.success("Project removed");
@@ -230,13 +276,19 @@ export default function ProjectsSection({ profile, isOwner }) {
     };
 
     return (
-        <div className="bg-[#161b22] border border-[#30363d] rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-6">
-                <h2 className="text-white font-bold text-lg">Projects</h2>
+        <div
+            className={`rounded-2xl p-6 transition-colors ${
+                isDark
+                    ? "border border-border-dark bg-surface-dark"
+                    : "border border-slate-200 bg-white shadow-[0_18px_50px_rgba(15,23,42,0.08)]"
+            }`}
+        >
+            <div className="mb-6 flex items-center justify-between">
+                <h2 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-900"}`}>Projects</h2>
                 {isOwner && !adding && (
-                    <button onClick={() => setAdding(true)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-500 text-white text-xs font-bold rounded-xl transition-all">
-                        <Plus className="w-3.5 h-3.5" /> Add
+                    <button onClick={() => setAdding(true)} className={getButtonClassName({ variant: "primary", size: "sm", isDark })}>
+                        <Plus className="h-3.5 w-3.5" />
+                        Add
                     </button>
                 )}
             </div>
@@ -245,54 +297,59 @@ export default function ProjectsSection({ profile, isOwner }) {
             {editing && <div className="mb-6"><ProjectForm initial={editing} onSave={handleEdit} onCancel={() => setEditing(null)} isSaving={sectionLoading.projects} /></div>}
 
             {projects.length === 0 && !adding ? (
-                <p className="text-center text-[#8b949e] text-sm py-8">
+                <p className={`py-8 text-center text-sm ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>
                     {isOwner ? "Showcase your projects!" : "No projects listed yet."}
                 </p>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {projects.map((p) => (
-                        <div key={p._id} onClick={() => setViewing(p)}
-                            className="group bg-[#0d1117] border border-[#30363d] hover:border-[#58a6ff]/40 rounded-xl overflow-hidden cursor-pointer transition-all hover:shadow-lg hover:shadow-blue-500/5">
-                            {p.images?.[0] ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {projects.map((project) => (
+                        <div
+                            key={project._id}
+                            onClick={() => setViewing(project)}
+                            className={`group cursor-pointer overflow-hidden rounded-xl border transition-all ${
+                                isDark
+                                    ? "border-border-dark bg-background-dark hover:border-info/40 hover:shadow-lg hover:shadow-blue-500/5"
+                                    : "border-slate-200 bg-slate-50 hover:border-sky-200 hover:shadow-[0_14px_34px_rgba(15,23,42,0.08)]"
+                            }`}
+                        >
+                            {project.images?.[0] ? (
                                 <div className="h-36 overflow-hidden">
-                                    <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                    <img src={project.images[0]} alt={project.title} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" />
                                 </div>
                             ) : (
-                                <div className="h-20 bg-gradient-to-br from-[#1f3d6f]/40 to-[#2d1b69]/30 flex items-center justify-center">
-                                    <GitBranch className="w-8 h-8 text-[#30363d]" />
+                                <div className={`flex h-20 items-center justify-center ${isDark ? "bg-container-dark" : "bg-slate-100"}`}>
+                                    <GitBranch className={`h-8 w-8 ${isDark ? "text-border-dark" : "text-slate-300"}`} />
                                 </div>
                             )}
+
                             <div className="p-4">
                                 <div className="flex items-start justify-between gap-2">
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 flex-wrap">
-                                            <h3 className="text-white font-semibold text-sm truncate">{p.title}</h3>
-                                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold border capitalize flex-shrink-0 ${STATUS_STYLES[p.status] || ""}`}>
-                                                {p.status}
+                                    <div className="min-w-0 flex-1">
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <h3 className={`truncate text-sm font-semibold ${isDark ? "text-white" : "text-slate-900"}`}>{project.title}</h3>
+                                            <span className={`flex-shrink-0 rounded border px-1.5 py-0.5 text-[10px] font-bold capitalize ${STATUS_STYLES[project.status] || ""}`}>
+                                                {project.status}
                                             </span>
                                         </div>
-                                        <p className="text-[#8b949e] text-xs mt-1 line-clamp-2">{p.description}</p>
+                                        <p className={`mt-1 line-clamp-2 text-xs ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>{project.description}</p>
                                     </div>
+
                                     {isOwner && (
-                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
-                                            onClick={(e) => e.stopPropagation()}>
-                                            <button onClick={() => setEditing(p)}
-                                                className="p-1.5 text-[#8b949e] hover:text-white hover:bg-[#21262d] rounded-lg transition-all">
-                                                <Pencil className="w-3 h-3" />
-                                            </button>
-                                            <button onClick={() => setDeleting(p._id)}
-                                                className="p-1.5 text-[#8b949e] hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all">
-                                                <Trash2 className="w-3 h-3" />
-                                            </button>
+                                        <div className="flex flex-shrink-0 gap-1 opacity-0 transition-opacity group-hover:opacity-100" onClick={(e) => e.stopPropagation()}>
+                                            <IconButton icon={<Pencil className="h-3 w-3" />} onClick={() => setEditing(project)} title="Edit project" variant="ghost" size="icon-sm" />
+                                            <IconButton icon={<Trash2 className="h-3 w-3" />} onClick={() => setDeleting(project._id)} title="Delete project" variant="danger" size="icon-sm" />
                                         </div>
                                     )}
                                 </div>
-                                {p.techStack?.length > 0 && (
-                                    <div className="flex flex-wrap gap-1 mt-3">
-                                        {p.techStack.slice(0, 4).map((t) => (
-                                            <span key={t} className="px-1.5 py-0.5 bg-[#21262d] text-[#8b949e] text-[10px] rounded font-medium">{t}</span>
+
+                                {project.techStack?.length > 0 && (
+                                    <div className="mt-3 flex flex-wrap gap-1">
+                                        {project.techStack.slice(0, 4).map((tech) => (
+                                            <span key={tech} className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${isDark ? "bg-container-dark text-text-secondary-dark" : "border border-slate-200 bg-white text-slate-500"}`}>
+                                                {tech}
+                                            </span>
                                         ))}
-                                        {p.techStack.length > 4 && <span className="text-[#8b949e] text-[10px]">+{p.techStack.length - 4}</span>}
+                                        {project.techStack.length > 4 && <span className={`text-[10px] ${isDark ? "text-text-secondary-dark" : "text-text-secondary-light"}`}>+{project.techStack.length - 4}</span>}
                                     </div>
                                 )}
                             </div>
@@ -303,9 +360,15 @@ export default function ProjectsSection({ profile, isOwner }) {
 
             {viewing && <ProjectDetailModal project={viewing} onClose={() => setViewing(null)} />}
 
-            <ConfirmModal isOpen={!!deleting} title="Delete Project"
-                message="Remove this project permanently?" confirmText="Delete" variant="danger"
-                onConfirm={handleDelete} onCancel={() => setDeleting(null)} />
+            <ConfirmModal
+                isOpen={!!deleting}
+                title="Delete Project"
+                message="Remove this project permanently?"
+                confirmText="Delete"
+                variant="danger"
+                onConfirm={handleDelete}
+                onCancel={() => setDeleting(null)}
+            />
         </div>
     );
 }

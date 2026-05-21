@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import FormField from "@/components/common/FormField";
 import FormActions from "@/components/common/FormActions";
 import { fetchEventById, updateEventThunk, selectSelectedEvent, selectEventLoading } from "@/redux/slices/eventSlice";
+import Button from "@/components/common/Button";
 
 const EVENT_CATEGORIES = [
   "academic", "cultural", "sports", "social",
@@ -90,13 +91,15 @@ export default function EditEvent() {
       <header className="bg-[#161b22] border-b border-[#30363d] sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center gap-4">
-            <button
+            <Button
               onClick={() => navigate(`/events/${id}/manage`)}
-              className="flex items-center gap-2 text-[#8b949e] hover:text-white transition-colors"
+              variant="ghost"
+              size="sm"
+              className="min-w-0 gap-2 px-0"
             >
               <span className="material-symbols-outlined text-xl">arrow_back</span>
               <span className="text-sm font-medium">Back to Manage HQ</span>
-            </button>
+            </Button>
             <div className="flex items-center gap-3">
               <span className="material-symbols-outlined text-4xl text-[#1dc964]">edit_calendar</span>
               <div>

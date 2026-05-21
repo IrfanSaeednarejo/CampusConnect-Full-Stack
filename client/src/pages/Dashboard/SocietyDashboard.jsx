@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import AnalyticsWidget from "@/components/dashboard/AnalyticsWidget";
 import SocietySummary from "@/components/dashboard/SocietySummary";
+import useHomeTheme from "@/hooks/useHomeTheme";
 import {
   selectRegisteredSocieties,
   setRegisteredSocieties,
@@ -12,9 +13,19 @@ import {
   setUpcomingEvents,
 } from "@/redux/slices/eventSlice";
 
+const navItems = [
+  { icon: "dashboard", label: "Dashboard", href: "#" },
+  { icon: "groups", label: "Societies", href: "/societies" },
+  { icon: "event", label: "Events", href: "/society/events" },
+  { icon: "school", label: "Mentoring", href: "/society/mentoring" },
+  { icon: "lan", label: "Networking", href: "/society/networking" },
+  { icon: "analytics", label: "Analytics", href: "/society/analytics" },
+];
+
 export default function SocietyDashboard() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const isDark = useHomeTheme();
   const societies = useSelector(selectRegisteredSocieties);
   const upcomingEvents = useSelector(selectUpcomingEvents);
 
@@ -63,246 +74,243 @@ export default function SocietyDashboard() {
     }
   }, [dispatch, upcomingEvents.length]);
 
+  const pageClassName = isDark ? "bg-[#0d1117]" : "bg-[#f8fafc]";
+  const surfaceClassName = isDark
+    ? "border-[#30363d] bg-[#161b22]"
+    : "border-[#dce4ee] bg-white";
+  const subtleSurfaceClassName = isDark
+    ? "border-[#30363d] bg-[#0d1117]"
+    : "border-[#e2e8f0] bg-[#f8fafc]";
+  const mutedTextClassName = isDark ? "text-[#8b949e]" : "text-[#526277]";
+  const titleClassName = isDark ? "text-[#e6edf3]" : "text-[#162033]";
+
   return (
-    <div className="flex min-h-screen bg-[#111714]">
-      {/* Sidebar */}
-      <aside className="w-64 flex-shrink-0 bg-[#111714] border-r border-[#29382f] hidden lg:flex">
-        <div className="flex h-full flex-col justify-between p-4">
-          {/* Top Section */}
-          <div className="flex flex-col gap-4">
-            {/* Profile */}
+    <div className={`min-h-screen transition-colors duration-300 ${pageClassName}`}>
+      <div className="mx-auto flex min-h-screen max-w-7xl">
+        <aside
+          className={`hidden w-72 shrink-0 border-r lg:flex lg:flex-col lg:justify-between lg:p-5 ${
+            isDark ? "border-[#30363d] bg-[#0d1117]" : "border-[#E2E8F0] bg-[#f8fafc]"
+          }`}
+        >
+          <div className="flex flex-col gap-5">
             <button
-              onClick={() => (window.location.href = "/society/profile")}
-              className="flex gap-3 items-center hover:opacity-80 transition-opacity cursor-pointer"
+              onClick={() => {
+                window.location.href = "/society/profile";
+              }}
+              className={`flex items-center gap-3 rounded-[24px] border p-4 text-left transition-all duration-300 ${
+                surfaceClassName
+              }`}
             >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center text-white font-bold">
+              <div
+                className={`flex h-11 w-11 items-center justify-center rounded-2xl text-sm font-bold ${
+                  isDark ? "bg-[#21262d] text-white" : "bg-[#eff6ff] text-[#1D4ED8]"
+                }`}
+              >
                 AC
               </div>
-              <div className="flex flex-col text-left">
-                <h1 className="text-white text-base font-medium leading-normal">
-                  Alex Chen
-                </h1>
-                <p className="text-[#9eb7a9] text-sm font-normal leading-normal">
-                  Society Head
-                </p>
+              <div className="flex flex-col">
+                <h1 className={`text-base font-medium ${titleClassName}`}>Alex Chen</h1>
+                <p className={`text-sm ${mutedTextClassName}`}>Society Head</p>
               </div>
             </button>
 
-            {/* Navigation */}
-            <nav className="flex flex-col gap-2 mt-4">
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-md bg-[#1a241e]"
-                href="#"
-              >
-                <span className="material-symbols-outlined text-white">
-                  dashboard
-                </span>
-                <p className="text-white text-sm font-medium leading-normal">
-                  Dashboard
-                </p>
-              </a>
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
-                href="/societies"
-              >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
-                  groups
-                </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
-                  Societies
-                </p>
-              </a>
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
-                href="/society/events"
-              >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
-                  event
-                </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
-                  Events
-                </p>
-              </a>
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
-                href="/society/mentoring"
-              >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
-                  school
-                </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
-                  Mentoring
-                </p>
-              </a>
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
-                href="/society/networking"
-              >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
-                  lan
-                </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
-                  Networking
-                </p>
-              </a>
-              <a
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
-                href="/society/analytics"
-              >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
-                  analytics
-                </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
-                  Analytics
-                </p>
-              </a>
+            <nav className={`rounded-[24px] border p-3 ${surfaceClassName}`}>
+              <div className="space-y-1">
+                {navItems.map((item, index) => (
+                  <a
+                    key={item.label}
+                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                      index === 0
+                        ? isDark
+                          ? "bg-[#21262d] text-[#e6edf3]"
+                          : "bg-[#eff6ff] text-[#1D4ED8]"
+                        : isDark
+                          ? "text-[#c9d1d9] hover:bg-[#161b22]"
+                          : "text-[#334155] hover:bg-[#f8fafc]"
+                    }`}
+                    href={item.href}
+                  >
+                    <span className="material-symbols-outlined">{item.icon}</span>
+                    <span>{item.label}</span>
+                  </a>
+                ))}
+              </div>
             </nav>
           </div>
 
-          {/* Bottom Section */}
-          <div className="flex flex-col gap-2">
+          <div className={`rounded-[24px] border p-3 ${surfaceClassName}`}>
             <button
-              onClick={() => (window.location.href = "/society/create")}
-              className="flex w-full cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-[#1dc964] text-[#111714] text-sm font-bold leading-normal tracking-[0.015em] hover:bg-[#1dc964]/90 transition-colors"
+              onClick={() => {
+                window.location.href = "/society/create";
+              }}
+              className={`mb-3 flex h-11 w-full items-center justify-center rounded-xl text-sm font-semibold transition-colors ${
+                isDark
+                  ? "bg-[#238636] text-white hover:bg-[#2ea043]"
+                  : "bg-[#1D4ED8] text-white hover:bg-[#1E40AF]"
+              }`}
             >
               <span className="truncate">Create New</span>
             </button>
-            <div className="flex flex-col gap-1 border-t border-[#29382f] pt-2 mt-2">
+            <div className={`space-y-1 border-t pt-3 ${isDark ? "border-[#30363d]" : "border-[#e2e8f0]"}`}>
               <a
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                  isDark ? "text-[#c9d1d9] hover:bg-[#161b22]" : "text-[#334155] hover:bg-[#f8fafc]"
+                }`}
                 href="/society/settings"
               >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
-                  settings
-                </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
-                  Settings
-                </p>
+                <span className="material-symbols-outlined">settings</span>
+                <span>Settings</span>
               </a>
               <a
-                className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-[#1a241e]/50 transition-colors"
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
+                  isDark ? "text-[#c9d1d9] hover:bg-[#161b22]" : "text-[#334155] hover:bg-[#f8fafc]"
+                }`}
                 href="/logout"
               >
-                <span className="material-symbols-outlined text-[#9eb7a9]">
-                  logout
-                </span>
-                <p className="text-[#9eb7a9] text-sm font-medium leading-normal">
-                  Logout
-                </p>
+                <span className="material-symbols-outlined">logout</span>
+                <span>Logout</span>
               </a>
             </div>
           </div>
-        </div>
-      </aside>
+        </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 p-8 overflow-y-auto">
-        <div className="max-w-7xl mx-auto">
-          {/* Header */}
-          <header className="flex flex-wrap justify-between items-center gap-4 mb-8">
-            <div className="flex flex-col gap-1">
-              <h1 className="text-white text-4xl font-black leading-tight tracking-[-0.033em]">
-                Society HQ
-              </h1>
-              <p className="text-[#9eb7a9] text-base font-normal leading-normal">
-                Oversee your societies and campus impact
-              </p>
-            </div>
-            <button
-              onClick={() => (window.location.href = "/society/create")}
-              className="flex min-w-[84px] cursor-pointer items-center justify-center overflow-hidden rounded-md h-12 px-5 bg-[#1dc964] text-[#111714] gap-2 text-base font-bold leading-normal tracking-[0.015em] hover:bg-[#1dc964]/90 transition-colors"
+        <main className="flex-1 overflow-y-auto px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
+          <div className="mx-auto max-w-7xl">
+            <section
+              className={`mb-8 rounded-[2rem] border px-6 py-8 transition-all duration-300 sm:px-8 ${surfaceClassName}`}
+              style={{
+                boxShadow: isDark
+                  ? "0 24px 70px rgba(0,0,0,0.24)"
+                  : "0 24px 70px rgba(15,23,42,0.08)",
+              }}
             >
-              <span className="material-symbols-outlined text-[#111714]">
-                add_circle
-              </span>
-              <span className="truncate">Create New Society</span>
-            </button>
-          </header>
-
-          {/* Grid Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* My Societies Section (2 columns) */}
-            <SocietySummary
-              title="My Societies"
-              societies={societies}
-              variant="list"
-              onItemAction={() => (window.location.href = "/society/manage")}
-            />
-
-            {/* Approvals Needed Widget */}
-            <section className="bg-[#1a241e] border border-[#29382f] rounded-lg p-6">
-              <h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] mb-4">
-                Approvals Needed
-              </h2>
-              <div className="bg-[#1dc964]/20 border border-[#1dc964]/50 rounded-md p-4 flex flex-col items-start gap-4">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[#1dc964]">
-                    person_add
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex flex-col gap-2">
+                  <span
+                    className={`mb-2 inline-flex w-fit rounded-full border px-3 py-1 text-xs font-semibold tracking-[0.12em] ${
+                      isDark
+                        ? "border-[#30363d] bg-[#0d1117] text-[#3fb950]"
+                        : "border-[#bfdbfe] bg-[#eff6ff] text-[#1D4ED8]"
+                    }`}
+                  >
+                    SOCIETY HQ
                   </span>
-                  <p className="text-white">
-                    You have <span className="font-bold">3</span> pending member
-                    requests.
+                  <h1 className={`text-3xl font-bold tracking-tight ${titleClassName}`}>Society Dashboard</h1>
+                  <p className={`text-sm sm:text-base ${mutedTextClassName}`}>
+                    Oversee your societies, upcoming events, and campus impact from one control center.
                   </p>
                 </div>
                 <button
-                  onClick={() =>
-                    (window.location.href = "/society/member-requests")
-                  }
-                  className="flex cursor-pointer items-center justify-center overflow-hidden rounded-md h-10 px-4 bg-[#1dc964] text-[#111714] text-sm font-bold leading-normal w-full hover:bg-[#1dc964]/90 transition-colors"
+                  onClick={() => {
+                    window.location.href = "/society/create";
+                  }}
+                  className={`flex h-12 items-center justify-center gap-2 rounded-xl px-5 text-sm font-semibold transition-colors sm:text-base ${
+                    isDark
+                      ? "bg-[#238636] text-white hover:bg-[#2ea043]"
+                      : "bg-[#1D4ED8] text-white hover:bg-[#1E40AF]"
+                  }`}
                 >
-                  <span className="truncate">Review Requests</span>
+                  <span className="material-symbols-outlined">add_circle</span>
+                  <span className="truncate">Create New Society</span>
                 </button>
               </div>
             </section>
 
-            {/* Upcoming Events Section (2 columns) */}
-            <section className="lg:col-span-2 bg-[#1a241e] border border-[#29382f] rounded-lg p-6 flex flex-col">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-white text-[22px] font-bold leading-tight tracking-[-0.015em]">
-                  Upcoming Events
-                </h2>
-                <button
-                  onClick={() => (window.location.href = "/society/events")}
-                  className="flex cursor-pointer items-center justify-center overflow-hidden rounded-md h-9 px-4 bg-[#29382f] text-white gap-2 text-sm font-medium leading-normal hover:bg-[#29382f]/80 transition-colors"
-                >
-                  <span className="material-symbols-outlined">add</span>
-                  <span className="truncate">Add Event</span>
-                </button>
-              </div>
-              <div className="flex flex-col gap-4">
-                {upcomingEvents.map((event) => (
-                  <div key={event.id} className="flex items-start gap-4">
-                    <div className="flex flex-col items-center justify-center bg-[#29382f] rounded-md p-2 w-14 text-center">
-                      <span className="text-[#9eb7a9] text-xs font-bold uppercase">
-                        {event.month}
-                      </span>
-                      <span className="text-white text-2xl font-black">
-                        {event.date}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-semibold text-white">{event.title}</p>
-                      <p className="text-sm text-[#9eb7a9]">
-                        {event.society} • {event.time}
-                      </p>
-                    </div>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <SocietySummary
+                title="My Societies"
+                societies={societies}
+                variant="list"
+                onItemAction={() => {
+                  window.location.href = "/society/manage";
+                }}
+              />
+
+              <section
+                className={`rounded-[28px] border p-5 transition-all duration-300 sm:p-6 ${surfaceClassName}`}
+                style={{
+                  boxShadow: isDark
+                    ? "0 20px 50px rgba(0,0,0,0.2)"
+                    : "0 20px 50px rgba(15,23,42,0.06)",
+                }}
+              >
+                <h2 className={`mb-4 text-xl font-semibold ${titleClassName}`}>Approvals Needed</h2>
+                <div className={isDark ? "flex flex-col items-start gap-4 rounded-2xl border border-[#3fb950]/30 bg-[#3fb950]/10 p-4" : "flex flex-col items-start gap-4 rounded-2xl border border-emerald-200 bg-emerald-50 p-4"}>
+                  <div className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-[#3fb950]">person_add</span>
+                    <p className={titleClassName}>
+                      You have <span className="font-bold">3</span> pending member requests.
+                    </p>
                   </div>
-                ))}
-              </div>
-            </section>
+                  <button
+                    onClick={() => {
+                      window.location.href = "/society/member-requests";
+                    }}
+                    className={`flex h-10 w-full items-center justify-center rounded-xl text-sm font-semibold transition-colors ${
+                      isDark
+                        ? "bg-[#238636] text-white hover:bg-[#2ea043]"
+                        : "bg-[#1D4ED8] text-white hover:bg-[#1E40AF]"
+                    }`}
+                  >
+                    <span className="truncate">Review Requests</span>
+                  </button>
+                </div>
+              </section>
 
-            {/* Society Analytics Widget */}
-            <AnalyticsWidget
-              title="Society Analytics"
-              options={["All Societies", "Tech Club", "Entrepreneurs"]}
-              statLabel="Total Members"
-              statValue="1,284"
-              trendLabel="+112 this month"
-              onOpen={() => navigate("/society/analytics")}
-            />
+              <section
+                className={`flex flex-col rounded-[28px] border p-5 transition-all duration-300 sm:p-6 lg:col-span-2 ${surfaceClassName}`}
+                style={{
+                  boxShadow: isDark
+                    ? "0 20px 50px rgba(0,0,0,0.2)"
+                    : "0 20px 50px rgba(15,23,42,0.06)",
+                }}
+              >
+                <div className={`mb-4 flex items-center justify-between gap-3 border-b pb-4 ${isDark ? "border-[#30363d]" : "border-[#e2e8f0]"}`}>
+                  <h2 className={`text-xl font-semibold ${titleClassName}`}>Upcoming Events</h2>
+                  <button
+                    onClick={() => {
+                      window.location.href = "/society/events";
+                    }}
+                    className={`flex h-10 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium transition-colors ${
+                      isDark
+                        ? "bg-[#21262d] text-white hover:bg-[#30363d]"
+                        : "bg-[#f8fafc] text-[#162033] hover:bg-[#eef3f9]"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined">add</span>
+                    <span className="truncate">Add Event</span>
+                  </button>
+                </div>
+                <div className="flex flex-col gap-4">
+                  {upcomingEvents.map((event) => (
+                    <div key={event.id} className={`flex items-start gap-4 rounded-2xl border p-4 ${subtleSurfaceClassName}`}>
+                      <div className={`flex w-14 flex-col items-center justify-center rounded-xl p-2 text-center ${isDark ? "bg-[#21262d]" : "bg-white"}`}>
+                        <span className={`text-xs font-bold uppercase ${mutedTextClassName}`}>{event.month}</span>
+                        <span className={`text-2xl font-bold ${titleClassName}`}>{event.date}</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className={`font-medium ${titleClassName}`}>{event.title}</p>
+                        <p className={`text-sm ${mutedTextClassName}`}>
+                          {event.society} • {event.time}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+
+              <AnalyticsWidget
+                title="Society Analytics"
+                options={["All Societies", "Tech Club", "Entrepreneurs"]}
+                statLabel="Total Members"
+                statValue="1,284"
+                trendLabel="+112 this month"
+                onOpen={() => navigate("/society/analytics")}
+              />
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }

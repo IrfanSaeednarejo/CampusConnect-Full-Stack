@@ -1,11 +1,14 @@
 import React from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import Button from '../common/Button';
+import IconButton from '../common/IconButton';
 import { useNavigate } from 'react-router-dom';
+import useHomeTheme from '../../hooks/useHomeTheme';
 
 export default function AuthModal() {
   const { isAuthModalOpen, closeAuth } = useAuth();
   const navigate = useNavigate();
+  const isDark = useHomeTheme();
 
   if (!isAuthModalOpen) return null;
 
@@ -22,44 +25,51 @@ export default function AuthModal() {
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-in fade-in duration-200">
       <div 
-        className="relative w-full max-w-md bg-[#161b22] border border-[#30363d] rounded-2xl p-8 shadow-2xl animate-in zoom-in-95 duration-200"
+        className={`theme-surface relative w-full max-w-md rounded-2xl p-8 animate-in zoom-in-95 duration-200 ${
+          isDark ? "" : ""
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <button 
+        <IconButton
           onClick={closeAuth}
-          className="absolute top-4 right-4 text-[#8b949e] hover:text-[#c9d1d9] transition-colors"
-        >
-          <span className="material-symbols-outlined">close</span>
-        </button>
+          className="absolute right-4 top-4"
+          label="Close authentication dialog"
+          icon="close"
+          variant="ghost"
+          size="sm"
+        />
 
         <div className="flex flex-col items-center text-center">
-          <div className="w-16 h-16 bg-[#238636]/10 rounded-full flex items-center justify-center mb-6">
-            <span className="material-symbols-outlined text-4xl text-[#238636]">lock</span>
+          <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+            <span className="material-symbols-outlined text-4xl text-primary">lock</span>
           </div>
           
-          <h2 className="text-2xl font-bold text-[#c9d1d9] mb-3">
+          <h2 className="mb-3 text-2xl font-semibold text-text-primary">
             Authentication Required
           </h2>
           
-          <p className="text-[#8b949e] text-base mb-8">
+          <p className="mb-8 text-base text-text-secondary">
             You are not authorized to perform this action. Please log in or create an account to continue.
           </p>
 
           <div className="w-full space-y-3">
             <Button 
               variant="primary" 
-              className="w-full h-12 text-base font-semibold"
+              size="md"
+              className="w-full"
               onClick={handleLogin}
             >
               Log In
             </Button>
             
-            <button 
-              className="w-full py-2 text-[#58a6ff] hover:underline text-sm transition-all"
+            <Button 
+              variant="ghost"
+              size="md"
+              className="w-full"
               onClick={handleSignup}
             >
               Don't have an account? Sign Up
-            </button>
+            </Button>
           </div>
         </div>
       </div>

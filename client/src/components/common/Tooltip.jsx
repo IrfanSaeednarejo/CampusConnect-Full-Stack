@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
+import useHomeTheme from '../../hooks/useHomeTheme';
 
-/**
- * Reusable Tooltip component for hover information.
- */
 const Tooltip = ({ 
   text, 
   children, 
@@ -10,6 +8,7 @@ const Tooltip = ({
   delay = 200,
   className = "" 
 }) => {
+  const isDark = useHomeTheme();
   const [isVisible, setIsVisible] = useState(false);
   const [timeoutId, setTimeoutId] = useState(null);
 
@@ -31,11 +30,14 @@ const Tooltip = ({
   };
 
   const triangles = {
-    top: 'bottom-[-4px] left-1/2 -translate-x-1/2 border-t-[#30363d] border-l-transparent border-r-transparent border-b-transparent',
-    bottom: 'top-[-4px] left-1/2 -translate-x-1/2 border-b-[#30363d] border-l-transparent border-r-transparent border-t-transparent',
-    left: 'right-[-4px] top-1/2 -translate-y-1/2 border-l-[#30363d] border-t-transparent border-b-transparent border-r-transparent',
-    right: 'left-[-4px] top-1/2 -translate-y-1/2 border-r-[#30363d] border-t-transparent border-b-transparent border-l-transparent'
+    top: `bottom-[-4px] left-1/2 -translate-x-1/2 ${isDark ? 'border-t-[#30363d]' : 'border-t-slate-200'} border-l-transparent border-r-transparent border-b-transparent`,
+    bottom: `top-[-4px] left-1/2 -translate-x-1/2 ${isDark ? 'border-b-[#30363d]' : 'border-b-slate-200'} border-l-transparent border-r-transparent border-t-transparent`,
+    left: `right-[-4px] top-1/2 -translate-y-1/2 ${isDark ? 'border-l-[#30363d]' : 'border-l-slate-200'} border-t-transparent border-b-transparent border-r-transparent`,
+    right: `left-[-4px] top-1/2 -translate-y-1/2 ${isDark ? 'border-r-[#30363d]' : 'border-r-slate-200'} border-t-transparent border-b-transparent border-l-transparent`
   };
+  const tooltipClass = isDark
+    ? 'bg-[#161b22] border-[#30363d] text-white shadow-xl'
+    : 'bg-white border-slate-200 text-slate-900 shadow-[0_14px_32px_rgba(15,23,42,0.12)]';
 
   return (
     <div 
@@ -45,9 +47,8 @@ const Tooltip = ({
     >
       {children}
       {isVisible && (
-        <div className={`absolute z-[1000] px-3 py-2 bg-[#161b22] border border-[#30363d] rounded shadow-xl text-xs text-white whitespace-nowrap animate-in fade-in duration-200 ${positions[position]}`}>
+        <div className={`absolute z-[1000] whitespace-nowrap rounded border px-3 py-2 text-xs animate-in fade-in duration-200 ${positions[position]} ${tooltipClass}`}>
           {text}
-          {/* Triangle Pointer */}
           <div className={`absolute w-0 h-0 border-[4px] ${triangles[position]}`} />
         </div>
       )}

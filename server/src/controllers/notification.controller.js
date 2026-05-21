@@ -8,7 +8,7 @@ const getMyNotifications = asyncHandler(async (req, res) => {
 });
 
 const getUnreadCount = asyncHandler(async (req, res) => {
-    const unreadCount = await notificationService.getUnreadCount(req.user._id);
+    const unreadCount = await notificationService.getUnreadCount(req.user, req.query);
     return res.status(200).json(new ApiResponse(200, { unreadCount }, "Unread count fetched"));
 });
 
@@ -18,7 +18,7 @@ const markAsRead = asyncHandler(async (req, res) => {
 });
 
 const markAllAsRead = asyncHandler(async (req, res) => {
-    const result = await notificationService.markAllAsRead(req.user._id);
+    const result = await notificationService.markAllAsRead(req.user, req.query);
     return res.status(200).json(new ApiResponse(200, result, "All notifications marked as read"));
 });
 

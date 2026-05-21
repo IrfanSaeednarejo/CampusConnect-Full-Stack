@@ -11,12 +11,14 @@ import {
   ArrowLeft
 } from 'lucide-react';
 import { useState, useRef, useEffect } from 'react';
+import useHomeTheme from '../../hooks/useHomeTheme';
+import { useLanguage } from "../../hooks/useLanguage";
 
-const formatLastSeen = (value) => {
+const formatLastSeen = (value, locale) => {
   if (!value) return '';
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return '';
-  return date.toLocaleString('en-US', {
+  return date.toLocaleString(locale, {
     month: 'short',
     day: 'numeric',
     hour: 'numeric',
@@ -43,6 +45,8 @@ const ChatHeader = ({
   onClearChat,
   onDisconnect
 }) => {
+  const isDark = useHomeTheme();
+  const { t, locale } = useLanguage();
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const moreMenuRef = useRef(null);
@@ -64,69 +68,85 @@ const ChatHeader = ({
 
   const statusLine = () => {
     if (conversation.type === 'group') {
-      return `${conversation.members || 0} members`;
+      return t("chat.members", { count: conversation.members || 0 });
     }
     if (isTyping) {
-      return `${typingName || 'Someone'} typing...`;
+      return t("chat.typing", { name: typingName || t("common.someone") });
     }
     if (conversation.status === 'online') {
-      return 'online';
+      return t("common.online");
     }
     if (lastSeen) {
-      return `last seen ${formatLastSeen(lastSeen)}`;
+      return t("chat.lastSeen", { time: formatLastSeen(lastSeen, locale) });
     }
-    return 'offline';
+    return t("common.offline");
   };
 
   const avatarGradients = {
-    blue: 'from-blue-500 to-blue-700',
-    teal: 'from-teal-500 to-teal-700',
-    pink: 'from-pink-500 to-pink-700',
-    indigo: 'from-indigo-500 to-indigo-700',
-    cyan: 'from-cyan-500 to-cyan-700',
-    emerald: 'from-emerald-500 to-emerald-700',
-    rose: 'from-rose-500 to-rose-700',
-    violet: 'from-violet-500 to-violet-700',
-    amber: 'from-amber-500 to-amber-700',
-    lime: 'from-lime-500 to-lime-700',
-    fuchsia: 'from-fuchsia-500 to-fuchsia-700',
-    sky: 'from-sky-500 to-sky-700',
-    red: 'from-red-500 to-red-700',
-    green: 'from-green-500 to-green-700',
-    purple: 'from-purple-500 to-purple-700',
-    group: 'from-violet-600 to-indigo-600',
+    blue: 'bg-info',
+    teal: 'bg-info',
+    pink: 'bg-danger',
+    cyan: 'bg-info',
+    emerald: 'bg-primary',
+    rose: 'bg-danger',
+    amber: 'bg-warning',
+    lime: 'bg-primary',
+    fuchsia: 'bg-danger',
+    sky: 'bg-info',
+    red: 'bg-danger',
+    green: 'bg-primary',
+    group: 'bg-info',
   };
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-[#161b22] border-b border-[#30363d] shadow-sm z-20">
+    <div className={`z-20 flex items-center justify-between border-b px-4 py-3 shadow-sm ${
+      isDark ? "border-border-dark bg-surface-dark" : "border-border-light bg-surface-light"
+    }`}>
       <div className="flex items-center gap-3">
-        <button onClick={onClose} className="md:hidden p-1.5 hover:bg-[#1f2937] rounded-lg text-[#8b949e]">
+        <button
+          onClick={onClose}
+          className={`rounded-lg p-1.5 md:hidden ${
+            isDark ? "text-text-secondary-dark hover:bg-surface-muted-dark" : "text-text-secondary-light hover:bg-surface-muted-light"
+          }`}
+        >
           <ArrowLeft size={20} />
         </button>
-        
+
         <div className="relative flex-shrink-0">
-          <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${avatarGradients[avatarColor] || avatarGradients.blue} flex items-center justify-center text-white font-bold text-xs overflow-hidden shadow-md border border-white/10`}>
+          <div
+            className={`flex h-10 w-10 items-center justify-center overflow-hidden rounded-full border text-xs font-bold text-white shadow-md ${
+              avatarGradients[avatarColor] || avatarGradients.blue
+            } ${isDark ? "border-white/10" : "border-white/70"}`}
+          >
             {conversation.avatar && conversation.avatar.length > 2 ? (
-              <img src={conversation.avatar} alt={conversation.name} className="w-full h-full object-cover" />
+              <img src={conversation.avatar} alt={conversation.name} className="h-full w-full object-cover" />
             ) : (
               conversation.avatar || conversation.name[0].toUpperCase()
             )}
           </div>
           {conversation.type === 'user' && conversation.status === 'online' && (
-            <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-[#161b22] rounded-full"></span>
+            <span className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 bg-emerald-500 ${
+              isDark ? "border-[#161b22]" : "border-white"
+            }`}></span>
           )}
         </div>
 
         <div className="min-w-0">
           <div className="flex items-center gap-1.5">
-            <h3 className="text-[15px] font-bold text-white truncate leading-tight">{conversation.name}</h3>
-            {isPinned && <Pin size={12} className="text-emerald-500 fill-emerald-500" />}
+            <h3 className={`truncate text-[15px] font-bold leading-tight ${isDark ? "text-text-primary-dark" : "text-text-primary-light"}`}>
+              {conversation.name}
+            </h3>
+            {isPinned && <Pin size={12} className="fill-emerald-500 text-emerald-500" />}
           </div>
-          <div className="flex items-center gap-1.5 mt-0.5">
+          <div className="mt-0.5 flex items-center gap-1.5">
             {conversation.type === 'user' && (
-               <span className={`w-1.5 h-1.5 rounded-full ${conversation.status === 'online' ? 'bg-emerald-500' : 'bg-gray-500'}`}></span>
+              <span className={`h-1.5 w-1.5 rounded-full ${conversation.status === 'online' ? 'bg-emerald-500' : 'bg-gray-500'}`}></span>
             )}
-            <p className={`text-[11px] font-medium tracking-wide uppercase ${isTyping ? 'text-emerald-400 animate-pulse' : 'text-[#8b949e]'}`}>
+            <p className={`text-[11px] font-medium uppercase tracking-wide ${
+              isTyping
+                ? isDark ? 'animate-pulse text-emerald-400' : 'animate-pulse text-emerald-700'
+                : isDark ? 'text-text-secondary-dark' : 'text-text-secondary-light'
+            }`}>
               {statusLine()}
             </p>
           </div>
@@ -134,70 +154,108 @@ const ChatHeader = ({
       </div>
 
       <div className="flex items-center gap-1 md:gap-2">
-        <div className={`hidden lg:flex items-center bg-[#0d1117] border border-[#30363d] rounded-lg px-2.5 py-1.5 transition-all focus-within:border-emerald-500/50 ${showSearch ? 'w-64' : 'w-48'}`}>
-          <Search size={14} className="text-[#8b949e]" />
+        <div className={`hidden items-center rounded-lg border px-2.5 py-1.5 transition-all focus-within:border-emerald-500/50 lg:flex ${
+          showSearch ? 'w-64' : 'w-48'
+        } ${isDark ? 'border-border-dark bg-background-dark' : 'border-border-light bg-background-light'}`}>
+          <Search size={14} className={isDark ? "text-text-secondary-dark" : "text-text-secondary-light"} />
           <input
             ref={searchInputRef}
             type="text"
-            placeholder="Search messages..."
+            placeholder={t("chat.searchMessages")}
             value={searchQuery}
             onChange={(event) => onSearch?.(event.target.value)}
-            className="bg-transparent border-none text-xs text-white placeholder-[#484f58] outline-none ml-2 w-full"
+            className={`ml-2 w-full border-none bg-transparent text-xs outline-none ${
+              isDark ? "text-text-primary-dark placeholder:text-text-secondary-dark" : "text-text-primary-light placeholder:text-text-secondary-light"
+            }`}
             onFocus={() => setShowSearch(true)}
             onBlur={() => setShowSearch(false)}
           />
         </div>
 
         <div className="flex items-center">
-          <button onClick={onPin} className={`p-2 rounded-lg transition-colors ${isPinned ? 'text-emerald-500' : 'text-[#8b949e] hover:bg-[#1f2937]'}`} title={isPinned ? 'Unpin' : 'Pin'}>
+          <button
+            onClick={onPin}
+            className={`rounded-lg p-2 transition-colors ${
+              isPinned
+                ? 'text-emerald-500'
+                : isDark ? 'text-text-secondary-dark hover:bg-surface-muted-dark' : 'text-text-secondary-light hover:bg-surface-muted-light'
+            }`}
+            title={isPinned ? t("chat.unpin") : t("chat.pin")}
+          >
             <Pin size={18} className={isPinned ? 'fill-emerald-500' : ''} />
           </button>
-          
-          <button onClick={onMute} className="p-2 rounded-lg text-[#8b949e] hover:bg-[#1f2937] transition-colors" title={isMuted ? 'Unmute' : 'Mute'}>
+
+          <button
+            onClick={onMute}
+            className={`rounded-lg p-2 transition-colors ${
+              isDark ? 'text-text-secondary-dark hover:bg-surface-muted-dark' : 'text-text-secondary-light hover:bg-surface-muted-light'
+            }`}
+            title={isMuted ? t("chat.unmute") : t("chat.mute")}
+          >
             {isMuted ? <Bell size={18} /> : <BellOff size={18} />}
           </button>
 
           <div className="relative" ref={moreMenuRef}>
-            <button 
+            <button
               onClick={() => setShowMoreMenu(!showMoreMenu)}
-              className={`p-2 rounded-lg transition-colors ${showMoreMenu ? 'bg-[#1f2937] text-white' : 'text-[#8b949e] hover:bg-[#1f2937]'}`}
-              title="More options" 
+              className={`rounded-lg p-2 transition-colors ${
+                showMoreMenu
+                  ? isDark ? 'bg-surface-muted-dark text-text-primary-dark' : 'bg-surface-muted-light text-text-primary-light'
+                  : isDark ? 'text-text-secondary-dark hover:bg-surface-muted-dark' : 'text-text-secondary-light hover:bg-surface-muted-light'
+              }`}
+              title={t("chat.moreOptions")}
             >
               <MoreVertical size={18} />
             </button>
 
             {showMoreMenu && (
-              <div className="absolute right-0 top-full mt-2 w-56 bg-[#161b22] border border-[#30363d] rounded-xl shadow-2xl z-50 overflow-hidden py-1.5 backdrop-blur-sm bg-opacity-95">
+              <div className={`absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border py-1.5 shadow-2xl backdrop-blur-sm ${
+                isDark
+                  ? 'border-[#30363d] bg-[#161b22] bg-opacity-95'
+                  : 'border-slate-200 bg-white shadow-[0_20px_48px_rgba(15,23,42,0.14)]'
+              }`}>
                 <button
                   onClick={() => { onClearChat?.(); setShowMoreMenu(false); }}
-                  className="w-full px-4 py-2 text-sm text-[#c9d1d9] text-left hover:bg-[#1f2937] flex items-center gap-2.5 transition-colors"
+                  className={`flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm transition-colors ${
+                    isDark ? 'text-text-primary-dark hover:bg-surface-muted-dark' : 'text-text-primary-light hover:bg-surface-muted-light'
+                  }`}
                 >
-                  <Trash2 size={16} className="text-[#8b949e]" />
-                  Clear History
+                  <Trash2 size={16} className={isDark ? "text-text-secondary-dark" : "text-text-secondary-light"} />
+                  {t("chat.clearHistory")}
                 </button>
                 <button
                   onClick={() => { onArchive?.(); setShowMoreMenu(false); }}
-                  className="w-full px-4 py-2 text-sm text-[#c9d1d9] text-left hover:bg-[#1f2937] flex items-center gap-2.5 transition-colors"
+                  className={`flex w-full items-center gap-2.5 px-4 py-2 text-left text-sm transition-colors ${
+                    isDark ? 'text-text-primary-dark hover:bg-surface-muted-dark' : 'text-text-primary-light hover:bg-surface-muted-light'
+                  }`}
                 >
-                  <Archive size={16} className="text-[#8b949e]" />
-                  {isArchived ? 'Unarchive' : 'Archive'} Chat
+                  <Archive size={16} className={isDark ? "text-text-secondary-dark" : "text-text-secondary-light"} />
+                  {isArchived ? t("chat.unarchiveChat") : t("chat.archiveChat")}
                 </button>
                 <button
                   onClick={() => {
-                    if (window.confirm("Disconnect? You will need to send a new request to message again.")) {
-                        onDisconnect?.();
+                    if (window.confirm(t("chat.disconnectConfirm"))) {
+                      onDisconnect?.();
                     }
                     setShowMoreMenu(false);
                   }}
-                  className="w-full px-4 py-2 text-sm text-red-400 text-left hover:bg-red-500/10 flex items-center gap-2.5 transition-colors border-t border-[#30363d] mt-1 pt-3"
+                  className={`mt-1 flex w-full items-center gap-2.5 border-t px-4 py-2 pt-3 text-left text-sm text-red-400 transition-colors ${
+                    isDark ? 'border-[#30363d] hover:bg-red-500/10' : 'border-slate-200 hover:bg-red-50'
+                  }`}
                 >
-                  <UserMinus size={16} /> Disconnect
+                  <UserMinus size={16} /> {t("chat.disconnect")}
                 </button>
               </div>
             )}
           </div>
-          
-          <button onClick={onClose} className="p-2 rounded-lg text-[#8b949e] hover:bg-red-500/10 hover:text-red-400 transition-colors ml-1" title="Close">
+
+          <button
+            onClick={onClose}
+            className={`ml-1 rounded-lg p-2 transition-colors ${
+              isDark ? 'text-text-secondary-dark hover:bg-red-500/10 hover:text-red-400' : 'text-text-secondary-light hover:bg-red-50 hover:text-red-500'
+            }`}
+            title={t("chat.close")}
+          >
             <X size={18} />
           </button>
         </div>

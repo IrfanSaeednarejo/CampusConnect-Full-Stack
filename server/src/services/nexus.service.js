@@ -29,6 +29,41 @@ const rateLimitMap = new Map(); // userId → { count, resetAt }
 const RATE_LIMIT = 20;
 const RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 
+const isGeminiServiceError = (err) => {
+    if (!err) return false;
+    return (
+        err.name?.includes("GoogleGenerativeAI") ||
+        err.message?.includes("GoogleGenerativeAI Error") ||
+        err.message?.includes("generativelanguage.googleapis.com")
+    );
+};
+
+const isGeminiAuthError = (err) => {
+    if (!isGeminiServiceError(err)) return false;
+    return (
+        err.status === 400 &&
+        (
+            err.message?.includes("API_KEY_INVALID") ||
+            err.message?.toLowerCase().includes("api key expired") ||
+            err.message?.toLowerCase().includes("api key invalid")
+        )
+    );
+};
+
+const createNexusUnavailableError = (err) => {
+    if (isGeminiAuthError(err)) {
+        return new ApiError(
+            503,
+            "Nexus AI is temporarily unavailable because the AI service key is invalid or expired. Please contact support or try again later."
+        );
+    }
+
+    return new ApiError(
+        503,
+        "Nexus AI is temporarily unavailable right now. Please try again in a moment."
+    );
+};
+
 // ─────────────────────────────────────────────
 //  SYSTEM PROMPT (Intent Detector)
 // ─────────────────────────────────────────────
@@ -311,6 +346,9 @@ export const processMessage = async (message, requestUser, conversationId = null
         parsed = await generateStructuredJSON(intentContext, INTENT_SYSTEM_PROMPT);
     } catch (err) {
         console.error("[NexusService] Intent parsing failed:", err.message);
+        if (isGeminiServiceError(err)) {
+            throw createNexusUnavailableError(err);
+        }
         parsed = { intent: "general_chat", confidence: 0.5, reply: "", data: {} };
     }
 
@@ -400,8 +438,20 @@ export const processMessage = async (message, requestUser, conversationId = null
         }
     } catch (err) {
         console.error(`[NexusService] Action failed:`, err.message);
-        const r = await chatSession.sendMessage(message);
-        finalReply = r.response.text();
+        if (isGeminiServiceError(err)) {
+            throw createNexusUnavailableError(err);
+        }
+
+        try {
+            const r = await chatSession.sendMessage(message);
+            finalReply = r.response.text();
+        } catch (fallbackErr) {
+            console.error(`[NexusService] Fallback chat failed:`, fallbackErr.message);
+            if (isGeminiServiceError(fallbackErr)) {
+                throw createNexusUnavailableError(fallbackErr);
+            }
+            throw fallbackErr;
+        }
     }
 
     // Step 5: Save & Return

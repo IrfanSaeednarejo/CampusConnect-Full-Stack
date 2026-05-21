@@ -18,6 +18,7 @@ import { Routes, Route, Navigate, useParams } from "react-router-dom";
 import Layout          from "../components/Layout";        // PublicLayout (Header+Footer)
 import AppShell        from "../components/layout/AppShell"; // Authenticated shell
 import ProtectedRoute  from "./ProtectedRoute";
+import MentorAccessRoute from "./MentorAccessRoute";
 import PublicRoute     from "./PublicRoute";
 import ModularLayout from "../components/ModularLayout";
 
@@ -38,11 +39,12 @@ import OnboardingWizardComplete from "../pages/Onboarding/OnboardingWizardComple
 import Home           from "../pages/Misc/Home";
 import Events         from "../pages/Events";
 import Mentors        from "../pages/Mentors";
-// import Societies      from "../pages/Societies";
+import Societies      from "../pages/Societies";
 import AboutUs        from "../pages/Misc/About";
 import ContactUs      from "../pages/Help/ContactUs";
 import LegalPrivacy   from "../pages/Misc/LegalPrivacy";
 import TermsOfService from "../pages/Misc/TermsOfService";
+import VerifyCertificatePage from "../pages/Misc/VerifyCertificate";
 
 // ── Dashboard (Unified) ───────────────────────────────────────────────────────
 import UnifiedDashboard from "../pages/Dashboard/index";
@@ -207,6 +209,7 @@ export default function AppRoutes() {
         <Route path="/contact-us" element={<ContactUs />} />
         <Route path="/privacy"   element={<LegalPrivacy />} />
         <Route path="/terms"     element={<TermsOfService />} />
+        <Route path="/verify-certificate/:code" element={<VerifyCertificatePage />} />
       </Route>
 
       {/* ══════════════════════════════════════════════════
@@ -229,7 +232,7 @@ export default function AppRoutes() {
         </Route>
         
         {/* Societies */}
-        <Route path="/societies" element={<SocietiesList />} />
+        <Route path="/societies" element={<Societies />} />
         <Route path="/societies/browse" element={<Navigate to="/societies" replace />} />
         <Route path="/societies/:id" element={<SocietyDetail />} />
         
@@ -349,6 +352,7 @@ export default function AppRoutes() {
           <Route path="/student/book-mentor"   element={<Navigate to="/mentors" replace />} />
 
           {/* ── Mentor Portal (mentor-role pages, internally guarded) ── */}
+          <Route element={<MentorAccessRoute />}>
           <Route path="/mentor/dashboard"      element={<MentorDashboard />} />
           <Route path="/mentor/profile/edit"   element={<MentorEditProfile />} />
           <Route path="/mentor/availability"   element={<MentorProfile />} />
@@ -364,6 +368,7 @@ export default function AppRoutes() {
           <Route path="/earnings"              element={<Navigate to="/mentor/earnings" replace />} />
           <Route path="/mentor-events"         element={<Navigate to="/events" replace />} />
           <Route path="/mentoring/hub"         element={<Navigate to="/mentor/dashboard" replace />} />
+          </Route>
           <Route path="/feedback"              element={<ReviewSession />} />
 
           {/* Admin routes migrated out of AppShell to their own AdminApp layout */}

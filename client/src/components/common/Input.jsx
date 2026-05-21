@@ -1,3 +1,5 @@
+import useHomeTheme from "../../hooks/useHomeTheme";
+
 export default function Input({
   label,
   type = "text",
@@ -9,15 +11,20 @@ export default function Input({
   rows,
   className = "",
 }) {
+  const isDark = useHomeTheme();
   const isTextarea = type === "textarea" || rows;
 
-  const inputClasses =
-    "w-full px-3 py-2 rounded bg-[#0d1117] border border-[#30363d] text-[#e6edf3] text-sm placeholder-[#8b949e] focus:outline-none focus:border-[#238636]";
+  const labelClasses = isDark
+    ? "text-text-secondary-dark"
+    : "text-slate-600";
+  const inputClasses = isDark
+    ? "w-full rounded-xl border border-border-dark bg-surface-dark px-3 py-2.5 text-sm text-text-primary-dark placeholder:text-text-secondary-dark transition-colors focus:border-info focus:outline-none focus:ring-2 focus:ring-info/15"
+    : "w-full rounded-xl border border-border-light bg-surface-light px-3 py-2.5 text-sm text-text-primary-light placeholder:text-text-secondary-light transition-colors focus:border-info focus:outline-none focus:ring-2 focus:ring-info/15";
 
   return (
     <div className={className}>
       {label && (
-        <label className="block text-[#8b949e] text-sm font-semibold mb-2">
+        <label className={`mb-2 block text-sm font-semibold ${labelClasses}`}>
           {label}
         </label>
       )}

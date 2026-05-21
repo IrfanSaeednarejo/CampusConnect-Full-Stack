@@ -6,10 +6,12 @@ import { MentorReview } from "../models/mentorReview.model.js";
 import { MentorSession } from "../models/mentorSession.model.js";
 import { ChatMessage } from "../models/chatMessage.model.js";
 import { emitEvent, EventTypes } from "../utils/eventBus.js";
+import { systemEvents } from "../utils/events.js";
 import { sendEmail } from "./email.service.js";
 import crypto from "crypto";
 import { User } from "../models/user.model.js";
 import { paginate } from "../utils/paginate.js";
+import { safeAwardForAction } from "./gamification.service.js";
 
 const PLATFORM_FEE_RATE = 0.1;
 const CANCELLATION_WINDOW_HOURS = 2;
@@ -91,7 +93,10 @@ export const registerAsMentor = async (data, requestUser) => {
     });
 
     // Notify all campus admins about the new mentor application
-    const adminUsers = await User.find({ roles: { $in: ["admin"] }, status: "active" }).select("_id");
+    const adminUsers = await User.find({
+        status: "active",
+        roles: { $in: ["admin", "super_admin", "campus_admin", "read_only_admin"] },
+    }).select("_id");
     adminUsers.forEach((admin) => {
         systemEvents.emit("notification:create", {
             userId: admin._id,
@@ -103,6 +108,13 @@ export const registerAsMentor = async (data, requestUser) => {
             actorId: requestUser._id,
             priority: "high",
         });
+    });
+
+    systemEvents.emit("admin:mentor_applied", {
+        mentorId: mentor._id,
+        displayName: requestUser.profile.displayName,
+        campusId: mentor.campusId || resolvedCampusId || null,
+        createdAt: mentor.createdAt,
     });
 
     return await Mentor.findById(mentor._id).populate("userId", "profile.displayName profile.avatar profile.firstName profile.lastName");
@@ -300,6 +312,13 @@ export const bookSession = async (mentorId, data, requestUser) => {
         });
     }
 
+    systemEvents.emit("admin:booking_created", {
+        bookingId: booking._id,
+        title: topic?.trim() || "Mentoring session booking",
+        campusId: mentor.campusId || null,
+        createdAt: booking.createdAt,
+    });
+
     return created;
 };
 
@@ -353,6 +372,14 @@ export const confirmBooking = async (bookingId, data, requestUser) => {
             status: "confirmed",
         });
     }
+
+    await safeAwardForAction({
+        actionKey: "mentor.booking_confirmed",
+        actorId: requestUser._id,
+        refModel: "MentorBooking",
+        refId: updated._id,
+        context: { reason: `Confirmed mentoring session on ${booking.startAt.toDateString()}` },
+    });
 
     return updated;
 };
@@ -434,6 +461,15 @@ export const completeBooking = async (bookingId, requestUser) => {
             bookingId: updated._id
         }
     });
+
+    await safeAwardForAction({
+        actionKey: "mentor.session_completed",
+        actorId: requestUser._id,
+        refModel: "MentorBooking",
+        refId: updated._id,
+        context: { reason: "Completed a mentoring session" },
+    });
+
     return updated;
 };
 
@@ -497,6 +533,14 @@ export const submitReview = async (bookingId, data, requestUser) => {
 
     await MentorBooking.findByIdAndUpdate(bookingId, { $set: { reviewId: review._id } });
     Mentor.syncStats(booking.mentorId).catch((err) => console.error("[Mentor] Failed to sync stats after review:", err.message));
+
+    await safeAwardForAction({
+        actionKey: "mentor.review_submitted",
+        actorId: requestUser._id,
+        refModel: "MentorBooking",
+        refId: booking._id,
+        context: { reason: "Submitted a mentoring review" },
+    });
 
     const mentorDoc = await Mentor.findById(booking.mentorId).select("userId");
     systemEvents.emit("notification:create", {
@@ -564,6 +608,15 @@ export const verifyMentor = async (mentorId, requestUser) => {
         actorId: requestUser._id,
         targetId: mentor.userId,
         payload: { mentorId: mentor._id }
+    });
+
+    await safeAwardForAction({
+        actionKey: "mentor.verified",
+        actorId: mentor.userId,
+        refModel: "Mentor",
+        refId: mentor._id,
+        context: { reason: "Mentor profile verified" },
+        awardedBy: requestUser._id,
     });
 
     return updated;
